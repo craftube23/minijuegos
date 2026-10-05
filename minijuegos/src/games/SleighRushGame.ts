@@ -69,17 +69,29 @@ export class SleighRushGame extends BaseGame {
     );
   }
 
+  private updateLaneDimensions(): void {
+    this.laneWidth = Math.min(280, Math.max(90, this.width / 3.4));
+    this.sleighY = this.height - 160;
+  }
+
   private getLaneCenterX(lane: number): number {
     const totalW = this.laneCount * this.laneWidth;
     const startX = (this.width - totalW) / 2;
     return startX + lane * this.laneWidth + this.laneWidth / 2;
   }
 
+  public override resize(width: number, height: number): void {
+    super.resize(width, height);
+    this.updateLaneDimensions();
+    this.targetLaneX = this.getLaneCenterX(this.currentLane);
+    this.currentSleighX = this.targetLaneX;
+  }
+
   protected onStart(): void {
+    this.updateLaneDimensions();
     this.currentLane = 1;
     this.targetLaneX = this.getLaneCenterX(1);
     this.currentSleighX = this.targetLaneX;
-    this.sleighY = this.height - 180;
     this.worldSpeed = 550;
     this.turboTimer = 0;
     this.obstacles = [];

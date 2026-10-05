@@ -67,11 +67,16 @@ export class TreeMelodyGame extends BaseGame {
     this.startNewRound();
   }
 
+  public override resize(width: number, height: number): void {
+    super.resize(width, height);
+    this.initBulbs();
+  }
+
   private initBulbs(): void {
     const cx = this.width / 2;
-    const cy = this.height / 2 + 100;
-    const offset = 180;
-    const radius = 95; // Botones gigantes ideales para pantallas táctiles de niños
+    const cy = this.height / 2 + 50;
+    const offset = Math.min(this.width * 0.22, this.height * 0.18);
+    const radius = Math.max(45, Math.min(95, offset * 0.52));
 
     this.bulbs = [
       {

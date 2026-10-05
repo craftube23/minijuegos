@@ -95,13 +95,25 @@ export class ToyCatchGame extends BaseGame {
   }
 
   protected onStart(): void {
+    this.updateBasketDimensions();
     this.basketX = this.width / 2;
-    this.basketY = 1350;
-    this.basketWidth = 240;
-    this.basketHeight = 120;
     this.items = [];
     this.spawnTimer = 0;
     this.comboCount = 0;
+  }
+
+  private updateBasketDimensions(): void {
+    this.basketWidth = Math.max(140, Math.min(260, this.width * 0.22));
+    this.basketHeight = this.basketWidth * 0.52;
+    this.basketY = this.height - this.basketHeight * 0.85 - 15;
+  }
+
+  public override resize(width: number, height: number): void {
+    super.resize(width, height);
+    this.updateBasketDimensions();
+    const halfW = this.basketWidth / 2;
+    if (this.basketX < halfW) this.basketX = halfW;
+    if (this.basketX > this.width - halfW) this.basketX = this.width - halfW;
   }
 
   protected onUpdate(dt: number): void {

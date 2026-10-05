@@ -88,36 +88,61 @@ export class MagicPairsGame extends BaseGame {
       [rawDeck[i], rawDeck[j]] = [rawDeck[j], rawDeck[i]];
     }
 
-    // Calcular dimensiones y posiciones de las cartas en el Canvas
-    const cols = 2;
-    const rows = 4;
-    const cardW = 380;
-    const cardH = 220;
-    const gapX = 40;
-    const gapY = 35;
+    // Inicializar cartas
+    this.cards = rawDeck.map((item, index) => ({
+      id: index,
+      pairKey: item.pairKey,
+      emoji: item.emoji,
+      isSpecialLogo: item.isSpecial,
+      x: 0,
+      y: 0,
+      w: 200,
+      h: 150,
+      isFlipped: false,
+      isMatched: false,
+      flipProgress: 0
+    }));
+
+    this.updateCardPositions();
+  }
+
+  public override resize(width: number, height: number): void {
+    super.resize(width, height);
+    this.updateCardPositions();
+  }
+
+  private updateCardPositions(): void {
+    if (this.cards.length === 0) return;
+
+    // Si la pantalla es más ancha que alta, usar 4 columnas x 2 filas; si es vertical, 2 columnas x 4 filas
+    const isLandscape = this.width > this.height;
+    const cols = isLandscape ? 4 : 2;
+    const rows = isLandscape ? 2 : 4;
+
+    const availableW = this.width * 0.92;
+    const availableH = this.height * 0.72;
+
+    const gapX = Math.max(12, this.width * 0.02);
+    const gapY = Math.max(12, this.height * 0.02);
+
+    const cardW = Math.min(320, (availableW - (cols - 1) * gapX) / cols);
+    const cardH = Math.min(220, (availableH - (rows - 1) * gapY) / rows);
 
     const totalGridW = cols * cardW + (cols - 1) * gapX;
+    const totalGridH = rows * cardH + (rows - 1) * gapY;
+
     const startX = (this.width - totalGridW) / 2;
-    const startY = 220;
+    const startY = 85 + (this.height - 85 - totalGridH) / 2;
 
     let index = 0;
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
-        if (index >= rawDeck.length) break;
-        const item = rawDeck[index];
-        this.cards.push({
-          id: index,
-          pairKey: item.pairKey,
-          emoji: item.emoji,
-          isSpecialLogo: item.isSpecial,
-          x: startX + c * (cardW + gapX),
-          y: startY + r * (cardH + gapY),
-          w: cardW,
-          h: cardH,
-          isFlipped: false,
-          isMatched: false,
-          flipProgress: 0
-        });
+        if (index >= this.cards.length) break;
+        const card = this.cards[index];
+        card.x = startX + c * (cardW + gapX);
+        card.y = startY + r * (cardH + gapY);
+        card.w = cardW;
+        card.h = cardH;
         index++;
       }
     }
