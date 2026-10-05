@@ -6,7 +6,7 @@
  * Cumple con el boceto del proyecto:
  * - Ocupa la franja inferior de la pantalla sin tapar el juego.
  * - Cambia automáticamente cada X segundos (configurable en `src/config/banners.ts`).
- * - Permite agregar nuevos anuncios simplemente editando la lista de imágenes.
+ * - Diseño 100% responsivo con flexbox para que nunca se corte el texto ni los iconos.
  */
 
 import { BANNER_CONFIG, type BannerSlide } from "../config/banners";
@@ -31,8 +31,17 @@ export class GameBannerCarousel {
         ${this.slides
           .map(
             (slide, idx) => `
-          <div class="carousel-slide ${idx === 0 ? "active" : ""}" data-index="${idx}">
-            <img src="${slide.image}" alt="${slide.title}" class="carousel-img" />
+          <div class="carousel-slide ${idx === 0 ? "active" : ""}" data-index="${idx}" style="background: ${slide.bgGradient};">
+            <div class="banner-flex-card">
+              <div class="banner-icon-badge">${slide.icon}</div>
+              <div class="banner-text-group">
+                <div class="banner-headline">${slide.title}</div>
+                <div class="banner-subline">${slide.subtitle}</div>
+              </div>
+              <div class="banner-tag-container">
+                <span class="banner-tag" style="color: ${slide.badgeColor};">${slide.badgeText}</span>
+              </div>
+            </div>
           </div>
         `
           )

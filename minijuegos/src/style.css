@@ -504,17 +504,14 @@ html, body {
    3. CARRUSEL PUBLICITARIO INFERIOR (FOOTER)
    ========================================================================== */
 .kiosk-footer-carousel {
-  height: clamp(80px, 12vh, 125px);
-  min-height: 80px;
+  height: clamp(65px, 11vh, 95px);
+  min-height: 65px;
   background: #071526;
   border-top: 3px solid var(--color-gold);
   position: relative;
   overflow: hidden;
   z-index: 40;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .carousel-track {
@@ -530,12 +527,12 @@ html, body {
   width: 100%;
   height: 100%;
   opacity: 0;
-  transform: translateX(30px);
-  transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+  transform: translateX(20px);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 12px;
+  padding: 0 clamp(10px, 2.5vw, 28px);
   pointer-events: none;
 }
 
@@ -545,28 +542,86 @@ html, body {
   pointer-events: auto;
 }
 
-.carousel-img {
+.banner-flex-card {
   width: 100%;
+  max-width: 1000px;
   height: 100%;
-  max-width: 1100px;
-  object-fit: contain;
-  margin: 0 auto;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(8px, 1.8vw, 18px);
+  padding: 4px 0;
+}
+
+.banner-icon-badge {
+  font-size: clamp(1.5rem, 3.5vw, 2.3rem);
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+  animation: floatDecor 3s ease-in-out infinite alternate;
+}
+
+.banner-text-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.banner-headline {
+  font-family: var(--font-display);
+  font-size: clamp(0.92rem, 2.2vw, 1.35rem);
+  color: #fff9c4;
+  letter-spacing: 0.8px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.15;
+}
+
+.banner-subline {
+  font-size: clamp(0.72rem, 1.5vw, 0.95rem);
+  color: #ffffff;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.95;
+  margin-top: 2px;
+}
+
+.banner-tag-container {
+  flex-shrink: 0;
+}
+
+.banner-tag {
+  background: #ffffff;
+  font-family: var(--font-main);
+  font-size: clamp(0.70rem, 1.4vw, 0.88rem);
+  font-weight: 900;
+  padding: clamp(4px, 0.8vh, 7px) clamp(8px, 1.5vw, 14px);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .carousel-indicators {
   position: absolute;
-  bottom: 8px;
+  bottom: 4px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 8px;
+  gap: 6px;
   z-index: 10;
 }
 
 .carousel-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.4);
   transition: background-color 0.3s, transform 0.3s;

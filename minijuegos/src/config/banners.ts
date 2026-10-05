@@ -3,54 +3,53 @@
  * CONFIGURACIÓN DEL CARRUSEL PUBLICITARIO INFERIOR
  * ==============================================================================
  * 
- * Aquí puedes agregar, quitar o modificar los banners que aparecen en la
- * franja inferior de la pantalla (según el diseño wireframe de la Feria).
- * 
- * Para agregar un nuevo banner:
- *   1. Coloca tu imagen (PNG, JPG o SVG) en `public/assets/banners/`
- *   2. Agrega una nueva entrada a la lista `slides` aquí abajo.
- * 
- * Puedes ajustar el tiempo de rotación cambiando `rotationIntervalMs`.
+ * Banners 100% responsivos para la franja publicitaria de la Feria.
+ * Se adaptan con flexbox a cualquier ancho de pantalla sin deformarse ni cortarse.
  */
 
 export interface BannerSlide {
   id: string;
-  image: string;       // Ruta de la imagen en public/assets/banners/
-  title: string;       // Texto alternativo o titular
-  subtitle?: string;   // Subtítulo opcional
-  badgeText?: string;  // Etiqueta destacada
+  title: string;
+  subtitle: string;
+  badgeText: string;
+  icon: string;
+  bgGradient: string;
+  badgeColor: string;
+  image?: string;
 }
 
 export const BANNER_CONFIG = {
-  // Tiempo que permanece cada banner antes de pasar al siguiente (en milisegundos)
-  // Ejemplo: 6000 = 6 segundos
+  // Tiempo que permanece cada banner antes de rotar (en milisegundos)
   rotationIntervalMs: 6000,
   
-  // Efecto de transición: 'slide' o 'fade'
-  transitionEffect: 'slide' as 'slide' | 'fade',
-  
-  // Lista de anuncios del carrusel
+  // Lista de anuncios interactivos y responsivos
   slides: [
     {
       id: "banner-show",
-      image: "/assets/banners/banner-1.svg",
-      title: "¡Gran Show de Santa y Duendes!",
-      subtitle: "Espectáculo en vivo cada tarde",
-      badgeText: "🎪 18:00 Y 20:00 HRS"
+      title: "¡GRAN SHOW DE SANTA Y DUENDES!",
+      subtitle: "Espectáculo en vivo, música y magia navideña cada tarde.",
+      badgeText: "🎪 18:00 Y 20:00 HRS",
+      icon: "🎅✨",
+      bgGradient: "linear-gradient(90deg, #6A1B9A 0%, #AD1457 50%, #E65100 100%)",
+      badgeColor: "#880E4F"
     },
     {
       id: "banner-games",
-      image: "/assets/banners/banner-2.svg",
-      title: "¡Zona de Juegos y Sorpresas!",
-      subtitle: "Más de 1.000 juguetes y premios",
-      badgeText: "⭐ ENTRADA LIBRE ⭐"
+      title: "¡ZONA DE JUEGOS Y SORPRESAS!",
+      subtitle: "Más de 1.000 juguetes, premios instantáneos y atracciones.",
+      badgeText: "⭐ ENTRADA LIBRE PARA FAMILIAS ⭐",
+      icon: "🎁🧸",
+      bgGradient: "linear-gradient(90deg, #01579B 0%, #00695C 50%, #2E7D32 100%)",
+      badgeColor: "#004D40"
     },
     {
       id: "banner-workshop",
-      image: "/assets/banners/banner-3.svg",
-      title: "¡Taller de Juguetes Mágicos!",
-      subtitle: "Arma tu propio juguete con los duendes",
-      badgeText: "🎁 CUPOS POR HORA"
+      title: "¡TALLER DE JUGUETES MÁGICOS!",
+      subtitle: "Crea tu propio juguete con los duendes artesanos y llévatelo.",
+      badgeText: "🎁 CUPOS LIMITADOS POR HORA",
+      icon: "🎨🤖",
+      bgGradient: "linear-gradient(90deg, #C62828 0%, #D84315 50%, #F57F17 100%)",
+      badgeColor: "#BF360C"
     }
   ] as BannerSlide[]
 };
