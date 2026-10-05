@@ -1,7 +1,6 @@
 [build]
-  base = "minijuegos"
+  command = "cd minijuegos && npm install && npm run build"
   publish = "minijuegos/dist"
-  command = "npm run build"
 
 [[redirects]]
   from = "/*"
