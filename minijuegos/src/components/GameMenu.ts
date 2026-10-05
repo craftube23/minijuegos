@@ -36,10 +36,10 @@ export class GameMenu {
     },
     {
       id: "sleigh-rush",
-      title: "El Vuelo del Trineo",
-      iconName: "zap",
-      category: "Velocidad & Carriles",
-      tagline: "¡Vuela esquivando obstáculos en el cielo!",
+      title: "Dispara-Regalos",
+      iconName: "gift",
+      category: "Puntería & Vuelo",
+      tagline: "¡Vuela en ala delta y encesta en chimeneas!",
       colorGrad: "linear-gradient(145deg, #0D47A1 0%, #1976D2 50%, #2980B9 100%)"
     },
     {

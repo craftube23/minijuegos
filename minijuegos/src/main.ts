@@ -28,7 +28,7 @@ import { GameOverModal } from "./components/GameOverModal";
 
 // Los 4 Minijuegos Navideños
 import { ToyCatchGame } from "./games/ToyCatchGame";
-import { SleighRushGame } from "./games/SleighRushGame";
+import { ChimneyDropGame } from "./games/ChimneyDropGame";
 import { TreeMelodyGame } from "./games/TreeMelodyGame";
 import { MagicPairsGame } from "./games/MagicPairsGame";
 
@@ -121,7 +121,7 @@ class KioskApp {
    */
   private registerGames(): void {
     const game1 = new ToyCatchGame(this.canvas, this.input, this.audio, this.particles);
-    const game2 = new SleighRushGame(this.canvas, this.input, this.audio, this.particles);
+    const game2 = new ChimneyDropGame(this.canvas, this.input, this.audio, this.particles);
     const game3 = new TreeMelodyGame(this.canvas, this.input, this.audio, this.particles);
     const game4 = new MagicPairsGame(this.canvas, this.input, this.audio, this.particles);
 
