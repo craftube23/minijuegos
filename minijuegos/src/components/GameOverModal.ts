@@ -28,22 +28,29 @@ export class GameOverModal {
   }
 
   public show(result: GameResult): void {
+    const isRecord = result.isNewRecord;
+    const modalTitle = isRecord ? "¡INCREÍBLE! ¡NUEVO RÉCORD!" : "¡BUEN INTENTO!";
+    const modalSubtitle = isRecord
+      ? "¡Hiciste una partida legendaria en la Feria Mágica!"
+      : "¡Estuviste muy cerca! Vuelve a intentarlo para superar la puntuación.";
+    const iconHeader = isRecord ? "🏆" : "🌟";
+
     this.container.innerHTML = `
       <div class="modal-card">
         <div class="modal-header">
-          <span class="modal-trophy">${result.isNewRecord ? "🏆✨" : "🎉"}</span>
-          <h2 class="modal-title">${result.isNewRecord ? "¡NUEVO RÉCORD DE LA FERIA!" : "¡PARTIDA COMPLETADA!"}</h2>
-          <p class="modal-game-name">${result.gameTitle}</p>
+          <span class="modal-trophy">${iconHeader}</span>
+          <h2 class="modal-title">${modalTitle}</h2>
+          <p class="modal-game-name">${modalSubtitle}</p>
         </div>
 
         <div class="modal-scores">
           <div class="score-box main-score">
-            <span class="score-label">PUNTUACIÓN</span>
+            <span class="score-label">TU PUNTUACIÓN</span>
             <span class="score-value">${result.score}</span>
           </div>
 
           <div class="score-box record-score">
-            <span class="score-label">MEJOR RÉCORD</span>
+            <span class="score-label">RÉCORD ACTUAL</span>
             <span class="score-value">${result.highScore}</span>
           </div>
         </div>
@@ -51,12 +58,12 @@ export class GameOverModal {
         <!-- Integración del Logo de la Feria en la pantalla de resultados -->
         <div class="modal-branding">
           <img src="${BRANDING.getLogoPath(2)}" alt="${BRANDING.fairName}" class="modal-logo" />
-          <p class="modal-promo-text">¡Visita nuestros stands para canjear tus sorpresas navideñas!</p>
+          <p class="modal-promo-text">¡Sigue jugando y diviértete en la Feria Mágica del Juguete!</p>
         </div>
 
         <div class="modal-actions">
           <button id="btn-modal-again" class="btn-action btn-again">
-            <span>🔄 JUGAR DE NUEVO</span>
+            <span>🔄 ¡VOLVER A INTENTAR!</span>
           </button>
           <button id="btn-modal-menu" class="btn-action btn-menu">
             <span>🏠 OTROS JUEGOS</span>

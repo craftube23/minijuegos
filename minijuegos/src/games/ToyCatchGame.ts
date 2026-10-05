@@ -4,10 +4,11 @@
  * ==============================================================================
  * 
  * MECÁNICA:
- * - El jugador desliza su dedo para mover la Saco Mágico de Santa en la parte inferior.
- * - Caerán regalos navideños, juguetes (osos, robots) y estrellas.
- * - Si atrapa el "Regalo Dorado de la Feria", se activa el Power-Up del Logo 1.
- * - Debe esquivar los bloques de hielo/carbón para no perder puntos.
+ * - El jugador desliza su dedo para mover el Saco Mágico de Santa.
+ * - Caen regalos navideños, ositos, robots y el Logo Dorado de la Feria.
+ * - Esquivar los bloques de hielo y rocas: si los atrapas pierdes 1 vida (❤️).
+ * - ¡3 Vidas por partida! Si pierdes las 3 vidas termina el juego.
+ * - Todos los elementos usan gráficos y sprites de alta calidad (sin emojis).
  */
 
 import { BaseGame } from "../core/BaseGame";
@@ -20,15 +21,14 @@ interface FallingItem {
   y: number;
   vy: number;
   size: number;
-  type: "gift_red" | "gift_green" | "teddy" | "robot" | "star" | "fair_logo_box" | "coal";
+  type: "gift_red" | "gift_green" | "teddy" | "robot" | "fair_logo_box" | "ice" | "rock";
   points: number;
   rotation: number;
   vRot: number;
-  emoji: string;
 }
 
 export class ToyCatchGame extends BaseGame {
-  // Posición y dimensiones del saco recolector (Más grande para pantalla táctil)
+  // Posición y dimensiones del saco recolector
   private basketX: number = 540;
   private basketY: number = 1350;
   private basketWidth: number = 240;
@@ -37,14 +37,13 @@ export class ToyCatchGame extends BaseGame {
   // Lista de objetos cayendo
   private items: FallingItem[] = [];
   private spawnTimer: number = 0;
-  private spawnInterval: number = 0.85; // Segundos entre cada objeto
+  private spawnInterval: number = 0.70; // Frecuencia de caída de objetos
 
   // Racha de aciertos (Combo)
   private comboCount: number = 0;
 
   // Colección de imágenes del juego
   private bagImage: HTMLImageElement;
-  private bgImage: HTMLImageElement;
   private imgGiftRed: HTMLImageElement;
   private imgGiftGreen: HTMLImageElement;
   private imgTeddy: HTMLImageElement;
@@ -68,12 +67,9 @@ export class ToyCatchGame extends BaseGame {
       particles
     );
 
-    // Cargar todas las imágenes del Juego 1
+    // Cargar sprites oficiales del juego
     this.bagImage = new Image();
     this.bagImage.src = "/assets/images/bolsa de regalos.png";
-
-    this.bgImage = new Image();
-    this.bgImage.src = "/assets/images/fondo-nieve.webp";
 
     this.imgGiftRed = new Image();
     this.imgGiftRed.src = "/assets/images/regalo-rojo.png";
@@ -130,10 +126,10 @@ export class ToyCatchGame extends BaseGame {
 
     // Soporte teclado PC
     if (this.input.isKeyDown("ArrowLeft") || this.input.isKeyDown("KeyA")) {
-      this.basketX -= this.width * 0.8 * dt;
+      this.basketX -= this.width * 0.85 * dt;
     }
     if (this.input.isKeyDown("ArrowRight") || this.input.isKeyDown("KeyD")) {
-      this.basketX += this.width * 0.8 * dt;
+      this.basketX += this.width * 0.85 * dt;
     }
 
     // Mantener dentro de los bordes de la pantalla
@@ -154,10 +150,11 @@ export class ToyCatchGame extends BaseGame {
       item.y += item.vy * dt;
       item.rotation += item.vRot * dt;
 
-      // Colisión con el saco de Santa (margen ampliado para el hielo/piedra)
+      // Colisión con el saco de Santa
       const dx = Math.abs(item.x - this.basketX);
       const dy = Math.abs(item.y - this.basketY);
-      const extraMargin = item.type === "coal" ? item.size * 0.45 : item.size * 0.25;
+      const isObstacle = item.type === "ice" || item.type === "rock";
+      const extraMargin = isObstacle ? item.size * 0.45 : item.size * 0.28;
 
       if (dx < this.basketWidth / 2 + extraMargin && dy < this.basketHeight / 2 + extraMargin) {
         // ¡Atrapado!
@@ -167,8 +164,8 @@ export class ToyCatchGame extends BaseGame {
       }
 
       // Si cayó al fondo
-      if (item.y > this.height + 60) {
-        if (item.type !== "coal") {
+      if (item.y > this.height + 70) {
+        if (!isObstacle) {
           this.comboCount = 0; // Se corta el combo
         }
         this.items.splice(i, 1);
@@ -177,48 +174,45 @@ export class ToyCatchGame extends BaseGame {
   }
 
   /**
-   * Genera un nuevo objeto aleatorio en la parte superior
+   * Genera un nuevo objeto aleatorio en la parte superior con probabilidades balanceadas
    */
   private spawnFallingItem(): void {
     const roll = Math.random();
     let type: FallingItem["type"] = "gift_red";
     let points = 100;
-    let emoji = "🎁";
 
     const baseSize = Math.max(48, Math.min(105, this.width * 0.15));
     let size = baseSize;
 
-    if (roll < 0.12) {
-      // 12% probabilidad: ¡Caja Especial con Logo de la Feria!
+    if (roll < 0.06) {
+      // 6% probabilidad: ¡Caja Especial con Logo de la Feria! (Rara y valiosa)
       type = "fair_logo_box";
       points = 500;
-      emoji = "⭐";
-      size = baseSize * 1.05;
-    } else if (roll < 0.32) {
+      size = baseSize * 1.1;
+    } else if (roll < 0.28) {
+      // 22% probabilidad: Osito de peluche
       type = "teddy";
       points = 250;
-      emoji = "🧸";
       size = baseSize;
     } else if (roll < 0.50) {
+      // 22% probabilidad: Robot de juguete
       type = "robot";
       points = 200;
-      emoji = "🤖";
       size = baseSize;
-    } else if (roll < 0.65) {
-      type = "star";
-      points = 300;
-      emoji = "✨";
-      size = baseSize * 0.95;
-    } else if (roll < 0.85) {
-      type = "gift_green";
+    } else if (roll < 0.72) {
+      // 22% probabilidad: Regalo verde/rojo
+      type = Math.random() > 0.5 ? "gift_green" : "gift_red";
       points = 150;
-      emoji = "🎁";
       size = baseSize;
-    } else {
-      // 15% probabilidad: Carbón / Obstáculo (35% más grande para que sea fácil atraparlo por error)
-      type = "coal";
+    } else if (roll < 0.86) {
+      // 14% probabilidad: Bloque de Hielo (Obstáculo grande)
+      type = "ice";
       points = -150;
-      emoji = "🪨";
+      size = baseSize * 1.35;
+    } else {
+      // 14% probabilidad: Roca / Carbón (Obstáculo grande)
+      type = "rock";
+      points = -150;
       size = baseSize * 1.35;
     }
 
@@ -232,8 +226,7 @@ export class ToyCatchGame extends BaseGame {
       type,
       points,
       rotation: Math.random() * Math.PI * 2,
-      vRot: (Math.random() - 0.5) * 2,
-      emoji
+      vRot: (Math.random() - 0.5) * 3, // Efecto de rotación al caer
     });
   }
 
@@ -241,14 +234,15 @@ export class ToyCatchGame extends BaseGame {
    * Lógica al atrapar un objeto
    */
   private handleItemCaught(item: FallingItem): void {
-    if (item.type === "coal") {
+    if (item.type === "ice" || item.type === "rock") {
       this.comboCount = 0;
       this.addScore(item.points);
       this.lives--;
       this.audio.playError();
-      this.particles.emitBurst(this.basketX, this.basketY, "#00E5FF", 25);
+      const burstColor = item.type === "ice" ? "#00E5FF" : "#8D6E63";
+      this.particles.emitBurst(this.basketX, this.basketY, burstColor, 25);
 
-      // Si se acaban las vidas → Fin de la partida
+      // Si se acaban las 3 vidas → Fin de la partida
       if (this.lives <= 0) {
         this.lives = 0;
         this.endGame();
@@ -258,6 +252,7 @@ export class ToyCatchGame extends BaseGame {
       this.addScore(item.points);
       // ¡Activa el Power-Up del Logo 1 de la Feria!
       this.triggerLogoPowerUp(1, 7);
+      this.particles.emitConfetti(this.width, 25);
     } else {
       this.comboCount++;
       const comboBonus = Math.min(this.comboCount * 20, 200);
@@ -267,75 +262,43 @@ export class ToyCatchGame extends BaseGame {
   }
 
   protected onDraw(ctx: CanvasRenderingContext2D): void {
-    // 1. Limpiar canvas transparente para mostrar el fondo único del Kiosco sin duplicar imágenes
+    // 1. Limpiar canvas transparente para mostrar el fondo único del Kiosco
     ctx.clearRect(0, 0, this.width, this.height);
 
-    // 2. Dibujar objetos que caen
+    // 2. Dibujar objetos que caen (100% sprites visuales, sin emojis)
     for (const item of this.items) {
       ctx.save();
       ctx.translate(item.x, item.y);
-      if (item.type !== "fair_logo_box") {
-        ctx.rotate(item.rotation);
-      }
+      ctx.rotate(item.rotation); // Todos los objetos caen girando
 
-      let drawnWithImage = false;
       const drawSize = item.size;
 
       if (item.type === "gift_red" && this.imgGiftRed.complete && this.imgGiftRed.naturalWidth > 0) {
         ctx.drawImage(this.imgGiftRed, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
-        drawnWithImage = true;
       } else if (item.type === "gift_green" && this.imgGiftGreen.complete && this.imgGiftGreen.naturalWidth > 0) {
         ctx.drawImage(this.imgGiftGreen, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
-        drawnWithImage = true;
       } else if (item.type === "teddy" && this.imgTeddy.complete && this.imgTeddy.naturalWidth > 0) {
         ctx.drawImage(this.imgTeddy, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
-        drawnWithImage = true;
       } else if (item.type === "robot" && this.imgRobot.complete && this.imgRobot.naturalWidth > 0) {
         ctx.drawImage(this.imgRobot, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
-        drawnWithImage = true;
-      } else if (item.type === "coal") {
-        if (this.imgIce && this.imgIce.complete && this.imgIce.naturalWidth > 0) {
-          ctx.drawImage(this.imgIce, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
-          drawnWithImage = true;
-        } else if (this.imgCoal.complete && this.imgCoal.naturalWidth > 0) {
-          ctx.drawImage(this.imgCoal, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
-          drawnWithImage = true;
-        }
+      } else if (item.type === "ice" && this.imgIce.complete && this.imgIce.naturalWidth > 0) {
+        // Bloque de hielo
+        ctx.drawImage(this.imgIce, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+      } else if (item.type === "rock" && this.imgCoal.complete && this.imgCoal.naturalWidth > 0) {
+        // Roca / Carbón
+        ctx.drawImage(this.imgCoal, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
       } else if (item.type === "fair_logo_box") {
         // Aura brillante dorada
-        ctx.fillStyle = "rgba(255, 215, 0, 0.5)";
+        ctx.fillStyle = "rgba(255, 215, 0, 0.55)";
         ctx.beginPath();
-        ctx.arc(0, 0, drawSize * 0.7, 0, Math.PI * 2);
+        ctx.arc(0, 0, drawSize * 0.75, 0, Math.PI * 2);
         ctx.fill();
 
         if (this.logoImage1 && this.logoImage1.complete && this.logoImage1.naturalWidth > 0) {
           // Dibujar el Logo Oficial de la Feria
           const logoW = drawSize * 1.25;
-          const logoH = drawSize * 0.8;
+          const logoH = drawSize * 0.85;
           ctx.drawImage(this.logoImage1, -logoW / 2, -logoH / 2, logoW, logoH);
-          drawnWithImage = true;
-        }
-      }
-
-      if (!drawnWithImage) {
-        if (item.type === "fair_logo_box") {
-          ctx.fillStyle = "#FFD700";
-          ctx.fillRect(-item.size / 2, -item.size / 2, item.size, item.size);
-          ctx.strokeStyle = "#FFFFFF";
-          ctx.lineWidth = 4;
-          ctx.strokeRect(-item.size / 2, -item.size / 2, item.size, item.size);
-
-          ctx.font = "bold 24px 'Segoe UI', sans-serif";
-          ctx.fillStyle = "#C0392B";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText("FERIA", 0, 0);
-        } else {
-          // Emojis de fallback si falta alguna imagen
-          ctx.font = `${item.size}px 'Segoe UI Emoji', sans-serif`;
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(item.emoji, 0, 0);
         }
       }
 
@@ -355,41 +318,19 @@ export class ToyCatchGame extends BaseGame {
     }
 
     if (this.bagImage && this.bagImage.complete && this.bagImage.naturalWidth > 0) {
-      // Dibujar la imagen recortada de la bolsa de regalos
       const imgW = this.basketWidth + 20;
       const imgH = this.basketHeight + 25;
       ctx.drawImage(this.bagImage, -imgW / 2, -imgH / 2, imgW, imgH);
     } else {
-      // Dibujo vectorial de respaldo
       ctx.fillStyle = "#C0392B";
       ctx.beginPath();
       ctx.roundRect(-this.basketWidth / 2, -this.basketHeight / 2, this.basketWidth, this.basketHeight, [25, 25, 40, 40]);
       ctx.fill();
       ctx.strokeStyle = "#FFD700";
-      ctx.lineWidth = 6;
+      ctx.lineWidth = 4;
       ctx.stroke();
-
-      ctx.fillStyle = "#FFFFFF";
-      ctx.beginPath();
-      ctx.roundRect(-this.basketWidth / 2 - 10, -this.basketHeight / 2 - 15, this.basketWidth + 20, 30, 15);
-      ctx.fill();
-
-      ctx.fillStyle = "#FFD700";
-      ctx.font = "bold 24px 'Segoe UI', sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("🎅 SACO MÁGICO 🎁", 0, 20);
     }
 
     ctx.restore();
-
-    // 4. Indicador de Combo si hay racha
-    if (this.comboCount >= 3) {
-      ctx.save();
-      ctx.font = "bold 32px 'Segoe UI', sans-serif";
-      ctx.fillStyle = "#00E5FF";
-      ctx.textAlign = "center";
-      ctx.fillText(`🔥 ¡RACHA x${this.comboCount}!`, this.basketX, this.basketY - 70);
-      ctx.restore();
-    }
   }
 }
