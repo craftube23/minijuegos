@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgBanner2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0288D1"/>
+      <stop offset="50%" stop-color="#00897B"/>
+      <stop offset="100%" stop-color="#43A047"/>
+    </linearGradient>
+    <linearGradient id="gold2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF59D"/>
+      <stop offset="100%" stop-color="#FBC02D"/>
+    </linearGradient>
+  </defs>
+  
+  <rect x="0" y="0" width="1000" height="240" rx="20" fill="url(#bgBanner2)"/>
+  
+  <g transform="translate(60, 40)">
+    <text font-size="100" y="95">🎁🧸</text>
+  </g>
+  
+  <g transform="translate(230, 0)">
+    <text x="0" y="70" font-family="'Impact', 'Arial Black', sans-serif" font-size="44" font-weight="900" fill="url(#gold2)" letter-spacing="1">¡ZONA DE JUEGOS Y SORPRESAS!</text>
+    <text x="0" y="125" font-family="'Segoe UI', sans-serif" font-size="28" font-weight="700" fill="#FFFFFF">Más de 1.000 juguetes, premios instantáneos y atracciones.</text>
+    <rect x="0" y="150" width="380" height="48" rx="24" fill="#FFFFFF"/>
+    <text x="190" y="182" font-family="'Segoe UI', sans-serif" font-size="20" font-weight="900" fill="#00796B" text-anchor="middle">⭐ ENTRADA LIBRE PARA FAMILIAS ⭐</text>
+  </g>
+</svg>

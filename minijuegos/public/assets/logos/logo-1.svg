@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="goldGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF275"/>
+      <stop offset="50%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#D4AF37"/>
+    </linearGradient>
+    <linearGradient id="redGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF416C"/>
+      <stop offset="100%" stop-color="#C0392B"/>
+    </linearGradient>
+    <filter id="glow1" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Fondo distintivo con borde festivo -->
+  <rect x="10" y="10" width="480" height="180" rx="30" fill="#0C1B33" stroke="url(#goldGrad1)" stroke-width="5"/>
+  <rect x="18" y="18" width="464" height="164" rx="24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="6,6"/>
+  
+  <!-- Icono de Regalo Mágico / Estrella -->
+  <g transform="translate(45, 45)">
+    <!-- Caja de regalo -->
+    <rect x="15" y="35" width="70" height="65" rx="10" fill="url(#redGrad1)" filter="url(#glow1)"/>
+    <rect x="10" y="25" width="80" height="18" rx="6" fill="#E74C3C"/>
+    <!-- Cinta dorada -->
+    <rect x="44" y="25" width="12" height="75" fill="url(#goldGrad1)"/>
+    <rect x="15" y="60" width="70" height="12" fill="url(#goldGrad1)"/>
+    <!-- Moño -->
+    <path d="M 50 25 C 30 5 15 20 45 25 C 75 20 60 5 50 25 Z" fill="url(#goldGrad1)"/>
+    <!-- Chispas mágicas -->
+    <circle cx="8" cy="18" r="4" fill="#FFD700" filter="url(#glow1)"/>
+    <circle cx="92" cy="78" r="3" fill="#FFF"/>
+    <circle cx="85" cy="15" r="5" fill="#00E5FF" filter="url(#glow1)"/>
+  </g>
+  
+  <!-- Textos del Logo 1 -->
+  <g transform="translate(160, 0)">
+    <text x="0" y="65" font-family="'Impact', 'Arial Black', sans-serif" font-size="34" font-weight="900" fill="url(#goldGrad1)" letter-spacing="2">FERIA MÁGICA</text>
+    <text x="0" y="118" font-family="'Impact', 'Arial Black', sans-serif" font-size="46" font-weight="900" fill="#FFFFFF" letter-spacing="1" filter="url(#glow1)">DEL JUGUETE</text>
+    
+    <g transform="translate(0, 142)">
+      <rect x="0" y="0" width="280" height="24" rx="12" fill="url(#redGrad1)"/>
+      <text x="140" y="17" font-family="'Segoe UI', sans-serif" font-size="13" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="3">EDICIÓN NAVIDEÑA ✨</text>
+    </g>
+  </g>
+</svg>

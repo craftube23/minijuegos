@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgBanner3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#D32F2F"/>
+      <stop offset="50%" stop-color="#E65100"/>
+      <stop offset="100%" stop-color="#FFB300"/>
+    </linearGradient>
+    <linearGradient id="gold3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#FFF9C4"/>
+    </linearGradient>
+  </defs>
+  
+  <rect x="0" y="0" width="1000" height="240" rx="20" fill="url(#bgBanner3)"/>
+  
+  <g transform="translate(60, 40)">
+    <text font-size="100" y="95">🎨🤖</text>
+  </g>
+  
+  <g transform="translate(230, 0)">
+    <text x="0" y="70" font-family="'Impact', 'Arial Black', sans-serif" font-size="44" font-weight="900" fill="url(#gold3)" letter-spacing="1">¡TALLER DE JUGUETES MÁGICOS!</text>
+    <text x="0" y="125" font-family="'Segoe UI', sans-serif" font-size="28" font-weight="700" fill="#FFFFFF">Crea tu propio juguete con los duendes artesanos y llévatelo a casa.</text>
+    <rect x="0" y="150" width="340" height="48" rx="24" fill="#FFFFFF"/>
+    <text x="170" y="182" font-family="'Segoe UI', sans-serif" font-size="20" font-weight="900" fill="#BF360C" text-anchor="middle">🎁 CUPOS LIMITADOS POR HORA</text>
+  </g>
+</svg>

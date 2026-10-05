@@ -1,0 +1,606 @@
+/**
+ * ==============================================================================
+ * ESTILOS GLOBALES - FERIA MÁGICA DEL JUGUETE (MODO KIOSCO TÁCTIL)
+ * ==============================================================================
+ */
+
+:root {
+  --color-bg: #07111e;
+  --color-gold: #ffd700;
+  --color-gold-light: #fff385;
+  --color-red: #c0392b;
+  --color-red-bright: #ff416c;
+  --color-green: #27ae60;
+  --color-blue: #2980b9;
+  --color-purple: #8e44ad;
+  --color-white: #ffffff;
+  --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-display: 'Impact', 'Arial Black', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: url('/assets/images/fondo-nieve.webp') center center / cover no-repeat #07111e;
+  font-family: var(--font-main);
+  color: var(--color-white);
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+/* ==========================================================================
+   CONTENEDOR MAESTRO DE KIOSCO
+   ========================================================================== */
+#kiosk-app {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   1. BARRA SUPERIOR (HEADER FIJO)
+   ========================================================================== */
+.kiosk-header {
+  height: 75px;
+  min-height: 75px;
+  background: linear-gradient(180deg, rgba(15, 36, 68, 0.95) 0%, rgba(8, 21, 39, 0.95) 100%);
+  backdrop-filter: blur(8px);
+  border-bottom: 2px solid var(--color-gold);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(10px, 2vw, 24px);
+  z-index: 50;
+  flex-shrink: 0;
+}
+
+.kiosk-header-left,
+.kiosk-header-right {
+  display: flex;
+  gap: 10px;
+}
+
+.kiosk-header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 8px;
+}
+
+.header-logo {
+  height: 50px;
+  max-width: 260px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+.kiosk-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid var(--color-gold);
+  color: var(--color-white);
+  font-size: 1.05rem;
+  font-weight: bold;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s, background-color 0.2s;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.kiosk-btn:active {
+  transform: scale(0.92);
+  background: rgba(255, 215, 0, 0.3);
+}
+
+/* ==========================================================================
+   2. ÁREA PRINCIPAL Y CANVAS (SIN MANCHONES NEGROS)
+   ========================================================================== */
+.kiosk-main {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#game-canvas {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.kiosk-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+}
+
+/* ==========================================================================
+   PANTALLA DE ATRACCIÓN (SALVAPANTALLAS)
+   ========================================================================== */
+.attract-layer {
+  background: radial-gradient(circle at center, rgba(27, 58, 107, 0.75) 0%, rgba(8, 20, 39, 0.85) 100%);
+  backdrop-filter: blur(10px);
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 2.5vh, 30px);
+  text-align: center;
+  overflow: hidden;
+}
+
+.attract-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 1.8vh, 20px);
+  max-width: 700px;
+  width: 100%;
+}
+
+.attract-decorations {
+  font-size: clamp(1.4rem, 3.5vw, 2.5rem);
+  letter-spacing: clamp(6px, 1.5vw, 12px);
+  animation: floatDecor 3s ease-in-out infinite alternate;
+}
+
+.attract-logo-box {
+  width: 100%;
+  max-width: clamp(240px, 45vw, 460px);
+  max-height: clamp(85px, 18vh, 160px);
+  display: flex;
+  justify-content: center;
+  margin: clamp(4px, 1vh, 10px) 0;
+}
+
+.attract-logo {
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.6));
+}
+
+.attract-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 4vw, 2.5rem);
+  color: var(--color-gold);
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+  letter-spacing: 1.5px;
+  line-height: 1.15;
+}
+
+.attract-subtitle {
+  font-size: clamp(0.95rem, 2.2vw, 1.35rem);
+  color: #e0f2fe;
+  font-weight: 600;
+  max-width: 90%;
+}
+
+.attract-button-wrapper {
+  margin: clamp(8px, 1.8vh, 22px) 0;
+}
+
+.btn-play-big {
+  background: linear-gradient(135deg, #ff416c 0%, #c0392b 100%);
+  border: clamp(3px, 0.5vw, 5px) solid var(--color-gold);
+  color: var(--color-white);
+  padding: clamp(12px, 2vh, 22px) clamp(22px, 4.5vw, 45px);
+  border-radius: 50px;
+  font-size: clamp(1.15rem, 3.5vw, 1.9rem);
+  font-weight: 900;
+  font-family: var(--font-display);
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 16px);
+  box-shadow: 0 10px 30px rgba(255, 65, 108, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  animation: pulseBigBtn 2s infinite;
+  white-space: nowrap;
+}
+
+.btn-play-big:active {
+  transform: scale(0.95);
+}
+
+.attract-games-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(6px, 1.5vw, 12px);
+  justify-content: center;
+  max-width: 90%;
+}
+
+.preview-badge {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  padding: clamp(4px, 0.8vh, 8px) clamp(10px, 1.8vw, 18px);
+  border-radius: 20px;
+  font-size: clamp(0.8rem, 1.8vw, 1.05rem);
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   MENÚ DE SELECCIÓN DE JUEGOS
+   ========================================================================== */
+.menu-layer {
+  background: rgba(7, 17, 30, 0.82);
+  backdrop-filter: blur(12px);
+  padding: clamp(14px, 2.5vh, 30px) clamp(12px, 2vw, 24px);
+  overflow-y: auto;
+  align-items: center;
+}
+
+.menu-header {
+  text-align: center;
+  margin-bottom: clamp(12px, 2vh, 25px);
+}
+
+.menu-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 3.5vw, 2.2rem);
+  color: var(--color-gold);
+  letter-spacing: 1px;
+}
+
+.menu-subtitle {
+  font-size: clamp(0.85rem, 1.8vw, 1.2rem);
+  color: #b0c4de;
+  margin-top: 4px;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(10px, 2vw, 20px);
+  width: 100%;
+  max-width: 850px;
+}
+
+.game-card {
+  border-radius: 20px;
+  padding: clamp(14px, 2vh, 24px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.2s;
+  min-height: clamp(200px, 26vh, 280px);
+  justify-content: space-between;
+}
+
+.game-card:active {
+  transform: scale(0.96);
+  border-color: var(--color-gold);
+}
+
+.game-card-emoji {
+  font-size: clamp(2.6rem, 5.5vw, 4.5rem);
+  margin-bottom: 4px;
+}
+
+.game-card-category {
+  font-size: clamp(0.7rem, 1.4vw, 0.85rem);
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 3px 10px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.game-card-title {
+  font-size: clamp(1.05rem, 2.2vw, 1.45rem);
+  font-weight: 900;
+  color: var(--color-white);
+  margin-bottom: 4px;
+}
+
+.game-card-tagline {
+  font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+  color: #f1f5f9;
+  margin-bottom: 8px;
+}
+
+.game-card-record {
+  font-size: clamp(0.8rem, 1.6vw, 1rem);
+  color: var(--color-gold-light);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 5px 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.btn-card-play {
+  background: var(--color-gold);
+  color: #0c1b33;
+  border: none;
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  font-weight: 900;
+  padding: clamp(8px, 1.5vh, 12px) clamp(16px, 2.5vw, 28px);
+  border-radius: 25px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  width: 100%;
+}
+
+/* ==========================================================================
+   MODAL DE FIN DE PARTIDA (RESULTADOS)
+   ========================================================================== */
+.modal-layer {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal-card {
+  background: linear-gradient(180deg, #102a45 0%, #071524 100%);
+  border: 5px solid var(--color-gold);
+  border-radius: 32px;
+  padding: 35px 30px;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(255, 215, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: zoomIn 0.3s ease-out;
+}
+
+.modal-trophy {
+  font-size: 4rem;
+  display: block;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: var(--color-gold);
+}
+
+.modal-game-name {
+  font-size: 1.2rem;
+  color: #cbd5e1;
+  font-weight: bold;
+}
+
+.modal-scores {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 10px 0;
+}
+
+.score-box {
+  padding: 16px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.main-score {
+  background: rgba(255, 215, 0, 0.15);
+  border: 2px solid var(--color-gold);
+}
+
+.record-score {
+  background: rgba(46, 204, 113, 0.15);
+  border: 2px solid var(--color-green);
+}
+
+.score-label {
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.score-value {
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  color: var(--color-white);
+}
+
+.modal-branding {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.modal-logo {
+  height: 55px;
+  max-width: 240px;
+  object-fit: contain;
+  margin-bottom: 6px;
+}
+
+.modal-promo-text {
+  font-size: 0.95rem;
+  color: #f1f5f9;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.btn-action {
+  flex: 1;
+  padding: 18px;
+  border-radius: 20px;
+  font-size: 1.25rem;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.btn-again {
+  background: linear-gradient(135deg, #ff416c 0%, #c0392b 100%);
+  color: var(--color-white);
+  border: 2px solid var(--color-gold);
+}
+
+.btn-menu {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--color-white);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.btn-action:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================================================
+   3. CARRUSEL PUBLICITARIO INFERIOR (FOOTER)
+   ========================================================================== */
+.kiosk-footer-carousel {
+  height: clamp(85px, 14vh, 135px);
+  min-height: clamp(85px, 14vh, 135px);
+  background: #071526;
+  border-top: 3px solid var(--color-gold);
+  position: relative;
+  overflow: hidden;
+  z-index: 40;
+  flex-shrink: 0;
+}
+
+.carousel-track {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.carousel-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.carousel-slide.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.carousel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-indicators {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.carousel-dot.active {
+  background: var(--color-gold);
+  transform: scale(1.3);
+}
+
+/* ==========================================================================
+   ANIMACIONES
+   ========================================================================== */
+@keyframes pulseBigBtn {
+  0% { transform: scale(1); box-shadow: 0 10px 30px rgba(255, 65, 108, 0.6); }
+  50% { transform: scale(1.04); box-shadow: 0 15px 40px rgba(255, 65, 108, 0.9); }
+  100% { transform: scale(1); box-shadow: 0 10px 30px rgba(255, 65, 108, 0.6); }
+}
+
+@keyframes floatDecor {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-8px); }
+}
+
+@keyframes zoomIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Responsive para pantallas apaisadas o escritorio */
+@media (max-width: 600px) {
+  .menu-grid {
+    grid-template-columns: 1fr;
+  }
+  .attract-title {
+    font-size: 2.1rem;
+  }
+  .btn-play-big {
+    font-size: 1.5rem;
+    padding: 18px 30px;
+  }
+}

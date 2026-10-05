@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="emeraldGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2ECC71"/>
+      <stop offset="50%" stop-color="#27AE60"/>
+      <stop offset="100%" stop-color="#145A32"/>
+    </linearGradient>
+    <linearGradient id="goldGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF9A6"/>
+      <stop offset="50%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#F39C12"/>
+    </linearGradient>
+    <filter id="glow2" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Fondo estilo Insignia Festiva Esmeralda -->
+  <rect x="10" y="10" width="480" height="180" rx="30" fill="#0A2518" stroke="url(#goldGrad2)" stroke-width="5"/>
+  <rect x="18" y="18" width="464" height="164" rx="24" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2"/>
+  
+  <!-- Emblema de Estrella Polar & Juguete -->
+  <g transform="translate(55, 45)">
+    <!-- Círculo brillante -->
+    <circle cx="45" cy="55" r="45" fill="url(#emeraldGrad2)" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
+    <!-- Estrella dorada central -->
+    <polygon points="45,22 53,44 76,45 58,60 64,83 45,69 26,83 32,60 14,45 37,44" fill="url(#goldGrad2)"/>
+    <!-- Pequeño tren / juguete frontal -->
+    <rect x="35" y="52" width="20" height="14" rx="3" fill="#E74C3C"/>
+    <circle cx="39" cy="68" r="4" fill="#FFFFFF"/>
+    <circle cx="51" cy="68" r="4" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Textos del Logo 2 -->
+  <g transform="translate(170, 0)">
+    <text x="0" y="65" font-family="'Impact', 'Arial Black', sans-serif" font-size="34" font-weight="900" fill="url(#goldGrad2)" letter-spacing="2">FERIA MÁGICA</text>
+    <text x="0" y="118" font-family="'Impact', 'Arial Black', sans-serif" font-size="46" font-weight="900" fill="#2ECC71" letter-spacing="1" filter="url(#glow2)">DEL JUGUETE</text>
+    
+    <g transform="translate(0, 142)">
+      <rect x="0" y="0" width="270" height="24" rx="12" fill="url(#goldGrad2)"/>
+      <text x="135" y="17" font-family="'Segoe UI', sans-serif" font-size="13" font-weight="900" fill="#0A2518" text-anchor="middle" letter-spacing="3">⭐ DIVERSIÓN EN FAMILIA ⭐</text>
+    </g>
+  </g>
+</svg>

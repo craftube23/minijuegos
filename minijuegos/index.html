@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#0C1B33" />
+    <title>Feria Mágica del Juguete — Minijuegos Táctiles</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <!-- CONTENEDOR MAESTRO DE KIOSCO VERTICAL -->
+    <div id="kiosk-app">
+      <!-- 1. BARRA SUPERIOR FIJA -->
+      <header id="kiosk-header" class="kiosk-header"></header>
+
+      <!-- 2. ÁREA CENTRAL DE JUEGO Y MENÚS -->
+      <main id="kiosk-main" class="kiosk-main">
+        <!-- Canvas de Alto Rendimiento 60 FPS -->
+        <canvas id="game-canvas" width="1080" height="1500"></canvas>
+
+        <!-- Capas Superpuestas de UI -->
+        <div id="attract-screen" class="kiosk-overlay attract-layer"></div>
+        <div id="menu-screen" class="kiosk-overlay menu-layer" style="display: none;"></div>
+        <div id="gameover-modal" class="kiosk-overlay modal-layer" style="display: none;"></div>
+      </main>
+
+      <!-- 3. CARRUSEL PUBLICITARIO INFERIOR (Según boceto wireframe) -->
+      <footer id="kiosk-banner-carousel" class="kiosk-footer-carousel"></footer>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
