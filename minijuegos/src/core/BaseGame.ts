@@ -171,43 +171,51 @@ export abstract class BaseGame {
   protected drawHUD(ctx: CanvasRenderingContext2D): void {
     ctx.save();
 
-    const hudH = 68;
+    const hudH = Math.max(48, Math.min(70, this.height * 0.08));
 
     // Fondo semi-transparente para la barra superior
-    ctx.fillStyle = "rgba(10, 25, 47, 0.90)";
+    ctx.fillStyle = "rgba(10, 25, 47, 0.92)";
     ctx.fillRect(0, 0, this.width, hudH);
     ctx.strokeStyle = "#FFD700";
     ctx.lineWidth = 2.5;
-    ctx.strokeRect(0, 0, this.width, hudH);
+    ctx.beginPath();
+    ctx.moveTo(0, hudH);
+    ctx.lineTo(this.width, hudH);
+    ctx.stroke();
+
+    const fontMain = Math.max(15, Math.min(26, this.width * 0.04));
+    const fontSub = Math.max(13, Math.min(22, this.width * 0.034));
+    const textY = hudH * 0.64;
+    const paddingX = Math.max(14, this.width * 0.03);
 
     // 1. PUNTUACIÓN (Izquierda)
-    ctx.font = "bold 26px 'Segoe UI', sans-serif";
+    ctx.font = `bold ${fontMain}px 'Segoe UI', sans-serif`;
     ctx.fillStyle = "#FFD700";
     ctx.textAlign = "left";
-    ctx.fillText(`⭐ PUNTOS: ${this.score}`, 25, 44);
+    ctx.fillText(`⭐ PUNTOS: ${this.score}`, paddingX, textY);
 
     // 2. TIEMPO RESTANTE (Centro)
     const timeFormatted = Math.ceil(this.timeRemaining);
-    ctx.font = "bold 28px 'Segoe UI', sans-serif";
+    ctx.font = `bold ${fontMain * 1.06}px 'Segoe UI', sans-serif`;
     ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
     ctx.textAlign = "center";
-    ctx.fillText(`⏳ ${timeFormatted}s`, this.width / 2, 44);
+    ctx.fillText(`⏳ ${timeFormatted}s`, this.width / 2, textY);
 
     // 3. RÉCORD / MEJOR PUNTUACIÓN (Derecha)
-    ctx.font = "bold 22px 'Segoe UI', sans-serif";
+    ctx.font = `bold ${fontSub}px 'Segoe UI', sans-serif`;
     ctx.fillStyle = "#2ECC71";
     ctx.textAlign = "right";
-    ctx.fillText(`🏆 RÉCORD: ${Math.max(this.score, this.highScore)}`, this.width - 25, 44);
+    ctx.fillText(`🏆 RÉCORD: ${Math.max(this.score, this.highScore)}`, this.width - paddingX, textY);
 
     // 4. Indicador de Power-Up del Logo de la Feria activo
     if (this.isLogoPowerUpActive) {
-      const bannerH = 32;
+      const bannerH = Math.max(26, Math.min(36, hudH * 0.55));
       ctx.fillStyle = "rgba(255, 215, 0, 0.95)";
       ctx.fillRect(0, hudH, this.width, bannerH);
       ctx.fillStyle = "#0A2518";
-      ctx.font = "bold 18px 'Segoe UI', sans-serif";
+      ctx.font = `bold ${Math.max(12, Math.min(18, this.width * 0.03))}px 'Segoe UI', sans-serif`;
       ctx.textAlign = "center";
-      ctx.fillText(`✨ ¡BONUS FERIA ACTIVO! (x${this.activeLogo.bonusMultiplier}) - ${Math.ceil(this.logoPowerUpTimer)}s ✨`, this.width / 2, hudH + 22);
+      ctx.fillText(`✨ ¡BONUS FERIA ACTIVO! (x${this.activeLogo.bonusMultiplier}) - ${Math.ceil(this.logoPowerUpTimer)}s ✨`, this.width / 2, hudH + bannerH * 0.7);
     }
 
     ctx.restore();

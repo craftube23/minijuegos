@@ -95,13 +95,25 @@ export class ToyCatchGame extends BaseGame {
   }
 
   protected onStart(): void {
+    this.updateBasketDimensions();
     this.basketX = this.width / 2;
-    this.basketY = 1360;
-    this.basketWidth = 190;
-    this.basketHeight = 95;
     this.items = [];
     this.spawnTimer = 0;
     this.comboCount = 0;
+  }
+
+  private updateBasketDimensions(): void {
+    this.basketWidth = Math.max(90, Math.min(220, this.width * 0.28));
+    this.basketHeight = this.basketWidth * 0.52;
+    this.basketY = this.height - this.basketHeight * 0.85 - 12;
+  }
+
+  public override resize(width: number, height: number): void {
+    super.resize(width, height);
+    this.updateBasketDimensions();
+    const halfW = this.basketWidth / 2;
+    if (this.basketX < halfW) this.basketX = halfW;
+    if (this.basketX > this.width - halfW) this.basketX = this.width - halfW;
   }
 
   protected onUpdate(dt: number): void {
@@ -113,10 +125,10 @@ export class ToyCatchGame extends BaseGame {
 
     // Soporte teclado PC
     if (this.input.isKeyDown("ArrowLeft") || this.input.isKeyDown("KeyA")) {
-      this.basketX -= 850 * dt;
+      this.basketX -= this.width * 0.8 * dt;
     }
     if (this.input.isKeyDown("ArrowRight") || this.input.isKeyDown("KeyD")) {
-      this.basketX += 850 * dt;
+      this.basketX += this.width * 0.8 * dt;
     }
 
     // Mantener dentro de los bordes de la pantalla
@@ -141,7 +153,7 @@ export class ToyCatchGame extends BaseGame {
       const dx = Math.abs(item.x - this.basketX);
       const dy = Math.abs(item.y - this.basketY);
 
-      if (dx < this.basketWidth / 2 + 25 && dy < this.basketHeight / 2 + 25) {
+      if (dx < this.basketWidth / 2 + item.size * 0.25 && dy < this.basketHeight / 2 + item.size * 0.25) {
         // ¡Atrapado!
         this.handleItemCaught(item);
         this.items.splice(i, 1);
@@ -149,7 +161,7 @@ export class ToyCatchGame extends BaseGame {
       }
 
       // Si cayó al fondo
-      if (item.y > this.height + 80) {
+      if (item.y > this.height + 60) {
         if (item.type !== "coal") {
           this.comboCount = 0; // Se corta el combo
         }
@@ -166,47 +178,50 @@ export class ToyCatchGame extends BaseGame {
     let type: FallingItem["type"] = "gift_red";
     let points = 100;
     let emoji = "🎁";
-    let size = 130;
+
+    const baseSize = Math.max(48, Math.min(105, this.width * 0.15));
+    let size = baseSize;
 
     if (roll < 0.12) {
       // 12% probabilidad: ¡Caja Especial con Logo de la Feria!
       type = "fair_logo_box";
       points = 500;
       emoji = "⭐";
-      size = 95;
+      size = baseSize * 1.05;
     } else if (roll < 0.32) {
       type = "teddy";
       points = 250;
       emoji = "🧸";
-      size = 90;
+      size = baseSize;
     } else if (roll < 0.50) {
       type = "robot";
       points = 200;
       emoji = "🤖";
-      size = 90;
+      size = baseSize;
     } else if (roll < 0.65) {
       type = "star";
       points = 300;
       emoji = "✨";
-      size = 85;
+      size = baseSize * 0.95;
     } else if (roll < 0.85) {
       type = "gift_green";
       points = 150;
       emoji = "🎁";
-      size = 90;
+      size = baseSize;
     } else {
       // 15% probabilidad: Carbón / Obstáculo
       type = "coal";
       points = -150;
       emoji = "🪨";
-      size = 90;
+      size = baseSize;
     }
 
-    const margin = 80;
+    const margin = Math.max(30, this.width * 0.08);
+    const fallSpeedBase = this.height * 0.32;
     this.items.push({
       x: margin + Math.random() * (this.width - margin * 2),
-      y: -80,
-      vy: 260 + Math.random() * 180 + (45 - this.timeRemaining) * 4,
+      y: -60,
+      vy: fallSpeedBase + Math.random() * (this.height * 0.18) + (45 - this.timeRemaining) * 3,
       size,
       type,
       points,

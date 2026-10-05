@@ -59,17 +59,15 @@ class KioskApp {
   private lastFrameTime: number = performance.now();
 
   constructor() {
-    // 1. Obtener y configurar el Canvas vertical estándar de Kiosco
+    // 1. Obtener y configurar el Canvas responsive
     const canvasEl = document.getElementById("game-canvas") as HTMLCanvasElement;
     if (!canvasEl) throw new Error("No se encontró el elemento #game-canvas");
     this.canvas = canvasEl;
-    this.canvas.width = 1080;
-    this.canvas.height = 1500;
 
     // 2. Inicializar subsistemas del Core
     this.audio = AudioManager.getInstance();
     this.input = new InputManager(this.canvas);
-    this.particles = new ParticleSystem(this.canvas.width, this.canvas.height);
+    this.particles = new ParticleSystem(window.innerWidth, window.innerHeight);
 
     // 3. Inicializar componentes de UI
     this.header = new KioskHeader("kiosk-header", this.audio);
@@ -81,16 +79,41 @@ class KioskApp {
     // 4. Instanciar los 4 Minijuegos
     this.registerGames();
 
-    // 5. Conectar eventos y callbacks entre pantallas
+    // 5. Adaptar resolución nativa al tamaño del contenedor
+    this.handleResize();
+    window.addEventListener("resize", () => this.handleResize());
+    window.addEventListener("orientationchange", () => setTimeout(() => this.handleResize(), 100));
+
+    // 6. Conectar eventos y callbacks entre pantallas
     this.setupNavigationCallbacks();
 
-    // 6. Configurar detector de inactividad para modo Kiosco
+    // 7. Configurar detector de inactividad para modo Kiosco
     this.setupInactivityWatcher();
 
-    // 7. Arrancar bucle de renderizado a 60 FPS
+    // 8. Arrancar bucle de renderizado a 60 FPS
     this.startMainLoop();
 
     console.log("🎄 Feria Mágica del Juguete — Kiosco Interactivo Listo 🚀");
+  }
+
+  /**
+   * Ajusta el Canvas y los juegos a la resolución exacta del dispositivo
+   */
+  public handleResize(): void {
+    const container = this.canvas.parentElement;
+    const width = container && container.clientWidth > 0 ? container.clientWidth : window.innerWidth;
+    const height = container && container.clientHeight > 0 ? container.clientHeight : (window.innerHeight - 130);
+
+    if (width > 0 && height > 0) {
+      this.canvas.width = width;
+      this.canvas.height = height;
+
+      this.particles.initSnow(width, height);
+
+      this.games.forEach((game) => {
+        game.resize(width, height);
+      });
+    }
   }
 
   /**
