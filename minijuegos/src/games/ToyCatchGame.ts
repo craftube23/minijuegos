@@ -92,9 +92,14 @@ export class ToyCatchGame extends BaseGame {
 
     this.imgIce = new Image();
     this.imgIce.src = "/assets/images/hielo.jfif";
+
+    this.showLives = true;
+    this.lives = 3;
+    this.maxLives = 3;
   }
 
   protected onStart(): void {
+    this.lives = 3;
     this.updateBasketDimensions();
     this.basketX = this.width / 2;
     this.items = [];
@@ -149,11 +154,12 @@ export class ToyCatchGame extends BaseGame {
       item.y += item.vy * dt;
       item.rotation += item.vRot * dt;
 
-      // Colisión con el saco de Santa
+      // Colisión con el saco de Santa (margen ampliado para el hielo/piedra)
       const dx = Math.abs(item.x - this.basketX);
       const dy = Math.abs(item.y - this.basketY);
+      const extraMargin = item.type === "coal" ? item.size * 0.45 : item.size * 0.25;
 
-      if (dx < this.basketWidth / 2 + item.size * 0.25 && dy < this.basketHeight / 2 + item.size * 0.25) {
+      if (dx < this.basketWidth / 2 + extraMargin && dy < this.basketHeight / 2 + extraMargin) {
         // ¡Atrapado!
         this.handleItemCaught(item);
         this.items.splice(i, 1);
@@ -209,11 +215,11 @@ export class ToyCatchGame extends BaseGame {
       emoji = "🎁";
       size = baseSize;
     } else {
-      // 15% probabilidad: Carbón / Obstáculo
+      // 15% probabilidad: Carbón / Obstáculo (35% más grande para que sea fácil atraparlo por error)
       type = "coal";
       points = -150;
       emoji = "🪨";
-      size = baseSize;
+      size = baseSize * 1.35;
     }
 
     const margin = Math.max(30, this.width * 0.08);
@@ -232,13 +238,21 @@ export class ToyCatchGame extends BaseGame {
   }
 
   /**
-   * Lógica al atrapar un objeto (Limpia sin puntos molestos)
+   * Lógica al atrapar un objeto
    */
   private handleItemCaught(item: FallingItem): void {
     if (item.type === "coal") {
       this.comboCount = 0;
       this.addScore(item.points);
+      this.lives--;
       this.audio.playError();
+      this.particles.emitBurst(this.basketX, this.basketY, "#00E5FF", 25);
+
+      // Si se acaban las vidas → Fin de la partida
+      if (this.lives <= 0) {
+        this.lives = 0;
+        this.endGame();
+      }
     } else if (item.type === "fair_logo_box") {
       this.comboCount++;
       this.addScore(item.points);

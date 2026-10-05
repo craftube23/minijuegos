@@ -46,6 +46,10 @@ export abstract class BaseGame {
   protected isRunning: boolean = false;
   protected isGameOver: boolean = false;
 
+  protected lives: number = 3;
+  protected maxLives: number = 3;
+  protected showLives: boolean = false;
+
   // Sistema de Power-Up del Logo de la Feria
   protected isLogoPowerUpActive: boolean = false;
   protected logoPowerUpTimer: number = 0;
@@ -194,12 +198,21 @@ export abstract class BaseGame {
     ctx.textAlign = "left";
     ctx.fillText(`⭐ PUNTOS: ${this.score}`, paddingX, textY);
 
-    // 2. TIEMPO RESTANTE (Centro)
+    // 2. VIDAS Y TIEMPO RESTANTE (Centro)
     const timeFormatted = Math.ceil(this.timeRemaining);
-    ctx.font = `bold ${fontMain * 1.06}px 'Segoe UI', sans-serif`;
-    ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
     ctx.textAlign = "center";
-    ctx.fillText(`⏳ ${timeFormatted}s`, this.width / 2, textY);
+
+    if (this.showLives) {
+      // Dibujar corazones de vidas + temporizador
+      const hearts = "❤️".repeat(Math.max(0, this.lives)) + "🖤".repeat(Math.max(0, this.maxLives - this.lives));
+      ctx.font = `bold ${fontMain * 0.95}px 'Segoe UI Emoji', sans-serif`;
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillText(`${hearts}  ⏳ ${timeFormatted}s`, this.width / 2, textY);
+    } else {
+      ctx.font = `bold ${fontMain * 1.06}px 'Segoe UI', sans-serif`;
+      ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
+      ctx.fillText(`⏳ ${timeFormatted}s`, this.width / 2, textY);
+    }
 
     // 3. RÉCORD / MEJOR PUNTUACIÓN (Derecha)
     ctx.font = `bold ${fontSub}px 'Segoe UI', sans-serif`;
