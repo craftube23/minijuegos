@@ -1,14 +1,17 @@
 /**
  * ==============================================================================
- * JUEGO 3: 💡 ENCIENDE EL ÁRBOL MÁGICO (Magic Lights Melody)
+ * JUEGO 3: ENCIENDE EL ÁRBOL MÁGICO (Magic Lights Melody - Edición Pulida)
  * ==============================================================================
  * 
  * MECÁNICA:
- * - Un gran árbol de Navidad tiene 4 campanas/bombillas gigantes luminosas.
- * - El árbol toca una melodía iluminando las luces en secuencia.
- * - El jugador debe repetir la secuencia tocando los botones gigantes.
- * - Cada acierto suma puntos, enciende guirnaldas y aumenta la dificultad.
- * - Al completar rondas clave, la Estrella del Logo 1 en la cúspide se ilumina con confeti.
+ * - El gran Árbol Mágico de Navidad de la Feria tiene 4 esferas ornamentales táctiles gigantes:
+ *   1. Esfera Roja (Campana Navideña)
+ *   2. Esfera Dorada (Estrella de Belén)
+ *   3. Esfera Esmeralda (Pino Festivo)
+ *   4. Esfera Zafiro (Cristal de Nieve)
+ * - El juego toca una secuencia musical luminosa que se alarga en cada ronda (Estilo Simón Dice).
+ * - El jugador debe repetir la melodía tocando las esferas en el orden correcto.
+ * - En rondas avanzadas (Ronda 4+) se activa el Modo Feria con confeti y Bonus x2.
  */
 
 import { BaseGame } from "../core/BaseGame";
@@ -16,7 +19,7 @@ import { InputManager } from "../core/InputManager";
 import { AudioManager } from "../core/AudioManager";
 import { ParticleSystem } from "../core/ParticleSystem";
 
-interface BulbButton {
+interface MagicBulb {
   id: number;
   x: number;
   y: number;
@@ -25,22 +28,19 @@ interface BulbButton {
   baseColor: string;
   litColor: string;
   soundIndex: number;
-  emoji: string;
+  iconType: "bell" | "star" | "tree" | "snowflake";
   isLit: boolean;
   litTimer: number;
 }
 
 export class TreeMelodyGame extends BaseGame {
-  private bulbs: BulbButton[] = [];
+  private bulbs: MagicBulb[] = [];
   private sequence: number[] = [];
   private playerStep: number = 0;
-  
-  // Estados del juego: 'showing_sequence' | 'player_turn' | 'round_success' | 'game_over'
-  private gameState: "showing_sequence" | "player_turn" | "round_success" = "showing_sequence";
-  private sequencePlayIndex: number = 0;
-  private sequenceTimer: number = 0;
-  private sequenceDelay: number = 0.6; // Segundos entre notas
-
+  private isShowingSequence: boolean = false;
+  private sequenceIndex: number = 0;
+  private playbackTimer: number = 0;
+  private readonly stepDelay: number = 0.55;
   private currentRound: number = 1;
 
   constructor(
@@ -51,57 +51,61 @@ export class TreeMelodyGame extends BaseGame {
   ) {
     super(
       "tree-melody",
-      "💡 Enciende el Árbol Mágico",
-      "¡Memoriza la melodía y toca las campanas luminosas en el orden correcto!",
+      "Enciende el Árbol Mágico",
+      "¡Mira la secuencia de luces navideñas y repite la melodía tocando las esferas mágicas!",
       canvas,
       input,
       audio,
       particles
     );
-  }
 
-  protected onStart(): void {
-    this.initBulbs();
-    this.currentRound = 1;
-    this.sequence = [];
-    this.startNewRound();
+    this.input.onTap = (x: number, y: number) => {
+      if (this.isShowingSequence || this.timeRemaining <= 0) return;
+      for (const bulb of this.bulbs) {
+        const dist = Math.hypot(x - bulb.x, y - bulb.y);
+        if (dist <= bulb.radius) {
+          this.handleBulbTouch(bulb.id);
+          break;
+        }
+      }
+    };
   }
 
   public override resize(width: number, height: number): void {
     super.resize(width, height);
-    this.initBulbs();
+    this.layoutBulbs();
   }
 
-  private initBulbs(): void {
+  private layoutBulbs(): void {
     const cx = this.width / 2;
-    const cy = this.height / 2 + 50;
-    const offset = Math.min(this.width * 0.22, this.height * 0.18);
-    const radius = Math.max(45, Math.min(95, offset * 0.52));
+    const cy = this.height * 0.53;
+    const radius = Math.min(105, Math.max(55, this.width * 0.18));
+    const offset = radius * 1.25;
 
     this.bulbs = [
       {
         id: 0,
         x: cx - offset,
-        y: cy - offset + 40,
+        y: cy - offset + 30,
         radius,
         colorName: "Rojo",
         baseColor: "#922B21",
         litColor: "#FF416C",
         soundIndex: 0,
-        emoji: "🔔",
+        iconType: "bell",
         isLit: false,
         litTimer: 0
       },
       {
         id: 1,
         x: cx + offset,
-        y: cy - offset + 40,
+        y: cy - offset + 30,
         radius,
         colorName: "Dorado",
         baseColor: "#B7950B",
         litColor: "#FFD700",
         soundIndex: 1,
-        emoji: "⭐",
+        iconType: "star",
         isLit: false,
         litTimer: 0
       },
@@ -114,7 +118,7 @@ export class TreeMelodyGame extends BaseGame {
         baseColor: "#196F3D",
         litColor: "#2ECC71",
         soundIndex: 2,
-        emoji: "🎄",
+        iconType: "tree",
         isLit: false,
         litTimer: 0
       },
@@ -127,7 +131,7 @@ export class TreeMelodyGame extends BaseGame {
         baseColor: "#1B4F72",
         litColor: "#00E5FF",
         soundIndex: 3,
-        emoji: "❄️",
+        iconType: "snowflake",
         isLit: false,
         litTimer: 0
       }
@@ -135,18 +139,23 @@ export class TreeMelodyGame extends BaseGame {
   }
 
   private startNewRound(): void {
-    // Añadir una nueva nota a la secuencia
     const nextBulb = Math.floor(Math.random() * 4);
     this.sequence.push(nextBulb);
-
-    this.gameState = "showing_sequence";
-    this.sequencePlayIndex = 0;
-    this.sequenceTimer = 0.5; // Breve pausa antes de empezar
     this.playerStep = 0;
+    this.isShowingSequence = true;
+    this.sequenceIndex = 0;
+    this.playbackTimer = 0.6;
+  }
+
+  protected onStart(): void {
+    this.layoutBulbs();
+    this.sequence = [];
+    this.currentRound = 1;
+    this.startNewRound();
   }
 
   protected onUpdate(dt: number): void {
-    // 1. Actualizar temporizador de iluminación de cada bombilla
+    // 1. Actualizar timers de iluminación de las esferas
     for (const bulb of this.bulbs) {
       if (bulb.isLit) {
         bulb.litTimer -= dt;
@@ -156,185 +165,238 @@ export class TreeMelodyGame extends BaseGame {
       }
     }
 
-    // 2. Estado: Mostrando secuencia al jugador
-    if (this.gameState === "showing_sequence") {
-      this.sequenceTimer -= dt;
-      if (this.sequenceTimer <= 0) {
-        if (this.sequencePlayIndex < this.sequence.length) {
-          const bulbId = this.sequence[this.sequencePlayIndex];
-          this.lightBulb(bulbId, 0.4);
-          this.sequencePlayIndex++;
-          this.sequenceTimer = this.sequenceDelay;
+    // 2. Modo Reproducción de Secuencia
+    if (this.isShowingSequence) {
+      this.playbackTimer -= dt;
+      if (this.playbackTimer <= 0) {
+        if (this.sequenceIndex < this.sequence.length) {
+          const bulbId = this.sequence[this.sequenceIndex];
+          this.lightBulb(bulbId, 0.45);
+          this.sequenceIndex++;
+          this.playbackTimer = this.stepDelay;
         } else {
-          // Secuencia terminada, es el turno del jugador
-          this.gameState = "player_turn";
+          this.isShowingSequence = false;
           this.playerStep = 0;
         }
       }
-      return;
-    }
-
-    // 3. Estado: Turno del jugador (Detectar toques)
-    if (this.gameState === "player_turn") {
-      const pointer = this.input.getPrimaryPointer();
-      if (pointer && pointer.isDown) {
-        // Comprobar si tocó alguna bombilla
-        for (const bulb of this.bulbs) {
-          const dist = Math.hypot(pointer.x - bulb.x, pointer.y - bulb.y);
-          if (dist <= bulb.radius) {
-            // Evitar toques múltiples continuos si ya está encendida
-            if (!bulb.isLit) {
-              this.handlePlayerTouch(bulb.id);
-            }
-            break;
-          }
-        }
-      }
     }
   }
 
-  private lightBulb(bulbId: number, duration: number = 0.35): void {
-    const b = this.bulbs[bulbId];
-    if (b) {
-      b.isLit = true;
-      b.litTimer = duration;
-      this.audio.playBellNote(b.soundIndex);
-      this.particles.emitBurst(b.x, b.y, b.litColor, 8);
+  private lightBulb(bulbId: number, duration: number = 0.4): void {
+    const bulb = this.bulbs[bulbId];
+    if (bulb) {
+      bulb.isLit = true;
+      bulb.litTimer = duration;
+      this.audio.playBellNote(bulb.soundIndex);
+      this.particles.emitBurst(bulb.x, bulb.y, bulb.litColor, 12);
     }
   }
 
-  private handlePlayerTouch(bulbId: number): void {
-    this.lightBulb(bulbId, 0.3);
+  private handleBulbTouch(bulbId: number): void {
+    this.lightBulb(bulbId, 0.35);
 
-    // Comprobar si acertó el paso
-    if (bulbId === this.sequence[this.playerStep]) {
+    const expectedBulb = this.sequence[this.playerStep];
+    if (bulbId === expectedBulb) {
+      // Nota correcta
+      this.addScore(50);
+      this.addFloatingText("+50", this.bulbs[bulbId].x, this.bulbs[bulbId].y - 45, "#00E676");
       this.playerStep++;
-      this.addScore(100 * this.currentRound);
 
-      // ¿Completó toda la secuencia?
+      // Comprobar si completó toda la secuencia
       if (this.playerStep >= this.sequence.length) {
-        this.gameState = "round_success";
+        const roundBonus = this.sequence.length * 150;
+        this.addScore(roundBonus);
+        this.addFloatingText(`¡RONDA SUPERADA! +${roundBonus}`, this.width / 2, this.height * 0.28, "#FFD700", 1.3);
+        this.audio.playCatchItem();
+        this.particles.emitConfetti(this.width, 25);
         this.currentRound++;
-        this.addScore(500);
 
-        // Cada 2 rondas, activa el Power-Up del Logo de la Feria
-        if (this.currentRound % 2 === 0) {
-          this.triggerLogoPowerUp(1, 5);
-        } else {
-          this.audio.playCatchItem(1.3);
-          this.particles.emitConfetti(this.width, 25);
+        // Bonus especial cada 3 rondas
+        if (this.currentRound % 3 === 0) {
+          this.triggerLogoPowerUp(1, 6);
         }
 
-        // Siguiente ronda tras 1 segundo
+        // Breve pausa y siguiente ronda
         setTimeout(() => {
-          if (this.isRunning && !this.isGameOver) {
+          if (this.timeRemaining > 0) {
             this.startNewRound();
           }
         }, 900);
       }
     } else {
-      // Error: Sonido de error y reinicio del turno actual
+      // Error de secuencia
       this.audio.playError();
-      this.particles.emitBurst(this.bulbs[bulbId].x, this.bulbs[bulbId].y, "#FF0000", 20);
-      this.gameState = "showing_sequence";
-      this.sequencePlayIndex = 0;
-      this.sequenceTimer = 0.8;
+      this.triggerShake(0.25, 8);
+      this.addFloatingText("¡VUELVE A INTENTAR!", this.width / 2, this.height * 0.28, "#FF1744", 1.2);
+      this.particles.emitBurst(this.bulbs[bulbId].x, this.bulbs[bulbId].y, "#FF416C", 20);
+
+      // Repetir la misma secuencia para que el jugador lo intente de nuevo
+      this.isShowingSequence = true;
+      this.sequenceIndex = 0;
       this.playerStep = 0;
+      this.playbackTimer = 1.0;
     }
   }
 
   protected onDraw(ctx: CanvasRenderingContext2D): void {
-    // 1. Fondo nocturno de salón navideño
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, this.height);
-    bgGrad.addColorStop(0, "#1A0A2A");
-    bgGrad.addColorStop(0.6, "#2E114D");
-    bgGrad.addColorStop(1, "#120524");
+    // 1. Fondo místico navideño
+    const bgGrad = ctx.createRadialGradient(
+      this.width / 2,
+      this.height * 0.5,
+      100,
+      this.width / 2,
+      this.height * 0.5,
+      this.height * 0.7
+    );
+    bgGrad.addColorStop(0, "#0E3A2F");
+    bgGrad.addColorStop(0.5, "#071E1A");
+    bgGrad.addColorStop(1, "#030D0C");
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, this.width, this.height);
 
+    // 2. Silueta vectorial del Gran Árbol Mágico
     const cx = this.width / 2;
+    const treeTopY = this.height * 0.16;
+    const treeBottomY = this.height * 0.88;
 
-    // 2. Silueta del Árbol Navideño en el centro
     ctx.save();
-    ctx.fillStyle = "#0E4D2B";
+    ctx.fillStyle = "rgba(10, 60, 40, 0.4)";
     ctx.beginPath();
-    ctx.moveTo(cx, 160);
-    ctx.lineTo(cx + 340, 1150);
-    ctx.lineTo(cx - 340, 1150);
+    ctx.moveTo(cx, treeTopY);
+    ctx.lineTo(cx + this.width * 0.42, treeBottomY);
+    ctx.lineTo(cx - this.width * 0.42, treeBottomY);
     ctx.closePath();
     ctx.fill();
 
-    // Tronco
-    ctx.fillStyle = "#5D4037";
-    ctx.fillRect(cx - 45, 1150, 90, 120);
-    ctx.restore();
-
-    // 3. Estrella de la Feria Mágica en la Cúspide
-    ctx.save();
-    ctx.translate(cx, 160);
-    const starGlow = this.isLogoPowerUpActive ? "rgba(255, 215, 0, 0.8)" : "rgba(255, 215, 0, 0.3)";
-    ctx.fillStyle = starGlow;
+    // Estrella dorada en la cima del árbol
+    const starR = 24;
+    ctx.fillStyle = "#FFD700";
     ctx.beginPath();
-    ctx.arc(0, 0, 70, 0, Math.PI * 2);
+    for (let i = 0; i < 5; i++) {
+      const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+      const px = cx + Math.cos(angle) * starR;
+      const py = treeTopY + Math.sin(angle) * starR;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
     ctx.fill();
-
-    ctx.font = "80px 'Segoe UI Emoji', sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("⭐", 0, 0);
-
-    ctx.fillStyle = "#0A2518";
-    ctx.font = "bold 16px 'Segoe UI', sans-serif";
-    ctx.fillText("FERIA", 0, 5);
     ctx.restore();
 
-    // 4. Cartel de Estado / Turno
-    ctx.save();
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.roundRect(cx - 240, 240, 480, 55, 25);
-    ctx.fill();
+    // 3. Guirnaldas de luces navideñas decorativas
+    ctx.strokeStyle = "rgba(255, 215, 0, 0.35)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(this.bulbs[0].x, this.bulbs[0].y);
+    ctx.bezierCurveTo(cx, this.bulbs[0].y - 30, cx, this.bulbs[1].y - 30, this.bulbs[1].x, this.bulbs[1].y);
+    ctx.bezierCurveTo(this.bulbs[1].x + 40, cx, this.bulbs[3].x + 40, cx, this.bulbs[3].x, this.bulbs[3].y);
+    ctx.bezierCurveTo(cx, this.bulbs[3].y + 30, cx, this.bulbs[2].y + 30, this.bulbs[2].x, this.bulbs[2].y);
+    ctx.stroke();
 
-    ctx.fillStyle = this.gameState === "player_turn" ? "#2ECC71" : "#FFD700";
-    ctx.font = "bold 26px 'Segoe UI', sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    const statusText = this.gameState === "player_turn" 
-      ? `👉 ¡TU TURNO! (Paso ${this.playerStep + 1} de ${this.sequence.length})` 
-      : `👀 ¡MIRA Y ESCUCHA LA MELODÍA! (Ronda ${this.currentRound})`;
-    ctx.fillText(statusText, cx, 268);
-    ctx.restore();
-
-    // 5. Dibujar las 4 Bombillas / Campanas Táctiles Gigantes
-    for (const b of this.bulbs) {
+    // 4. Dibujar las 4 Esferas Navideñas Táctiles
+    for (const bulb of this.bulbs) {
       ctx.save();
-      ctx.translate(b.x, b.y);
 
-      // Aura brillante al encenderse
-      if (b.isLit) {
-        ctx.fillStyle = b.litColor;
-        ctx.globalAlpha = 0.5;
+      // Efecto de resplandor cuando está encendida
+      if (bulb.isLit) {
+        ctx.fillStyle = bulb.litColor;
+        ctx.globalAlpha = 0.4;
         ctx.beginPath();
-        ctx.arc(0, 0, b.radius + 30, 0, Math.PI * 2);
+        ctx.arc(bulb.x, bulb.y, bulb.radius * 1.35, 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1.0;
       }
 
-      // Cuerpo del botón circular
-      ctx.fillStyle = b.isLit ? b.litColor : b.baseColor;
+      // Esfera base con gradiente 3D
+      const bulbGrad = ctx.createRadialGradient(
+        bulb.x - bulb.radius * 0.3,
+        bulb.y - bulb.radius * 0.3,
+        bulb.radius * 0.1,
+        bulb.x,
+        bulb.y,
+        bulb.radius
+      );
+      bulbGrad.addColorStop(0, bulb.isLit ? "#FFFFFF" : "#E0E0E0");
+      bulbGrad.addColorStop(0.3, bulb.isLit ? bulb.litColor : bulb.baseColor);
+      bulbGrad.addColorStop(1, "#0A0A0A");
+
+      ctx.fillStyle = bulbGrad;
       ctx.beginPath();
-      ctx.arc(0, 0, b.radius, 0, Math.PI * 2);
+      ctx.arc(bulb.x, bulb.y, bulb.radius, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = "#FFFFFF";
-      ctx.lineWidth = b.isLit ? 8 : 4;
+
+      // Borde dorado de lujo
+      ctx.strokeStyle = bulb.isLit ? "#FFFFFF" : "#FFD700";
+      ctx.lineWidth = bulb.isLit ? 6 : 4;
       ctx.stroke();
 
-      // Icono interior
-      ctx.font = "70px 'Segoe UI Emoji', sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(b.emoji, 0, 0);
+      // Corona de sujeción ornamental de la esfera
+      ctx.fillStyle = "#FFD700";
+      ctx.fillRect(bulb.x - 14, bulb.y - bulb.radius - 12, 28, 14);
+
+      // Icono vectorial festivo en el centro de la esfera
+      ctx.fillStyle = bulb.isLit ? "#FFFFFF" : "rgba(255, 255, 255, 0.85)";
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 2.5;
+
+      const iconR = bulb.radius * 0.4;
+      if (bulb.iconType === "star") {
+        // Estrella
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+          const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+          const px = bulb.x + Math.cos(angle) * iconR;
+          const py = bulb.y + Math.sin(angle) * iconR;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+      } else if (bulb.iconType === "tree") {
+        // Pino
+        ctx.beginPath();
+        ctx.moveTo(bulb.x, bulb.y - iconR);
+        ctx.lineTo(bulb.x + iconR * 0.8, bulb.y + iconR * 0.8);
+        ctx.lineTo(bulb.x - iconR * 0.8, bulb.y + iconR * 0.8);
+        ctx.closePath();
+        ctx.fill();
+      } else if (bulb.iconType === "snowflake") {
+        // Cristal de nieve
+        for (let a = 0; a < 3; a++) {
+          const angle = (a * Math.PI) / 3;
+          ctx.beginPath();
+          ctx.moveTo(bulb.x + Math.cos(angle) * iconR, bulb.y + Math.sin(angle) * iconR);
+          ctx.lineTo(bulb.x - Math.cos(angle) * iconR, bulb.y - Math.sin(angle) * iconR);
+          ctx.stroke();
+        }
+      } else {
+        // Campana
+        ctx.beginPath();
+        ctx.arc(bulb.x, bulb.y - iconR * 0.2, iconR * 0.6, Math.PI, 0);
+        ctx.lineTo(bulb.x + iconR * 0.7, bulb.y + iconR * 0.6);
+        ctx.lineTo(bulb.x - iconR * 0.7, bulb.y + iconR * 0.6);
+        ctx.closePath();
+        ctx.fill();
+      }
 
       ctx.restore();
     }
+
+    // 5. Banner de Instrucción Superior
+    const bannerText = this.isShowingSequence
+      ? `MIRA Y ESCUCHA LA MELODÍA (Ronda ${this.currentRound})`
+      : `¡TU TURNO! (Paso ${this.playerStep + 1} de ${this.sequence.length})`;
+
+    const bannerColor = this.isShowingSequence ? "#FFD700" : "#2ECC71";
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+    ctx.roundRect(this.width * 0.08, this.height * 0.22, this.width * 0.84, 48, [14]);
+    ctx.fill();
+
+    ctx.font = "700 20px 'Fredoka', 'Outfit', sans-serif";
+    ctx.fillStyle = bannerColor;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(bannerText, this.width / 2, this.height * 0.22 + 24);
   }
 }

@@ -270,36 +270,78 @@ export abstract class BaseGame {
     ctx.stroke();
 
     const fontMain = Math.max(15, Math.min(26, this.width * 0.04));
-    const fontSub = Math.max(13, Math.min(22, this.width * 0.034));
+    const fontSub = Math.max(13, Math.min(20, this.width * 0.032));
     const textY = hudH * 0.64;
     const paddingX = Math.max(14, this.width * 0.03);
 
-    // 1. PUNTUACIÓN (Izquierda)
-    ctx.font = `bold ${fontMain}px 'Segoe UI', sans-serif`;
+    // 1. PUNTUACIÓN (Izquierda con estrella vectorial)
+    const starRadius = fontMain * 0.45;
+    const starX = paddingX + starRadius;
+    const starY = textY - fontMain * 0.3;
+    
+    // Dibujar estrella dorada
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+      const r = i % 2 === 0 ? starRadius : starRadius * 0.5;
+      const px = starX + Math.cos(angle) * r;
+      const py = starY + Math.sin(angle) * r;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.font = `700 ${fontMain}px 'Fredoka', 'Outfit', sans-serif`;
     ctx.fillStyle = "#FFD700";
     ctx.textAlign = "left";
-    ctx.fillText(`⭐ ${this.score}`, paddingX, textY);
+    ctx.fillText(`${this.score}`, starX + starRadius + 6, textY);
 
-    // 2. VIDAS Y TIEMPO RESTANTE (Centro)
+    // 2. VIDAS Y TIEMPO RESTANTE (Centro con corazones vectoriales)
     const timeFormatted = Math.ceil(this.timeRemaining);
-    ctx.textAlign = "center";
-
+    
     if (this.showLives) {
-      const hearts = "❤️".repeat(Math.max(0, this.lives)) + "🖤".repeat(Math.max(0, this.maxLives - this.lives));
-      ctx.font = `bold ${fontMain * 0.92}px 'Segoe UI Emoji', sans-serif`;
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillText(`${hearts}  ⏳ ${timeFormatted}s`, this.width / 2, textY);
-    } else {
-      ctx.font = `bold ${fontMain * 1.06}px 'Segoe UI', sans-serif`;
+      // Dibujar corazones vectoriales
+      const heartSize = Math.max(12, fontMain * 0.6);
+      const startHeartsX = this.width / 2 - (this.maxLives * (heartSize * 2.2)) / 2 - 25;
+      
+      for (let i = 0; i < this.maxLives; i++) {
+        const hx = startHeartsX + i * (heartSize * 2.2);
+        const hy = textY - fontMain * 0.25;
+        const isFilled = i < this.lives;
+        
+        ctx.save();
+        ctx.beginPath();
+        ctx.translate(hx, hy);
+        ctx.scale(heartSize / 10, heartSize / 10);
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-5, -5, -10, 0, 0, 10);
+        ctx.bezierCurveTo(10, 0, 5, -5, 0, 0);
+        ctx.fillStyle = isFilled ? "#FF2A55" : "rgba(255, 255, 255, 0.25)";
+        ctx.fill();
+        ctx.strokeStyle = isFilled ? "#FFAEC0" : "rgba(255,255,255,0.4)";
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.font = `600 ${fontMain * 0.95}px 'Fredoka', 'Outfit', sans-serif`;
       ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
-      ctx.fillText(`⏳ ${timeFormatted}s`, this.width / 2, textY);
+      ctx.textAlign = "left";
+      ctx.fillText(`${timeFormatted}s`, this.width / 2 + 15, textY);
+    } else {
+      ctx.font = `700 ${fontMain * 1.05}px 'Fredoka', 'Outfit', sans-serif`;
+      ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
+      ctx.textAlign = "center";
+      ctx.fillText(`${timeFormatted}s`, this.width / 2, textY);
     }
 
     // 3. RÉCORD / MEJOR PUNTUACIÓN (Derecha)
-    ctx.font = `bold ${fontSub}px 'Segoe UI', sans-serif`;
+    ctx.font = `600 ${fontSub}px 'Fredoka', 'Outfit', sans-serif`;
     ctx.fillStyle = "#2ECC71";
     ctx.textAlign = "right";
-    ctx.fillText(`🏆 ${Math.max(this.score, this.highScore)}`, this.width - paddingX, textY);
+    ctx.fillText(`RÉCORD: ${Math.max(this.score, this.highScore)}`, this.width - paddingX, textY);
 
     // 4. Indicador de Power-Up del Logo de la Feria activo
     if (this.isLogoPowerUpActive) {
@@ -307,9 +349,9 @@ export abstract class BaseGame {
       ctx.fillStyle = "rgba(255, 215, 0, 0.96)";
       ctx.fillRect(0, hudH, this.width, bannerH);
       ctx.fillStyle = "#0A2518";
-      ctx.font = `bold ${Math.max(12, Math.min(18, this.width * 0.03))}px 'Segoe UI', sans-serif`;
+      ctx.font = `700 ${Math.max(12, Math.min(18, this.width * 0.03))}px 'Fredoka', 'Outfit', sans-serif`;
       ctx.textAlign = "center";
-      ctx.fillText(`✨ ¡BONUS FERIA (x${this.activeLogo.bonusMultiplier})! - ${Math.ceil(this.logoPowerUpTimer)}s ✨`, this.width / 2, hudH + bannerH * 0.7);
+      ctx.fillText(`¡BONUS FERIA (x${this.activeLogo.bonusMultiplier})! - ${Math.ceil(this.logoPowerUpTimer)}s`, this.width / 2, hudH + bannerH * 0.7);
     }
 
     ctx.restore();

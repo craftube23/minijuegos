@@ -10,6 +10,7 @@
  */
 
 import { BANNER_CONFIG, type BannerSlide } from "../config/banners";
+import { getIconSvg } from "../utils/icons";
 
 export class GameBannerCarousel {
   private container: HTMLElement;
@@ -33,7 +34,9 @@ export class GameBannerCarousel {
             (slide, idx) => `
           <div class="carousel-slide ${idx === 0 ? "active" : ""}" data-index="${idx}" style="background: ${slide.bgGradient};">
             <div class="banner-flex-card">
-              <div class="banner-icon-badge">${slide.icon}</div>
+              <div class="banner-icon-badge">
+                ${getIconSvg(slide.iconName, { size: 28, color: "#ffffff", fill: "rgba(255,255,255,0.2)" })}
+              </div>
               <div class="banner-text-group">
                 <div class="banner-headline">${slide.title}</div>
                 <div class="banner-subline">${slide.subtitle}</div>

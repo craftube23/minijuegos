@@ -9,11 +9,12 @@
 
 import { StorageManager } from "../core/StorageManager";
 import { AudioManager } from "../core/AudioManager";
+import { getIconSvg } from "../utils/icons";
 
 export interface GameMenuItem {
   id: string;
   title: string;
-  emoji: string;
+  iconName: string;
   category: string;
   tagline: string;
   colorGrad: string;
@@ -28,7 +29,7 @@ export class GameMenu {
     {
       id: "toy-catch",
       title: "Atrapa-Regalos Mágico",
-      emoji: "🎁",
+      iconName: "gift",
       category: "Acción & Reflejos",
       tagline: "¡Atrapa juguetes con el saco de Santa!",
       colorGrad: "linear-gradient(135deg, #C0392B 0%, #E74C3C 100%)"
@@ -36,7 +37,7 @@ export class GameMenu {
     {
       id: "sleigh-rush",
       title: "El Vuelo del Trineo",
-      emoji: "🛷",
+      iconName: "zap",
       category: "Velocidad & Carriles",
       tagline: "¡Vuela esquivando obstáculos en el cielo!",
       colorGrad: "linear-gradient(135deg, #1B4F72 0%, #2980B9 100%)"
@@ -44,7 +45,7 @@ export class GameMenu {
     {
       id: "tree-melody",
       title: "Enciende el Árbol",
-      emoji: "💡",
+      iconName: "music",
       category: "Memoria Musical",
       tagline: "¡Repite la melodía de campanas mágicas!",
       colorGrad: "linear-gradient(135deg, #145A32 0%, #27AE60 100%)"
@@ -52,7 +53,7 @@ export class GameMenu {
     {
       id: "magic-pairs",
       title: "Parejas de Juguetes",
-      emoji: "🃏",
+      iconName: "layers",
       category: "Ingenio & Rapidez",
       tagline: "¡Encuentra las parejas de cartas mágicas!",
       colorGrad: "linear-gradient(135deg, #5B2C6F 0%, #8E44AD 100%)"
@@ -69,7 +70,11 @@ export class GameMenu {
   public render(): void {
     this.container.innerHTML = `
       <div class="menu-header">
-        <h2 class="menu-title">✨ SELECCIONA UN JUEGO DE LA FERIA ✨</h2>
+        <h2 class="menu-title">
+          ${getIconSvg("sparkles", { size: 24, color: "var(--color-gold)" })}
+          SELECCIONA UN JUEGO DE LA FERIA
+          ${getIconSvg("sparkles", { size: 24, color: "var(--color-gold)" })}
+        </h2>
         <p class="menu-subtitle">Partidas rápidas y divertidas de 45 segundos</p>
       </div>
 
@@ -79,14 +84,22 @@ export class GameMenu {
             const record = StorageManager.getHighScore(g.id);
             return `
             <div class="game-card" data-game-id="${g.id}" style="background: ${g.colorGrad}">
-              <div class="game-card-emoji">${g.emoji}</div>
+              <div class="game-card-icon">
+                ${getIconSvg(g.iconName, { size: 48, color: "#ffffff", fill: "rgba(255,255,255,0.2)" })}
+              </div>
               <div class="game-card-info">
                 <span class="game-card-category">${g.category}</span>
                 <h3 class="game-card-title">${g.title}</h3>
                 <p class="game-card-tagline">${g.tagline}</p>
-                <div class="game-card-record">🏆 Récord: <strong>${record}</strong> pts</div>
+                <div class="game-card-record">
+                  ${getIconSvg("trophy", { size: 16, color: "var(--color-gold)", fill: "var(--color-gold)" })}
+                  <span>Récord: <strong>${record}</strong> pts</span>
+                </div>
               </div>
-              <button class="btn-card-play">¡JUGAR! ▶</button>
+              <button class="btn-card-play">
+                <span>¡JUGAR!</span>
+                ${getIconSvg("play", { size: 18, fill: "#ffffff", color: "#ffffff" })}
+              </button>
             </div>
           `;
           })

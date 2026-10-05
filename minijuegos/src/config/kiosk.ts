@@ -24,12 +24,12 @@ export const KIOSK_CONFIG = {
   // Textos y llamadas a la acción
   texts: {
     attractTitle: "¡BIENVENIDO A LA FERIA MÁGICA!",
-    attractSubtitle: "Toca la pantalla para comenzar a jugar 🎄✨",
+    attractSubtitle: "Toca la pantalla para comenzar a jugar",
     playAgain: "¡Jugar de Nuevo!",
     backToMenu: "Elegir Otro Juego",
-    soundOn: "Sonido Activado 🔊",
-    soundOff: "Sonido Silenciado 🔇",
-    newRecord: "¡NUEVO RÉCORD DE LA FERIA! 🏆",
+    soundOn: "Sonido Activado",
+    soundOff: "Sonido Silenciado",
+    newRecord: "¡NUEVO RÉCORD DE LA FERIA!",
     finalScore: "Puntuación Final",
   }
 };

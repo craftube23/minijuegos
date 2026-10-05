@@ -13,6 +13,7 @@
 import type { GameResult } from "../core/BaseGame";
 import { BRANDING } from "../config/branding";
 import { AudioManager } from "../core/AudioManager";
+import { getIconSvg } from "../utils/icons";
 
 export class GameOverModal {
   private container: HTMLElement;
@@ -33,12 +34,15 @@ export class GameOverModal {
     const modalSubtitle = isRecord
       ? "¡Hiciste una partida legendaria en la Feria Mágica!"
       : "¡Estuviste muy cerca! Vuelve a intentarlo para superar la puntuación.";
-    const iconHeader = isRecord ? "🏆" : "🌟";
 
     this.container.innerHTML = `
       <div class="modal-card">
         <div class="modal-header">
-          <span class="modal-trophy">${iconHeader}</span>
+          <div class="modal-trophy">
+            ${isRecord 
+              ? getIconSvg("trophy", { size: 56, color: "var(--color-gold)", fill: "var(--color-gold)" })
+              : getIconSvg("sparkles", { size: 56, color: "var(--color-gold)" })}
+          </div>
           <h2 class="modal-title">${modalTitle}</h2>
           <p class="modal-game-name">${modalSubtitle}</p>
         </div>
@@ -63,10 +67,12 @@ export class GameOverModal {
 
         <div class="modal-actions">
           <button id="btn-modal-again" class="btn-action btn-again">
-            <span>🔄 ¡VOLVER A INTENTAR!</span>
+            ${getIconSvg("replay", { size: 22, color: "#ffffff" })}
+            <span>¡VOLVER A INTENTAR!</span>
           </button>
           <button id="btn-modal-menu" class="btn-action btn-menu">
-            <span>🏠 OTROS JUEGOS</span>
+            ${getIconSvg("grid", { size: 22, color: "#ffffff" })}
+            <span>OTROS JUEGOS</span>
           </button>
         </div>
       </div>

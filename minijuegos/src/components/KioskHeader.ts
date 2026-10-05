@@ -12,6 +12,7 @@
 
 import { AudioManager } from "../core/AudioManager";
 import { BRANDING } from "../config/branding";
+import { getIconSvg } from "../utils/icons";
 
 export class KioskHeader {
   private container: HTMLElement;
@@ -32,7 +33,8 @@ export class KioskHeader {
     this.container.innerHTML = `
       <div class="kiosk-header-left">
         <button id="btn-home" class="kiosk-btn" title="Menú Principal">
-          <span>🏠 Menú</span>
+          ${getIconSvg("grid", { size: 20 })}
+          <span>Menú</span>
         </button>
       </div>
 
@@ -42,10 +44,10 @@ export class KioskHeader {
 
       <div class="kiosk-header-right">
         <button id="btn-audio" class="kiosk-btn" title="Sonido">
-          <span id="audio-icon">${isMuted ? "🔇" : "🔊"}</span>
+          <span id="audio-icon">${getIconSvg(isMuted ? "volumeOff" : "volumeOn", { size: 22 })}</span>
         </button>
         <button id="btn-fullscreen" class="kiosk-btn" title="Pantalla Completa">
-          <span>⛶</span>
+          <span>${getIconSvg("sparkles", { size: 20 })}</span>
         </button>
       </div>
     `;
@@ -65,7 +67,7 @@ export class KioskHeader {
     btnAudio?.addEventListener("click", () => {
       const muted = this.audio.toggleMute();
       if (audioIcon) {
-        audioIcon.textContent = muted ? "🔇" : "🔊";
+        audioIcon.innerHTML = getIconSvg(muted ? "volumeOff" : "volumeOn", { size: 22 });
       }
       if (!muted) {
         this.audio.playTap();

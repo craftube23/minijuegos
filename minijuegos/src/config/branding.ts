@@ -23,7 +23,7 @@ export interface LogoConfig {
 
 export const BRANDING = {
   fairName: "Feria Mágica del Juguete",
-  fairTagline: "Una experiencia mágica para toda la familia ✨",
+  fairTagline: "Una experiencia mágica para toda la familia",
   
   // Lista de logos intercambiables
   logos: {

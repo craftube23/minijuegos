@@ -93,7 +93,7 @@ class KioskApp {
     // 8. Arrancar bucle de renderizado a 60 FPS
     this.startMainLoop();
 
-    console.log("🎄 Feria Mágica del Juguete — Kiosco Interactivo Listo 🚀");
+    console.log("[Feria Mágica del Juguete] Kiosco Interactivo Listo");
   }
 
   /**

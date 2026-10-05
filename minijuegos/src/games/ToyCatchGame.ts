@@ -255,7 +255,7 @@ export class ToyCatchGame extends BaseGame {
       this.triggerShake(0.26, 8); // Temblor de pantalla
 
       // Mensaje flotante de pérdida de vida
-      this.addFloatingText("-1 ❤️", this.basketX, this.basketY - 45, "#FF1744", 1.25);
+      this.addFloatingText("-1 VIDA", this.basketX, this.basketY - 45, "#FF1744", 1.25);
 
       const burstColor = item.type === "ice" ? "#00E5FF" : "#8D6E63";
       this.particles.emitBurst(this.basketX, this.basketY, burstColor, 25);
@@ -269,7 +269,7 @@ export class ToyCatchGame extends BaseGame {
       this.addScore(item.points);
       this.triggerLogoPowerUp(1, 7);
       this.triggerShake(0.15, 4);
-      this.addFloatingText("✨ ¡SUPER BONUS x2! +500", this.basketX, this.basketY - 50, "#FFD700", 1.3);
+      this.addFloatingText("¡SUPER BONUS x2! +500", this.basketX, this.basketY - 50, "#FFD700", 1.3);
       this.particles.emitConfetti(this.width, 30);
     } else {
       this.comboCount++;
@@ -279,7 +279,7 @@ export class ToyCatchGame extends BaseGame {
       this.audio.playCatchItem(1.0 + Math.min(this.comboCount * 0.05, 0.5));
 
       // Texto de puntos flotante con combo
-      const comboLabel = this.comboCount > 2 ? ` 🔥x${this.comboCount}` : "";
+      const comboLabel = this.comboCount > 2 ? ` (x${this.comboCount})` : "";
       const scoreColor = this.comboCount > 4 ? "#FFD700" : "#00E676";
       this.addFloatingText(`+${totalPoints}${comboLabel}`, this.basketX, this.basketY - 40, scoreColor);
     }
