@@ -352,15 +352,19 @@ export abstract class BaseGame {
     const recordLabel = isNarrow ? `TOP: ${Math.max(this.score, this.highScore)}` : `RÉCORD: ${Math.max(this.score, this.highScore)}`;
     ctx.fillText(recordLabel, this.width - paddingX, textY);
 
-    // 4. Indicador de Power-Up del Logo de la Feria activo
+    // 4. Indicador de Power-Up del Logo Activo (Feria Mágica o Campuslands)
     if (this.isLogoPowerUpActive) {
       const bannerH = Math.max(24, Math.min(34, hudH * 0.55));
-      ctx.fillStyle = "rgba(255, 215, 0, 0.96)";
+      const isCampus = this.activeLogo.id === "logo-2";
+      
+      // Fondo dinámico: Cian para Campuslands, Dorado para Feria Mágica
+      ctx.fillStyle = isCampus ? "rgba(0, 229, 255, 0.96)" : "rgba(255, 215, 0, 0.96)";
       ctx.fillRect(0, hudH, this.width, bannerH);
-      ctx.fillStyle = "#0A2518";
+      ctx.fillStyle = isCampus ? "#031B33" : "#0A2518";
       ctx.font = `900 ${Math.max(11, Math.min(16, this.width * 0.028))}px 'Outfit', sans-serif`;
       ctx.textAlign = "center";
-      ctx.fillText(`¡BONUS FERIA (x${this.activeLogo.bonusMultiplier})! - ${Math.ceil(this.logoPowerUpTimer)}s`, this.width / 2, hudH + bannerH * 0.7);
+      const bonusTitle = isCampus ? "¡BONUS CAMPUSLANDS!" : "¡BONUS FERIA MÁGICA!";
+      ctx.fillText(`${bonusTitle} (x${this.activeLogo.bonusMultiplier}) - ${Math.ceil(this.logoPowerUpTimer)}s`, this.width / 2, hudH + bannerH * 0.7);
     }
 
     ctx.restore();

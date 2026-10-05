@@ -30,24 +30,24 @@ export const BRANDING = {
     // Logo 1: Logo Oficial Transparente de la Feria Mágica del Juguete
     logo1: {
       id: "logo-1",
-      name: "Logo Oficial Feria Mágica del Juguete (Sin Fondo)",
+      name: "Feria Mágica del Juguete",
       path: "/assets/logos/Feria-magica-del-jugete-sin-fondo.png",
       alt: "Feria Mágica del Juguete",
       themeColor: "#FFD700",
       bonusMultiplier: 2,
     } as LogoConfig,
     
-    // Logo 2: Logo Oficial para Resultados
+    // Logo 2: Logo Oficial de Campuslands (Colaborador)
     logo2: {
       id: "logo-2",
-      name: "Logo Feria Mágica del Juguete",
-      path: "/assets/logos/Feria-magica-del-jugete-sin-fondo.png",
-      alt: "Feria Mágica del Juguete",
-      themeColor: "#2ECC71",
-      bonusMultiplier: 3,
+      name: "Campuslands",
+      path: "/assets/logos/logo-campus-sin-fondo.png",
+      alt: "Campuslands - Colaborador Oficial",
+      themeColor: "#00E5FF",
+      bonusMultiplier: 2,
     } as LogoConfig,
 
-    // Logo Colaborador: Campuslands
+    // Alias directo para colaborador
     collaborator: {
       id: "logo-campus",
       name: "Campuslands",
