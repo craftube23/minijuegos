@@ -46,6 +46,16 @@ export const BRANDING = {
       themeColor: "#2ECC71",
       bonusMultiplier: 3,
     } as LogoConfig,
+
+    // Logo Colaborador: Campuslands
+    collaborator: {
+      id: "logo-campus",
+      name: "Campuslands",
+      path: "/assets/logos/logo-campus-sin-fondo.png",
+      alt: "Campuslands - Colaborador Oficial",
+      themeColor: "#00E5FF",
+      bonusMultiplier: 2,
+    } as LogoConfig
   },
   
   /**
@@ -53,6 +63,13 @@ export const BRANDING = {
    */
   getLogoPath(num: 1 | 2 = 1): string {
     return num === 1 ? this.logos.logo1.path : this.logos.logo2.path;
+  },
+
+  /**
+   * Helper para obtener el logo del colaborador
+   */
+  getCollaboratorLogoPath(): string {
+    return this.logos.collaborator.path;
   },
 
   /**

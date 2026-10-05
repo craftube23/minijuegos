@@ -35,7 +35,9 @@ export class GameBannerCarousel {
           <div class="carousel-slide ${idx === 0 ? "active" : ""}" data-index="${idx}" style="background: ${slide.bgGradient};">
             <div class="banner-flex-card">
               <div class="banner-icon-badge">
-                ${getIconSvg(slide.iconName, { size: 28, color: "#ffffff", fill: "rgba(255,255,255,0.2)" })}
+                ${slide.image 
+                  ? `<img src="${slide.image}" alt="${slide.title}" style="height: 38px; max-width: 90px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));" />`
+                  : getIconSvg(slide.iconName, { size: 28, color: "#ffffff", fill: "rgba(255,255,255,0.2)" })}
               </div>
               <div class="banner-text-group">
                 <div class="banner-headline">${slide.title}</div>

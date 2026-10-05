@@ -20,10 +20,20 @@ export interface BannerSlide {
 
 export const BANNER_CONFIG = {
   // Tiempo que permanece cada banner antes de rotar (en milisegundos)
-  rotationIntervalMs: 6000,
+  rotationIntervalMs: 5500,
   
   // Lista de anuncios interactivos y responsivos
   slides: [
+    {
+      id: "banner-campus",
+      title: "¡IMPULSADO POR CAMPUSLANDS!",
+      subtitle: "Innovación, tecnología y talento en la Feria Mágica del Juguete.",
+      badgeText: "COLABORADOR OFICIAL",
+      iconName: "sparkles",
+      bgGradient: "linear-gradient(90deg, #0B192C 0%, #1E3E62 50%, #000000 100%)",
+      badgeColor: "#00E5FF",
+      image: "/assets/logos/logo-campus-sin-fondo.png"
+    },
     {
       id: "banner-show",
       title: "¡GRAN SHOW DE SANTA Y DUENDES!",
