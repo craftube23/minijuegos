@@ -166,13 +166,17 @@ export class ToyCatchGame extends BaseGame {
       item.y += item.vy * dt;
       item.rotation += item.vRot * dt;
 
-      // Colisión con el saco
-      const dx = Math.abs(item.x - this.basketX);
-      const dy = Math.abs(item.y - this.basketY);
+      // Colisión precisa con la boca del saco
       const isObstacle = item.type === "ice" || item.type === "rock";
-      const extraMargin = isObstacle ? item.size * 0.45 : item.size * 0.28;
+      // Hitbox ajustada: solo un 5% más ancha que el saco para que sea justa y precisa
+      const hitHalfW = (this.basketWidth * 0.48) + (isObstacle ? item.size * 0.15 : item.size * 0.18);
+      const hitHalfH = (this.basketHeight * 0.42) + (item.size * 0.15);
+      const bagCenterY = this.basketY - this.basketHeight * 0.05;
 
-      if (dx < this.basketWidth / 2 + extraMargin && dy < this.basketHeight / 2 + extraMargin) {
+      const dx = Math.abs(item.x - this.basketX);
+      const dy = Math.abs(item.y - bagCenterY);
+
+      if (dx < hitHalfW && dy < hitHalfH) {
         this.handleItemCaught(item);
         this.items.splice(i, 1);
         continue;
