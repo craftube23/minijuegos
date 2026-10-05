@@ -45,28 +45,29 @@ html, body {
 }
 
 /* ==========================================================================
-   CONTENEDOR MAESTRO DE KIOSCO
+   CONTENEDOR MAESTRO DE KIOSCO (FOTO 2)
    ========================================================================== */
 #kiosk-app {
   width: 100%;
   height: 100%;
   height: 100dvh;
-  max-width: 100%;
+  max-width: 1080px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background: transparent;
+  background: url('/assets/images/fondo-nieve.webp') center center / cover no-repeat var(--color-bg);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
 }
 
 /* ==========================================================================
    1. BARRA SUPERIOR (HEADER FIJO)
    ========================================================================== */
 .kiosk-header {
-  height: clamp(80px, 11vh, 95px);
-  min-height: 80px;
-  background: linear-gradient(180deg, rgba(15, 36, 68, 0.96) 0%, rgba(8, 21, 39, 0.96) 100%);
+  height: 75px;
+  min-height: 75px;
+  background: linear-gradient(180deg, rgba(15, 36, 68, 0.95) 0%, rgba(8, 21, 39, 0.95) 100%);
   backdrop-filter: blur(8px);
   border-bottom: 2px solid var(--color-gold);
   display: flex;
@@ -87,18 +88,15 @@ html, body {
   flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
-  overflow: visible;
-  padding: 0 10px;
+  overflow: hidden;
+  padding: 0 8px;
 }
 
 .header-logo {
-  height: clamp(65px, 9.5vh, 85px);
-  max-width: clamp(240px, 40vw, 400px);
+  height: 52px;
+  max-width: 260px;
   object-fit: contain;
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.7));
-  transform: scale(1.18);
-  transition: transform 0.2s ease;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
 }
 
 .kiosk-btn {
@@ -124,7 +122,7 @@ html, body {
 }
 
 /* ==========================================================================
-   2. ÁREA PRINCIPAL Y CANVAS (SIN MANCHONES NEGROS)
+   2. ÁREA PRINCIPAL Y CANVAS
    ========================================================================== */
 .kiosk-main {
   flex: 1;
@@ -133,14 +131,18 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: transparent;
+  background: url('/assets/images/fondo-nieve.webp') center center / cover no-repeat #060e18;
   display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #game-canvas {
   width: 100%;
   height: 100%;
+  max-height: 100%;
   display: block;
+  object-fit: contain;
 }
 
 .kiosk-overlay {
@@ -158,8 +160,7 @@ html, body {
    PANTALLA DE ATRACCIÓN (SALVAPANTALLAS)
    ========================================================================== */
 .attract-layer {
-  background: radial-gradient(circle at center, rgba(27, 58, 107, 0.75) 0%, rgba(8, 20, 39, 0.85) 100%);
-  backdrop-filter: blur(10px);
+  background: radial-gradient(circle at center, #1b3a6b 0%, #081427 100%);
   align-items: center;
   justify-content: center;
   padding: clamp(12px, 2.5vh, 30px);
@@ -264,8 +265,8 @@ html, body {
    MENÚ DE SELECCIÓN DE JUEGOS
    ========================================================================== */
 .menu-layer {
-  background: rgba(7, 17, 30, 0.82);
-  backdrop-filter: blur(12px);
+  background: rgba(7, 17, 30, 0.95);
+  backdrop-filter: blur(10px);
   padding: clamp(14px, 2.5vh, 30px) clamp(12px, 2vw, 24px);
   overflow-y: auto;
   align-items: center;

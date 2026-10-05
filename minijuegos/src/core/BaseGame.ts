@@ -171,51 +171,40 @@ export abstract class BaseGame {
   protected drawHUD(ctx: CanvasRenderingContext2D): void {
     ctx.save();
 
-    const hudHeight = Math.max(54, Math.min(75, this.height * 0.08));
-
-    // Fondo sólido semi-transparente pegado a la parte superior (y=0)
-    ctx.fillStyle = "rgba(8, 21, 39, 0.94)";
-    ctx.fillRect(0, 0, this.width, hudHeight);
+    // Fondo semi-transparente para la barra superior
+    ctx.fillStyle = "rgba(10, 25, 47, 0.88)";
+    ctx.fillRect(0, 0, this.width, 90);
     ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(0, hudHeight);
-    ctx.lineTo(this.width, hudHeight);
-    ctx.stroke();
-
-    // Tamaños de texto adaptables a cualquier dispositivo
-    const fontMain = Math.max(16, Math.min(26, this.width * 0.034));
-    const fontRecord = Math.max(14, Math.min(22, this.width * 0.028));
-    const textY = hudHeight * 0.62;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(0, 0, this.width, 90);
 
     // 1. PUNTUACIÓN (Izquierda)
-    ctx.font = `bold ${fontMain}px 'Segoe UI', sans-serif`;
+    ctx.font = "bold 32px 'Segoe UI', sans-serif";
     ctx.fillStyle = "#FFD700";
     ctx.textAlign = "left";
-    ctx.fillText(`⭐ PUNTOS: ${this.score}`, Math.max(16, this.width * 0.025), textY);
+    ctx.fillText(`⭐ PUNTOS: ${this.score}`, 30, 58);
 
     // 2. TIEMPO RESTANTE (Centro)
     const timeFormatted = Math.ceil(this.timeRemaining);
-    ctx.font = `bold ${fontMain * 1.08}px 'Segoe UI', sans-serif`;
+    ctx.font = "bold 36px 'Segoe UI', sans-serif";
     ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
     ctx.textAlign = "center";
-    ctx.fillText(`⏳ ${timeFormatted}s`, this.width / 2, textY);
+    ctx.fillText(`⏳ ${timeFormatted}s`, this.width / 2, 58);
 
     // 3. RÉCORD / MEJOR PUNTUACIÓN (Derecha)
-    ctx.font = `bold ${fontRecord}px 'Segoe UI', sans-serif`;
+    ctx.font = "bold 26px 'Segoe UI', sans-serif";
     ctx.fillStyle = "#2ECC71";
     ctx.textAlign = "right";
-    ctx.fillText(`🏆 RÉCORD: ${Math.max(this.score, this.highScore)}`, this.width - Math.max(16, this.width * 0.025), textY);
+    ctx.fillText(`🏆 RÉCORD: ${Math.max(this.score, this.highScore)}`, this.width - 30, 58);
 
     // 4. Indicador de Power-Up del Logo de la Feria activo
     if (this.isLogoPowerUpActive) {
-      const bannerH = 34;
       ctx.fillStyle = "rgba(255, 215, 0, 0.95)";
-      ctx.fillRect(0, hudHeight, this.width, bannerH);
+      ctx.fillRect(0, 90, this.width, 40);
       ctx.fillStyle = "#0A2518";
-      ctx.font = `bold ${Math.max(13, Math.min(19, this.width * 0.024))}px 'Segoe UI', sans-serif`;
+      ctx.font = "bold 22px 'Segoe UI', sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(`✨ ¡BONUS FERIA ACTIVO! (x${this.activeLogo.bonusMultiplier}) - ${Math.ceil(this.logoPowerUpTimer)}s ✨`, this.width / 2, hudHeight + bannerH * 0.68);
+      ctx.fillText(`✨ ¡BONUS FERIA ACTIVO! (x${this.activeLogo.bonusMultiplier}) - ${Math.ceil(this.logoPowerUpTimer)}s ✨`, this.width / 2, 118);
     }
 
     ctx.restore();
