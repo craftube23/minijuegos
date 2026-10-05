@@ -598,16 +598,53 @@ html, body {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* Responsive para pantallas apaisadas o escritorio */
+/* ==========================================================================
+   RESPONSIVE PARA TELÉFONOS MÓVILES (PANTALLAS COMPACTAS)
+   ========================================================================== */
 @media (max-width: 600px) {
+  .kiosk-header {
+    height: 56px;
+    min-height: 56px;
+    padding: 0 8px;
+  }
+
+  .header-logo {
+    height: 40px;
+    max-width: 170px;
+  }
+
+  .kiosk-btn {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    min-height: 36px;
+    min-width: 36px;
+    border-radius: 8px;
+  }
+
+  .kiosk-footer-carousel {
+    height: 58px;
+    min-height: 58px;
+  }
+
+  .carousel-slide {
+    padding: 2px 8px;
+  }
+
   .menu-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
+
   .attract-title {
-    font-size: 2.1rem;
+    font-size: 1.6rem;
   }
+
+  .attract-subtitle {
+    font-size: 0.9rem;
+  }
+
   .btn-play-big {
-    font-size: 1.5rem;
-    padding: 18px 30px;
+    font-size: 1.25rem;
+    padding: 12px 26px;
   }
 }

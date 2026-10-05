@@ -96,9 +96,9 @@ export class ToyCatchGame extends BaseGame {
 
   protected onStart(): void {
     this.basketX = this.width / 2;
-    this.basketY = 1350;
-    this.basketWidth = 240;
-    this.basketHeight = 120;
+    this.basketY = 1360;
+    this.basketWidth = 190;
+    this.basketHeight = 95;
     this.items = [];
     this.spawnTimer = 0;
     this.comboCount = 0;
@@ -173,36 +173,36 @@ export class ToyCatchGame extends BaseGame {
       type = "fair_logo_box";
       points = 500;
       emoji = "⭐";
-      size = 140;
+      size = 95;
     } else if (roll < 0.32) {
       type = "teddy";
       points = 250;
       emoji = "🧸";
-      size = 135;
+      size = 90;
     } else if (roll < 0.50) {
       type = "robot";
       points = 200;
       emoji = "🤖";
-      size = 135;
+      size = 90;
     } else if (roll < 0.65) {
       type = "star";
       points = 300;
       emoji = "✨";
-      size = 120;
+      size = 85;
     } else if (roll < 0.85) {
       type = "gift_green";
       points = 150;
       emoji = "🎁";
-      size = 130;
+      size = 90;
     } else {
       // 15% probabilidad: Carbón / Obstáculo
       type = "coal";
       points = -150;
       emoji = "🪨";
-      size = 125;
+      size = 90;
     }
 
-    const margin = 100;
+    const margin = 80;
     this.items.push({
       x: margin + Math.random() * (this.width - margin * 2),
       y: -80,
@@ -250,7 +250,7 @@ export class ToyCatchGame extends BaseGame {
       }
 
       let drawnWithImage = false;
-      const drawSize = item.size * 1.3; // Tamaño aumentado para excelente visibilidad
+      const drawSize = item.size;
 
       if (item.type === "gift_red" && this.imgGiftRed.complete && this.imgGiftRed.naturalWidth > 0) {
         ctx.drawImage(this.imgGiftRed, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
@@ -281,7 +281,7 @@ export class ToyCatchGame extends BaseGame {
 
         if (this.logoImage1 && this.logoImage1.complete && this.logoImage1.naturalWidth > 0) {
           // Dibujar el Logo Oficial de la Feria
-          const logoW = drawSize * 1.3;
+          const logoW = drawSize * 1.25;
           const logoH = drawSize * 0.8;
           ctx.drawImage(this.logoImage1, -logoW / 2, -logoH / 2, logoW, logoH);
           drawnWithImage = true;
@@ -327,8 +327,8 @@ export class ToyCatchGame extends BaseGame {
 
     if (this.bagImage && this.bagImage.complete && this.bagImage.naturalWidth > 0) {
       // Dibujar la imagen recortada de la bolsa de regalos
-      const imgW = this.basketWidth + 40;
-      const imgH = this.basketHeight + 45;
+      const imgW = this.basketWidth + 20;
+      const imgH = this.basketHeight + 25;
       ctx.drawImage(this.bagImage, -imgW / 2, -imgH / 2, imgW, imgH);
     } else {
       // Dibujo vectorial de respaldo
