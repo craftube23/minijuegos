@@ -57,13 +57,15 @@ interface SkyHazard {
 }
 
 export class ChimneyDropGame extends BaseGame {
-  // Elfo en Ala Delta
+  // Elfo en Ala Delta (Movimiento 2D Libre en el Cielo)
   private elfX: number = 300;
-  private elfY: number = 180;
+  private elfY: number = 160;
   private targetElfX: number = 300;
+  private targetElfY: number = 160;
   private elfVx: number = 0;
   private elfTilt: number = 0;
   private elfWingSpan: number = 90;
+  private invulnerableTimer: number = 0; // Tiempo de inmunidad tras recibir daño
 
   // Aldea Nevada y desplazamiento
   private scrollSpeed: number = 220;
@@ -76,6 +78,8 @@ export class ChimneyDropGame extends BaseGame {
   private chimneySmokeTimer: number = 0;
 
   // Sprites Oficiales HD
+  private spriteElf: HTMLImageElement;
+  private spriteHouseRed: HTMLImageElement;
   private spriteGiftRed: HTMLImageElement;
   private spriteGiftGreen: HTMLImageElement;
   private spriteTeddy: HTMLImageElement;
@@ -90,7 +94,7 @@ export class ChimneyDropGame extends BaseGame {
     super(
       "sleigh-rush", // Mantiene el id para compatibilidad con récords
       "Dispara-Regalos a las Chimeneas",
-      "¡Mueve al elfo y toca la pantalla para encestar regalos en las chimeneas!",
+      "¡Mueve al elfo en cualquier dirección para esquivar y toca abajo para encestar regalos!",
       canvas,
       input,
       audio,
@@ -102,6 +106,12 @@ export class ChimneyDropGame extends BaseGame {
     this.lives = 3;
 
     // Cargar sprites oficiales
+    this.spriteElf = new Image();
+    this.spriteElf.src = "/assets/images/elfo-planeador.png";
+
+    this.spriteHouseRed = new Image();
+    this.spriteHouseRed.src = "/assets/images/casa-roja.png";
+
     this.spriteGiftRed = new Image();
     this.spriteGiftRed.src = "/assets/images/regalo-rojo.png";
 
@@ -117,16 +127,17 @@ export class ChimneyDropGame extends BaseGame {
 
   public override resize(width: number, height: number): void {
     super.resize(width, height);
-    this.elfY = Math.max(140, height * 0.22);
-    this.elfWingSpan = Math.min(110, Math.max(70, width * 0.16));
+    this.elfWingSpan = Math.min(120, Math.max(75, width * 0.16));
   }
 
   protected onStart(): void {
     this.elfX = this.width / 2;
     this.targetElfX = this.width / 2;
-    this.elfY = Math.max(140, this.height * 0.22);
+    this.elfY = Math.max(120, this.height * 0.20);
+    this.targetElfY = this.elfY;
     this.elfVx = 0;
     this.elfTilt = 0;
+    this.invulnerableTimer = 0;
     this.scrollSpeed = 220;
     this.lives = this.maxLives;
 
@@ -151,16 +162,16 @@ export class ChimneyDropGame extends BaseGame {
 
   private createHouse(x: number, w: number): void {
     const groundY = this.height - 110;
-    const h = 130 + Math.random() * 90;
+    const h = 140 + Math.random() * 70;
     const houseY = groundY - h;
 
     const colors = ["#1E3A8A", "#312E81", "#4C1D95", "#1E293B", "#14532D"];
     const color = colors[Math.floor(Math.random() * colors.length)];
 
     // Chimenea en el techo
-    const chimneyW = 38;
-    const chimneyH = 45;
-    const chimneyOffset = 25 + Math.random() * (w - 70);
+    const chimneyW = 42;
+    const chimneyH = 48;
+    const chimneyOffset = 25 + Math.random() * (w - 75);
 
     this.houses.push({
       x,
@@ -178,39 +189,59 @@ export class ChimneyDropGame extends BaseGame {
   }
 
   protected onUpdate(dt: number): void {
-    // 1. Control Táctil del Elfo en Ala Delta
+    const maxFlightY = Math.min(this.height * 0.46, this.height - 240);
+    const minFlightY = 70;
+
+    // 1. Control Táctil del Elfo en Ala Delta (Movimiento 2D Completo)
     const pointer = this.input.getPrimaryPointer();
     if (pointer && pointer.isDown) {
-      // Si toca arriba, mueve el planeador; si toca abajo, suelta regalos
-      this.targetElfX = Math.max(50, Math.min(this.width - 50, pointer.x));
+      const dropZoneY = this.height - 140;
 
-      // Si tocó en la zona inferior de lanzamiento
-      if (pointer.y > this.elfY + 40 && this.dropCooldown <= 0) {
-        this.dropPresent();
+      // Si toca en la zona inferior de botón → Disparar
+      if (pointer.y >= dropZoneY) {
+        if (this.dropCooldown <= 0) {
+          this.dropPresent();
+        }
+      } else {
+        // En cualquier otra parte de la pantalla → Control de Vuelo 2D Suave
+        this.targetElfX = Math.max(50, Math.min(this.width - 50, pointer.x));
+        this.targetElfY = Math.max(minFlightY, Math.min(maxFlightY, pointer.y));
+
+        // Si toca un poco más abajo del elfo, también suelta regalo
+        if (pointer.y > this.elfY + 90 && this.dropCooldown <= 0) {
+          this.dropPresent();
+        }
       }
     }
 
-    // Soporte teclado PC
+    // Soporte teclado PC (Movimiento en 4 direcciones + Espacio)
+    const speedPC = 520 * dt;
     if (this.input.isKeyDown("ArrowLeft") || this.input.isKeyDown("KeyA")) {
-      this.targetElfX = Math.max(50, this.targetElfX - 500 * dt);
+      this.targetElfX = Math.max(50, this.targetElfX - speedPC);
     }
     if (this.input.isKeyDown("ArrowRight") || this.input.isKeyDown("KeyD")) {
-      this.targetElfX = Math.min(this.width - 50, this.targetElfX + 500 * dt);
+      this.targetElfX = Math.min(this.width - 50, this.targetElfX + speedPC);
+    }
+    if (this.input.isKeyDown("ArrowUp") || this.input.isKeyDown("KeyW")) {
+      this.targetElfY = Math.max(minFlightY, this.targetElfY - speedPC);
+    }
+    if (this.input.isKeyDown("ArrowDown") || this.input.isKeyDown("KeyS")) {
+      this.targetElfY = Math.min(maxFlightY, this.targetElfY + speedPC);
     }
     if (this.input.isKeyDown("Space") && this.dropCooldown <= 0) {
       this.dropPresent();
     }
 
-    // Suavizado e inercia del vuelo
+    // Suavizado e inercia del vuelo en X e Y
     const prevX = this.elfX;
-    this.elfX += (this.targetElfX - this.elfX) * 12 * dt;
+    this.elfX += (this.targetElfX - this.elfX) * 14 * dt;
+    this.elfY += (this.targetElfY - this.elfY) * 14 * dt;
     this.elfVx = (this.elfX - prevX) / Math.max(0.001, dt);
-    this.elfTilt = (this.elfVx / 400) * 0.35;
+    this.elfTilt = (this.elfVx / 380) * 0.32;
 
-    // Cooldown de lanzamiento
-    if (this.dropCooldown > 0) {
-      this.dropCooldown -= dt;
-    }
+    // Cooldown de lanzamiento y tiempo de inmunidad
+    if (this.dropCooldown > 0) this.dropCooldown -= dt;
+    if (this.invulnerableTimer > 0) this.invulnerableTimer -= dt;
 
     // 2. Desplazamiento de la Aldea Nevada (Hacia la izquierda)
     const currentSpeed = this.scrollSpeed + (45 - this.timeRemaining) * 2.5;
@@ -243,16 +274,19 @@ export class ChimneyDropGame extends BaseGame {
       }
     }
 
-    // 3. Generación y Movimiento de Obstáculos/Estrellas en el Cielo
+    // 3. Generación y Movimiento de Obstáculos/Estrellas en Carriles Claros del Cielo
     this.spawnHazardTimer += dt;
-    if (this.spawnHazardTimer > 2.2) {
+    if (this.spawnHazardTimer > 2.0) {
       this.spawnHazardTimer = 0;
       const isStar = Math.random() < 0.45;
+      // Generar en 2 alturas predecibles (alta o baja) para que siempre haya un carril libre para esquivar
+      const laneY = Math.random() < 0.5 ? 90 + Math.random() * 50 : maxFlightY - 40 - Math.random() * 50;
+
       this.hazards.push({
-        x: this.width + 50,
-        y: this.elfY - 40 + Math.random() * 100,
-        vx: -(currentSpeed * 1.15),
-        radius: isStar ? 24 : 32,
+        x: this.width + 60,
+        y: laneY,
+        vx: -(currentSpeed * 0.95),
+        radius: isStar ? 22 : 24,
         type: isStar ? "gold_star" : "storm_balloon",
         passed: false
       });
@@ -262,31 +296,38 @@ export class ChimneyDropGame extends BaseGame {
       const haz = this.hazards[i];
       haz.x += haz.vx * dt;
 
-      // Colisión con el Elfo
-      if (!haz.passed && Math.hypot(haz.x - this.elfX, haz.y - this.elfY) < haz.radius + 35) {
-        haz.passed = true;
+      // Colisión con el Elfo (Hitbox ajustada y justa)
+      const distToElf = Math.hypot(haz.x - this.elfX, haz.y - this.elfY);
+      if (!haz.passed && distToElf < haz.radius + 22) {
         if (haz.type === "storm_balloon") {
-          // Daño: -1 vida
-          this.lives--;
-          this.addScore(-150);
-          this.audio.playError();
-          this.triggerShake(0.28, 9);
-          this.addFloatingText("-1 VIDA", this.elfX, this.elfY - 45, "#FF1744", 1.3);
-          this.particles.emitBurst(haz.x, haz.y, "#FF416C", 20);
+          // Solo recibe daño si no está en tiempo de inmunidad
+          if (this.invulnerableTimer <= 0) {
+            haz.passed = true;
+            this.lives--;
+            this.invulnerableTimer = 1.6; // 1.6 segundos de invulnerabilidad
+            this.addScore(-100);
+            this.audio.playError();
+            this.triggerShake(0.25, 8);
+            this.addFloatingText("-1 VIDA", this.elfX, this.elfY - 45, "#FF1744", 1.3);
+            this.particles.emitBurst(haz.x, haz.y, "#FF416C", 20);
 
-          if (this.lives <= 0) {
-            this.lives = 0;
-            this.endGame();
+            if (this.lives <= 0) {
+              this.lives = 0;
+              this.endGame();
+            }
+            this.hazards.splice(i, 1);
+            continue;
           }
         } else {
-          // Estrella dorada
+          // Estrella dorada coleccionable
+          haz.passed = true;
           this.addScore(150);
           this.audio.playCatchItem();
           this.addFloatingText("+150", haz.x, haz.y - 30, "#FFD700");
           this.particles.emitBurst(haz.x, haz.y, "#FFD700", 15);
+          this.hazards.splice(i, 1);
+          continue;
         }
-        this.hazards.splice(i, 1);
-        continue;
       }
 
       if (haz.x < -80) {
@@ -547,94 +588,113 @@ export class ChimneyDropGame extends BaseGame {
       ctx.restore();
     }
 
-    // 6. Dibujar el Elfo en Ala Delta (Vectorial + Animación de Vuelo)
+    // 6. Dibujar el Elfo en Ala Delta (Sprite HD + Efecto de Inmunidad y Vuelo)
     ctx.save();
     ctx.translate(this.elfX, this.elfY);
     ctx.rotate(this.elfTilt);
 
-    const halfW = this.elfWingSpan / 2;
+    // Efecto de parpadeo si está invulnerable
+    if (this.invulnerableTimer > 0) {
+      ctx.globalAlpha = Math.floor(Date.now() / 90) % 2 === 0 ? 0.35 : 0.9;
+    }
 
-    // Ala Delta Triangular (Amarillo dorado con franja roja de la Feria)
-    ctx.fillStyle = "#FACC15";
-    ctx.beginPath();
-    ctx.moveTo(0, -22);
-    ctx.lineTo(halfW, 14);
-    ctx.lineTo(0, 6);
-    ctx.lineTo(-halfW, 14);
-    ctx.closePath();
-    ctx.fill();
+    const elfDrawSize = this.elfWingSpan * 1.35;
 
-    // Franja roja central
-    ctx.fillStyle = "#DC2626";
-    ctx.beginPath();
-    ctx.moveTo(0, -22);
-    ctx.lineTo(halfW * 0.45, -2);
-    ctx.lineTo(0, 6);
-    ctx.lineTo(-halfW * 0.45, -2);
-    ctx.closePath();
-    ctx.fill();
+    if (this.spriteElf && this.spriteElf.complete && this.spriteElf.naturalWidth > 0) {
+      ctx.drawImage(this.spriteElf, -elfDrawSize / 2, -elfDrawSize / 2, elfDrawSize, elfDrawSize);
+    } else {
+      const halfW = this.elfWingSpan / 2;
 
-    // Estructura y barra de control del ala delta
-    ctx.strokeStyle = "#94A3B8";
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(-16, 8);
-    ctx.lineTo(0, 24);
-    ctx.lineTo(16, 8);
-    ctx.stroke();
+      // Ala Delta Triangular (Amarillo dorado con franja roja de la Feria)
+      ctx.fillStyle = "#FACC15";
+      ctx.beginPath();
+      ctx.moveTo(0, -22);
+      ctx.lineTo(halfW, 14);
+      ctx.lineTo(0, 6);
+      ctx.lineTo(-halfW, 14);
+      ctx.closePath();
+      ctx.fill();
 
-    // Cabeza y Gorro del Elfo
-    ctx.fillStyle = "#16A34A"; // Traje verde elfo
-    ctx.fillRect(-12, 14, 24, 18);
+      // Franja roja central
+      ctx.fillStyle = "#DC2626";
+      ctx.beginPath();
+      ctx.moveTo(0, -22);
+      ctx.lineTo(halfW * 0.45, -2);
+      ctx.lineTo(0, 6);
+      ctx.lineTo(-halfW * 0.45, -2);
+      ctx.closePath();
+      ctx.fill();
 
-    // Gorro rojo navideño hacia atrás por el viento
-    ctx.fillStyle = "#DC2626";
-    ctx.beginPath();
-    ctx.moveTo(0, 10);
-    ctx.lineTo(-24, 6);
-    ctx.lineTo(0, 18);
-    ctx.closePath();
-    ctx.fill();
+      // Estructura y barra de control del ala delta
+      ctx.strokeStyle = "#94A3B8";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(-16, 8);
+      ctx.lineTo(0, 24);
+      ctx.lineTo(16, 8);
+      ctx.stroke();
 
-    // Pompón blanco
-    ctx.fillStyle = "#FFFFFF";
-    ctx.beginPath();
-    ctx.arc(-26, 6, 5, 0, Math.PI * 2);
-    ctx.fill();
+      // Cabeza y Gorro del Elfo
+      ctx.fillStyle = "#16A34A"; // Traje verde elfo
+      ctx.fillRect(-12, 14, 24, 18);
 
-    // Cabeza del elfo con gafas de aviador
-    ctx.fillStyle = "#FBCFE8";
-    ctx.beginPath();
-    ctx.arc(4, 16, 8, 0, Math.PI * 2);
-    ctx.fill();
+      // Gorro rojo navideño hacia atrás por el viento
+      ctx.fillStyle = "#DC2626";
+      ctx.beginPath();
+      ctx.moveTo(0, 10);
+      ctx.lineTo(-24, 6);
+      ctx.lineTo(0, 18);
+      ctx.closePath();
+      ctx.fill();
 
-    // Gafas de aviador
-    ctx.fillStyle = "#0284C7";
-    ctx.fillRect(4, 13, 8, 5);
-    ctx.strokeStyle = "#1E293B";
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(4, 13, 8, 5);
+      // Pompón blanco
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.arc(-26, 6, 5, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Saco de regalos colgado detrás del elfo
-    ctx.fillStyle = "#78350F";
-    ctx.beginPath();
-    ctx.ellipse(-14, 24, 12, 9, 0, 0, Math.PI * 2);
-    ctx.fill();
+      // Cabeza del elfo con gafas de aviador
+      ctx.fillStyle = "#FBCFE8";
+      ctx.beginPath();
+      ctx.arc(4, 16, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Gafas de aviador
+      ctx.fillStyle = "#0284C7";
+      ctx.fillRect(4, 13, 8, 5);
+      ctx.strokeStyle = "#1E293B";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(4, 13, 8, 5);
+
+      // Saco de regalos colgado detrás del elfo
+      ctx.fillStyle = "#78350F";
+      ctx.beginPath();
+      ctx.ellipse(-14, 24, 12, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     ctx.restore();
 
     // 7. Botón Táctil Gigante de Lanzamiento en la parte inferior
-    ctx.fillStyle = "rgba(220, 38, 38, 0.85)";
-    ctx.roundRect(this.width * 0.15, this.height - 95, this.width * 0.70, 52, [26]);
+    ctx.save();
+    const btnW = Math.min(480, this.width * 0.76);
+    const btnH = Math.max(48, Math.min(56, this.height * 0.07));
+    const btnX = (this.width - btnW) / 2;
+    const btnY = this.height - btnH - 18;
+
+    ctx.fillStyle = "rgba(220, 38, 38, 0.92)";
+    ctx.beginPath();
+    ctx.roundRect(btnX, btnY, btnW, btnH, [btnH / 2]);
     ctx.fill();
     ctx.strokeStyle = "#FFD700";
     ctx.lineWidth = 3;
     ctx.stroke();
 
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = "700 18px 'Outfit', sans-serif";
+    ctx.font = `900 ${Math.max(14, Math.min(18, this.width * 0.038))}px 'Outfit', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("🎁 TOCA PARA SOLTAR REGALO 🎁", this.width / 2, this.height - 69);
+    ctx.fillText("🎁 TOCA PARA SOLTAR REGALO 🎁", this.width / 2, btnY + btnH / 2);
+    ctx.restore();
   }
 }
