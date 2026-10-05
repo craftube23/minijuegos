@@ -32,7 +32,7 @@ export class GameMenu {
       iconName: "gift",
       category: "Acción & Reflejos",
       tagline: "¡Atrapa juguetes con el saco de Santa!",
-      colorGrad: "linear-gradient(135deg, #C0392B 0%, #E74C3C 100%)"
+      colorGrad: "linear-gradient(145deg, #A91D22 0%, #D32F2F 50%, #C0392B 100%)"
     },
     {
       id: "sleigh-rush",
@@ -40,7 +40,7 @@ export class GameMenu {
       iconName: "zap",
       category: "Velocidad & Carriles",
       tagline: "¡Vuela esquivando obstáculos en el cielo!",
-      colorGrad: "linear-gradient(135deg, #1B4F72 0%, #2980B9 100%)"
+      colorGrad: "linear-gradient(145deg, #0D47A1 0%, #1976D2 50%, #2980B9 100%)"
     },
     {
       id: "tree-melody",
@@ -48,7 +48,7 @@ export class GameMenu {
       iconName: "music",
       category: "Memoria Musical",
       tagline: "¡Repite la melodía de campanas mágicas!",
-      colorGrad: "linear-gradient(135deg, #145A32 0%, #27AE60 100%)"
+      colorGrad: "linear-gradient(145deg, #1B5E20 0%, #2E7D32 50%, #27AE60 100%)"
     },
     {
       id: "magic-pairs",
@@ -56,7 +56,7 @@ export class GameMenu {
       iconName: "layers",
       category: "Ingenio & Rapidez",
       tagline: "¡Encuentra las parejas de cartas mágicas!",
-      colorGrad: "linear-gradient(135deg, #5B2C6F 0%, #8E44AD 100%)"
+      colorGrad: "linear-gradient(145deg, #4A148C 0%, #7B1FA2 50%, #8E44AD 100%)"
     }
   ];
 
