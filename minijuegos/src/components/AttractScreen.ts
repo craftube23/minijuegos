@@ -60,14 +60,18 @@ export class AttractScreen {
 
   private setupEvents(): void {
     const btn = this.container.querySelector("#btn-attract-start");
-    btn?.addEventListener("click", () => {
+    
+    btn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       if (this.onStartClick) this.onStartClick();
     });
 
-    // También responde a cualquier toque en la pantalla de atracción
-    this.container.addEventListener("pointerdown", (e) => {
-      // Si tocó el fondo también inicia
-      if ((e.target as HTMLElement).id !== "btn-attract-start") {
+    // También responde si toca el fondo de la pantalla de atracción
+    this.container.addEventListener("click", (e) => {
+      if ((e.target as HTMLElement).id !== "btn-attract-start" && !(e.target as HTMLElement).closest("#btn-attract-start")) {
+        e.preventDefault();
+        e.stopPropagation();
         if (this.onStartClick) this.onStartClick();
       }
     });

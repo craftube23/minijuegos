@@ -110,10 +110,20 @@ export class GameMenu {
     this.setupEvents();
   }
 
+  private lastShowTime: number = 0;
+
   private setupEvents(): void {
     const cards = this.container.querySelectorAll(".game-card");
     cards.forEach((card) => {
-      card.addEventListener("click", () => {
+      card.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Evitar que el mismo toque que abrió el menú presione una tarjeta por error
+        if (Date.now() - this.lastShowTime < 350) {
+          return;
+        }
+
         const gameId = card.getAttribute("data-game-id");
         if (gameId && this.onSelectGame) {
           this.audio.playTap();
@@ -124,6 +134,7 @@ export class GameMenu {
   }
 
   public show(): void {
+    this.lastShowTime = Date.now();
     this.render(); // Re-render para actualizar récords
     this.container.style.display = "flex";
   }

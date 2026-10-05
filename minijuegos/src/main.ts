@@ -175,6 +175,7 @@ class KioskApp {
       this.currentGame.destroy();
       this.currentGame = null;
     }
+    this.input.reset();
     this.appState = "menu";
     this.attractScreen.hide();
     this.gameOverModal.hide();
