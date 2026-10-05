@@ -393,7 +393,7 @@ export class TreeMelodyGame extends BaseGame {
     ctx.roundRect(this.width * 0.08, this.height * 0.22, this.width * 0.84, 48, [14]);
     ctx.fill();
 
-    ctx.font = "700 20px 'Fredoka', 'Outfit', sans-serif";
+    ctx.font = "700 20px 'Outfit', sans-serif";
     ctx.fillStyle = bannerColor;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";

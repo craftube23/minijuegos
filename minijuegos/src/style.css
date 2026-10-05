@@ -14,10 +14,10 @@
   --color-blue: #2980b9;
   --color-purple: #8e44ad;
   --color-white: #ffffff;
-  --font-main: 'Outfit', 'Fredoka', system-ui, -apple-system, sans-serif;
-  --font-game: 'Fredoka', 'Outfit', sans-serif;
-  --font-festive: 'Mountains of Christmas', cursive, sans-serif;
-  --font-display: 'Fredoka', 'Outfit', sans-serif;
+  --font-main: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-game: 'Titan One', 'Outfit', sans-serif;
+  --font-festive: 'Berkshire Swash', cursive, serif;
+  --font-display: 'Titan One', 'Outfit', sans-serif;
 }
 
 * {

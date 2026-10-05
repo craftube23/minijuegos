@@ -293,7 +293,7 @@ export abstract class BaseGame {
     ctx.closePath();
     ctx.fill();
 
-    ctx.font = `700 ${fontMain}px 'Fredoka', 'Outfit', sans-serif`;
+    ctx.font = `700 ${fontMain}px 'Titan One', 'Outfit', sans-serif`;
     ctx.fillStyle = "#FFD700";
     ctx.textAlign = "left";
     ctx.fillText(`${this.score}`, starX + starRadius + 6, textY);
@@ -326,19 +326,19 @@ export abstract class BaseGame {
         ctx.restore();
       }
 
-      ctx.font = `600 ${fontMain * 0.95}px 'Fredoka', 'Outfit', sans-serif`;
+      ctx.font = `700 ${fontMain * 0.95}px 'Outfit', sans-serif`;
       ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
       ctx.textAlign = "left";
       ctx.fillText(`${timeFormatted}s`, this.width / 2 + 15, textY);
     } else {
-      ctx.font = `700 ${fontMain * 1.05}px 'Fredoka', 'Outfit', sans-serif`;
+      ctx.font = `700 ${fontMain * 1.05}px 'Titan One', 'Outfit', sans-serif`;
       ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
       ctx.textAlign = "center";
       ctx.fillText(`${timeFormatted}s`, this.width / 2, textY);
     }
 
     // 3. RÉCORD / MEJOR PUNTUACIÓN (Derecha)
-    ctx.font = `600 ${fontSub}px 'Fredoka', 'Outfit', sans-serif`;
+    ctx.font = `700 ${fontSub}px 'Outfit', sans-serif`;
     ctx.fillStyle = "#2ECC71";
     ctx.textAlign = "right";
     ctx.fillText(`RÉCORD: ${Math.max(this.score, this.highScore)}`, this.width - paddingX, textY);
@@ -349,7 +349,7 @@ export abstract class BaseGame {
       ctx.fillStyle = "rgba(255, 215, 0, 0.96)";
       ctx.fillRect(0, hudH, this.width, bannerH);
       ctx.fillStyle = "#0A2518";
-      ctx.font = `700 ${Math.max(12, Math.min(18, this.width * 0.03))}px 'Fredoka', 'Outfit', sans-serif`;
+      ctx.font = `700 ${Math.max(12, Math.min(18, this.width * 0.03))}px 'Outfit', sans-serif`;
       ctx.textAlign = "center";
       ctx.fillText(`¡BONUS FERIA (x${this.activeLogo.bonusMultiplier})! - ${Math.ceil(this.logoPowerUpTimer)}s`, this.width / 2, hudH + bannerH * 0.7);
     }

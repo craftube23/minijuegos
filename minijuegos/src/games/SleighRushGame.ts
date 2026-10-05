@@ -427,7 +427,7 @@ export class SleighRushGame extends BaseGame {
           ctx.drawImage(this.fairLogoImg, -42, -42, 84, 84);
         } else {
           ctx.fillStyle = "#FFD700";
-          ctx.font = "bold 16px 'Fredoka', sans-serif";
+          ctx.font = "bold 16px 'Outfit', sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText("TURBO", 0, 0);

@@ -277,7 +277,7 @@ export class MagicPairsGame extends BaseGame {
     ctx.roundRect(this.width * 0.08, this.height * 0.12, this.width * 0.84, 46, [14]);
     ctx.fill();
 
-    ctx.font = "700 19px 'Fredoka', 'Outfit', sans-serif";
+    ctx.font = "700 19px 'Outfit', sans-serif";
     ctx.fillStyle = "#FFD700";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -374,7 +374,7 @@ export class MagicPairsGame extends BaseGame {
         // Etiqueta dorada para la carta especial
         if (card.isSpecialLogo) {
           ctx.fillStyle = "#E65100";
-          ctx.font = "700 12px 'Fredoka', sans-serif";
+          ctx.font = "800 12px 'Outfit', sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText("FERIA x2", 0, halfH - 14);
