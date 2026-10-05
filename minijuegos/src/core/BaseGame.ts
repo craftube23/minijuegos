@@ -15,6 +15,7 @@ import { InputManager } from "./InputManager";
 import { ParticleSystem } from "./ParticleSystem";
 import { StorageManager } from "./StorageManager";
 import { BRANDING, type LogoConfig } from "../config/branding";
+import { Haptics } from "../utils/haptics";
 
 export interface GameResult {
   gameId: string;
@@ -202,11 +203,16 @@ export abstract class BaseGame {
   protected abstract onDraw(ctx: CanvasRenderingContext2D): void;
 
   /**
-   * Genera un impacto de temblor en la pantalla (Screen Shake)
+   * Genera un impacto de temblor en la pantalla (Screen Shake) con feedback háptico
    */
   public triggerShake(duration: number = 0.22, intensity: number = 7): void {
     this.shakeTimer = duration;
     this.shakeIntensity = intensity;
+    if (intensity >= 5) {
+      Haptics.impact();
+    } else {
+      Haptics.medium();
+    }
   }
 
   /**
@@ -233,13 +239,13 @@ export abstract class BaseGame {
       ctx.translate(ft.x, ft.y);
       ctx.scale(ft.scale, ft.scale);
 
-      const fontSize = Math.max(18, Math.min(32, this.width * 0.048));
-      ctx.font = `900 ${fontSize}px 'Segoe UI', sans-serif`;
+      const fontSize = Math.max(16, Math.min(32, this.width * 0.045));
+      ctx.font = `900 ${fontSize}px 'Outfit', system-ui, sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
       // Sombra gruesa de alto contraste
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.95)";
       ctx.lineWidth = 5;
       ctx.strokeText(ft.text, 0, 0);
 
@@ -257,10 +263,11 @@ export abstract class BaseGame {
   protected drawHUD(ctx: CanvasRenderingContext2D): void {
     ctx.save();
 
-    const hudH = Math.max(48, Math.min(70, this.height * 0.08));
+    const isNarrow = this.width < 460;
+    const hudH = Math.max(44, Math.min(68, this.height * 0.075));
 
     // Fondo oscuro translúcido con borde dorado brillante
-    ctx.fillStyle = "rgba(8, 20, 38, 0.94)";
+    ctx.fillStyle = "rgba(7, 18, 34, 0.96)";
     ctx.fillRect(0, 0, this.width, hudH);
     ctx.strokeStyle = "#FFD700";
     ctx.lineWidth = 2.5;
@@ -269,13 +276,13 @@ export abstract class BaseGame {
     ctx.lineTo(this.width, hudH);
     ctx.stroke();
 
-    const fontMain = Math.max(15, Math.min(26, this.width * 0.04));
-    const fontSub = Math.max(13, Math.min(20, this.width * 0.032));
-    const textY = hudH * 0.64;
-    const paddingX = Math.max(14, this.width * 0.03);
+    const fontMain = isNarrow ? Math.max(13, this.width * 0.038) : Math.max(15, Math.min(24, this.width * 0.036));
+    const fontSub = isNarrow ? Math.max(10, this.width * 0.028) : Math.max(12, Math.min(18, this.width * 0.028));
+    const textY = hudH * 0.65;
+    const paddingX = Math.max(10, this.width * 0.025);
 
     // 1. PUNTUACIÓN (Izquierda con estrella vectorial)
-    const starRadius = fontMain * 0.45;
+    const starRadius = fontMain * 0.44;
     const starX = paddingX + starRadius;
     const starY = textY - fontMain * 0.3;
     
@@ -284,7 +291,7 @@ export abstract class BaseGame {
     ctx.beginPath();
     for (let i = 0; i < 5; i++) {
       const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-      const r = i % 2 === 0 ? starRadius : starRadius * 0.5;
+      const r = i % 2 === 0 ? starRadius : starRadius * 0.48;
       const px = starX + Math.cos(angle) * r;
       const py = starY + Math.sin(angle) * r;
       if (i === 0) ctx.moveTo(px, py);
@@ -293,21 +300,22 @@ export abstract class BaseGame {
     ctx.closePath();
     ctx.fill();
 
-    ctx.font = `700 ${fontMain}px 'Titan One', 'Outfit', sans-serif`;
+    ctx.font = `900 ${fontMain}px 'Outfit', sans-serif`;
     ctx.fillStyle = "#FFD700";
     ctx.textAlign = "left";
-    ctx.fillText(`${this.score}`, starX + starRadius + 6, textY);
+    ctx.fillText(`${this.score}`, starX + starRadius + 5, textY);
 
-    // 2. VIDAS Y TIEMPO RESTANTE (Centro con corazones vectoriales)
+    // 2. VIDAS Y TIEMPO RESTANTE (Centro)
     const timeFormatted = Math.ceil(this.timeRemaining);
     
     if (this.showLives) {
-      // Dibujar corazones vectoriales
-      const heartSize = Math.max(12, fontMain * 0.6);
-      const startHeartsX = this.width / 2 - (this.maxLives * (heartSize * 2.2)) / 2 - 25;
+      const heartSize = Math.max(9, fontMain * 0.52);
+      const heartsGap = heartSize * 2.1;
+      const totalHeartsW = this.maxLives * heartsGap;
+      const startHeartsX = (this.width / 2) - (totalHeartsW / 2) - (isNarrow ? 15 : 24);
       
       for (let i = 0; i < this.maxLives; i++) {
-        const hx = startHeartsX + i * (heartSize * 2.2);
+        const hx = startHeartsX + i * heartsGap;
         const hy = textY - fontMain * 0.25;
         const isFilled = i < this.lives;
         
@@ -326,30 +334,31 @@ export abstract class BaseGame {
         ctx.restore();
       }
 
-      ctx.font = `700 ${fontMain * 0.95}px 'Outfit', sans-serif`;
+      ctx.font = `900 ${fontMain * 0.95}px 'Outfit', sans-serif`;
       ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
       ctx.textAlign = "left";
-      ctx.fillText(`${timeFormatted}s`, this.width / 2 + 15, textY);
+      ctx.fillText(`${timeFormatted}s`, this.width / 2 + (isNarrow ? 8 : 15), textY);
     } else {
-      ctx.font = `700 ${fontMain * 1.05}px 'Titan One', 'Outfit', sans-serif`;
+      ctx.font = `900 ${fontMain * 1.05}px 'Outfit', sans-serif`;
       ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
       ctx.textAlign = "center";
       ctx.fillText(`${timeFormatted}s`, this.width / 2, textY);
     }
 
     // 3. RÉCORD / MEJOR PUNTUACIÓN (Derecha)
-    ctx.font = `700 ${fontSub}px 'Outfit', sans-serif`;
+    ctx.font = `800 ${fontSub}px 'Outfit', sans-serif`;
     ctx.fillStyle = "#2ECC71";
     ctx.textAlign = "right";
-    ctx.fillText(`RÉCORD: ${Math.max(this.score, this.highScore)}`, this.width - paddingX, textY);
+    const recordLabel = isNarrow ? `TOP: ${Math.max(this.score, this.highScore)}` : `RÉCORD: ${Math.max(this.score, this.highScore)}`;
+    ctx.fillText(recordLabel, this.width - paddingX, textY);
 
     // 4. Indicador de Power-Up del Logo de la Feria activo
     if (this.isLogoPowerUpActive) {
-      const bannerH = Math.max(26, Math.min(36, hudH * 0.55));
+      const bannerH = Math.max(24, Math.min(34, hudH * 0.55));
       ctx.fillStyle = "rgba(255, 215, 0, 0.96)";
       ctx.fillRect(0, hudH, this.width, bannerH);
       ctx.fillStyle = "#0A2518";
-      ctx.font = `700 ${Math.max(12, Math.min(18, this.width * 0.03))}px 'Outfit', sans-serif`;
+      ctx.font = `900 ${Math.max(11, Math.min(16, this.width * 0.028))}px 'Outfit', sans-serif`;
       ctx.textAlign = "center";
       ctx.fillText(`¡BONUS FERIA (x${this.activeLogo.bonusMultiplier})! - ${Math.ceil(this.logoPowerUpTimer)}s`, this.width / 2, hudH + bannerH * 0.7);
     }

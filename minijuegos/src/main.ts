@@ -165,6 +165,22 @@ class KioskApp {
     this.gameOverModal.onBackToMenu = () => {
       this.goToMenu();
     };
+
+    // 5. Botón ergonómico flotante a media altura para niños en Tótems de 55"
+    const childMenuBtn = document.getElementById("btn-totem-child-menu");
+    if (childMenuBtn) {
+      childMenuBtn.addEventListener("click", () => {
+        this.audio.playTap();
+        this.goToMenu();
+      });
+    }
+  }
+
+  private updateChildMenuBtnVisibility(): void {
+    const childMenuBtn = document.getElementById("btn-totem-child-menu");
+    if (childMenuBtn) {
+      childMenuBtn.style.display = this.appState === "playing" ? "flex" : "none";
+    }
   }
 
   /**
@@ -177,6 +193,7 @@ class KioskApp {
     }
     this.input.reset();
     this.appState = "menu";
+    this.updateChildMenuBtnVisibility();
     this.attractScreen.hide();
     this.gameOverModal.hide();
     this.gameMenu.show();
@@ -192,6 +209,7 @@ class KioskApp {
 
     this.currentGame = game;
     this.appState = "playing";
+    this.updateChildMenuBtnVisibility();
 
     this.attractScreen.hide();
     this.gameMenu.hide();
@@ -207,6 +225,7 @@ class KioskApp {
    */
   private handleGameOver(result: GameResult): void {
     this.appState = "gameover";
+    this.updateChildMenuBtnVisibility();
     this.gameOverModal.show(result);
     this.resetInactivity();
   }
@@ -220,6 +239,7 @@ class KioskApp {
       this.currentGame = null;
     }
     this.appState = "attract";
+    this.updateChildMenuBtnVisibility();
     this.gameMenu.hide();
     this.gameOverModal.hide();
     this.attractScreen.show();

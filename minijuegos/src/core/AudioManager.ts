@@ -12,6 +12,8 @@
  * Si deseas agregar tus propios archivos MP3 más adelante, puedes usar el método `playFile()`.
  */
 
+import { Haptics } from "../utils/haptics";
+
 export class AudioManager {
   private static instance: AudioManager;
   private ctx: AudioContext | null = null;
@@ -73,6 +75,7 @@ export class AudioManager {
    * Sonido de toque de botón / interfaz (Clic sutil y agradable)
    */
   public playTap(): void {
+    Haptics.tap();
     if (this.isMuted) return;
     this.unlockAudio();
     if (!this.ctx) return;
@@ -98,6 +101,7 @@ export class AudioManager {
    * Sonido al atrapar un regalo o sumar puntos (Campanita brillante)
    */
   public playCatchItem(pitchMultiplier: number = 1.0): void {
+    Haptics.light();
     if (this.isMuted) return;
     this.unlockAudio();
     if (!this.ctx) return;
@@ -131,6 +135,7 @@ export class AudioManager {
    * Efecto ascendente con armónicos de campana
    */
   public playPowerUp(): void {
+    Haptics.powerUp();
     if (this.isMuted) return;
     this.unlockAudio();
     if (!this.ctx) return;
@@ -161,6 +166,7 @@ export class AudioManager {
    * @param noteIndex 0: Do, 1: Mi, 2: Sol, 3: Si/Do agudo
    */
   public playBellNote(noteIndex: number): void {
+    Haptics.medium();
     if (this.isMuted) return;
     this.unlockAudio();
     if (!this.ctx) return;
@@ -188,6 +194,7 @@ export class AudioManager {
    * Sonido de error o penalización (Golpe grave amortiguado)
    */
   public playError(): void {
+    Haptics.impact();
     if (this.isMuted) return;
     this.unlockAudio();
     if (!this.ctx) return;
@@ -213,6 +220,7 @@ export class AudioManager {
    * Fanfarria de Victoria / Fin de Partida
    */
   public playVictory(): void {
+    Haptics.celebration();
     if (this.isMuted) return;
     this.unlockAudio();
     if (!this.ctx) return;
