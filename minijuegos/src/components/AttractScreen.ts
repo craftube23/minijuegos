@@ -26,14 +26,6 @@ export class AttractScreen {
   private render(): void {
     this.container.innerHTML = `
       <div class="attract-wrapper">
-        <div class="attract-decorations">
-          ${getIconSvg("sparkles", { size: 28, color: "var(--color-gold)" })}
-          ${getIconSvg("snowflake", { size: 28, color: "#64B5F6" })}
-          ${getIconSvg("star", { size: 28, color: "var(--color-gold)", fill: "var(--color-gold)" })}
-          ${getIconSvg("gift", { size: 28, color: "#FF416C" })}
-          ${getIconSvg("snowflake", { size: 28, color: "#64B5F6" })}
-        </div>
-        
         <div class="attract-logo-box">
           <img src="${BRANDING.getLogoPath(1)}" alt="${BRANDING.fairName}" class="attract-logo pulse-anim" />
         </div>

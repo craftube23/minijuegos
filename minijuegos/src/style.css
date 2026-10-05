@@ -69,60 +69,68 @@ html, body {
    1. BARRA SUPERIOR (HEADER FIJO)
    ========================================================================== */
 .kiosk-header {
-  height: 75px;
-  min-height: 75px;
-  background: linear-gradient(180deg, rgba(15, 36, 68, 0.95) 0%, rgba(8, 21, 39, 0.95) 100%);
-  backdrop-filter: blur(8px);
-  border-bottom: 2px solid var(--color-gold);
+  height: clamp(82px, 12vh, 98px);
+  min-height: 82px;
+  background: linear-gradient(180deg, rgba(15, 36, 68, 0.98) 0%, rgba(8, 21, 39, 0.98) 100%);
+  backdrop-filter: blur(10px);
+  border-bottom: 3px solid var(--color-gold);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 clamp(10px, 2vw, 24px);
+  padding: 0 clamp(12px, 2.5vw, 26px);
   z-index: 50;
   flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
 }
 
 .kiosk-header-left,
 .kiosk-header-right {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .kiosk-header-center {
   flex: 1;
   display: flex;
   justify-content: center;
-  overflow: hidden;
+  align-items: center;
+  overflow: visible;
   padding: 0 8px;
 }
 
 .header-logo {
-  height: 52px;
-  max-width: 260px;
+  height: clamp(62px, 9.5vh, 80px);
+  max-height: 80px;
+  max-width: clamp(220px, 45vw, 340px);
   object-fit: contain;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 12px rgba(255, 215, 0, 0.4));
+  transform: scale(1.05);
+  transition: transform 0.2s;
 }
 
 .kiosk-btn {
   background: rgba(255, 255, 255, 0.15);
-  border: 1.5px solid var(--color-gold);
+  border: 2px solid var(--color-gold);
   color: var(--color-white);
-  font-size: 1.05rem;
-  font-weight: bold;
-  padding: 8px 14px;
-  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-family: var(--font-main);
+  padding: 10px 16px;
+  border-radius: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.1s, background-color 0.2s;
-  min-height: 44px;
-  min-width: 44px;
+  gap: 8px;
+  transition: transform 0.1s, background-color 0.2s, box-shadow 0.2s;
+  min-height: 48px;
+  min-width: 48px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .kiosk-btn:active {
   transform: scale(0.92);
-  background: rgba(255, 215, 0, 0.3);
+  background: rgba(255, 215, 0, 0.35);
 }
 
 /* ==========================================================================
@@ -179,21 +187,13 @@ html, body {
   width: 100%;
 }
 
-.attract-decorations {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(12px, 3vw, 24px);
-  animation: floatDecor 3s ease-in-out infinite alternate;
-}
-
 .attract-logo-box {
   width: 100%;
-  max-width: clamp(260px, 50vw, 480px);
-  max-height: clamp(95px, 20vh, 180px);
+  max-width: clamp(340px, 75vw, 560px);
+  max-height: clamp(160px, 28vh, 260px);
   display: flex;
   justify-content: center;
-  margin: clamp(6px, 1.2vh, 14px) 0;
+  margin: clamp(4px, 1vh, 12px) 0;
 }
 
 .attract-logo {
@@ -201,13 +201,13 @@ html, body {
   max-height: 100%;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.7));
+  filter: drop-shadow(0 0 35px rgba(255, 215, 0, 0.85)) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.9));
   animation: floatLogo 4s ease-in-out infinite alternate;
 }
 
 @keyframes floatLogo {
   0% { transform: translateY(0) scale(1); }
-  100% { transform: translateY(-8px) scale(1.03); }
+  100% { transform: translateY(-8px) scale(1.04); }
 }
 
 .attract-title {
@@ -643,17 +643,18 @@ html, body {
 }
 
 /* ==========================================================================
-   3. CARRUSEL PUBLICITARIO INFERIOR (FOOTER)
+   3. CARRUSEL PUBLICITARIO INFERIOR (FOOTER MÁS GRANDE Y LEGIBLE)
    ========================================================================== */
 .kiosk-footer-carousel {
-  height: clamp(65px, 11vh, 95px);
-  min-height: 65px;
+  height: clamp(82px, 12vh, 108px);
+  min-height: 82px;
   background: #071526;
-  border-top: 3px solid var(--color-gold);
+  border-top: 3.5px solid var(--color-gold);
   position: relative;
   overflow: hidden;
   z-index: 40;
   flex-shrink: 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
 }
 
 .carousel-track {
@@ -674,7 +675,8 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 clamp(10px, 2.5vw, 28px);
+  padding: 0 clamp(12px, 2.5vw, 28px);
+  padding-right: clamp(16px, 7vw, 75px); /* Espacio de seguridad */
   pointer-events: none;
 }
 
@@ -691,14 +693,14 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(8px, 1.8vw, 18px);
-  padding: 4px 0;
+  gap: clamp(10px, 2.2vw, 20px);
+  padding: 6px 0;
 }
 
 .banner-icon-badge {
-  font-size: clamp(1.5rem, 3.5vw, 2.3rem);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5));
   animation: floatDecor 3s ease-in-out infinite alternate;
 }
 
@@ -713,25 +715,25 @@ html, body {
 
 .banner-headline {
   font-family: var(--font-display);
-  font-size: clamp(0.92rem, 2.2vw, 1.35rem);
-  color: #fff9c4;
-  letter-spacing: 0.8px;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  font-size: clamp(1rem, 2.5vw, 1.45rem);
+  color: #FFF9C4;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 .banner-subline {
-  font-size: clamp(0.72rem, 1.5vw, 0.95rem);
-  color: #ffffff;
+  font-size: clamp(0.8rem, 1.8vw, 1.05rem);
+  color: #FFFFFF;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   opacity: 0.95;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 .banner-tag-container {
@@ -739,14 +741,14 @@ html, body {
 }
 
 .banner-tag {
-  background: #ffffff;
+  background: #FFFFFF;
   font-family: var(--font-main);
-  font-size: clamp(0.70rem, 1.4vw, 0.88rem);
+  font-size: clamp(0.75rem, 1.6vw, 0.95rem);
   font-weight: 900;
-  padding: clamp(4px, 0.8vh, 7px) clamp(8px, 1.5vw, 14px);
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  letter-spacing: 0.5px;
+  padding: clamp(6px, 1vh, 9px) clamp(10px, 1.8vw, 16px);
+  border-radius: 22px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.8px;
   white-space: nowrap;
   display: inline-block;
 }
