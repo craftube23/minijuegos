@@ -35,7 +35,7 @@ export class GameMenu {
     {
       id: "toy-catch",
       title: "Atrapa-Regalos Mágico",
-      imageSrc: "./assets/images/icon-regalos-magicos.png",
+      imageSrc: "./assets/images/bolsa-de-regalos-clean.png",
       frameImageSrc: "./assets/images/marco-juego-rojo.png",
       themeClass: "theme-wood-red",
       category: "ACCIÓN & REFLEJOS",
