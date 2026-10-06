@@ -402,6 +402,7 @@ export class BellSymphonyGame extends BaseGame {
         { lane: 0, time: 9.20, isStar: false },
         { lane: 0, time: 9.60, isStar: false },
         { lane: 1, time: 10.00, isStar: false },
+        { lane: 1, time: 10.30, isStar: false }, // Segundo toque añadido
         { lane: 2, time: 10.60, isStar: false },
         { lane: 0, time: 11.20, isStar: false },
 
