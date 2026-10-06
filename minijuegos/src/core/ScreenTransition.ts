@@ -28,23 +28,59 @@ export class ScreenTransition {
   }
 
   /**
-   * 1. Transición Inicial: Tormenta de Nieve Mágica & Revelación
+   * 1. Transición Inicial: Tormenta de Nieve Mágica & Revelación Cinemática
    */
   public runInitialSnowstorm(container: HTMLElement, onRevealed: () => void): void {
     const curtain = document.createElement("div");
     curtain.className = "snowstorm-curtain";
     curtain.innerHTML = `
-      <div style="text-align: center; color: #FFF275; font-family: var(--font-festive); font-size: clamp(2rem, 6vw, 3.8rem); font-weight: 900; text-shadow: 0 4px 15px rgba(0,0,0,0.9), 0 0 35px rgba(255,215,0,0.8); animation: pulseBigBtn 2s infinite;">
-        ❄️ FERIA MÁGICA ❄️
-      </div>
-      <div style="font-family: var(--font-main); color: #E2E8F0; font-size: 1.1rem; font-weight: 700; margin-top: 12px; letter-spacing: 2px;">
-        PREPARANDO LA MAGIA...
+      <div class="intro-magic-box">
+        <!-- Logo Estrella 3D Animado con Aura y Chispas -->
+        <div class="intro-star-wrapper">
+          <div class="intro-magic-glow"></div>
+          <img src="./assets/images/estrella con logo.png" alt="Feria Mágica del Juguete" class="intro-star-logo" />
+          <div class="intro-sparkle s1">✦</div>
+          <div class="intro-sparkle s2">✧</div>
+          <div class="intro-sparkle s3">✦</div>
+          <div class="intro-sparkle s4">★</div>
+        </div>
+
+        <!-- Título 3D Volumétrico Dorado -->
+        <h1 class="intro-magic-title">FERIA MÁGICA</h1>
+        <div class="intro-magic-badge">DEL JUGUETE</div>
+
+        <!-- Barra de Carga Mágica Iluminada -->
+        <div class="intro-progress-container">
+          <div class="intro-progress-bar">
+            <div class="intro-progress-fill" id="intro-progress-fill"></div>
+            <div class="intro-progress-glint"></div>
+          </div>
+        </div>
+
+        <!-- Texto de Estado Dinámico -->
+        <p class="intro-magic-status" id="intro-status-text">✨ Preparando la magia navideña...</p>
       </div>
     `;
 
     container.appendChild(curtain);
 
-    // Secuencia de dispersión y revelación
+    const fillEl = curtain.querySelector<HTMLElement>("#intro-progress-fill");
+    const textEl = curtain.querySelector<HTMLElement>("#intro-status-text");
+
+    // Animación de llenado de barra y cambio de textos mágicos
+    if (fillEl) {
+      setTimeout(() => { fillEl.style.width = "40%"; }, 100);
+      setTimeout(() => { 
+        fillEl.style.width = "75%"; 
+        if (textEl) textEl.textContent = "🎁 Empacando juguetes mágicos...";
+      }, 700);
+      setTimeout(() => { 
+        fillEl.style.width = "100%"; 
+        if (textEl) textEl.textContent = "🎄 ¡Feria lista! Abriendo puertas...";
+      }, 1350);
+    }
+
+    // Secuencia de dispersión, sonido y revelación
     setTimeout(() => {
       this.audio.playWhoosh();
       curtain.classList.add("is-revealed");
@@ -52,8 +88,8 @@ export class ScreenTransition {
       setTimeout(() => {
         curtain.remove();
         onRevealed();
-      }, 750);
-    }, 1200);
+      }, 650);
+    }, 1850);
   }
 
   /**
