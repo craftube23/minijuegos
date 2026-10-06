@@ -390,36 +390,102 @@ export class BellSymphonyGame extends BaseGame {
     let pattern: { lane: number; b: number; isStar?: boolean }[] = [];
 
     if (song.id === "jingle-bells") {
-      // 88 golpes rítmicos exactos detectados de jingle-bells.mp3 (119 BPM)
-      const detectedBeats = [
-        1.44, 1.91, 2.39, 2.88, 3.39, 3.88, 4.36, 4.84, 5.35, 5.83, 6.32, 6.81, 7.33, 7.82, 8.31, 8.81,
-        9.32, 9.81, 10.30, 10.80, 11.31, 11.80, 12.28, 12.78, 13.29, 13.78, 14.28, 14.77, 15.28, 15.77, 16.27, 16.76,
-        17.27, 17.76, 18.25, 18.75, 19.26, 19.75, 20.24, 20.73, 21.24, 21.73, 22.23, 22.73, 23.23, 23.73, 24.23, 24.72,
-        25.23, 25.72, 26.22, 26.71, 27.22, 27.71, 28.20, 28.70, 29.21, 29.70, 30.19, 30.69, 31.20, 31.69, 32.18, 32.68,
-        33.19, 33.68, 34.18, 34.67, 35.18, 35.67, 36.16, 36.66, 37.17, 37.66, 38.16, 38.65, 39.16, 39.65, 40.15, 40.64,
-        41.15, 41.64, 42.13, 42.63, 43.14, 43.63, 44.13, 44.62
+      // Partitura alineada con la voz y letra real de la canción (Intro, Verso y Coro completo)
+      const vocalChart = [
+        // --- INTRO / CALIBRACIÓN (0s - 9s) ---
+        { lane: 0, time: 2.00, isStar: false },
+        { lane: 1, time: 4.00, isStar: false },
+        { lane: 2, time: 6.00, isStar: false },
+        { lane: 3, time: 8.00, isStar: true, logoType: 1 },
+
+        // --- VERSO 1 (9.0s - 24.5s): "Dashing through the snow..." ---
+        { lane: 0, time: 9.20, isStar: false },
+        { lane: 0, time: 9.60, isStar: false },
+        { lane: 1, time: 10.00, isStar: false },
+        { lane: 2, time: 10.60, isStar: false },
+        { lane: 0, time: 11.20, isStar: false },
+
+        { lane: 1, time: 12.20, isStar: false },
+        { lane: 1, time: 12.60, isStar: false },
+        { lane: 2, time: 13.20, isStar: false },
+        { lane: 3, time: 13.80, isStar: true, logoType: 2 },
+        { lane: 1, time: 14.40, isStar: false },
+
+        { lane: 0, time: 15.20, isStar: false },
+        { lane: 1, time: 15.60, isStar: false },
+        { lane: 2, time: 16.20, isStar: false },
+        { lane: 3, time: 16.80, isStar: false },
+        { lane: 2, time: 17.40, isStar: false },
+
+        { lane: 1, time: 18.40, isStar: false },
+        { lane: 2, time: 18.90, isStar: false },
+        { lane: 3, time: 19.40, isStar: true, logoType: 1 },
+        { lane: 2, time: 20.10, isStar: false },
+
+        { lane: 0, time: 21.20, isStar: false },
+        { lane: 1, time: 21.60, isStar: false },
+        { lane: 2, time: 22.00, isStar: false },
+        { lane: 3, time: 22.50, isStar: false },
+        { lane: 1, time: 23.10, isStar: false },
+        { lane: 2, time: 23.60, isStar: false },
+        { lane: 3, time: 24.20, isStar: true, logoType: 2 },
+
+        // --- CORO PRINCIPAL (25.0s - 42.0s): "JINGLE BELLS, JINGLE BELLS..." ---
+        { lane: 1, time: 25.20, isStar: false },
+        { lane: 1, time: 25.70, isStar: false },
+        { lane: 1, time: 26.20, isStar: false },
+
+        { lane: 1, time: 27.20, isStar: false },
+        { lane: 1, time: 27.70, isStar: false },
+        { lane: 1, time: 28.20, isStar: false },
+
+        { lane: 1, time: 29.20, isStar: false },
+        { lane: 3, time: 29.70, isStar: true, logoType: 1 },
+        { lane: 0, time: 30.20, isStar: false },
+        { lane: 1, time: 30.70, isStar: false },
+        { lane: 2, time: 31.40, isStar: false },
+
+        { lane: 2, time: 33.00, isStar: false },
+        { lane: 2, time: 33.50, isStar: false },
+        { lane: 2, time: 34.00, isStar: false },
+        { lane: 2, time: 34.50, isStar: false },
+
+        { lane: 2, time: 35.20, isStar: false },
+        { lane: 1, time: 35.70, isStar: false },
+        { lane: 1, time: 36.20, isStar: false },
+        { lane: 1, time: 36.70, isStar: false },
+        { lane: 1, time: 37.20, isStar: false },
+
+        // Acorde Doble "HEY!"
+        { lane: 0, time: 38.20, isStar: true, logoType: 2 },
+        { lane: 3, time: 38.20, isStar: false },
+
+        // Segunda vuelta del Coro
+        { lane: 1, time: 39.20, isStar: false },
+        { lane: 1, time: 39.60, isStar: false },
+        { lane: 1, time: 40.00, isStar: false },
+
+        { lane: 1, time: 40.80, isStar: false },
+        { lane: 1, time: 41.20, isStar: false },
+        { lane: 1, time: 41.60, isStar: false },
+
+        { lane: 1, time: 42.40, isStar: false },
+        { lane: 3, time: 42.80, isStar: true, logoType: 1 },
+        { lane: 0, time: 43.20, isStar: false },
+        { lane: 1, time: 43.60, isStar: false },
+        { lane: 2, time: 44.00, isStar: false },
+
+        // Clímax Final
+        { lane: 0, time: 44.60, isStar: true, logoType: 2 },
+        { lane: 3, time: 44.60, isStar: false }
       ];
 
-      for (let i = 0; i < detectedBeats.length; i++) {
-        const time = detectedBeats[i];
-        if (i < 8) {
-          pattern.push({ lane: i % 4, b: time / secondsPerBeat, isStar: i === 7 });
-        } else if (i >= 8 && i < 24) {
-          const sub = i - 8;
-          let lane = sub % 2 === 0 ? 1 : 2;
-          if (sub === 3 || sub === 7) lane = 0;
-          if (sub === 5 || sub === 11) lane = 3;
-          pattern.push({ lane, b: time / secondsPerBeat, isStar: sub === 6 || sub === 14 });
-        } else if (i >= 24 && i < 44) {
-          const sub = i - 24;
-          pattern.push({ lane: (sub * 2) % 4, b: time / secondsPerBeat, isStar: sub % 8 === 0 });
-        } else if (i >= 44 && i < 68) {
-          const sub = i - 44;
-          pattern.push({ lane: (sub + 1) % 4, b: time / secondsPerBeat, isStar: sub % 6 === 0 });
-        } else {
-          const sub = i - 68;
-          pattern.push({ lane: sub % 4, b: time / secondsPerBeat, isStar: sub % 5 === 0 });
-        }
+      for (const item of vocalChart) {
+        pattern.push({
+          lane: item.lane,
+          b: item.time / secondsPerBeat,
+          isStar: item.isStar
+        });
       }
     } else if (song.id === "deck-the-halls") {
       pattern = [
@@ -490,13 +556,13 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Al presionar un carril: verifica timing de notas y emite sonido de campana
+   * Al presionar un carril: verifica timing de notas y emite hitsound cálido y agradable
    */
   private handleLanePress(lane: number): void {
     this.lanePressed[lane] = true;
     this.lanePressTimers[lane] = 0.16;
 
-    this.playBellTone(this.lanes[lane].freq);
+    this.playHitsound(lane);
 
     let closestNote: FallingNote | null = null;
     let minDiff = 999;
@@ -600,9 +666,9 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Sintetizador Web Audio de Campanas Navideñas con armónicos brillantes
+   * Hitsound cálido, rítmico y armónico (Sin tonos agudos chillones, perfectamente mezclado con la música)
    */
-  private playBellTone(freq: number): void {
+  private playHitsound(lane: number): void {
     if (this.audio.getIsMuted()) return;
     this.audio.unlockAudio();
 
@@ -612,27 +678,41 @@ export class BellSymphonyGame extends BaseGame {
       if (ctx.state === "suspended") ctx.resume();
 
       const now = ctx.currentTime;
+      // Frecuencias medias cálidas (La3, Do4, Re4, Mi4) entre 220Hz y 330Hz
+      const notes = [220.00, 261.63, 293.66, 329.63];
+      const freq = notes[lane % 4];
 
-      [
-        { fRatio: 1.0, gainVal: 0.35, decay: 0.8 },
-        { fRatio: 2.76, gainVal: 0.20, decay: 0.5 },
-        { fRatio: 5.40, gainVal: 0.12, decay: 0.3 }
-      ].forEach((harm) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
+      // 1. Golpe percusivo suave (Tap de percusión de madera)
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
 
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(freq * harm.fRatio, now);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.6, now + 0.08);
 
-        gain.gain.setValueAtTime(harm.gainVal, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + harm.decay);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
 
-        osc.connect(gain);
-        gain.connect(ctx.destination);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
 
-        osc.start(now);
-        osc.stop(now + harm.decay);
-      });
+      osc.start(now);
+      osc.stop(now + 0.09);
+
+      // 2. Chime armónico sutil no invasivo
+      const chime = ctx.createOscillator();
+      const chimeGain = ctx.createGain();
+
+      chime.type = "triangle";
+      chime.frequency.setValueAtTime(freq * 1.5, now);
+      chimeGain.gain.setValueAtTime(0.04, now);
+      chimeGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+      chime.connect(chimeGain);
+      chimeGain.connect(ctx.destination);
+
+      chime.start(now);
+      chime.stop(now + 0.12);
     } catch {
       // Fallback
     }
