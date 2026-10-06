@@ -394,6 +394,11 @@ export const CAROL_OF_BELLS_BEATS: BeatPatternNote[] = [
 ];
 
 /**
+ * 🎄 PARTITURA BASE: Rockin' Around The Christmas Tree (140 BPM / 129s)
+ */
+export const ROCKIN_AROUND_CHART: ChartNoteRecord[] = [];
+
+/**
  * 🎵 LISTA DE CANCIONES DISPONIBLES EN EL JUEGO
  */
 export const RHYTHM_SONG_LIST: SongDef[] = [
@@ -411,6 +416,19 @@ export const RHYTHM_SONG_LIST: SongDef[] = [
     icon: "🎅"
   },
   {
+    id: "rockin-around",
+    title: "Rockin' Around The Christmas Tree",
+    subtitle: "Clásico Navideño Bailable",
+    bpm: 140,
+    speed: 510,
+    durationSeconds: 129,
+    stars: 3,
+    difficultyLabel: "MEDIO",
+    tagColor: "#FF9100",
+    audioFile: "Rockin' Around The Christmas Tree.mp3",
+    icon: "🎄"
+  },
+  {
     id: "deck-the-halls",
     title: "Deck The Halls Rush",
     subtitle: "Fiesta y cascadas de notas",
@@ -421,7 +439,7 @@ export const RHYTHM_SONG_LIST: SongDef[] = [
     difficultyLabel: "MEDIO",
     tagColor: "#FFD700",
     audioFile: "deck-the-halls.mp3",
-    icon: "🎄"
+    icon: "✨"
   },
   {
     id: "carol-of-bells",
@@ -437,3 +455,4 @@ export const RHYTHM_SONG_LIST: SongDef[] = [
     icon: "❄️"
   }
 ];
+

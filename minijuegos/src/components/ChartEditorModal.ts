@@ -17,9 +17,16 @@
  * - Probar de inmediato la partitura grabada en el juego.
  */
 
-import { JINGLE_BELLS_CHART, type ChartNoteRecord } from "../data/songs";
+import {
+  RHYTHM_SONG_LIST,
+  JINGLE_BELLS_CHART,
+  ROCKIN_AROUND_CHART,
+  type SongDef,
+  type ChartNoteRecord
+} from "../data/songs";
 
-export { type ChartNoteRecord };
+export { type ChartNoteRecord, type SongDef };
+
 
 export class ChartEditorModal {
   private container: HTMLElement;
@@ -83,7 +90,8 @@ export class ChartEditorModal {
     }
 
     try {
-      this.audioElement = new Audio(`./assets/audio/${this.selectedSongFile}`);
+      const audioUrl = `./assets/audio/${encodeURIComponent(this.selectedSongFile)}`;
+      this.audioElement = new Audio(audioUrl);
       this.audioElement.playbackRate = this.playbackSpeed;
       this.audioElement.volume = 0.85;
 
@@ -152,9 +160,11 @@ export class ChartEditorModal {
             <div class="editor-song-select-group">
               <label class="editor-label">Canción:</label>
               <select id="editor-song-select" class="editor-select">
-                <option value="jingle-bells.mp3" ${this.selectedSongFile === "jingle-bells.mp3" ? "selected" : ""}>🔔 Jingle Bells Rock (119 BPM)</option>
-                <option value="deck-the-halls.mp3" ${this.selectedSongFile === "deck-the-halls.mp3" ? "selected" : ""}>🎄 Deck The Halls Rush (140 BPM)</option>
-                <option value="carol-of-bells.mp3" ${this.selectedSongFile === "carol-of-bells.mp3" ? "selected" : ""}>❄️ Carol of the Bells (156 BPM)</option>
+                ${RHYTHM_SONG_LIST.map((s) => `
+                  <option value="${s.audioFile}" ${this.selectedSongFile === s.audioFile ? "selected" : ""}>
+                    ${s.icon} ${s.title} (${s.bpm} BPM)
+                  </option>
+                `).join("")}
               </select>
             </div>
 
@@ -190,6 +200,7 @@ export class ChartEditorModal {
             <button id="btn-editor-restart" class="btn-editor-ctrl">🔄 Reiniciar</button>
           </div>
         </div>
+
 
         <!-- 4 BOTONES DE CARRILES INTERACTIVOS (GRABACIÓN TÁCTIL Y TECLADO) -->
         <div class="editor-tap-zone">
@@ -316,9 +327,10 @@ export class ChartEditorModal {
 
     songSelect?.addEventListener("change", () => {
       this.selectedSongFile = songSelect.value;
-      if (this.selectedSongFile === "jingle-bells.mp3") this.currentSongBpm = 119;
-      else if (this.selectedSongFile === "deck-the-halls.mp3") this.currentSongBpm = 140;
-      else this.currentSongBpm = 156;
+      const songDef = RHYTHM_SONG_LIST.find((s) => s.audioFile === this.selectedSongFile);
+      if (songDef) {
+        this.currentSongBpm = songDef.bpm;
+      }
       this.setupAudio();
     });
 
@@ -583,7 +595,11 @@ export class ChartEditorModal {
   }
 
   private loadJingleBellsDefaults(): void {
-    this.recordedNotes = [...JINGLE_BELLS_CHART];
+    if (this.selectedSongFile === "jingle-bells.mp3") {
+      this.recordedNotes = [...JINGLE_BELLS_CHART];
+    } else if (this.selectedSongFile === "Rockin' Around The Christmas Tree.mp3") {
+      this.recordedNotes = [...ROCKIN_AROUND_CHART];
+    }
     this.updateNotesView();
   }
 

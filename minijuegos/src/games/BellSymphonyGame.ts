@@ -21,6 +21,7 @@ import { ChartEditorModal, type ChartNoteRecord } from "../components/ChartEdito
 import {
   RHYTHM_SONG_LIST,
   JINGLE_BELLS_CHART,
+  ROCKIN_AROUND_CHART,
   DECK_THE_HALLS_BEATS,
   CAROL_OF_BELLS_BEATS,
   type SongDef
@@ -306,7 +307,7 @@ export class BellSymphonyGame extends BaseGame {
     this.activeJudgements = [];
     this.starPowerTimer = 0;
     this.isStarPowerActive = false;
-    this.songDuration = song.id === "jingle-bells" ? 129 : 45;
+    this.songDuration = song.durationSeconds || 129;
 
     if (this.bgAudioElement) {
       this.bgAudioElement.pause();
@@ -314,7 +315,7 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     try {
-      this.bgAudioElement = new Audio(`./assets/audio/${song.audioFile}`);
+      this.bgAudioElement = new Audio(`./assets/audio/${encodeURIComponent(song.audioFile)}`);
       this.bgAudioElement.volume = 0.75;
       this.bgAudioElement.addEventListener("loadedmetadata", () => {
         if (this.bgAudioElement && !isNaN(this.bgAudioElement.duration) && this.bgAudioElement.duration > 5) {
@@ -341,7 +342,7 @@ export class BellSymphonyGame extends BaseGame {
       this.bgAudioElement.pause();
     }
     const song = this.songList[this.selectedSongIndex];
-    const file = defaultSongFile || (this.isCustomChartPlaying ? this.lastCustomSongFile : (song ? song.audioFile : "jingle-bells.mp3"));
+    const file = defaultSongFile || (this.isCustomChartPlaying ? this.lastCustomSongFile : (song ? song.audioFile : "Rockin' Around The Christmas Tree.mp3"));
     const notes = initialNotes || (this.lastCustomNotes.length > 0 ? this.lastCustomNotes : undefined);
     this.chartEditor.show(file, notes);
   }
@@ -369,7 +370,7 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     try {
-      this.bgAudioElement = new Audio(`./assets/audio/${songFile}`);
+      this.bgAudioElement = new Audio(`./assets/audio/${encodeURIComponent(songFile)}`);
       this.bgAudioElement.volume = 0.75;
       this.bgAudioElement.addEventListener("loadedmetadata", () => {
         if (this.bgAudioElement && !isNaN(this.bgAudioElement.duration) && this.bgAudioElement.duration > 5) {
@@ -409,10 +410,10 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   private handleSongSelectTouch(x: number, y: number): void {
-    const cardH = Math.min(105, this.height * 0.14);
+    const cardH = Math.min(80, this.height * 0.105);
     const cardW = Math.min(this.width * 0.88, 480);
-    const startY = this.height * 0.28;
-    const gap = 16;
+    const startY = this.height * 0.20;
+    const gap = 10;
 
     for (let i = 0; i < this.songList.length; i++) {
       const cy = startY + i * (cardH + gap);
@@ -427,8 +428,8 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     // Botón de Modo Grabador / Editor de Canción
-    const editorBtnY = startY + this.songList.length * (cardH + gap) + 12;
-    const editorBtnH = 56;
+    const editorBtnY = startY + this.songList.length * (cardH + gap) + 8;
+    const editorBtnH = 50;
     const cx = (this.width - cardW) / 2;
     if (x >= cx && x <= cx + cardW && y >= editorBtnY && y <= editorBtnY + editorBtnH) {
       this.audio.playTap();
@@ -444,6 +445,7 @@ export class BellSymphonyGame extends BaseGame {
         if (e.key === "1") this.startSong(0);
         else if (e.key === "2") this.startSong(1);
         else if (e.key === "3") this.startSong(2);
+        else if (e.key === "4") this.startSong(3);
         else if (e.key === "e" || e.key === "E") this.openChartEditor();
         else if (e.key === "Enter" || e.key === " ") this.startSong(this.selectedSongIndex);
         return;
@@ -495,6 +497,16 @@ export class BellSymphonyGame extends BaseGame {
           b: item.time / secondsPerBeat,
           isStar: item.isStar
         });
+      }
+    } else if (song.id === "rockin-around") {
+      if (ROCKIN_AROUND_CHART.length > 0) {
+        for (const item of ROCKIN_AROUND_CHART) {
+          pattern.push({
+            lane: item.lane,
+            b: item.time / secondsPerBeat,
+            isStar: item.isStar
+          });
+        }
       }
     } else if (song.id === "deck-the-halls") {
       pattern = DECK_THE_HALLS_BEATS;
@@ -1007,23 +1019,23 @@ export class BellSymphonyGame extends BaseGame {
     ctx.save();
 
     // Título Principal
-    ctx.font = `900 clamp(1.6rem, 5vw, 2.4rem) 'Cinzel Decorative', 'Outfit', sans-serif`;
+    ctx.font = `900 clamp(1.4rem, 4.5vw, 2.2rem) 'Cinzel Decorative', 'Outfit', sans-serif`;
     ctx.textAlign = "center";
     ctx.fillStyle = "#FFD700";
     ctx.shadowColor = "rgba(255, 215, 0, 0.8)";
     ctx.shadowBlur = 16;
-    ctx.fillText("SELECCIONA TU CANCIÓN", cx, this.height * 0.17);
+    ctx.fillText("SELECCIONA TU CANCIÓN", cx, this.height * 0.12);
 
-    ctx.font = `700 clamp(0.85rem, 2.8vw, 1.1rem) 'Outfit', sans-serif`;
+    ctx.font = `700 clamp(0.80rem, 2.5vw, 1.0rem) 'Outfit', sans-serif`;
     ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
     ctx.shadowBlur = 0;
-    ctx.fillText("Toca una canción para comenzar el concierto navideño", cx, this.height * 0.22);
+    ctx.fillText("Toca una canción para comenzar el concierto navideño", cx, this.height * 0.16);
 
     // Tarjetas de Canción
-    const cardH = Math.min(105, this.height * 0.14);
+    const cardH = Math.min(80, this.height * 0.105);
     const cardW = Math.min(this.width * 0.88, 480);
-    const startY = this.height * 0.28;
-    const gap = 16;
+    const startY = this.height * 0.20;
+    const gap = 10;
 
     for (let i = 0; i < this.songList.length; i++) {
       const song = this.songList[i];
@@ -1034,7 +1046,7 @@ export class BellSymphonyGame extends BaseGame {
       // Fondo de la tarjeta
       ctx.fillStyle = isSelected ? "rgba(12, 35, 68, 0.95)" : "rgba(8, 20, 38, 0.85)";
       ctx.beginPath();
-      ctx.roundRect(cardX, cy, cardW, cardH, 14);
+      ctx.roundRect(cardX, cy, cardW, cardH, 12);
       ctx.fill();
 
       // Borde dorado brillante
@@ -1045,26 +1057,26 @@ export class BellSymphonyGame extends BaseGame {
       ctx.stroke();
 
       // Icono
-      ctx.font = "34px sans-serif";
+      ctx.font = "30px sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(song.icon, cardX + 38, cy + cardH / 2);
+      ctx.fillText(song.icon, cardX + 34, cy + cardH / 2);
 
       // Título de la Canción
-      ctx.font = "900 clamp(1.05rem, 3.2vw, 1.35rem) 'Outfit', sans-serif";
+      ctx.font = "900 clamp(0.95rem, 3.0vw, 1.25rem) 'Outfit', sans-serif";
       ctx.textAlign = "left";
       ctx.fillStyle = isSelected ? "#FFFFFF" : "#E0E0E0";
-      ctx.fillText(song.title, cardX + 75, cy + cardH * 0.38);
+      ctx.fillText(song.title, cardX + 68, cy + cardH * 0.38);
 
       // Subtítulo y BPM
-      ctx.font = "600 clamp(0.75rem, 2.4vw, 0.95rem) 'Outfit', sans-serif";
+      ctx.font = "600 clamp(0.72rem, 2.2vw, 0.88rem) 'Outfit', sans-serif";
       ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
-      ctx.fillText(`${song.subtitle} • ${song.bpm} BPM`, cardX + 75, cy + cardH * 0.72);
+      ctx.fillText(`${song.subtitle} • ${song.bpm} BPM`, cardX + 68, cy + cardH * 0.72);
 
       // Badge de Dificultad
-      const badgeW = 75;
-      const badgeH = 26;
-      const badgeX = cardX + cardW - badgeW - 14;
+      const badgeW = 70;
+      const badgeH = 24;
+      const badgeX = cardX + cardW - badgeW - 12;
       const badgeY = cy + (cardH - badgeH) / 2;
 
       ctx.fillStyle = song.tagColor;
@@ -1079,8 +1091,8 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     // Botón Destacado: MODO GRABADOR / EDITOR DE CANCIÓN
-    const editorBtnY = startY + this.songList.length * (cardH + gap) + 12;
-    const editorBtnH = 56;
+    const editorBtnY = startY + this.songList.length * (cardH + gap) + 8;
+    const editorBtnH = 50;
     const editorBtnX = (this.width - cardW) / 2;
 
     const btnGrad = ctx.createLinearGradient(editorBtnX, editorBtnY, editorBtnX + cardW, editorBtnY);
@@ -1090,7 +1102,7 @@ export class BellSymphonyGame extends BaseGame {
 
     ctx.fillStyle = btnGrad;
     ctx.beginPath();
-    ctx.roundRect(editorBtnX, editorBtnY, cardW, editorBtnH, 14);
+    ctx.roundRect(editorBtnX, editorBtnY, cardW, editorBtnH, 12);
     ctx.fill();
 
     ctx.lineWidth = 2.5;
@@ -1099,16 +1111,17 @@ export class BellSymphonyGame extends BaseGame {
     ctx.shadowBlur = 14;
     ctx.stroke();
 
-    ctx.font = "900 clamp(1.0rem, 3.0vw, 1.25rem) 'Outfit', sans-serif";
+    ctx.font = "900 clamp(0.95rem, 2.8vw, 1.15rem) 'Outfit', sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#041424";
     ctx.shadowBlur = 0;
     ctx.fillText("🛠️ MODO GRABADOR / EDITOR DE RITMO", cx, editorBtnY + editorBtnH * 0.40);
 
-    ctx.font = "700 clamp(0.72rem, 2.0vw, 0.88rem) 'Outfit', sans-serif";
+    ctx.font = "700 clamp(0.70rem, 1.9vw, 0.82rem) 'Outfit', sans-serif";
     ctx.fillStyle = "#041424";
     ctx.fillText("Toca aquí o pulsa [ E ] para grabar notas en vivo", cx, editorBtnY + editorBtnH * 0.74);
+
 
     ctx.restore();
   }
