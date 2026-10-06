@@ -21,7 +21,7 @@ interface FallingItem {
   y: number;
   vy: number;
   size: number;
-  type: "gift_red" | "gift_green" | "teddy" | "robot" | "fair_logo_box" | "ice" | "rock";
+  type: "gift_red" | "gift_green" | "teddy" | "robot" | "fair_logo_box" | "campus_logo_box" | "ice" | "rock";
   points: number;
   rotation: number;
   vRot: number;
@@ -200,18 +200,23 @@ export class ToyCatchGame extends BaseGame {
     const baseSize = Math.max(48, Math.min(105, this.width * 0.15));
     let size = baseSize;
 
-    if (roll < 0.08) {
-      // 8% Moneda / Logo Dorado Feria Mágica (Super Bonus x2)
+    if (roll < 0.06) {
+      // 6% Moneda / Logo Dorado Feria Mágica (Super Bonus x2)
       type = "fair_logo_box";
       points = 500;
       size = baseSize * 1.15;
-    } else if (roll < 0.28) {
-      // 20% Osito
+    } else if (roll < 0.12) {
+      // 6% Logo Oficial Campuslands (Super Bonus x2)
+      type = "campus_logo_box";
+      points = 500;
+      size = baseSize * 1.15;
+    } else if (roll < 0.30) {
+      // 18% Osito
       type = "teddy";
       points = 250;
       size = baseSize;
     } else if (roll < 0.50) {
-      // 22% Robot
+      // 20% Robot
       type = "robot";
       points = 200;
       size = baseSize;
@@ -274,7 +279,15 @@ export class ToyCatchGame extends BaseGame {
       this.addScore(item.points);
       this.triggerLogoPowerUp(1, 7);
       this.triggerShake(0.15, 4);
-      this.addFloatingText("¡SUPER BONUS FERIA x2! +500", this.basketX, this.basketY - 50, "#FFD700", 1.3);
+      this.addFloatingText("¡BONUS FERIA x2! +500", this.basketX, this.basketY - 50, "#FFD700", 1.3);
+      this.particles.emitConfetti(this.width, 35);
+    } else if (item.type === "campus_logo_box") {
+      // LOGO OFICIAL: CAMPUSLANDS
+      this.comboCount++;
+      this.addScore(item.points);
+      this.triggerLogoPowerUp(2, 7);
+      this.triggerShake(0.15, 4);
+      this.addFloatingText("¡BONUS CAMPUSLANDS x2! +500", this.basketX, this.basketY - 50, "#00E5FF", 1.3);
       this.particles.emitConfetti(this.width, 35);
     } else {
       this.comboCount++;
@@ -322,6 +335,18 @@ export class ToyCatchGame extends BaseGame {
           const logoW = drawSize * 1.25;
           const logoH = drawSize * 0.85;
           ctx.drawImage(this.logoImage1, -logoW / 2, -logoH / 2, logoW, logoH);
+        }
+      } else if (item.type === "campus_logo_box") {
+        // Logo Campuslands - Halo cian resplandeciente
+        ctx.fillStyle = "rgba(0, 229, 255, 0.55)";
+        ctx.beginPath();
+        ctx.arc(0, 0, drawSize * 0.75, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (this.logoImage2 && this.logoImage2.complete && this.logoImage2.naturalWidth > 0) {
+          const logoW = drawSize * 1.25;
+          const logoH = drawSize * 0.85;
+          ctx.drawImage(this.logoImage2, -logoW / 2, -logoH / 2, logoW, logoH);
         }
       }
 

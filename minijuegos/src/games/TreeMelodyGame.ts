@@ -298,9 +298,11 @@ export class TreeMelodyGame extends BaseGame {
         this.particles.emitConfetti(this.width, 30);
         this.currentRound++;
 
-        // Bonus especial cada 3 rondas
-        if (this.currentRound % 3 === 0) {
-          this.triggerLogoPowerUp(1, 6);
+        // Bonus especial de Logos: Alterna entre Feria Mágica y Campuslands
+        if (this.currentRound % 2 === 0) {
+          this.triggerLogoPowerUp(2, 6); // Campuslands (Cian)
+        } else if (this.currentRound % 3 === 0) {
+          this.triggerLogoPowerUp(1, 6); // Feria Mágica (Dorado)
         }
 
         // Breve pausa para admirar el acierto y comenzar siguiente ronda

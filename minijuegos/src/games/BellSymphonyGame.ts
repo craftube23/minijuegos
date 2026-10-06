@@ -7,7 +7,7 @@
  * Stylized 2D Fantasy Game Art:
  * - Selector interactivo de canciones navideñas antes de jugar (Jingle Bells, Deck The Halls, Carol of the Bells).
  * - Notas rítmicas con Flechas de Bastón de Caramelo (Candy Cane Arrows) estilizadas con ribetes de oro.
- * - Star Notes con el Logo de la Feria Mágica del Juguete que activan el "MODO ESTRELLA x4" (Guitar Hero Style).
+ * - Star Notes con Logos Oficiales de la Feria Mágica del Juguete y Campuslands que activan el "MODO ESTRELLA x4" (Guitar Hero Style).
  * - Acompañamiento musical festivo sintetizado en tiempo real + soporte para MP3 personalizados.
  * - Sistema de juicio arcade: ¡PERFECTO!, ¡GENIAL!, ¡BIEN! y MISS.
  * - Control multitáctil en pads inferiores y teclado (D, F, J, K o flechas).
@@ -38,6 +38,7 @@ interface FallingNote {
   hit: boolean;
   missed: boolean;
   isStar?: boolean;
+  logoType?: 1 | 2; // 1: Feria Mágica (Dorado), 2: Campuslands (Cian)
 }
 
 interface LaneConfig {
@@ -145,7 +146,8 @@ export class BellSymphonyGame extends BaseGame {
   private imgArrowDown: HTMLImageElement;
   private imgArrowUp: HTMLImageElement;
   private imgArrowRight: HTMLImageElement;
-  private imgLogoStar: HTMLImageElement;
+  private imgLogoFair: HTMLImageElement;
+  private imgLogoCampus: HTMLImageElement;
   private imgStarWithLogo: HTMLImageElement;
 
   // Estado del juego de ritmo
@@ -173,6 +175,7 @@ export class BellSymphonyGame extends BaseGame {
   // MODO ESTRELLA / STAR POWER (Guitar Hero Style x4 Multiplier)
   private starPowerTimer: number = 0;
   private isStarPowerActive: boolean = false;
+  private activeStarPowerType: 1 | 2 = 1; // 1: Feria Mágica, 2: Campuslands
 
   // Popups visuales
   private activeJudgements: JudgementPopup[] = [];
@@ -218,8 +221,12 @@ export class BellSymphonyGame extends BaseGame {
     this.imgArrowRight = new Image();
     this.imgArrowRight.src = "./assets/images/flecha-der.png";
 
-    this.imgLogoStar = new Image();
-    this.imgLogoStar.src = "./assets/logos/Feria-magica-del-jugete-sin-fondo.png";
+    // Logos oficiales transparentes
+    this.imgLogoFair = new Image();
+    this.imgLogoFair.src = "./assets/logos/Feria-magica-del-jugete-sin-fondo.png";
+
+    this.imgLogoCampus = new Image();
+    this.imgLogoCampus.src = "./assets/logos/logo-campus-sin-fondo.png";
 
     this.imgStarWithLogo = new Image();
     this.imgStarWithLogo.src = "./assets/images/estrella con logo.png";
@@ -289,19 +296,17 @@ export class BellSymphonyGame extends BaseGame {
     this.starPowerTimer = 0;
     this.isStarPowerActive = false;
 
-    // Detener audio anterior si hubiera
     if (this.bgAudioElement) {
       this.bgAudioElement.pause();
       this.bgAudioElement = null;
     }
 
-    // Intentar reproducir el MP3 si el usuario lo colocó en public/assets/audio/
     try {
       this.bgAudioElement = new Audio(`./assets/audio/${song.audioFile}`);
       this.bgAudioElement.volume = 0.75;
       if (!this.audio.getIsMuted()) {
         this.bgAudioElement.play().catch(() => {
-          // Si no existe el archivo MP3, la síntesis procedural Web Audio tomará el relevo automáticamente
+          // Fallback a Web Audio
         });
       }
     } catch {
@@ -324,7 +329,6 @@ export class BellSymphonyGame extends BaseGame {
       const cy = startY + i * (cardH + gap);
       const cx = (this.width - cardW) / 2;
 
-      // Comprobar si tocó la tarjeta
       if (x >= cx && x <= cx + cardW && y >= cy && y <= cy + cardH) {
         this.selectedSongIndex = i;
         this.audio.playTap();
@@ -375,17 +379,17 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Genera la partitura musical adaptada a la canción seleccionada
+   * Genera la partitura musical adaptada a la canción seleccionada con alternancia de logos
    */
   private generateSongChart(song: SongDef): void {
     this.notes = [];
     const secondsPerBeat = 60 / song.bpm;
     let noteId = 0;
+    let starCount = 0;
 
     let pattern: { lane: number; b: number; isStar?: boolean }[] = [];
 
     if (song.id === "jingle-bells") {
-      // Jingle Bells (Ritmo accesible, divertido, notas bien espaciadas y estrellas de logo frecuentes)
       pattern = [
         { lane: 1, b: 2.0 }, { lane: 1, b: 2.5 }, { lane: 1, b: 3.0 },
         { lane: 1, b: 4.0 }, { lane: 1, b: 4.5 }, { lane: 1, b: 5.0 },
@@ -408,7 +412,6 @@ export class BellSymphonyGame extends BaseGame {
         { lane: 1, b: 43.5 }, { lane: 2, b: 43.5, isStar: true }
       ];
     } else if (song.id === "deck-the-halls") {
-      // Deck The Halls (Velocidad media con ráfagas de Fa-la-la-la y dobles notas)
       pattern = [
         { lane: 3, b: 2.0, isStar: true }, { lane: 2, b: 3.0 }, { lane: 1, b: 4.0 }, { lane: 0, b: 5.0 },
         { lane: 1, b: 6.0 }, { lane: 2, b: 6.5 }, { lane: 3, b: 7.0 }, { lane: 2, b: 8.0 },
@@ -431,7 +434,6 @@ export class BellSymphonyGame extends BaseGame {
         { lane: 1, b: 40.0 }, { lane: 2, b: 40.0, isStar: true }
       ];
     } else {
-      // Carol of the Bells (Ritmo rápido FNF Rush: compás de 3/4 y 6/8 con notas en cascada intensa)
       pattern = [
         { lane: 2, b: 2.0 }, { lane: 1, b: 2.33 }, { lane: 2, b: 2.66 }, { lane: 0, b: 3.0 },
         { lane: 2, b: 4.0 }, { lane: 1, b: 4.33 }, { lane: 2, b: 4.66 }, { lane: 0, b: 5.0 },
@@ -443,7 +445,6 @@ export class BellSymphonyGame extends BaseGame {
         { lane: 0, b: 14.0 }, { lane: 1, b: 14.33 }, { lane: 2, b: 14.66 }, { lane: 3, b: 15.0 },
         { lane: 2, b: 16.0 }, { lane: 1, b: 16.33 }, { lane: 0, b: 16.66 }, { lane: 1, b: 17.0 },
 
-        // Ráfaga FNF en cascada
         { lane: 0, b: 19.0 }, { lane: 1, b: 19.33 }, { lane: 2, b: 19.66 }, { lane: 3, b: 20.0, isStar: true },
         { lane: 3, b: 20.33 }, { lane: 2, b: 20.66 }, { lane: 1, b: 21.0 }, { lane: 0, b: 21.33 },
         { lane: 0, b: 22.0 }, { lane: 2, b: 22.33 }, { lane: 1, b: 22.66 }, { lane: 3, b: 23.0 },
@@ -460,13 +461,20 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     pattern.forEach((p) => {
+      let logoType: 1 | 2 = 1;
+      if (p.isStar) {
+        starCount++;
+        logoType = starCount % 2 === 0 ? 2 : 1; // Alterna entre Feria Mágica (1) y Campuslands (2)
+      }
+
       this.notes.push({
         id: noteId++,
         lane: p.lane,
         targetTime: p.b * secondsPerBeat,
         hit: false,
         missed: false,
-        isStar: p.isStar || false
+        isStar: p.isStar || false,
+        logoType: p.isStar ? logoType : undefined
       });
     });
   }
@@ -478,10 +486,8 @@ export class BellSymphonyGame extends BaseGame {
     this.lanePressed[lane] = true;
     this.lanePressTimers[lane] = 0.16;
 
-    // Reproducir la nota musical de la campana en tiempo real con Web Audio
     this.playBellTone(this.lanes[lane].freq);
 
-    // Buscar la nota más cercana en este carril que no haya sido tocada
     let closestNote: FallingNote | null = null;
     let minDiff = 999;
 
@@ -502,7 +508,6 @@ export class BellSymphonyGame extends BaseGame {
 
       // Juicio según precisión temporal
       if (minDiff <= 0.06) {
-        // ¡PERFECTO! (±60ms)
         const pts = 300 * this.getMultiplier();
         this.addScore(pts);
         this.combo++;
@@ -511,7 +516,6 @@ export class BellSymphonyGame extends BaseGame {
         this.addFloatingText(`+${pts}`, laneCenterX, this.hitLineY - 40, "#FFD700", 1.3);
         this.particles.emitBurst(laneCenterX, this.hitLineY, "#FFD700", 16);
       } else if (minDiff <= 0.12) {
-        // ¡GENIAL! (±120ms)
         const pts = 180 * this.getMultiplier();
         this.addScore(pts);
         this.combo++;
@@ -520,7 +524,6 @@ export class BellSymphonyGame extends BaseGame {
         this.addFloatingText(`+${pts}`, laneCenterX, this.hitLineY - 40, "#00E5FF", 1.15);
         this.particles.emitBurst(laneCenterX, this.hitLineY, "#00E5FF", 10);
       } else {
-        // ¡BIEN! (±240ms)
         const pts = 80 * this.getMultiplier();
         this.addScore(pts);
         this.combo++;
@@ -530,9 +533,9 @@ export class BellSymphonyGame extends BaseGame {
         this.particles.emitBurst(laneCenterX, this.hitLineY, "#00E676", 6);
       }
 
-      // Si es Nota Especial con Logo de la Feria: ACTIVA MODO ESTRELLA GUITAR HERO (x4 por 7 segundos)
+      // Si es Nota Especial con Logo: ACTIVA MODO ESTRELLA GUITAR HERO (x4 por 7 segundos)
       if (closestNote.isStar) {
-        this.activateStarPower(7.0, laneCenterX);
+        this.activateStarPower(7.0, laneCenterX, closestNote.logoType || 1);
       }
 
       if (this.combo > this.maxCombo) {
@@ -542,17 +545,23 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Activa el Modo Estrella estilo Guitar Hero (Multiplicador x4 durante 7s)
+   * Activa el Modo Estrella estilo Guitar Hero (Multiplicador x4 durante 7s) con el logo capturado
    */
-  private activateStarPower(durationSeconds: number = 7.0, x: number = this.width / 2): void {
+  private activateStarPower(durationSeconds: number = 7.0, x: number = this.width / 2, logoType: 1 | 2 = 1): void {
     this.isStarPowerActive = true;
+    this.activeStarPowerType = logoType;
     this.starPowerTimer = durationSeconds;
     this.addScore(800);
 
     this.audio.playPowerUp();
     this.triggerShake(0.25, 7);
+
+    const isCampus = logoType === 2;
+    const starColor = isCampus ? "#00E5FF" : "#FFD700";
+    const starText = isCampus ? "⚡ ¡STAR POWER CAMPUS x4! ⚡" : "⚡ ¡STAR POWER FERIA x4! ⚡";
+
     this.particles.emitConfetti(this.width, 40);
-    this.addFloatingText("⚡ ¡MODO ESTRELLA x4! ⚡", x, this.hitLineY - 75, "#FFD700", 1.55);
+    this.addFloatingText(starText, x, this.hitLineY - 75, starColor, 1.55);
   }
 
   private getMultiplier(): number {
@@ -594,7 +603,6 @@ export class BellSymphonyGame extends BaseGame {
 
       const now = ctx.currentTime;
 
-      // Armónico Fundamental + Armónicos de Campana Cristalina
       [
         { fRatio: 1.0, gainVal: 0.35, decay: 0.8 },
         { fRatio: 2.76, gainVal: 0.20, decay: 0.5 },
@@ -616,7 +624,7 @@ export class BellSymphonyGame extends BaseGame {
         osc.stop(now + harm.decay);
       });
     } catch {
-      // Audio fallback silencioso
+      // Fallback
     }
   }
 
@@ -639,7 +647,6 @@ export class BellSymphonyGame extends BaseGame {
 
         const now = ctx.currentTime;
 
-        // Sonido de Sleigh Bells (Cascabel rítmico ligero)
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = "triangle";
@@ -652,7 +659,7 @@ export class BellSymphonyGame extends BaseGame {
         osc.start(now);
         osc.stop(now + 0.08);
       } catch {
-        // Ignorar si audio suspendido
+        // Fallback
       }
     }
   }
@@ -665,7 +672,6 @@ export class BellSymphonyGame extends BaseGame {
 
     this.currentTime += dt;
 
-    // Actualizar temporizador de Modo Estrella (Star Power)
     if (this.isStarPowerActive) {
       this.starPowerTimer -= dt;
       if (this.starPowerTimer <= 0) {
@@ -674,10 +680,8 @@ export class BellSymphonyGame extends BaseGame {
       }
     }
 
-    // Acompañamiento rítmico en segundo plano
     this.updateAccompaniment();
 
-    // Actualizar timers de animación de presión de carriles
     for (let l = 0; l < 4; l++) {
       if (this.lanePressTimers[l] > 0) {
         this.lanePressTimers[l] -= dt;
@@ -687,17 +691,15 @@ export class BellSymphonyGame extends BaseGame {
       }
     }
 
-    // Pulso rítmico del escenario (BPM)
     this.beatPulse = (this.currentTime * (this.bpm / 60)) % 1.0;
 
-    // Verificar notas perdidas (Miss) que cruzaron la línea de objetivo
     for (const note of this.notes) {
       if (!note.hit && !note.missed) {
         if (this.currentTime - note.targetTime > 0.24) {
           note.missed = true;
           this.missCount++;
           const wasHighCombo = this.combo >= 10;
-          this.combo = 0; // Romper racha
+          this.combo = 0;
 
           const laneCenterX = this.laneStartX + note.lane * this.laneWidth + this.laneWidth / 2;
           this.spawnJudgement("MISS", "#E53935", laneCenterX);
@@ -710,7 +712,6 @@ export class BellSymphonyGame extends BaseGame {
       }
     }
 
-    // Actualizar popups de juicio
     for (let i = this.activeJudgements.length - 1; i >= 0; i--) {
       const j = this.activeJudgements[i];
       j.time -= dt;
@@ -722,14 +723,12 @@ export class BellSymphonyGame extends BaseGame {
       }
     }
 
-    // Fin de la canción / partida
     if (this.currentTime >= this.songDuration) {
       this.endGame();
     }
   }
 
   protected onDraw(ctx: CanvasRenderingContext2D): void {
-    // 1. Fondo de Habitación Navideña HD
     if (this.bgImage && this.bgImage.complete && this.bgImage.naturalWidth > 0) {
       ctx.drawImage(this.bgImage, 0, 0, this.width, this.height);
       ctx.fillStyle = "rgba(4, 12, 24, 0.72)";
@@ -739,13 +738,11 @@ export class BellSymphonyGame extends BaseGame {
       ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    // Si estamos en la pantalla de selección de canciones
     if (this.gameState === "song-select") {
       this.drawSongSelector(ctx);
       return;
     }
 
-    // 2. Luces de Escenario en los Carriles
     const trackH = this.height;
     const totalW = this.laneWidth * 4;
 
@@ -753,12 +750,19 @@ export class BellSymphonyGame extends BaseGame {
     ctx.fillStyle = "rgba(10, 25, 48, 0.78)";
     ctx.fillRect(this.laneStartX, 0, totalW, trackH);
 
-    // Resplandor de MODO ESTRELLA (Guitar Hero Star Power) o Fiesta Navideña
+    // Resplandor de MODO ESTRELLA GUITAR HERO (Dorado para Feria Mágica o Cian para Campuslands)
     if (this.isStarPowerActive) {
+      const isCampus = this.activeStarPowerType === 2;
       const starGlow = ctx.createLinearGradient(this.laneStartX, 0, this.laneStartX + totalW, 0);
-      starGlow.addColorStop(0, "rgba(255, 215, 0, 0.45)");
-      starGlow.addColorStop(0.5, "rgba(0, 229, 255, 0.35)");
-      starGlow.addColorStop(1, "rgba(255, 215, 0, 0.45)");
+      if (isCampus) {
+        starGlow.addColorStop(0, "rgba(0, 229, 255, 0.45)");
+        starGlow.addColorStop(0.5, "rgba(255, 255, 255, 0.40)");
+        starGlow.addColorStop(1, "rgba(0, 229, 255, 0.45)");
+      } else {
+        starGlow.addColorStop(0, "rgba(255, 215, 0, 0.45)");
+        starGlow.addColorStop(0.5, "rgba(255, 65, 108, 0.35)");
+        starGlow.addColorStop(1, "rgba(255, 215, 0, 0.45)");
+      }
       ctx.fillStyle = starGlow;
       ctx.fillRect(this.laneStartX, 0, totalW, trackH);
     } else if (this.combo >= 20) {
@@ -775,7 +779,6 @@ export class BellSymphonyGame extends BaseGame {
       const lx = this.laneStartX + i * this.laneWidth;
       const lane = this.lanes[i];
 
-      // Haz de luz vertical cuando el carril está presionado
       if (this.lanePressed[i]) {
         const laneBeam = ctx.createLinearGradient(0, this.hitLineY, 0, 0);
         laneBeam.addColorStop(0, lane.glowColor);
@@ -784,22 +787,20 @@ export class BellSymphonyGame extends BaseGame {
         ctx.fillRect(lx, 0, this.laneWidth, this.hitLineY);
       }
 
-      // Líneas divisorias doradas
-      ctx.strokeStyle = this.isStarPowerActive ? "#FFD700" : "rgba(255, 215, 0, 0.35)";
+      ctx.strokeStyle = this.isStarPowerActive ? (this.activeStarPowerType === 2 ? "#00E5FF" : "#FFD700") : "rgba(255, 215, 0, 0.35)";
       ctx.lineWidth = this.isStarPowerActive ? 2.5 : 1.5;
       ctx.beginPath();
       ctx.moveTo(lx, 0);
       ctx.lineTo(lx, trackH);
       ctx.stroke();
     }
-    // Borde derecho final
     ctx.beginPath();
     ctx.moveTo(this.laneStartX + totalW, 0);
     ctx.lineTo(this.laneStartX + totalW, trackH);
     ctx.stroke();
     ctx.restore();
 
-    // 3. Línea de Impacto Mágica (Hit Target Bar)
+    // Línea de Impacto Mágica
     ctx.save();
     const hitBarGlow = ctx.createLinearGradient(this.laneStartX, 0, this.laneStartX + totalW, 0);
     hitBarGlow.addColorStop(0, "rgba(255, 215, 0, 0.8)");
@@ -807,7 +808,7 @@ export class BellSymphonyGame extends BaseGame {
     hitBarGlow.addColorStop(1, "rgba(255, 215, 0, 0.8)");
     ctx.strokeStyle = hitBarGlow;
     ctx.lineWidth = this.isStarPowerActive ? 6 : 4;
-    ctx.shadowColor = this.isStarPowerActive ? "rgba(0, 229, 255, 0.95)" : "rgba(255, 215, 0, 0.9)";
+    ctx.shadowColor = this.isStarPowerActive ? (this.activeStarPowerType === 2 ? "rgba(0, 229, 255, 0.95)" : "rgba(255, 215, 0, 0.95)") : "rgba(255, 215, 0, 0.9)";
     ctx.shadowBlur = this.isStarPowerActive ? 22 : 15;
     ctx.beginPath();
     ctx.moveTo(this.laneStartX, this.hitLineY);
@@ -815,7 +816,7 @@ export class BellSymphonyGame extends BaseGame {
     ctx.stroke();
     ctx.restore();
 
-    // 4. Dibujar los 4 Receptores de Campanas Inferiores
+    // 4 Receptores de Campanas Inferiores
     for (let i = 0; i < 4; i++) {
       const lane = this.lanes[i];
       const cx = this.laneStartX + i * this.laneWidth + this.laneWidth / 2;
@@ -828,7 +829,6 @@ export class BellSymphonyGame extends BaseGame {
       ctx.translate(cx, cy);
       ctx.scale(scale, scale);
 
-      // Halo de Receptor
       const padHalo = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius * 1.5);
       padHalo.addColorStop(0, lane.glowColor);
       padHalo.addColorStop(1, "rgba(0, 0, 0, 0)");
@@ -837,7 +837,6 @@ export class BellSymphonyGame extends BaseGame {
       ctx.arc(0, 0, radius * 1.5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Anillo exterior de la campana
       ctx.lineWidth = isPressed ? 4.5 : 3;
       ctx.strokeStyle = isPressed ? "#FFFFFF" : lane.color;
       ctx.fillStyle = isPressed ? lane.color : "rgba(8, 20, 38, 0.85)";
@@ -846,7 +845,6 @@ export class BellSymphonyGame extends BaseGame {
       ctx.fill();
       ctx.stroke();
 
-      // Flecha / Icono indicador
       ctx.font = "900 24px 'Cinzel Decorative', 'Outfit', sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -855,7 +853,6 @@ export class BellSymphonyGame extends BaseGame {
       ctx.shadowBlur = 6;
       ctx.fillText(lane.arrow, 0, -1);
 
-      // Tecla de ayuda (D, F, J, K)
       ctx.font = "700 12px 'Outfit', sans-serif";
       ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
       ctx.fillText(lane.keyLabel, 0, radius + 16);
@@ -863,7 +860,7 @@ export class BellSymphonyGame extends BaseGame {
       ctx.restore();
     }
 
-    // 5. Dibujar las Notas que Caen (Flechas de Bastón de Caramelo & Logo Star Power)
+    // 5. Dibujar las Notas que Caen (Flechas de Bastón de Caramelo & Logos Star Power)
     for (const note of this.notes) {
       if (note.hit || note.missed) continue;
 
@@ -878,9 +875,12 @@ export class BellSymphonyGame extends BaseGame {
         ctx.save();
         ctx.translate(noteX, noteY);
 
+        const isCampus = note.logoType === 2;
+        const glowColor = note.isStar ? (isCampus ? "rgba(0, 229, 255, 0.95)" : "rgba(255, 215, 0, 0.95)") : lane.glowColor;
+
         // Estela mágica luminosa detrás de la nota
         const trailGrad = ctx.createLinearGradient(0, 0, 0, -65);
-        trailGrad.addColorStop(0, note.isStar ? "rgba(255, 215, 0, 0.95)" : lane.glowColor);
+        trailGrad.addColorStop(0, glowColor);
         trailGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
         ctx.fillStyle = trailGrad;
         ctx.beginPath();
@@ -890,11 +890,14 @@ export class BellSymphonyGame extends BaseGame {
         ctx.closePath();
         ctx.fill();
 
-        // Sprite de Flecha de Bastón de Caramelo o Logo de la Feria
+        // Sprite de Flecha de Bastón de Caramelo o Logo de la Marca
         let sprite: HTMLImageElement | null = null;
         if (note.isStar) {
-          // NOTA STAR CON LOGO DE LA FERIA MÁGICA
-          sprite = this.imgLogoStar.complete && this.imgLogoStar.naturalWidth > 0 ? this.imgLogoStar : this.imgStarWithLogo;
+          if (isCampus) {
+            sprite = this.imgLogoCampus.complete && this.imgLogoCampus.naturalWidth > 0 ? this.imgLogoCampus : this.imgStarWithLogo;
+          } else {
+            sprite = this.imgLogoFair.complete && this.imgLogoFair.naturalWidth > 0 ? this.imgLogoFair : this.imgStarWithLogo;
+          }
         } else if (note.lane === 0) sprite = this.imgArrowLeft;
         else if (note.lane === 1) sprite = this.imgArrowDown;
         else if (note.lane === 2) sprite = this.imgArrowUp;
@@ -903,11 +906,10 @@ export class BellSymphonyGame extends BaseGame {
         const drawSize = radius * 2.35;
 
         if (sprite && sprite.complete && sprite.naturalWidth > 0) {
-          ctx.shadowColor = note.isStar ? "#FFD700" : lane.glowColor;
+          ctx.shadowColor = glowColor;
           ctx.shadowBlur = note.isStar ? 24 : 16;
           ctx.drawImage(sprite, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
         } else {
-          // Fallback vectorial
           ctx.fillStyle = lane.color;
           ctx.beginPath();
           ctx.arc(0, 0, radius, 0, Math.PI * 2);
@@ -918,10 +920,10 @@ export class BellSymphonyGame extends BaseGame {
       }
     }
 
-    // 6. HUD de Ritmo: Combo, Modo Estrella y Barra de Progreso
+    // HUD de Ritmo
     this.drawRhythmHUD(ctx);
 
-    // 7. Popups de Juicio (¡PERFECTO!, ¡GENIAL!, MISS)
+    // Popups de Juicio (¡PERFECTO!, ¡GENIAL!, MISS)
     for (const j of this.activeJudgements) {
       ctx.save();
       ctx.globalAlpha = j.alpha;
@@ -999,7 +1001,7 @@ export class BellSymphonyGame extends BaseGame {
       ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
       ctx.fillText(`${song.subtitle} • ${song.bpm} BPM`, cardX + 75, cy + cardH * 0.72);
 
-      // Badge de Dificultad (Derecha)
+      // Badge de Dificultad
       const badgeW = 75;
       const badgeH = 26;
       const badgeX = cardX + cardW - badgeW - 14;
@@ -1030,10 +1032,17 @@ export class BellSymphonyGame extends BaseGame {
       const bannerX = (this.width - bannerW) / 2;
       const bannerY = this.hitLineY - 170;
 
+      const isCampus = this.activeStarPowerType === 2;
       const starGrad = ctx.createLinearGradient(bannerX, 0, bannerX + bannerW, 0);
-      starGrad.addColorStop(0, "#FFD700");
-      starGrad.addColorStop(0.5, "#00E5FF");
-      starGrad.addColorStop(1, "#FFD700");
+      if (isCampus) {
+        starGrad.addColorStop(0, "#00E5FF");
+        starGrad.addColorStop(0.5, "#FFFFFF");
+        starGrad.addColorStop(1, "#00E5FF");
+      } else {
+        starGrad.addColorStop(0, "#FFD700");
+        starGrad.addColorStop(0.5, "#00E5FF");
+        starGrad.addColorStop(1, "#FFD700");
+      }
       ctx.fillStyle = starGrad;
       ctx.beginPath();
       ctx.roundRect(bannerX, bannerY, bannerW, bannerH, 10);
@@ -1043,7 +1052,8 @@ export class BellSymphonyGame extends BaseGame {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = "#041424";
-      ctx.fillText(`⚡ ¡MODO ESTRELLA x4 ACTIVO! (${Math.ceil(this.starPowerTimer)}s) ⚡`, cx, bannerY + bannerH / 2);
+      const bannerTitle = isCampus ? "⚡ ¡STAR POWER CAMPUS x4 ACTIVO! ⚡" : "⚡ ¡STAR POWER FERIA x4 ACTIVO! ⚡";
+      ctx.fillText(`${bannerTitle} (${Math.ceil(this.starPowerTimer)}s)`, cx, bannerY + bannerH / 2);
       ctx.restore();
     }
 
@@ -1061,7 +1071,6 @@ export class BellSymphonyGame extends BaseGame {
       ctx.shadowBlur = 15;
       ctx.fillText(`${this.combo} COMBO!`, 0, 0);
 
-      // Multiplicador de Puntos
       const mult = this.getMultiplier();
       if (mult > 1) {
         ctx.font = "800 clamp(0.85rem, 2vw, 1.15rem) 'Outfit', sans-serif";

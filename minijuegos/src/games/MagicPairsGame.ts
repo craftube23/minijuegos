@@ -43,7 +43,8 @@ export class MagicPairsGame extends BaseGame {
   private spriteTeddy: HTMLImageElement;
   private spriteRobot: HTMLImageElement;
   private spriteGift: HTMLImageElement;
-  private spriteLogo: HTMLImageElement;
+  private spriteLogo1: HTMLImageElement;
+  private spriteLogo2: HTMLImageElement;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -70,8 +71,11 @@ export class MagicPairsGame extends BaseGame {
     this.spriteGift = new Image();
     this.spriteGift.src = "./assets/images/regalo-rojo.png";
 
-    this.spriteLogo = new Image();
-    this.spriteLogo.src = BRANDING.getLogoPath(1);
+    this.spriteLogo1 = new Image();
+    this.spriteLogo1.src = BRANDING.getLogoPath(1);
+
+    this.spriteLogo2 = new Image();
+    this.spriteLogo2.src = BRANDING.getLogoPath(2);
   }
 
   public override resize(width: number, height: number): void {
@@ -112,12 +116,12 @@ export class MagicPairsGame extends BaseGame {
     this.secondSelectedCard = null;
     this.isCheckingMatch = false;
 
-    // 4 Parejas de juguetes oficiales
+    // 4 Parejas: 2 juguetes + 2 logos oficiales (Feria Mágica y Campuslands)
     const toyPairs = [
       { key: "teddy", isSpecial: false },
       { key: "robot", isSpecial: false },
-      { key: "gift", isSpecial: false },
-      { key: "fair_logo", isSpecial: true } // Pareja dorada de la Feria
+      { key: "fair_logo", isSpecial: true },   // Pareja dorada de la Feria Mágica
+      { key: "campus_logo", isSpecial: true } // Pareja cian de Campuslands
     ];
 
     const rawDeck: Array<{ pairKey: string; isSpecial: boolean }> = [];
@@ -225,15 +229,21 @@ export class MagicPairsGame extends BaseGame {
 
       // Partículas y puntos
       const isLogo = this.firstSelectedCard.isSpecialLogo;
+      const isCampus = this.firstSelectedCard.pairKey === "campus_logo";
+      const isFair = this.firstSelectedCard.pairKey === "fair_logo";
       const points = isLogo ? 500 : 200;
       this.addScore(points);
 
       const centerX = (this.firstSelectedCard.x + this.secondSelectedCard.x) / 2 + this.firstSelectedCard.w / 2;
       const centerY = (this.firstSelectedCard.y + this.secondSelectedCard.y) / 2 + this.firstSelectedCard.h / 2;
 
-      if (isLogo) {
+      if (isFair) {
         this.triggerLogoPowerUp(1, 6);
         this.addFloatingText("¡PAREJA DE LA FERIA! +500", centerX, centerY, "#FFD700", 1.35);
+        this.particles.emitConfetti(this.width, 35);
+      } else if (isCampus) {
+        this.triggerLogoPowerUp(2, 6);
+        this.addFloatingText("¡PAREJA CAMPUSLANDS! +500", centerX, centerY, "#00E5FF", 1.35);
         this.particles.emitConfetti(this.width, 35);
       } else {
         this.addFloatingText(`+${points} ¡PAREJA!`, centerX, centerY, "#00E676", 1.2);
@@ -345,41 +355,58 @@ export class MagicPairsGame extends BaseGame {
         ctx.closePath();
         ctx.fill();
       } else {
-        // --- FRENTE DE LA CARTA (Juguete Revelado) ---
-        ctx.fillStyle = card.isSpecialLogo ? "#FFF9C4" : "#FFFFFF";
+        // --- FRENTE DE LA CARTA (Juguete / Logo Revelado) ---
+        const isFair = card.pairKey === "fair_logo";
+        const isCampus = card.pairKey === "campus_logo";
+
+        if (isFair) {
+          ctx.fillStyle = "#FFF9C4";
+        } else if (isCampus) {
+          ctx.fillStyle = "#E0F7FA";
+        } else {
+          ctx.fillStyle = "#FFFFFF";
+        }
         ctx.beginPath();
         ctx.roundRect(-halfW, -halfH, card.w, card.h, [16]);
         ctx.fill();
 
-        ctx.strokeStyle = card.isSpecialLogo ? "#FFD700" : "#E0E0E0";
+        const strokeColor = isFair ? "#FFD700" : (isCampus ? "#00E5FF" : "#E0E0E0");
+        ctx.strokeStyle = strokeColor;
         ctx.lineWidth = card.isSpecialLogo ? 4.5 : 3;
         ctx.stroke();
 
-        // Renderizar Sprite Oficial del Juguete
+        // Renderizar Sprite Oficial del Juguete / Logo
         let imgToDraw: HTMLImageElement | null = null;
         if (card.pairKey === "teddy") imgToDraw = this.spriteTeddy;
         else if (card.pairKey === "robot") imgToDraw = this.spriteRobot;
         else if (card.pairKey === "gift") imgToDraw = this.spriteGift;
-        else if (card.pairKey === "fair_logo") imgToDraw = this.spriteLogo;
+        else if (card.pairKey === "fair_logo") imgToDraw = this.spriteLogo1;
+        else if (card.pairKey === "campus_logo") imgToDraw = this.spriteLogo2;
 
         const iconSize = Math.min(card.w, card.h) * 0.65;
 
         if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth > 0) {
           ctx.drawImage(imgToDraw, -iconSize / 2, -iconSize / 2, iconSize, iconSize);
         } else {
-          ctx.fillStyle = "#FFD700";
+          ctx.fillStyle = strokeColor;
           ctx.beginPath();
           ctx.arc(0, 0, iconSize * 0.4, 0, Math.PI * 2);
           ctx.fill();
         }
 
-        // Etiqueta dorada para la carta especial
-        if (card.isSpecialLogo) {
+        // Etiqueta para la carta especial
+        if (isFair) {
           ctx.fillStyle = "#E65100";
           ctx.font = "800 12px 'Outfit', sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText("FERIA x2", 0, halfH - 14);
+        } else if (isCampus) {
+          ctx.fillStyle = "#006064";
+          ctx.font = "800 12px 'Outfit', sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("CAMPUS x2", 0, halfH - 14);
         }
       }
 
