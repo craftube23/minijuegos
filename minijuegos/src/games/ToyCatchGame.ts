@@ -367,6 +367,21 @@ export class ToyCatchGame extends BaseGame {
       const imgW = this.basketWidth + 20;
       const imgH = this.basketHeight + 25;
       ctx.drawImage(this.bagImage, -imgW / 2, -imgH / 2, imgW, imgH);
+
+      // Logo Oficial de la Feria Mágica del Juguete estampado en el centro del saco
+      if (this.logoImage1 && this.logoImage1.complete && this.logoImage1.naturalWidth > 0) {
+        const logoW = this.basketWidth * 0.52;
+        const logoRatio = this.logoImage1.naturalHeight / (this.logoImage1.naturalWidth || 1);
+        const logoH = logoW * (logoRatio > 0 ? logoRatio : 0.65);
+        const logoY = imgH * 0.12;
+
+        ctx.save();
+        ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 4;
+        ctx.drawImage(this.logoImage1, -logoW / 2, logoY - logoH / 2, logoW, logoH);
+        ctx.restore();
+      }
     } else {
       ctx.fillStyle = "#C0392B";
       ctx.beginPath();
@@ -375,6 +390,12 @@ export class ToyCatchGame extends BaseGame {
       ctx.strokeStyle = "#FFD700";
       ctx.lineWidth = 4;
       ctx.stroke();
+
+      if (this.logoImage1 && this.logoImage1.complete && this.logoImage1.naturalWidth > 0) {
+        const logoW = this.basketWidth * 0.6;
+        const logoH = logoW * 0.6;
+        ctx.drawImage(this.logoImage1, -logoW / 2, -logoH / 2, logoW, logoH);
+      }
     }
 
     ctx.restore();
