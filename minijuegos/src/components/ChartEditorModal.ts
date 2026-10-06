@@ -21,6 +21,7 @@ import {
   RHYTHM_SONG_LIST,
   JINGLE_BELLS_CHART,
   ROCKIN_AROUND_CHART,
+  DANIELA_CHART,
   type SongDef,
   type ChartNoteRecord
 } from "../data/songs";
@@ -599,6 +600,8 @@ export class ChartEditorModal {
       this.recordedNotes = [...JINGLE_BELLS_CHART];
     } else if (this.selectedSongFile === "Rockin' Around The Christmas Tree.mp3") {
       this.recordedNotes = [...ROCKIN_AROUND_CHART];
+    } else if (this.selectedSongFile === "DANIELA - Rodolfo Aicardi.mp3") {
+      this.recordedNotes = [...DANIELA_CHART];
     }
     this.updateNotesView();
   }

@@ -399,6 +399,11 @@ export const CAROL_OF_BELLS_BEATS: BeatPatternNote[] = [
 export const ROCKIN_AROUND_CHART: ChartNoteRecord[] = [];
 
 /**
+ * 🎺 PARTITURA BASE: Daniela - Rodolfo Aicardi (106 BPM / 197s)
+ */
+export const DANIELA_CHART: ChartNoteRecord[] = [];
+
+/**
  * 🎵 LISTA DE CANCIONES DISPONIBLES EN EL JUEGO
  */
 export const RHYTHM_SONG_LIST: SongDef[] = [
@@ -429,6 +434,19 @@ export const RHYTHM_SONG_LIST: SongDef[] = [
     icon: "🎄"
   },
   {
+    id: "daniela",
+    title: "Daniela",
+    subtitle: "Rodolfo Aicardi • Fiesta Colombiana",
+    bpm: 106,
+    speed: 480,
+    durationSeconds: 197,
+    stars: 3,
+    difficultyLabel: "MEDIO",
+    tagColor: "#E040FB",
+    audioFile: "DANIELA - Rodolfo Aicardi.mp3",
+    icon: "🎺"
+  },
+  {
     id: "deck-the-halls",
     title: "Deck The Halls Rush",
     subtitle: "Fiesta y cascadas de notas",
@@ -455,4 +473,5 @@ export const RHYTHM_SONG_LIST: SongDef[] = [
     icon: "❄️"
   }
 ];
+
 
