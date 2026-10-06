@@ -6,10 +6,11 @@
  * Minijuego musical estilo Friday Night Funkin' (FNF) / Guitar Hero con estética
  * Stylized 2D Fantasy Game Art:
  * - 4 Carriles mágicos verticales con campanas afinadas (Do, Mi, Sol, Do agudo).
- * - Notas rítmicas con estelas luminosas y partículas sincronizadas al compás de villancicos.
+ * - Partitura rítmica completa de 45 segundos con +120 notas (Jingle Bells, We Wish You a Merry Christmas, Deck the Halls y Clímax Rápido).
+ * - Acompañamiento musical festivo sintetizado en tiempo real (Base rítmica navideña + cascabeles) con soporte para MP3 opcional.
  * - Sistema de juicio arcade: ¡PERFECTO!, ¡GENIAL!, ¡BIEN! y MISS.
  * - Medidor de Combo dinámico y Modo Fiesta Navideña (Fever Mode a +20 combo).
- * - Control multitáctil con pads inferiores de respuesta instantánea y soporte para teclado (D, F, J, K o flechas).
+ * - Control multitáctil con pads inferiores y teclado (D, F, J, K o flechas).
  */
 
 import { BaseGame } from "../core/BaseGame";
@@ -116,6 +117,10 @@ export class BellSymphonyGame extends BaseGame {
   private activeJudgements: JudgementPopup[] = [];
   private beatPulse: number = 0;
 
+  // Sistema de Música de Fondo (Sintetizador + MP3 opcional)
+  private bgAudioElement: HTMLAudioElement | null = null;
+  private lastAccompanimentBeat: number = -1;
+
   // Listener de teclado desacoplable
   private keydownHandler?: (e: KeyboardEvent) => void;
   private keyupHandler?: (e: KeyboardEvent) => void;
@@ -155,6 +160,15 @@ export class BellSymphonyGame extends BaseGame {
     this.imgBallBlue = new Image();
     this.imgBallBlue.src = "./assets/images/bola-azul.png";
 
+    // Intentar precargar pista musical de audio si el usuario la agrega en public/assets/audio/
+    try {
+      this.bgAudioElement = new Audio("./assets/audio/cancion-navidad.mp3");
+      this.bgAudioElement.loop = false;
+      this.bgAudioElement.volume = 0.7;
+    } catch {
+      this.bgAudioElement = null;
+    }
+
     this.setupKeyboard();
   }
 
@@ -182,9 +196,18 @@ export class BellSymphonyGame extends BaseGame {
     this.activeJudgements = [];
     this.lanePressed = [false, false, false, false];
     this.lanePressTimers = [0, 0, 0, 0];
+    this.lastAccompanimentBeat = -1;
 
     this.recalculateLayout();
     this.generateChristmasSongChart();
+
+    // Iniciar audio MP3 si está disponible y no silenciado
+    if (this.bgAudioElement && !this.audio.getIsMuted()) {
+      this.bgAudioElement.currentTime = 0;
+      this.bgAudioElement.play().catch(() => {
+        // Si no existe o no tiene permiso, la síntesis procedural Web Audio continuará automáticamente
+      });
+    }
 
     // Manejador táctil para móviles y tótems
     this.input.onTap = (x: number, _y: number) => {
@@ -228,17 +251,21 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Genera la partitura rítmica de Jingle Bells & Deck The Halls
+   * Genera la partitura rítmica completa que cubre los 45 segundos sin interrupción (+120 notas)
    */
   private generateChristmasSongChart(): void {
     this.notes = [];
     const secondsPerBeat = 60 / this.bpm;
     let noteId = 0;
 
-    // Patrón melódico de Villancicos Navideños sincronizado a 45 segundos
-    // Carriles: 0: Rojo (Do), 1: Dorado (Mi), 2: Verde (Sol), 3: Azul (Do agudo)
+    // Patrón melódico continuo de 0s a 44s:
+    // 1. Intro & Jingle Bells Coro (compases 2 a 32)
+    // 2. We Wish You a Merry Christmas (compases 34 a 58)
+    // 3. Deck The Halls Fa-la-la (compases 60 a 76)
+    // 4. Solo de Campanas Mágicas Rush (compases 78 a 92)
+    // 5. Clímax Final Triunfal (compases 94 a 102)
     const pattern = [
-      // Coro Jingle Bells (Mi Mi Mi, Mi Mi Mi, Mi Sol Do Re Mi)
+      // --- SECCIÓN 1: Jingle Bells Coro ---
       { lane: 1, b: 2.0 }, { lane: 1, b: 2.5 }, { lane: 1, b: 3.0 },
       { lane: 1, b: 4.0 }, { lane: 1, b: 4.5 }, { lane: 1, b: 5.0 },
       { lane: 1, b: 6.0 }, { lane: 2, b: 6.5 }, { lane: 0, b: 7.0 }, { lane: 1, b: 7.5, isStar: true },
@@ -248,27 +275,58 @@ export class BellSymphonyGame extends BaseGame {
       // Mi Re Re Mi Re Sol
       { lane: 1, b: 12.0 }, { lane: 0, b: 12.5 }, { lane: 0, b: 13.0 }, { lane: 1, b: 13.5 }, { lane: 0, b: 14.0 }, { lane: 2, b: 14.5, isStar: true },
 
-      // Repetición con ritmo acelerado
+      // Repetición Rápida de Jingle Bells con dobles notas
       { lane: 1, b: 16.0 }, { lane: 1, b: 16.5 }, { lane: 1, b: 17.0 },
       { lane: 1, b: 18.0 }, { lane: 1, b: 18.5 }, { lane: 1, b: 19.0 },
       { lane: 1, b: 20.0 }, { lane: 2, b: 20.5 }, { lane: 0, b: 21.0 }, { lane: 1, b: 21.5 },
       { lane: 2, b: 22.0 }, { lane: 2, b: 22.5 }, { lane: 2, b: 23.0 }, { lane: 2, b: 23.5 },
       { lane: 3, b: 24.0, isStar: true }, { lane: 3, b: 24.5 }, { lane: 2, b: 25.0 }, { lane: 1, b: 25.5 }, { lane: 0, b: 26.0 },
 
-      // Ráfagas de Fiesta (Sol Do Mi Sol)
+      // Ráfaga Rítmica de Transición
       { lane: 0, b: 27.5 }, { lane: 1, b: 28.0 }, { lane: 2, b: 28.5 }, { lane: 3, b: 29.0, isStar: true },
       { lane: 3, b: 29.5 }, { lane: 2, b: 30.0 }, { lane: 1, b: 30.5 }, { lane: 0, b: 31.0 },
 
-      // Deck the Halls Rápido (Fa-la-la)
-      { lane: 2, b: 32.5 }, { lane: 1, b: 33.0 }, { lane: 0, b: 33.5 }, { lane: 1, b: 34.0 },
-      { lane: 2, b: 34.5 }, { lane: 2, b: 35.0 }, { lane: 2, b: 35.5 },
-      { lane: 0, b: 36.5 }, { lane: 1, b: 37.0 }, { lane: 2, b: 37.5 }, { lane: 3, b: 38.0, isStar: true },
-      { lane: 2, b: 38.5 }, { lane: 1, b: 39.0 }, { lane: 0, b: 39.5 },
+      // --- SECCIÓN 2: We Wish You A Merry Christmas (14s a 25s) ---
+      { lane: 0, b: 33.0 }, // We
+      { lane: 1, b: 34.0 }, { lane: 1, b: 34.5 }, { lane: 2, b: 35.0 }, { lane: 1, b: 35.5 }, // wish you a mer-ry
+      { lane: 0, b: 36.0 }, { lane: 0, b: 37.0 }, // Christ-mas
+      { lane: 1, b: 38.0 }, { lane: 1, b: 38.5 }, { lane: 2, b: 39.0 }, { lane: 1, b: 39.5 },
+      { lane: 0, b: 40.0 }, { lane: 0, b: 41.0 },
+      { lane: 2, b: 42.0 }, { lane: 2, b: 42.5 }, { lane: 3, b: 43.0, isStar: true }, { lane: 2, b: 43.5 },
+      { lane: 1, b: 44.0 }, { lane: 0, b: 45.0 }, { lane: 1, b: 45.5 }, { lane: 2, b: 46.0 },
+      { lane: 3, b: 47.0, isStar: true }, { lane: 2, b: 47.5 }, { lane: 1, b: 48.0 }, { lane: 0, b: 49.0 },
 
-      // Gran Clímax Final
-      { lane: 0, b: 40.5 }, { lane: 1, b: 41.0 }, { lane: 2, b: 41.5 }, { lane: 3, b: 42.0 },
-      { lane: 0, b: 42.5 }, { lane: 3, b: 42.5, isStar: true },
-      { lane: 1, b: 43.5 }, { lane: 2, b: 43.5, isStar: true }
+      // --- SECCIÓN 3: Deck The Halls & Fa-la-la Rápido (25s a 34s) ---
+      { lane: 3, b: 51.0, isStar: true }, { lane: 2, b: 52.0 }, { lane: 1, b: 53.0 }, { lane: 0, b: 54.0 },
+      { lane: 1, b: 55.0 }, { lane: 2, b: 55.5 }, { lane: 3, b: 56.0 }, { lane: 2, b: 57.0 },
+      // Fa-la-la-la-la (Ráfaga rápida de 8vas)
+      { lane: 1, b: 58.0 }, { lane: 2, b: 58.5 }, { lane: 3, b: 59.0 }, { lane: 2, b: 59.5 },
+      { lane: 1, b: 60.0 }, { lane: 0, b: 60.5 }, { lane: 1, b: 61.0 }, { lane: 2, b: 61.5, isStar: true },
+
+      { lane: 3, b: 63.0 }, { lane: 2, b: 63.5 }, { lane: 1, b: 64.0 }, { lane: 0, b: 64.5 },
+      { lane: 1, b: 65.0 }, { lane: 2, b: 65.5 }, { lane: 3, b: 66.0, isStar: true },
+      { lane: 0, b: 67.0 }, { lane: 1, b: 67.5 }, { lane: 2, b: 68.0 }, { lane: 3, b: 68.5 },
+      { lane: 2, b: 69.0 }, { lane: 1, b: 69.5 }, { lane: 0, b: 70.0 }, { lane: 1, b: 70.5 },
+
+      // --- SECCIÓN 4: Solo de Campanas Mágicas FNF Rush (34s a 40s) ---
+      { lane: 0, b: 72.0 }, { lane: 1, b: 72.5 }, { lane: 2, b: 73.0 }, { lane: 3, b: 73.5, isStar: true },
+      { lane: 2, b: 74.0 }, { lane: 1, b: 74.5 }, { lane: 0, b: 75.0 }, { lane: 1, b: 75.5 },
+      { lane: 2, b: 76.0 }, { lane: 3, b: 76.5 }, { lane: 2, b: 77.0 }, { lane: 1, b: 77.5 },
+      { lane: 0, b: 78.0 }, { lane: 2, b: 78.5 }, { lane: 1, b: 79.0 }, { lane: 3, b: 79.5, isStar: true },
+      { lane: 0, b: 80.0 }, { lane: 3, b: 80.5 }, { lane: 1, b: 81.0 }, { lane: 2, b: 81.5 },
+      { lane: 0, b: 82.0 }, { lane: 1, b: 82.5 }, { lane: 2, b: 83.0 }, { lane: 3, b: 83.5, isStar: true },
+      { lane: 3, b: 84.0 }, { lane: 2, b: 84.5 }, { lane: 1, b: 85.0 }, { lane: 0, b: 85.5 },
+
+      // --- SECCIÓN 5: Gran Clímax Final Acelerado (40s a 44.5s) ---
+      { lane: 0, b: 87.0 }, { lane: 1, b: 87.5 }, { lane: 2, b: 88.0 }, { lane: 3, b: 88.5, isStar: true },
+      { lane: 1, b: 89.0 }, { lane: 2, b: 89.5 }, { lane: 3, b: 90.0 }, { lane: 0, b: 90.5 },
+      { lane: 1, b: 91.0 }, { lane: 3, b: 91.5, isStar: true }, { lane: 0, b: 92.0 }, { lane: 2, b: 92.5 },
+      { lane: 0, b: 93.0 }, { lane: 1, b: 93.5 }, { lane: 2, b: 94.0 }, { lane: 3, b: 94.5 },
+      { lane: 0, b: 95.0 }, { lane: 3, b: 95.0, isStar: true }, // Doble nota simultánea
+      { lane: 1, b: 96.0 }, { lane: 2, b: 96.0, isStar: true }, // Doble nota simultánea
+      { lane: 0, b: 97.0 }, { lane: 3, b: 97.0, isStar: true },
+      { lane: 1, b: 98.0 }, { lane: 2, b: 98.0, isStar: true },
+      { lane: 0, b: 99.0 }, { lane: 1, b: 99.5 }, { lane: 2, b: 100.0 }, { lane: 3, b: 100.5, isStar: true }
     ];
 
     pattern.forEach((p) => {
@@ -416,8 +474,49 @@ export class BellSymphonyGame extends BaseGame {
     }
   }
 
+  /**
+   * Acompañamiento rítmico sintetizado continuo (Cascabeles y Bajo alegre de villancico)
+   */
+  private updateAccompaniment(): void {
+    if (this.audio.getIsMuted() || (this.bgAudioElement && !this.bgAudioElement.paused)) return;
+
+    const secondsPerBeat = 60 / this.bpm;
+    const currentBeat = Math.floor(this.currentTime / secondsPerBeat);
+
+    if (currentBeat > this.lastAccompanimentBeat) {
+      this.lastAccompanimentBeat = currentBeat;
+
+      // Reproducir percusión de cascabel festivo en cada compás
+      try {
+        const AudioCtxClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const ctx = new AudioCtxClass();
+        if (ctx.state === "suspended") ctx.resume();
+
+        const now = ctx.currentTime;
+
+        // Sonido de Sleigh Bells (Cascabel rítmico ligero)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(2400 + (currentBeat % 2 === 0 ? 300 : 0), now);
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } catch {
+        // Ignorar si audio está suspendido
+      }
+    }
+  }
+
   protected onUpdate(dt: number): void {
     this.currentTime += dt;
+
+    // Acompañamiento rítmico en segundo plano
+    this.updateAccompaniment();
 
     // Actualizar timers de animación de presión de carriles
     for (let l = 0; l < 4; l++) {
@@ -716,8 +815,18 @@ export class BellSymphonyGame extends BaseGame {
     ctx.restore();
   }
 
+  public override endGame(): void {
+    if (this.bgAudioElement) {
+      this.bgAudioElement.pause();
+    }
+    super.endGame();
+  }
+
   public override destroy(): void {
     super.destroy();
+    if (this.bgAudioElement) {
+      this.bgAudioElement.pause();
+    }
     if (this.keydownHandler) {
       window.removeEventListener("keydown", this.keydownHandler);
     }
