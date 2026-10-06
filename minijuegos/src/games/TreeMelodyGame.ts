@@ -109,27 +109,27 @@ export class TreeMelodyGame extends BaseGame {
   private layoutBulbs(): void {
     const cx = this.width / 2;
 
-    // Árbol ancho, frondoso y pegado a la base inferior
-    this.treeH = Math.min(this.height * 0.76, this.width * 0.98);
-    this.treeW = this.treeH * 1.25;
+    // Árbol ancho, frondoso y anclado a la alfombra inferior
+    this.treeH = Math.min(this.height * 0.82, this.width * 0.92);
+    this.treeW = this.treeH * (439 / 327); // Proporción natural exacta de arbol.png
     this.treeX = cx - this.treeW / 2;
-    this.treeY = this.height - this.treeH + 8;
+    this.treeY = this.height - this.treeH + 10;
 
     // Estrella ajustada a la copa
-    this.starSize = Math.max(68, Math.min(110, this.width * 0.19));
+    this.starSize = Math.max(65, Math.min(100, this.width * 0.16));
     this.starX = cx;
-    this.starY = this.treeY + this.treeH * 0.08;
+    this.starY = this.treeY + this.treeH * 0.04;
 
     // Radio de las esferas táctiles
-    const radius = Math.min(48, Math.max(34, this.width * 0.088));
+    const radius = Math.min(46, Math.max(32, this.width * 0.082));
 
     // Nivel superior (Esfera Roja y Amarilla dentro de las ramas verdes superiores)
     const upperY = this.treeY + this.treeH * 0.44;
-    const upperOffsetX = this.treeW * 0.20;
+    const upperOffsetX = this.treeW * 0.17;
 
     // Nivel inferior (Esfera Verde y Azul dentro de las ramas anchas inferiores)
-    const lowerY = this.treeY + this.treeH * 0.70;
-    const lowerOffsetX = this.treeW * 0.29;
+    const lowerY = this.treeY + this.treeH * 0.72;
+    const lowerOffsetX = this.treeW * 0.28;
 
     this.bulbs = [
       {
@@ -338,14 +338,13 @@ export class TreeMelodyGame extends BaseGame {
       ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    // 2. Gran Árbol Navideño Ancho (Recorte limpio del follaje sin márgenes vacíos)
+    // 2. Gran Árbol Navideño Ancho HD
     if (this.treeImage && this.treeImage.complete && this.treeImage.naturalWidth > 0) {
       ctx.save();
       ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
       ctx.shadowBlur = 25;
       ctx.shadowOffsetY = 12;
-      // Recorte de origen exacto del árbol: sx: 165, sy: 75, sw: 345, sh: 298
-      ctx.drawImage(this.treeImage, 165, 75, 345, 298, this.treeX, this.treeY, this.treeW, this.treeH);
+      ctx.drawImage(this.treeImage, this.treeX, this.treeY, this.treeW, this.treeH);
       ctx.restore();
     }
 
@@ -366,13 +365,8 @@ export class TreeMelodyGame extends BaseGame {
     if (this.starImage && this.starImage.complete && this.starImage.naturalWidth > 0) {
       ctx.shadowColor = "rgba(255, 215, 0, 0.9)";
       ctx.shadowBlur = 18;
-      // Recorte de origen exacto de la estrella: sx: 168, sy: 103, sw: 340, sh: 267
       ctx.drawImage(
         this.starImage,
-        168,
-        103,
-        340,
-        267,
         this.starX - currentStarSize / 2,
         this.starY - currentStarSize / 2,
         currentStarSize,
@@ -408,13 +402,13 @@ export class TreeMelodyGame extends BaseGame {
       else if (bulb.id === 2) ballImg = this.imgBallGreen;
       else if (bulb.id === 3) ballImg = this.imgBallBlue;
 
-      const drawSize = bulb.radius * 2.30;
+      const drawH = bulb.radius * 2.35;
+      const drawW = drawH * (212 / 286);
 
       if (ballImg && ballImg.complete && ballImg.naturalWidth > 0) {
         ctx.shadowColor = bulb.isLit ? bulb.litColor : "rgba(0, 0, 0, 0.75)";
         ctx.shadowBlur = bulb.isLit ? 30 : 12;
-        // Recorte limpio del centro de la esfera: sx: 225, sy: 45, sw: 220, sh: 280
-        ctx.drawImage(ballImg, 225, 45, 220, 280, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+        ctx.drawImage(ballImg, -drawW / 2, -drawH / 2, drawW, drawH);
 
         // Borde blanco de pulso si está encendida
         if (bulb.isLit) {
