@@ -35,10 +35,10 @@ export class GameMenu {
     {
       id: "toy-catch",
       title: "Atrapa-Regalos Mágico",
-      imageSrc: "/assets/images/icon-regalos-magicos.png",
+      imageSrc: "/assets/images/targetas/icon-regalos-magicos.png",
       frameImageSrc: "/assets/images/marco-juego-rojo.png",
       themeClass: "theme-wood-red",
-      category: "Acción & Reflejos",
+      category: "ACCIÓN & REFLEJOS",
       tagline: "¡Atrapa juguetes con el saco de Santa!",
       gemColor: "#FF2A4D"
     },
@@ -48,7 +48,7 @@ export class GameMenu {
       imageSrc: "/assets/images/elfo-planeador.png",
       frameImageSrc: "/assets/images/marco-juego-azul.png",
       themeClass: "theme-stone-blue",
-      category: "Puntería & Vuelo",
+      category: "PUNTERÍA & VUELO",
       tagline: "¡Vuela en ala delta y encesta en chimeneas!",
       gemColor: "#00E5FF"
     },
@@ -58,7 +58,7 @@ export class GameMenu {
       imageSrc: "/assets/images/arbol.png",
       frameImageSrc: "/assets/images/marco-juego-verde.png",
       themeClass: "theme-forest-green",
-      category: "Memoria Musical",
+      category: "MEMORIA MUSICAL",
       tagline: "¡Repite la melodía de campanas mágicas!",
       gemColor: "#00E676"
     },
@@ -68,7 +68,7 @@ export class GameMenu {
       imageSrc: "/assets/images/estrella con logo.png",
       frameImageSrc: "/assets/images/marco-juego-morado.png",
       themeClass: "theme-magic-purple",
-      category: "Ingenio & Rapidez",
+      category: "INGENIO & RAPIDEZ",
       tagline: "¡Encuentra las parejas de cartas mágicas!",
       gemColor: "#D500F9"
     }
@@ -103,7 +103,6 @@ export class GameMenu {
           .map((g, index) => {
             const record = StorageManager.getHighScore(g.id);
             const animDelay = index * 70; // Escalado 0ms, 70ms, 140ms, 210ms
-            const isToyCatch = g.id === "toy-catch";
             return `
             <div 
               class="game-card-fantasy ${g.themeClass}" 
@@ -118,31 +117,30 @@ export class GameMenu {
 
               <!-- Contenido Interior de la Tarjeta -->
               <div class="card-inner-body">
-                <!-- Miniatura Ilustrada Central -->
-                <div class="card-art-box ${isToyCatch ? 'art-custom-icon' : ''}">
+                <!-- Miniatura Ilustrada Superior (Saco de Santa / Personaje) -->
+                <div class="card-art-box">
                   <img src="${g.imageSrc}" alt="${g.title}" class="card-art-image" />
                   <div class="art-glow-halo"></div>
                 </div>
 
-                <!-- Título con volumen y sombra -->
+                <!-- Título con volumen 3D y sombra gruesa -->
                 <h3 class="card-fantasy-title">${g.title}</h3>
 
-                <!-- Cinta de Categoría si no está integrada en la ilustración -->
-                ${!isToyCatch ? `
+                <!-- Cinta de Categoría (Pergamino Medieval) -->
                 <div class="card-ribbon-category">
                   <span>${g.category}</span>
                 </div>
-                ` : `
-                <div class="card-ribbon-spacer"></div>
-                `}
 
-                <!-- Placa de Madera para el Récord -->
+                <!-- Tagline Descriptivo -->
+                <p class="card-fantasy-tagline">${g.tagline}</p>
+
+                <!-- Placa de Madera Rústica para el Récord -->
                 <div class="card-record-plaque">
-                  <div class="plaque-trophy">${getIconSvg("trophy", { size: 16, color: "#FFE082", fill: "#FFD700" })}</div>
-                  <span class="plaque-label">RÉCORD: <strong class="plaque-value">${record}</strong> pts</span>
+                  <span class="plaque-trophy">🏆</span>
+                  <span class="plaque-label">Récord: <strong class="plaque-value">${record}</strong> pts</span>
                 </div>
 
-                <!-- Botón Físico Dorado de Fantasía (Acoplado a la placa dorada del marco) -->
+                <!-- Botón Físico Dorado (Integrado a la placa dorada del marco) -->
                 <button class="btn-fantasy-play" aria-label="Jugar ${g.title}">
                   <span class="btn-play-label">¡JUGAR!</span>
                   <span class="btn-play-arrow">▶</span>

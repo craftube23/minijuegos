@@ -19,6 +19,7 @@
   --font-festive: 'Rye', 'Alfa Slab One', serif;
   --font-display: 'Alfa Slab One', 'Rye', serif;
   --font-game: 'Alfa Slab One', 'Outfit', sans-serif;
+  --font-card-title: 'Titan One', 'Lilita One', 'Alfa Slab One', cursive, sans-serif;
   --font-ribbon: 'Cinzel', serif;
 }
 
@@ -503,122 +504,131 @@ html, body {
   z-index: 1;
 }
 
-/* --- Título de Fantasía con Volumen 3D --- */
+/* --- Título de Fantasía 3D Volumétrico (Titan One / Lilita One) --- */
 .card-fantasy-title {
-  font-family: var(--font-festive);
-  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-family: var(--font-card-title);
+  font-size: clamp(1.18rem, 2.3vw, 1.55rem);
   font-weight: 900;
-  color: #FFF275;
-  margin: 0;
+  color: #FFFDE7;
+  margin: 1px 0 2px 0;
   line-height: 1.15;
   text-shadow: 
-    0 2px 0 #8B0000,
-    0 3px 0 #5C0000,
-    0 5px 12px rgba(0, 0, 0, 0.95);
-  letter-spacing: 0.5px;
+    0 2px 0 #3A1B05,
+    0 3.5px 0 #200D02,
+    0 5px 10px rgba(0, 0, 0, 0.95);
+  letter-spacing: 0.6px;
 }
 
-/* --- Cinta de Pergamino para Categoría --- */
+/* --- Cinta de Pergamino Medieval para Categoría --- */
 .card-ribbon-category {
-  background: linear-gradient(180deg, #F9E79F 0%, #D4AC0D 100%);
-  border: 1.5px solid #7D6608;
-  border-radius: 4px;
-  padding: 2px 10px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.7);
+  background: linear-gradient(180deg, #FDF2E9 0%, #F5CBA7 45%, #E59866 100%);
+  border: 1.5px solid #873600;
+  border-radius: 3px;
+  padding: 2px 14px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.8);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   clip-path: polygon(6px 0%, calc(100% - 6px) 0%, 100% 50%, calc(100% - 6px) 100%, 6px 100%, 0% 50%);
-  min-width: 120px;
+  min-width: 140px;
+  margin: 1px 0;
 }
 
 .card-ribbon-category span {
-  font-family: var(--font-ribbon);
-  font-size: clamp(0.68rem, 1.2vw, 0.80rem);
+  font-family: var(--font-main);
+  font-size: clamp(0.68rem, 1.2vw, 0.78rem);
   font-weight: 900;
-  color: #422502;
+  color: #2C1405;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 1px;
 }
 
 .card-ribbon-spacer {
   height: 2px;
 }
 
-/* --- Placa de Madera para Récord --- */
+/* --- Tagline Descriptivo --- */
+.card-fantasy-tagline {
+  font-family: var(--font-main);
+  font-size: clamp(0.74rem, 1.3vw, 0.88rem);
+  color: #FFF9E6;
+  margin: 1px 0 3px 0;
+  font-weight: 700;
+  text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.95);
+  line-height: 1.15;
+}
+
+/* --- Placa de Madera Rústica para Récord (Imagen 2) --- */
 .card-record-plaque {
   width: 82%;
-  background: linear-gradient(180deg, rgba(60, 30, 10, 0.95) 0%, rgba(35, 15, 5, 0.95) 100%);
-  border: 1.5px solid #FFD700;
+  background: linear-gradient(180deg, #4A2B11 0%, #2A1608 100%);
+  border: 1.5px solid #7D481F;
   border-radius: 8px;
-  padding: 2px 8px;
+  padding: 3px 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 0.5);
+  gap: 6px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 0.6);
+  margin-bottom: 2px;
 }
 
 .plaque-trophy {
-  display: flex;
+  font-size: 0.95rem;
+  display: inline-flex;
   align-items: center;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
 }
 
 .plaque-label {
   font-family: var(--font-main);
-  font-size: clamp(0.72rem, 1.3vw, 0.86rem);
-  color: #FFF9C4;
+  font-size: clamp(0.74rem, 1.3vw, 0.88rem);
+  color: #FAD7A0;
   font-weight: 700;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
 }
 
 .plaque-value {
-  color: #FFD700;
+  color: #FFFFFF;
   font-weight: 900;
 }
 
-/* --- Botón Físico Dorado de Fantasía (Acoplado a la placa dorada del marco) --- */
+/* --- Botón Físico Integrado en la Placa Dorada del Marco (Imagen 2) --- */
 .btn-fantasy-play {
-  width: 68%;
-  background: linear-gradient(180deg, #FFF9C4 0%, #FFD700 45%, #FF8F00 100%);
-  border: 2px solid #FFFDE7;
-  border-radius: 20px;
-  padding: clamp(6px, 1vh, 9px) 14px;
+  width: 62%;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  padding: clamp(3px, 0.8vh, 6px) 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   cursor: pointer;
-  margin-bottom: 2px;
-  box-shadow: 
-    0 4px 0 #8C4300,
-    0 6px 14px rgba(0, 0, 0, 0.9),
-    inset 0 2px 3px rgba(255, 255, 255, 0.9);
-  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  margin-bottom: 3px;
+  box-shadow: none;
+  transition: transform 0.08s ease;
 }
 
 .btn-fantasy-play:active,
 .game-card-fantasy.is-pressed .btn-fantasy-play {
-  transform: translateY(3px);
-  box-shadow: 
-    0 1px 0 #8C4300,
-    0 3px 8px rgba(0, 0, 0, 0.9),
-    inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  transform: translateY(2px) scale(0.96);
 }
 
 .btn-play-label {
-  font-family: var(--font-festive);
-  font-size: clamp(0.92rem, 1.8vw, 1.15rem);
+  font-family: var(--font-card-title);
+  font-size: clamp(1.15rem, 2.3vw, 1.45rem);
   font-weight: 900;
-  color: #4A1E00;
+  color: #3E1E04;
   letter-spacing: 1px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+  text-shadow: 0 1px 0 rgba(255, 245, 200, 0.8);
 }
 
 .btn-play-arrow {
-  color: #B71C1C;
-  font-size: clamp(0.75rem, 1.4vw, 0.95rem);
+  color: #FFFFFF;
+  font-size: clamp(0.92rem, 1.8vw, 1.18rem);
+  -webkit-text-stroke: 1.2px #3E1E04;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
 }
 
 /* ==========================================================================
