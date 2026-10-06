@@ -288,7 +288,12 @@ export class TreeMelodyGame extends BaseGame {
         this.isRoundTransitioning = true;
         const roundBonus = this.sequence.length * 150;
         this.addScore(roundBonus);
-        this.addFloatingText(`¡RONDA ${this.currentRound} SUPERADA! +${roundBonus}`, this.width / 2, this.height * 0.22, "#FFD700", 1.35);
+
+        // Añadir 5 segundos al contador de tiempo como recompensa
+        this.timeRemaining += 5;
+        this.addFloatingText("+5s ⏱️", this.width / 2, this.height * 0.16, "#00E5FF", 1.4);
+
+        this.addFloatingText(`¡RONDA ${this.currentRound} SUPERADA! +${roundBonus}`, this.width / 2, this.height * 0.23, "#FFD700", 1.35);
         this.audio.playCatchItem();
         this.particles.emitConfetti(this.width, 30);
         this.currentRound++;
