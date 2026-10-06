@@ -456,7 +456,7 @@ html, body {
   z-index: 3;
   width: 100%;
   height: 100%;
-  padding: 3% 5% 15.2% 5%;
+  padding: 2% 6% 18.5% 6%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -468,7 +468,7 @@ html, body {
 .card-art-box {
   position: relative;
   width: 100%;
-  height: 43%;
+  height: 39%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -478,7 +478,7 @@ html, body {
 .card-art-image {
   width: auto;
   height: 100%;
-  max-width: 95%;
+  max-width: 90%;
   object-fit: contain;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.85));
   animation: floatArt 3.5s ease-in-out infinite alternate;
@@ -502,7 +502,7 @@ html, body {
 /* --- Título de Fantasía 3D Volumétrico (Titan One / Lilita One) --- */
 .card-fantasy-title {
   font-family: var(--font-card-title);
-  font-size: clamp(0.95rem, 1.95vw, 1.35rem);
+  font-size: clamp(0.92rem, 1.85vw, 1.3rem);
   font-weight: 900;
   color: #FFFDE7;
   margin: 0;
@@ -531,7 +531,7 @@ html, body {
 
 .card-ribbon-category span {
   font-family: var(--font-main);
-  font-size: clamp(0.6rem, 1.05vw, 0.72rem);
+  font-size: clamp(0.58rem, 1vw, 0.7rem);
   font-weight: 900;
   color: #2C1405;
   text-transform: uppercase;
@@ -541,7 +541,7 @@ html, body {
 /* --- Tagline Descriptivo --- */
 .card-fantasy-tagline {
   font-family: var(--font-main);
-  font-size: clamp(0.64rem, 1.1vw, 0.78rem);
+  font-size: clamp(0.62rem, 1.05vw, 0.76rem);
   color: #FFF9E6;
   margin: 0;
   font-weight: 700;
@@ -551,7 +551,7 @@ html, body {
 
 /* --- Placa de Madera Rústica para Récord (Imagen 2) --- */
 .card-record-plaque {
-  width: 78%;
+  width: 74%;
   background: linear-gradient(180deg, #4A2B11 0%, #2A1608 100%);
   border: 1.2px solid #7D481F;
   border-radius: 6px;
@@ -565,7 +565,7 @@ html, body {
 }
 
 .plaque-trophy {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   display: inline-flex;
   align-items: center;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
@@ -573,7 +573,7 @@ html, body {
 
 .plaque-label {
   font-family: var(--font-main);
-  font-size: clamp(0.64rem, 1.1vw, 0.78rem);
+  font-size: clamp(0.62rem, 1.05vw, 0.76rem);
   color: #FAD7A0;
   font-weight: 700;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
@@ -587,11 +587,11 @@ html, body {
 /* --- Botón Físico Integrado Exactamente en la Placa del Marco --- */
 .btn-fantasy-play {
   position: absolute;
-  bottom: 4.8%;
+  bottom: 6.8%;
   left: 50%;
   transform: translateX(-50%);
   width: 56%;
-  height: 12.8%;
+  height: 12%;
   background: transparent;
   border: none;
   border-radius: 12px;
