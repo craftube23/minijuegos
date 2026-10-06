@@ -11,7 +11,6 @@
  */
 
 import type { GameResult } from "../core/BaseGame";
-import { BRANDING } from "../config/branding";
 import { AudioManager } from "../core/AudioManager";
 import { getIconSvg } from "../utils/icons";
 
@@ -59,13 +58,8 @@ export class GameOverModal {
           </div>
         </div>
 
-        <!-- Integración de los Logos Oficiales (Feria Mágica + Campuslands) -->
+        <!-- Mensaje Promocional -->
         <div class="modal-branding">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
-            <img src="${BRANDING.getLogoPath(1)}" alt="${BRANDING.fairName}" class="modal-logo" style="height: 48px; width: auto; max-width: 160px; object-fit: contain;" />
-            <span style="font-size: 1.2rem; color: var(--color-gold); font-weight: 900;">×</span>
-            <img src="${BRANDING.getCollaboratorLogoPath()}" alt="Campuslands" class="modal-logo" style="height: 36px; width: auto; max-width: 120px; object-fit: contain; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.6);" />
-          </div>
           <p class="modal-promo-text">¡Sigue jugando y diviértete en la Feria Mágica del Juguete!</p>
         </div>
 

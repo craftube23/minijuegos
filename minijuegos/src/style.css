@@ -542,27 +542,22 @@ html, body {
 }
 
 .modal-branding {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 215, 0, 0.08);
   border-radius: 16px;
-  padding: clamp(8px, 1.5vh, 12px) 14px;
-  border: 1px solid rgba(255, 215, 0, 0.25);
+  padding: clamp(10px, 1.6vh, 14px) 18px;
+  border: 1.5px solid rgba(255, 215, 0, 0.35);
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 6px;
-}
-
-.modal-logo {
-  height: clamp(38px, 6vh, 52px);
-  max-width: 220px;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+  text-align: center;
 }
 
 .modal-promo-text {
-  font-size: clamp(0.78rem, 1.5vw, 0.95rem);
-  color: #E2E8F0;
-  font-weight: 600;
+  font-size: clamp(0.85rem, 1.8vw, 1.05rem);
+  color: #FFF9C4;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
 }
 
 .modal-actions {
