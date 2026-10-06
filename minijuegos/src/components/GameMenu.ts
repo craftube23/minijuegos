@@ -35,7 +35,7 @@ export class GameMenu {
     {
       id: "toy-catch",
       title: "Atrapa-Regalos Mágico",
-      imageSrc: "./assets/images/bolsa-de-regalos-clean.png",
+      imageSrc: "./assets/images/targetas/bolsa-de-regalos-clean.png",
       frameImageSrc: "./assets/images/marco-juego-rojo.png",
       themeClass: "theme-wood-red",
       category: "ACCIÓN & REFLEJOS",
@@ -65,7 +65,7 @@ export class GameMenu {
     {
       id: "magic-pairs",
       title: "Parejas de Juguetes",
-      imageSrc: "./assets/images/icon-cartas.png",
+      imageSrc: "./assets/images/targetas/icon cartas.png",
       frameImageSrc: "./assets/images/marco-juego-morado.png",
       themeClass: "theme-magic-purple",
       category: "INGENIO & RAPIDEZ",
