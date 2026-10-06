@@ -37,7 +37,8 @@ export class MagicPairsGame extends BaseGame {
   private isCheckingMatch: boolean = false;
   private checkTimer: number = 0;
   private pairsFound: number = 0;
-  private readonly totalPairs: number = 4;
+  private level: number = 1;
+  private totalPairs: number = 2; // Nivel 1: 2 pares (4 cartas)
 
   // Sprites Oficiales HD
   private spriteTeddy: HTMLImageElement;
@@ -84,6 +85,7 @@ export class MagicPairsGame extends BaseGame {
   }
 
   protected onStart(): void {
+    this.level = 1;
     this.pairsFound = 0;
     this.firstSelectedCard = null;
     this.secondSelectedCard = null;
@@ -116,16 +118,33 @@ export class MagicPairsGame extends BaseGame {
     this.secondSelectedCard = null;
     this.isCheckingMatch = false;
 
-    // 4 Parejas: 2 juguetes + 2 logos oficiales (Feria Mágica y Campuslands)
-    const toyPairs = [
+    // Determinar cantidad de parejas según nivel (4 → 6 → 8 → 12)
+    // Nivel 1: 2 pares (4 cartas)
+    // Nivel 2: 3 pares (6 cartas)
+    // Nivel 3: 4 pares (8 cartas)
+    // Nivel 4+: 6 pares (12 cartas)
+    const allAvailablePairs = [
       { key: "teddy", isSpecial: false },
+      { key: "fair_logo", isSpecial: true },   // Feria Mágica (Dorado x2)
       { key: "robot", isSpecial: false },
-      { key: "fair_logo", isSpecial: true },   // Pareja dorada de la Feria Mágica
-      { key: "campus_logo", isSpecial: true } // Pareja cian de Campuslands
+      { key: "campus_logo", isSpecial: true }, // Campuslands (Cian x2)
+      { key: "gift", isSpecial: false },
+      { key: "teddy_blue", isSpecial: false }
     ];
 
+    if (this.level === 1) {
+      this.totalPairs = 2;
+    } else if (this.level === 2) {
+      this.totalPairs = 3;
+    } else if (this.level === 3) {
+      this.totalPairs = 4;
+    } else {
+      this.totalPairs = 6;
+    }
+
+    const selectedPairs = allAvailablePairs.slice(0, this.totalPairs);
     const rawDeck: Array<{ pairKey: string; isSpecial: boolean }> = [];
-    for (const p of toyPairs) {
+    for (const p of selectedPairs) {
       rawDeck.push({ pairKey: p.key, isSpecial: p.isSpecial });
       rawDeck.push({ pairKey: p.key, isSpecial: p.isSpecial });
     }
@@ -143,8 +162,8 @@ export class MagicPairsGame extends BaseGame {
       isSpecialLogo: item.isSpecial,
       x: 0,
       y: 0,
-      w: 200,
-      h: 150,
+      w: 180,
+      h: 140,
       isFlipped: false,
       isMatched: false,
       flipProgress: 0
@@ -154,18 +173,34 @@ export class MagicPairsGame extends BaseGame {
   }
 
   private layoutCards(): void {
-    // Cuadrícula de 2 columnas x 4 filas en móvil o 4 cols x 2 filas
-    const isPortrait = this.height > this.width;
-    const cols = isPortrait ? 2 : 4;
-    const rows = isPortrait ? 4 : 2;
+    if (this.cards.length === 0) return;
 
-    const startY = this.height * 0.22;
-    const gridH = this.height * 0.70;
-    const gridW = this.width * 0.88;
+    const isPortrait = this.height > this.width;
+    let cols = 2;
+    let rows = 2;
+
+    if (this.cards.length === 4) {
+      cols = 2;
+      rows = 2;
+    } else if (this.cards.length === 6) {
+      cols = isPortrait ? 2 : 3;
+      rows = isPortrait ? 3 : 2;
+    } else if (this.cards.length === 8) {
+      cols = isPortrait ? 2 : 4;
+      rows = isPortrait ? 4 : 2;
+    } else {
+      // 12 cartas
+      cols = isPortrait ? 3 : 4;
+      rows = isPortrait ? 4 : 3;
+    }
+
+    const startY = this.height * 0.20;
+    const gridH = this.height * 0.72;
+    const gridW = Math.min(this.width * 0.90, cols * 180);
     const startX = (this.width - gridW) / 2;
 
-    const gapX = Math.max(12, this.width * 0.03);
-    const gapY = Math.max(12, this.height * 0.02);
+    const gapX = Math.max(10, this.width * 0.025);
+    const gapY = Math.max(10, this.height * 0.02);
 
     const cardW = (gridW - gapX * (cols - 1)) / cols;
     const cardH = (gridH - gapY * (rows - 1)) / rows;
@@ -247,31 +282,39 @@ export class MagicPairsGame extends BaseGame {
         this.particles.emitConfetti(this.width, 35);
       } else {
         this.addFloatingText(`+${points} ¡PAREJA!`, centerX, centerY, "#00E676", 1.2);
-        this.particles.emitBurst(centerX, centerY, "#FFD700", 20);
+        this.particles.emitBurst(centerX, centerY, "#00E676", 20);
       }
 
       this.firstSelectedCard = null;
       this.secondSelectedCard = null;
 
-      // Comprobar si completó el tablero
+      // Comprobar si completó el nivel
       if (this.pairsFound >= this.totalPairs) {
-        this.addScore(600);
-        this.addFloatingText("¡TABLERO COMPLETADO! +600", this.width / 2, this.height * 0.35, "#FFD700", 1.4);
-        this.particles.emitConfetti(this.width, 40);
+        const levelBonus = 300 * this.level;
+        this.addScore(levelBonus);
+        this.timeRemaining = Math.min(60, this.timeRemaining + 6); // +6s bonus de tiempo por nivel superado
+        this.audio.playPowerUp();
+        this.addFloatingText(`¡NIVEL ${this.level} SUPERADO! +${levelBonus}`, this.width / 2, this.height * 0.35, "#FFD700", 1.5);
+        this.particles.emitConfetti(this.width, 45);
 
+        this.level++;
         setTimeout(() => {
-          if (this.timeRemaining > 0) {
+          if (this.timeRemaining > 0 && this.isRunning) {
             this.pairsFound = 0;
             this.setupDeck();
           }
-        }, 1000);
+        }, 900);
       }
     } else {
-      // Pareja Incorrecta
+      // Pareja Incorrecta (🔴 Glow rojo y feedback)
       this.isCheckingMatch = true;
-      this.checkTimer = 0.75;
+      this.checkTimer = 0.65;
       this.audio.playError();
       this.triggerShake(0.12, 4);
+
+      const errX = (this.firstSelectedCard.x + this.secondSelectedCard.x) / 2 + this.firstSelectedCard.w / 2;
+      const errY = (this.firstSelectedCard.y + this.secondSelectedCard.y) / 2 + this.firstSelectedCard.h / 2;
+      this.particles.emitBurst(errX, errY, "#FF1744", 8);
     }
   }
 
@@ -285,21 +328,25 @@ export class MagicPairsGame extends BaseGame {
     ctx.fillRect(0, 0, this.width, this.height);
 
     // 2. Banner de progreso superior
-    ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
-    ctx.roundRect(this.width * 0.08, this.height * 0.12, this.width * 0.84, 46, [14]);
+    ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+    ctx.roundRect(this.width * 0.08, this.height * 0.10, this.width * 0.84, 44, [14]);
     ctx.fill();
 
-    ctx.font = "700 19px 'Outfit', sans-serif";
+    ctx.strokeStyle = "rgba(255, 215, 0, 0.5)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.font = "900 18px 'Outfit', sans-serif";
     ctx.fillStyle = "#FFD700";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(
-      `ENCUENTRA TODAS LAS PAREJAS (${this.pairsFound}/${this.totalPairs})`,
+      `⭐ NIVEL ${this.level}  •  PAREJAS: ${this.pairsFound}/${this.totalPairs}`,
       this.width / 2,
-      this.height * 0.12 + 23
+      this.height * 0.10 + 22
     );
 
-    // 3. Dibujar las 8 Cartas con animación de rotación 3D
+    // 3. Dibujar las Cartas con animación de rotación 3D y Halo 🟢/🔴
     for (const card of this.cards) {
       ctx.save();
 
@@ -312,9 +359,23 @@ export class MagicPairsGame extends BaseGame {
       ctx.scale(flipScale, 1.0);
 
       const isShowingFront = card.flipProgress >= 0.5;
+      const isCardSelected = card === this.firstSelectedCard || card === this.secondSelectedCard;
+      const isMismatch = this.isCheckingMatch && isCardSelected;
+
+      // Glow / Halo Visual (🟢 Verde si acertó, 🔴 Rojo si falló, 🟡 Dorado al revelar)
+      if (card.isMatched) {
+        ctx.shadowColor = "rgba(0, 230, 118, 0.95)";
+        ctx.shadowBlur = 16;
+      } else if (isMismatch) {
+        ctx.shadowColor = "rgba(255, 23, 68, 0.95)";
+        ctx.shadowBlur = 20;
+      } else if (isCardSelected) {
+        ctx.shadowColor = "rgba(255, 215, 0, 0.85)";
+        ctx.shadowBlur = 14;
+      }
 
       if (card.isMatched) {
-        ctx.globalAlpha = 0.55;
+        ctx.globalAlpha = 0.65;
       }
 
       const halfW = card.w / 2;
@@ -359,7 +420,11 @@ export class MagicPairsGame extends BaseGame {
         const isFair = card.pairKey === "fair_logo";
         const isCampus = card.pairKey === "campus_logo";
 
-        if (isFair) {
+        if (card.isMatched) {
+          ctx.fillStyle = "#E8F5E9"; // Fondo suave verde al acertar
+        } else if (isMismatch) {
+          ctx.fillStyle = "#FFEBEE"; // Fondo suave rojo al fallar
+        } else if (isFair) {
           ctx.fillStyle = "#FFF9C4";
         } else if (isCampus) {
           ctx.fillStyle = "#E0F7FA";
@@ -370,9 +435,12 @@ export class MagicPairsGame extends BaseGame {
         ctx.roundRect(-halfW, -halfH, card.w, card.h, [16]);
         ctx.fill();
 
-        const strokeColor = isFair ? "#FFD700" : (isCampus ? "#00E5FF" : "#E0E0E0");
+        let strokeColor = isFair ? "#FFD700" : (isCampus ? "#00E5FF" : "#E0E0E0");
+        if (card.isMatched) strokeColor = "#00E676";
+        if (isMismatch) strokeColor = "#FF1744";
+
         ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = card.isSpecialLogo ? 4.5 : 3;
+        ctx.lineWidth = card.isMatched || isMismatch ? 5 : (card.isSpecialLogo ? 4.5 : 3);
         ctx.stroke();
 
         // Renderizar Sprite Oficial del Juguete / Logo
@@ -380,6 +448,7 @@ export class MagicPairsGame extends BaseGame {
         if (card.pairKey === "teddy") imgToDraw = this.spriteTeddy;
         else if (card.pairKey === "robot") imgToDraw = this.spriteRobot;
         else if (card.pairKey === "gift") imgToDraw = this.spriteGift;
+        else if (card.pairKey === "teddy_blue") imgToDraw = this.spriteTeddy;
         else if (card.pairKey === "fair_logo") imgToDraw = this.spriteLogo1;
         else if (card.pairKey === "campus_logo") imgToDraw = this.spriteLogo2;
 

@@ -25,6 +25,7 @@ import { GameBannerCarousel } from "./components/GameBannerCarousel";
 import { AttractScreen } from "./components/AttractScreen";
 import { GameMenu } from "./components/GameMenu";
 import { GameOverModal } from "./components/GameOverModal";
+import { GameInstructionsModal } from "./components/GameInstructionsModal";
 
 // Los 4 Minijuegos Navideños
 import { ToyCatchGame } from "./games/ToyCatchGame";
@@ -44,6 +45,7 @@ class KioskApp {
   public attractScreen: AttractScreen;
   public gameMenu: GameMenu;
   public gameOverModal: GameOverModal;
+  public instructionsModal: GameInstructionsModal;
 
   // Colección de Minijuegos
   private games: Map<string, BaseGame> = new Map();
@@ -52,6 +54,7 @@ class KioskApp {
   // Estado del Kiosco: 'attract' | 'menu' | 'playing' | 'gameover'
   private appState: "attract" | "menu" | "playing" | "gameover" = "attract";
   private isTransitioning: boolean = false;
+  private pendingCardElement: HTMLElement | null = null;
 
   // Temporizador de inactividad
   private lastUserInteractionTime: number = Date.now();
@@ -76,6 +79,7 @@ class KioskApp {
     this.attractScreen = new AttractScreen("attract-screen");
     this.gameMenu = new GameMenu("menu-screen", this.audio);
     this.gameOverModal = new GameOverModal("gameover-modal", this.audio);
+    this.instructionsModal = new GameInstructionsModal("instructions-modal", this.audio);
 
     // 4. Instanciar los 4 Minijuegos
     this.registerGames();
@@ -107,6 +111,21 @@ class KioskApp {
   }
 
   private cachedCanvasRect: DOMRect | null = null;
+
+  /**
+   * Intento seguro de activar Pantalla Completa tras interacción del usuario
+   */
+  private tryEnterFullscreen(): void {
+    try {
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {
+          // Ignorar silenciosamente si el navegador bloquea la petición
+        });
+      }
+    } catch {
+      // Ignorar de forma segura sin interrumpir la experiencia
+    }
+  }
 
   /**
    * Ajusta el Canvas y los juegos a la resolución exacta del dispositivo
@@ -151,30 +170,47 @@ class KioskApp {
    * Conecta los botones y transiciones entre pantallas
    */
   private setupNavigationCallbacks(): void {
-    // 1. Al presionar "Toca para Jugar" en el Salvapantallas → Ir al Menú
+    // 1. Al presionar "Toca para Jugar" en el Salvapantallas → Solicitar Fullscreen e Ir al Menú
     this.attractScreen.onStartClick = () => {
       this.audio.unlockAudio();
       this.audio.playTap();
+      this.tryEnterFullscreen();
       this.goToMenu();
     };
 
-    // 2. Al seleccionar un juego en el Menú → Transición Cinemática de Despegue y Cuenta Regresiva
-    this.gameMenu.onSelectGame = (gameId: string, cardElement: HTMLElement) => {
-      if (this.isTransitioning) return;
-      this.isTransitioning = true;
-
-      const allCards = document.querySelectorAll<HTMLElement>(".game-card-fantasy");
-      ScreenTransition.getInstance().playCardLaunch(cardElement, allCards, () => {
-        this.launchGameWithCountdown(gameId);
-      });
+    // 2. Al pulsar "🎪 VOLVER A LA FERIA" en el Dashboard de juegos → Regresar a la Landing
+    this.gameMenu.onBackToLanding = () => {
+      this.goToAttractScreen();
     };
 
-    // 3. Al pulsar el botón "Menú" en la barra superior
+    // 3. Al seleccionar un juego en el Menú → Mostrar Modal de Instrucciones Visuales (~5s)
+    this.gameMenu.onSelectGame = (gameId: string, cardElement: HTMLElement) => {
+      if (this.isTransitioning) return;
+      this.pendingCardElement = cardElement;
+      this.instructionsModal.show(gameId);
+    };
+
+    // 4. Cuando el usuario confirma "¡A JUGAR! ▶" en el modal de instrucciones
+    this.instructionsModal.onStartGame = (gameId: string) => {
+      this.isTransitioning = true;
+      const allCards = document.querySelectorAll<HTMLElement>(".game-card-fantasy");
+      const cardToLaunch = this.pendingCardElement || allCards[0];
+
+      if (cardToLaunch) {
+        ScreenTransition.getInstance().playCardLaunch(cardToLaunch, allCards, () => {
+          this.launchGameWithCountdown(gameId);
+        });
+      } else {
+        this.launchGameWithCountdown(gameId);
+      }
+    };
+
+    // 5. Al pulsar el botón "Menú" en la barra superior
     this.header.onHomeClick = () => {
       this.goToMenu();
     };
 
-    // 4. Al terminar una partida: "Jugar de nuevo" o "Otros juegos"
+    // 6. Al terminar una partida: "Jugar de nuevo" o "Otros juegos"
     this.gameOverModal.onPlayAgain = () => {
       if (this.currentGame) {
         this.launchGameDirect(this.currentGame.id);
@@ -187,7 +223,7 @@ class KioskApp {
       this.goToMenu();
     };
 
-    // 5. Al pulsar "Seguir Editando / Grabar" en la pantalla de resultados
+    // 7. Al pulsar "Seguir Editando / Grabar" en la pantalla de resultados
     this.gameOverModal.onEditAgain = (songFile?: string, customNotes?: any[]) => {
       const bellGame = this.games.get("bell-symphony") as BellSymphonyGame | undefined;
       if (bellGame) {

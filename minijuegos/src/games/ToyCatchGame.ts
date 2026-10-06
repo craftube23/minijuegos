@@ -304,13 +304,22 @@ export class ToyCatchGame extends BaseGame {
   }
 
   protected onDraw(ctx: CanvasRenderingContext2D): void {
-    // 1. Dibujar objetos que caen (100% sprites)
+    // 1. Dibujar objetos que caen (100% sprites con feedback visual 🟢 y 🔴)
     for (const item of this.items) {
       ctx.save();
       ctx.translate(item.x, item.y);
       ctx.rotate(item.rotation);
 
       const drawSize = item.size;
+
+      // Aplicar resplandor según sea positivo (verde) o peligroso (rojo)
+      if (item.type === "ice" || item.type === "rock") {
+        ctx.shadowColor = "rgba(255, 23, 68, 0.85)";
+        ctx.shadowBlur = 18;
+      } else if (item.type === "gift_red" || item.type === "gift_green" || item.type === "teddy" || item.type === "robot") {
+        ctx.shadowColor = "rgba(0, 230, 118, 0.8)";
+        ctx.shadowBlur = 14;
+      }
 
       if (item.type === "gift_red" && this.imgGiftRed.complete && this.imgGiftRed.naturalWidth > 0) {
         ctx.drawImage(this.imgGiftRed, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
@@ -325,27 +334,62 @@ export class ToyCatchGame extends BaseGame {
       } else if (item.type === "rock" && this.imgCoal.complete && this.imgCoal.naturalWidth > 0) {
         ctx.drawImage(this.imgCoal, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
       } else if (item.type === "fair_logo_box") {
-        // Logo Feria Mágica - Halo dorado resplandeciente
-        ctx.fillStyle = "rgba(255, 215, 0, 0.55)";
+        // Medallón de alto contraste y energía dorada mística
+        const radius = drawSize * 0.72;
+        
+        // Halo exterior dorado pulsante
+        ctx.save();
+        ctx.shadowColor = "rgba(255, 215, 0, 0.95)";
+        ctx.shadowBlur = 22;
+        
+        // Fondo blanco perlado de alto contraste (para que se distinga 100% sobre la nieve)
+        const bgGrad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
+        bgGrad.addColorStop(0, "rgba(255, 255, 255, 0.98)");
+        bgGrad.addColorStop(0.8, "rgba(255, 248, 220, 0.94)");
+        bgGrad.addColorStop(1, "rgba(255, 215, 0, 0.85)");
+        ctx.fillStyle = bgGrad;
         ctx.beginPath();
-        ctx.arc(0, 0, drawSize * 0.75, 0, Math.PI * 2);
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
         ctx.fill();
 
+        // Borde dorado brillante
+        ctx.strokeStyle = "#FFD700";
+        ctx.lineWidth = 3.5;
+        ctx.stroke();
+        ctx.restore();
+
         if (this.logoImage1 && this.logoImage1.complete && this.logoImage1.naturalWidth > 0) {
-          const logoW = drawSize * 1.25;
-          const logoH = drawSize * 0.85;
+          const logoW = drawSize * 1.15;
+          const logoH = drawSize * 0.78;
           ctx.drawImage(this.logoImage1, -logoW / 2, -logoH / 2, logoW, logoH);
         }
       } else if (item.type === "campus_logo_box") {
-        // Logo Campuslands - Halo cian resplandeciente
-        ctx.fillStyle = "rgba(0, 229, 255, 0.55)";
+        // Medallón Campuslands: Base blanca nítida y halo cian vibrante
+        const radius = drawSize * 0.72;
+
+        ctx.save();
+        ctx.shadowColor = "rgba(0, 229, 255, 0.95)";
+        ctx.shadowBlur = 22;
+
+        // Base blanca nítida para evitar que el logo azul se confunda con la nieve
+        const bgGrad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
+        bgGrad.addColorStop(0, "rgba(255, 255, 255, 1.0)");
+        bgGrad.addColorStop(0.85, "rgba(240, 250, 255, 0.96)");
+        bgGrad.addColorStop(1, "rgba(0, 229, 255, 0.85)");
+        ctx.fillStyle = bgGrad;
         ctx.beginPath();
-        ctx.arc(0, 0, drawSize * 0.75, 0, Math.PI * 2);
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
         ctx.fill();
 
+        // Borde cian tecnológico
+        ctx.strokeStyle = "#00E5FF";
+        ctx.lineWidth = 3.5;
+        ctx.stroke();
+        ctx.restore();
+
         if (this.logoImage2 && this.logoImage2.complete && this.logoImage2.naturalWidth > 0) {
-          const logoW = drawSize * 1.25;
-          const logoH = drawSize * 0.85;
+          const logoW = drawSize * 1.18;
+          const logoH = drawSize * 0.80;
           ctx.drawImage(this.logoImage2, -logoW / 2, -logoH / 2, logoW, logoH);
         }
       }
@@ -359,11 +403,32 @@ export class ToyCatchGame extends BaseGame {
     ctx.rotate(this.basketTilt);
     ctx.scale(this.basketSquashX, this.basketSquashY);
 
+    // Aura de poder épico cuando el power-up de logo está activo
     if (this.isLogoPowerUpActive) {
-      ctx.fillStyle = "rgba(255, 215, 0, 0.45)";
+      const now = performance.now() * 0.005;
+      const auraPulse = Math.sin(now) * 6;
+      const auraRadius = (this.basketWidth * 0.75) + auraPulse;
+
+      ctx.save();
+      // Capa 1: Resplandor radial exterior
+      const auraGrad = ctx.createRadialGradient(0, 0, auraRadius * 0.4, 0, 0, auraRadius);
+      auraGrad.addColorStop(0, "rgba(255, 215, 0, 0.65)");
+      auraGrad.addColorStop(0.6, "rgba(255, 153, 0, 0.45)");
+      auraGrad.addColorStop(1, "rgba(255, 80, 0, 0)");
+      ctx.fillStyle = auraGrad;
       ctx.beginPath();
-      ctx.arc(0, 0, this.basketWidth * 0.75, 0, Math.PI * 2);
+      ctx.arc(0, 0, auraRadius, 0, Math.PI * 2);
       ctx.fill();
+
+      // Capa 2: Anillos mágicos de energía
+      ctx.strokeStyle = "rgba(255, 235, 59, 0.85)";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([10, 6]);
+      ctx.lineDashOffset = -now * 15;
+      ctx.beginPath();
+      ctx.arc(0, 0, auraRadius * 0.85, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
     }
 
     if (this.bagImage && this.bagImage.complete && this.bagImage.naturalWidth > 0) {

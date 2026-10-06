@@ -30,6 +30,8 @@ export class GameMenu {
   private container: HTMLElement;
   private audio: AudioManager;
   public onSelectGame?: (gameId: string, cardElement: HTMLElement) => void;
+  public onBackToLanding?: () => void;
+  private lastShowTime: number = 0;
 
   private gamesList: GameMenuItem[] = [
     {
@@ -85,6 +87,13 @@ export class GameMenu {
     this.container.innerHTML = `
       <!-- Decoración Superior de Fantasía Navideña -->
       <div class="menu-header">
+        <div class="menu-top-actions">
+          <button id="btn-back-to-landing" class="btn-fantasy-back-landing" title="Regresar al inicio de la Feria">
+            <span class="btn-icon">🎪</span>
+            <span class="btn-text">VOLVER A LA FERIA</span>
+          </button>
+        </div>
+
         <div class="menu-ribbon-top">
           <span class="ribbon-flourish">❧</span>
           <span class="ribbon-text">Partidas rápidas y divertidas de 45 segundos</span>
@@ -96,6 +105,7 @@ export class GameMenu {
           ${getIconSvg("sparkles", { size: 26, color: "var(--color-gold)" })}
         </h2>
       </div>
+
 
       <!-- Cuadrícula 2D Fantasy Game UI -->
       <div class="menu-grid" id="menu-grid-cards">
@@ -156,9 +166,17 @@ export class GameMenu {
     this.setupEvents();
   }
 
-  private lastShowTime: number = 0;
-
   private setupEvents(): void {
+    const btnBackLanding = this.container.querySelector("#btn-back-to-landing");
+    btnBackLanding?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.audio.playTap();
+      if (this.onBackToLanding) {
+        this.onBackToLanding();
+      }
+    });
+
     const cards = this.container.querySelectorAll<HTMLElement>(".game-card-fantasy");
     cards.forEach((card) => {
       // Evento de toque y selección de tarjeta
