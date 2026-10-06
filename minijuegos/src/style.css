@@ -450,77 +450,87 @@ html, body {
   100% { left: 140%; opacity: 0; }
 }
 
-/* --- Cuerpo Interior de la Tarjeta (Estrictamente Confinado en el Lienzo Interior del Marco) --- */
+/* --- Cuerpo Interior de la Tarjeta (Lienzo Interior del Marco) --- */
 .card-inner-body {
   position: relative;
   z-index: 3;
   width: 100%;
   height: 100%;
-  padding: 10.5% 8.5% 19.5% 8.5%;
+  padding: 8.5% 7.5% 18.5% 7.5%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: clamp(2px, 0.6vh, 4px);
   box-sizing: border-box;
 }
 
-/* --- Miniatura Ilustrada Central --- */
+/* --- Miniatura e Icono 3D Prominente (Grande en la zona superior/central) --- */
 .card-art-box {
-  position: relative;
-  width: 100%;
-  height: 36%;
+  position: absolute;
+  top: 7.5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 86%;
+  height: 54%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .card-art-image {
   width: auto;
   height: 100%;
-  max-width: 85%;
+  max-width: 95%;
   object-fit: contain;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.85));
-  animation: floatArt 3s ease-in-out infinite alternate;
-  z-index: 3;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.92));
+  animation: floatArt 3.5s ease-in-out infinite alternate;
+  z-index: 2;
 }
 
 @keyframes floatArt {
   0% { transform: translateY(0px) scale(1); }
-  100% { transform: translateY(-2px) scale(1.015); }
+  100% { transform: translateY(-3px) scale(1.02); }
 }
 
 .art-glow-halo {
   position: absolute;
-  width: 80px;
-  height: 80px;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.35) 0%, rgba(255, 215, 0, 0) 70%);
+  width: 110px;
+  height: 110px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.40) 0%, rgba(255, 215, 0, 0) 70%);
   border-radius: 50%;
   z-index: 1;
 }
 
-/* --- Título de Fantasía 3D Volumétrico (Titan One / Lilita One) --- */
+/* --- Título de Fantasía 3D Volumétrico Blanco (Sobrepuesto con Alto Contraste) --- */
 .card-fantasy-title {
+  position: relative;
+  z-index: 5;
   font-family: var(--font-card-title);
-  font-size: clamp(0.85rem, 1.7vw, 1.2rem);
+  font-size: clamp(0.95rem, 1.9vw, 1.32rem);
   font-weight: 900;
-  color: #FFFDE7;
-  margin: 0;
-  line-height: 1.15;
+  color: #FFFFFF;
+  margin: 0 0 1px 0;
+  line-height: 1.12;
   text-shadow: 
-    0 1.5px 0 #3A1B05,
-    0 3px 0 #200D02,
-    0 4px 8px rgba(0, 0, 0, 0.95);
-  letter-spacing: 0.4px;
+    0 2px 0 #2A1203,
+    0 3.5px 0 #120500,
+    0 5px 12px rgba(0, 0, 0, 1),
+    0 0 14px rgba(0, 0, 0, 0.9);
+  letter-spacing: 0.5px;
 }
 
 /* --- Cinta de Pergamino Medieval para Categoría --- */
 .card-ribbon-category {
+  position: relative;
+  z-index: 5;
   background: linear-gradient(180deg, #FDF2E9 0%, #F5CBA7 45%, #E59866 100%);
   border: 1.2px solid #873600;
   border-radius: 3px;
-  padding: 1px 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+  padding: 1.5px 9px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.8);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -540,18 +550,22 @@ html, body {
 
 /* --- Tagline Descriptivo --- */
 .card-fantasy-tagline {
+  position: relative;
+  z-index: 5;
   font-family: var(--font-main);
   font-size: clamp(0.58rem, 0.98vw, 0.72rem);
-  color: #FFF9E6;
+  color: #FFFDE7;
   margin: 0;
   font-weight: 700;
-  text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.95);
+  text-shadow: 0 1.5px 4px rgba(0, 0, 0, 1);
   line-height: 1.15;
 }
 
 /* --- Placa de Madera Rústica para Récord (Imagen 2) --- */
 .card-record-plaque {
-  width: 70%;
+  position: relative;
+  z-index: 5;
+  width: 72%;
   background: linear-gradient(180deg, #4A2B11 0%, #2A1608 100%);
   border: 1.2px solid #7D481F;
   border-radius: 6px;

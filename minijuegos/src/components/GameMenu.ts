@@ -65,7 +65,7 @@ export class GameMenu {
     {
       id: "magic-pairs",
       title: "Parejas de Juguetes",
-      imageSrc: "./assets/images/estrella con logo.png",
+      imageSrc: "./assets/images/icon-cartas.png",
       frameImageSrc: "./assets/images/marco-juego-morado.png",
       themeClass: "theme-magic-purple",
       category: "INGENIO & RAPIDEZ",
