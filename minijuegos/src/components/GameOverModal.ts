@@ -64,7 +64,7 @@ export class GameOverModal {
           <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
             <img src="${BRANDING.getLogoPath(1)}" alt="${BRANDING.fairName}" class="modal-logo" style="max-height: 52px; max-width: 170px;" />
             <span style="font-size: 1.2rem; color: var(--color-gold); font-weight: 900;">×</span>
-            <img src="${BRANDING.getCollaboratorLogoPath()}" alt="Campuslands" class="modal-logo" style="max-height: 44px; max-width: 140px;" />
+            <img src="${BRANDING.getCollaboratorLogoPath()}" alt="Campuslands" class="modal-logo" style="max-height: 44px; max-width: 140px; border-radius: 8px; box-shadow: 0 3px 10px rgba(0,0,0,0.6);" />
           </div>
           <p class="modal-promo-text">¡Sigue jugando y diviértete en la Feria Mágica del Juguete!</p>
         </div>
