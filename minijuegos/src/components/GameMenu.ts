@@ -43,13 +43,13 @@ export class GameMenu {
       gemColor: "#FF2A4D"
     },
     {
-      id: "sleigh-rush",
-      title: "Dispara-Regalos",
-      imageSrc: "./assets/images/elfo-planeador.png",
+      id: "bell-symphony",
+      title: "Sinfonía de Campanas",
+      imageSrc: "./assets/images/icon-campanas.png",
       frameImageSrc: "./assets/images/marco-juego-azul.png",
       themeClass: "theme-stone-blue",
-      category: "PUNTERÍA & VUELO",
-      tagline: "¡Vuela en ala delta y encesta en chimeneas!",
+      category: "RITMO & MÚSICA",
+      tagline: "¡Toca las campanas al ritmo navideño!",
       gemColor: "#00E5FF"
     },
     {
