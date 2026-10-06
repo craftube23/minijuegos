@@ -174,23 +174,23 @@ export class ParticleSystem {
   }
 
   /**
-   * Dibuja todas las partículas en el Canvas
+   * Dibuja todas las partículas en el Canvas con renderizado por lotes (Batch Rendering)
    */
   public draw(ctx: CanvasRenderingContext2D, renderSnow: boolean = true): void {
     ctx.save();
 
-    // 1. Dibujar nieve
-    if (renderSnow) {
+    // 1. Dibujar nieve por lotes (1 solo fill para todas las partículas)
+    if (renderSnow && this.snowFlakes.length > 0) {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+      ctx.beginPath();
       for (const flake of this.snowFlakes) {
-        ctx.fillStyle = flake.color;
-        ctx.globalAlpha = flake.alpha;
-        ctx.beginPath();
+        ctx.moveTo(flake.x + flake.size, flake.y);
         ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
-        ctx.fill();
       }
+      ctx.fill();
     }
 
-    // 2. Dibujar partículas (chispas, estrellas, confeti)
+    // 2. Dibujar partículas dinámicas
     for (const p of this.particles) {
       ctx.fillStyle = p.color;
       ctx.globalAlpha = Math.max(0, p.alpha);
@@ -202,21 +202,10 @@ export class ParticleSystem {
         ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
         ctx.restore();
       } else if (p.type === "star") {
-        // Micro-estrella brillante
-        ctx.save();
-        ctx.translate(p.x, p.y);
+        // Micro-estrella rápida
         ctx.beginPath();
-        ctx.moveTo(0, -p.size);
-        ctx.lineTo(p.size * 0.3, -p.size * 0.3);
-        ctx.lineTo(p.size, 0);
-        ctx.lineTo(p.size * 0.3, p.size * 0.3);
-        ctx.lineTo(0, p.size);
-        ctx.lineTo(-p.size * 0.3, p.size * 0.3);
-        ctx.lineTo(-p.size, 0);
-        ctx.lineTo(-p.size * 0.3, -p.size * 0.3);
-        ctx.closePath();
+        ctx.arc(p.x, p.y, p.size * 0.9, 0, Math.PI * 2);
         ctx.fill();
-        ctx.restore();
       } else {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);

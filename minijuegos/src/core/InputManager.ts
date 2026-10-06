@@ -55,22 +55,36 @@ export class InputManager {
     });
   }
 
+  private cachedRect: DOMRect | null = null;
+  private scaleX: number = 1;
+  private scaleY: number = 1;
+
+  public updateBounds(): void {
+    this.cachedRect = this.canvas.getBoundingClientRect();
+    if (this.cachedRect.width > 0 && this.cachedRect.height > 0) {
+      this.scaleX = this.canvas.width / this.cachedRect.width;
+      this.scaleY = this.canvas.height / this.cachedRect.height;
+    }
+  }
+
   /**
    * Transforma las coordenadas de la ventana a la resolución interna del canvas
    */
   private getCanvasCoordinates(clientX: number, clientY: number): { x: number; y: number } {
-    const rect = this.canvas.getBoundingClientRect();
-    const scaleX = this.canvas.width / rect.width;
-    const scaleY = this.canvas.height / rect.height;
+    if (!this.cachedRect) {
+      this.updateBounds();
+    }
+    const rect = this.cachedRect || this.canvas.getBoundingClientRect();
 
     return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY
+      x: (clientX - rect.left) * this.scaleX,
+      y: (clientY - rect.top) * this.scaleY
     };
   }
 
   private handlePointerDown(e: PointerEvent): void {
     e.preventDefault();
+    this.updateBounds();
     this.isPointerDown = true;
     const { x, y } = this.getCanvasCoordinates(e.clientX, e.clientY);
     

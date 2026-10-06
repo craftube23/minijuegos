@@ -106,6 +106,8 @@ class KioskApp {
     console.log("[Feria Mágica del Juguete] Kiosco Interactivo Listo");
   }
 
+  private cachedCanvasRect: DOMRect | null = null;
+
   /**
    * Ajusta el Canvas y los juegos a la resolución exacta del dispositivo
    */
@@ -117,6 +119,9 @@ class KioskApp {
     if (width > 0 && height > 0) {
       this.canvas.width = width;
       this.canvas.height = height;
+
+      this.cachedCanvasRect = this.canvas.getBoundingClientRect();
+      this.input.updateBounds();
 
       this.particles.initSnow(width, height);
 
@@ -184,11 +189,14 @@ class KioskApp {
   }
 
   /**
-   * Estela mágica táctil (Touch Magic Trail)
+   * Estela mágica táctil (Touch Magic Trail - Optimizado sin Reflow)
    */
   private setupTouchMagicTrail(): void {
+    let lastX = 0;
+    let lastY = 0;
+
     const emit = (clientX: number, clientY: number, count: number) => {
-      const rect = this.canvas.getBoundingClientRect();
+      const rect = this.cachedCanvasRect || this.canvas.getBoundingClientRect();
       const x = clientX - rect.left;
       const y = clientY - rect.top;
       this.particles.emitTouchTrail(x, y, count);
@@ -197,7 +205,14 @@ class KioskApp {
     window.addEventListener(
       "pointermove",
       (e) => {
-        if (Math.random() < 0.6) emit(e.clientX, e.clientY, 1);
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        // Solo emitir si el puntero se movió al menos 10px para evitar saturar el loop
+        if (dx * dx + dy * dy > 100) {
+          lastX = e.clientX;
+          lastY = e.clientY;
+          emit(e.clientX, e.clientY, 1);
+        }
       },
       { passive: true }
     );
@@ -205,7 +220,9 @@ class KioskApp {
     window.addEventListener(
       "pointerdown",
       (e) => {
-        emit(e.clientX, e.clientY, 4);
+        lastX = e.clientX;
+        lastY = e.clientY;
+        emit(e.clientX, e.clientY, 3);
       },
       { passive: true }
     );
