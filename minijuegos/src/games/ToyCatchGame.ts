@@ -21,7 +21,7 @@ interface FallingItem {
   y: number;
   vy: number;
   size: number;
-  type: "gift_red" | "gift_green" | "teddy" | "robot" | "fair_logo_box" | "campus_logo_box" | "ice" | "rock";
+  type: "gift_red" | "gift_green" | "teddy" | "robot" | "fair_logo_box" | "ice" | "rock";
   points: number;
   rotation: number;
   vRot: number;
@@ -201,9 +201,8 @@ export class ToyCatchGame extends BaseGame {
     let size = baseSize;
 
     if (roll < 0.08) {
-      // 8% Logo Especial (Alterna 50% Feria Mágica / 50% Campuslands)
-      const isCampus = Math.random() > 0.5;
-      type = isCampus ? "campus_logo_box" : "fair_logo_box";
+      // 8% Moneda / Logo Dorado Feria Mágica (Super Bonus x2)
+      type = "fair_logo_box";
       points = 500;
       size = baseSize * 1.15;
     } else if (roll < 0.28) {
@@ -270,21 +269,12 @@ export class ToyCatchGame extends BaseGame {
         this.endGame();
       }
     } else if (item.type === "fair_logo_box") {
-      // LOGO 1: FERIA MÁGICA
+      // LOGO OFICIAL: FERIA MÁGICA
       this.comboCount++;
       this.addScore(item.points);
       this.triggerLogoPowerUp(1, 7);
       this.triggerShake(0.15, 4);
       this.addFloatingText("¡SUPER BONUS FERIA x2! +500", this.basketX, this.basketY - 50, "#FFD700", 1.3);
-      this.particles.emitConfetti(this.width, 35);
-    } else if (item.type === "campus_logo_box") {
-      // LOGO 2: CAMPUSLANDS
-      this.comboCount++;
-      this.addScore(item.points);
-      this.triggerLogoPowerUp(2, 7);
-      this.triggerShake(0.15, 4);
-      this.addFloatingText("¡BONUS CAMPUSLANDS x2! +500", this.basketX, this.basketY - 50, "#00E5FF", 1.3);
-      this.particles.emitBurst(this.basketX, this.basketY, "#00E5FF", 30);
       this.particles.emitConfetti(this.width, 35);
     } else {
       this.comboCount++;
@@ -322,7 +312,7 @@ export class ToyCatchGame extends BaseGame {
       } else if (item.type === "rock" && this.imgCoal.complete && this.imgCoal.naturalWidth > 0) {
         ctx.drawImage(this.imgCoal, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
       } else if (item.type === "fair_logo_box") {
-        // Logo 1 (Feria Mágica) - Halo dorado resplandeciente
+        // Logo Feria Mágica - Halo dorado resplandeciente
         ctx.fillStyle = "rgba(255, 215, 0, 0.55)";
         ctx.beginPath();
         ctx.arc(0, 0, drawSize * 0.75, 0, Math.PI * 2);
@@ -332,18 +322,6 @@ export class ToyCatchGame extends BaseGame {
           const logoW = drawSize * 1.25;
           const logoH = drawSize * 0.85;
           ctx.drawImage(this.logoImage1, -logoW / 2, -logoH / 2, logoW, logoH);
-        }
-      } else if (item.type === "campus_logo_box") {
-        // Logo 2 (Campuslands) - Halo cian / azul resplandeciente
-        ctx.fillStyle = "rgba(0, 229, 255, 0.55)";
-        ctx.beginPath();
-        ctx.arc(0, 0, drawSize * 0.75, 0, Math.PI * 2);
-        ctx.fill();
-
-        if (this.logoImage2 && this.logoImage2.complete && this.logoImage2.naturalWidth > 0) {
-          const logoW = drawSize * 1.25;
-          const logoH = drawSize * 0.85;
-          ctx.drawImage(this.logoImage2, -logoW / 2, -logoH / 2, logoW, logoH);
         }
       }
 

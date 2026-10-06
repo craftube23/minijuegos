@@ -42,7 +42,7 @@ interface DroppedPresent {
   vy: number;
   rotation: number;
   rotSpeed: number;
-  type: "red" | "green" | "teddy" | "fair_logo" | "campus_logo";
+  type: "red" | "green" | "teddy" | "fair_logo";
   points: number;
   active: boolean;
 }
@@ -368,19 +368,11 @@ export class ChimneyDropGame extends BaseGame {
           this.audio.playCatchItem(1.2);
 
           if (p.type === "fair_logo") {
-            // LOGO 1: FERIA MÁGICA
+            // LOGO OFICIAL: FERIA MÁGICA
             this.addScore(500);
             this.triggerLogoPowerUp(1, 6);
             this.triggerShake(0.18, 6);
             this.addFloatingText("¡SUPER BONUS FERIA! +500", p.x, p.y - 50, "#FFD700", 1.4);
-            this.particles.emitConfetti(this.width, 35);
-          } else if (p.type === "campus_logo") {
-            // LOGO 2: CAMPUSLANDS
-            this.addScore(500);
-            this.triggerLogoPowerUp(2, 6);
-            this.triggerShake(0.18, 6);
-            this.addFloatingText("¡BONUS CAMPUSLANDS! +500", p.x, p.y - 50, "#00E5FF", 1.4);
-            this.particles.emitBurst(p.x, p.y, "#00E5FF", 25);
             this.particles.emitConfetti(this.width, 35);
           } else {
             const pts = p.points;
@@ -414,8 +406,8 @@ export class ChimneyDropGame extends BaseGame {
     let points = 200;
 
     if (roll < 0.12) {
-      // 12% Regalo Especial (Alterna 50% Feria Mágica / 50% Campuslands)
-      type = Math.random() > 0.5 ? "campus_logo" : "fair_logo";
+      // 12% Regalo Especial Feria Mágica (+500 pts y halo dorado)
+      type = "fair_logo";
       points = 500;
     } else if (roll < 0.40) {
       type = "teddy";
@@ -584,12 +576,11 @@ export class ChimneyDropGame extends BaseGame {
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rotation);
 
-      const isLogo = p.type === "fair_logo" || p.type === "campus_logo";
+      const isLogo = p.type === "fair_logo";
       const size = isLogo ? 54 : 44;
 
       let imgToDraw: HTMLImageElement | null = null;
       if (p.type === "fair_logo") imgToDraw = this.spriteFairLogo;
-      else if (p.type === "campus_logo") imgToDraw = this.spriteCampusLogo;
       else if (p.type === "teddy") imgToDraw = this.spriteTeddy;
       else if (p.type === "green") imgToDraw = this.spriteGiftGreen;
       else imgToDraw = this.spriteGiftRed;
@@ -597,7 +588,7 @@ export class ChimneyDropGame extends BaseGame {
       if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth > 0) {
         ctx.drawImage(imgToDraw, -size / 2, -size / 2, size, size);
       } else {
-        ctx.fillStyle = p.type === "fair_logo" ? "#FFD700" : (p.type === "campus_logo" ? "#00E5FF" : "#EF4444");
+        ctx.fillStyle = p.type === "fair_logo" ? "#FFD700" : "#EF4444";
         ctx.fillRect(-size / 2, -size / 2, size, size);
       }
 
