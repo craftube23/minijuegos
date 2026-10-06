@@ -45,13 +45,6 @@ export class AttractScreen {
           <div class="preview-badge">${getIconSvg("gift", { size: 18, color: "var(--color-gold)" })} 4 Juegos Disponibles</div>
           <div class="preview-badge">${getIconSvg("trophy", { size: 18, color: "var(--color-gold)" })} Guarda tus Récords</div>
           <div class="preview-badge">${getIconSvg("sparkles", { size: 18, color: "var(--color-gold)" })} Gana Premios de la Feria</div>
-        </div>
-
-        <!-- Colaborador Oficial: Campuslands -->
-        <div class="attract-collaborator" style="margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(0, 0, 0, 0.45); padding: 6px 18px; border-radius: 20px; border: 1px solid rgba(255, 215, 0, 0.3);">
-          <span style="font-size: 0.85rem; color: #E2E8F0; font-weight: 700; letter-spacing: 0.5px;">EN COLABORACIÓN CON</span>
-          <img src="${BRANDING.getCollaboratorLogoPath()}" alt="Campuslands" style="height: 26px; width: auto; max-width: 95px; object-fit: contain; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.6);" />
-        </div>
       </div>
     `;
   }
