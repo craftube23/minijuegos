@@ -19,6 +19,7 @@ export interface GameMenuItem {
   id: string;
   title: string;
   imageSrc: string;
+  frameImageSrc: string;
   themeClass: "theme-wood-red" | "theme-stone-blue" | "theme-forest-green" | "theme-magic-purple";
   category: string;
   tagline: string;
@@ -34,7 +35,8 @@ export class GameMenu {
     {
       id: "toy-catch",
       title: "Atrapa-Regalos Mágico",
-      imageSrc: "/assets/images/bolsa de regalos.png",
+      imageSrc: "/assets/images/icon-regalos-magicos.png",
+      frameImageSrc: "/assets/images/marco-juego-rojo.png",
       themeClass: "theme-wood-red",
       category: "Acción & Reflejos",
       tagline: "¡Atrapa juguetes con el saco de Santa!",
@@ -44,6 +46,7 @@ export class GameMenu {
       id: "sleigh-rush",
       title: "Dispara-Regalos",
       imageSrc: "/assets/images/elfo-planeador.png",
+      frameImageSrc: "/assets/images/marco-juego-azul.png",
       themeClass: "theme-stone-blue",
       category: "Puntería & Vuelo",
       tagline: "¡Vuela en ala delta y encesta en chimeneas!",
@@ -53,6 +56,7 @@ export class GameMenu {
       id: "tree-melody",
       title: "Enciende el Árbol",
       imageSrc: "/assets/images/arbol.png",
+      frameImageSrc: "/assets/images/marco-juego-verde.png",
       themeClass: "theme-forest-green",
       category: "Memoria Musical",
       tagline: "¡Repite la melodía de campanas mágicas!",
@@ -62,6 +66,7 @@ export class GameMenu {
       id: "magic-pairs",
       title: "Parejas de Juguetes",
       imageSrc: "/assets/images/estrella con logo.png",
+      frameImageSrc: "/assets/images/marco-juego-morado.png",
       themeClass: "theme-magic-purple",
       category: "Ingenio & Rapidez",
       tagline: "¡Encuentra las parejas de cartas mágicas!",
@@ -98,17 +103,15 @@ export class GameMenu {
           .map((g, index) => {
             const record = StorageManager.getHighScore(g.id);
             const animDelay = index * 70; // Escalado 0ms, 70ms, 140ms, 210ms
+            const isToyCatch = g.id === "toy-catch";
             return `
             <div 
               class="game-card-fantasy ${g.themeClass}" 
               data-game-id="${g.id}"
               style="animation-delay: ${animDelay}ms;"
             >
-              <!-- Esquinas ornamentadas con gemas y acebo -->
-              <div class="corner-ornament top-left" style="--gem-color: ${g.gemColor};"></div>
-              <div class="corner-ornament top-right" style="--gem-color: ${g.gemColor};"></div>
-              <div class="corner-ornament bottom-left" style="--gem-color: ${g.gemColor};"></div>
-              <div class="corner-ornament bottom-right" style="--gem-color: ${g.gemColor};"></div>
+              <!-- Marco Físico Ilustrado HD -->
+              <img src="${g.frameImageSrc}" alt="Marco ${g.title}" class="card-fantasy-frame-bg" />
 
               <!-- Reflejo mágico que recorre la tarjeta periódicamente -->
               <div class="card-shine-sweep"></div>
@@ -116,7 +119,7 @@ export class GameMenu {
               <!-- Contenido Interior de la Tarjeta -->
               <div class="card-inner-body">
                 <!-- Miniatura Ilustrada Central -->
-                <div class="card-art-box">
+                <div class="card-art-box ${isToyCatch ? 'art-custom-icon' : ''}">
                   <img src="${g.imageSrc}" alt="${g.title}" class="card-art-image" />
                   <div class="art-glow-halo"></div>
                 </div>
@@ -124,21 +127,22 @@ export class GameMenu {
                 <!-- Título con volumen y sombra -->
                 <h3 class="card-fantasy-title">${g.title}</h3>
 
-                <!-- Cinta de Categoría (Pergamino) -->
+                <!-- Cinta de Categoría si no está integrada en la ilustración -->
+                ${!isToyCatch ? `
                 <div class="card-ribbon-category">
                   <span>${g.category}</span>
                 </div>
-
-                <!-- Descripción / Tagline -->
-                <p class="card-fantasy-tagline">${g.tagline}</p>
+                ` : `
+                <div class="card-ribbon-spacer"></div>
+                `}
 
                 <!-- Placa de Madera para el Récord -->
                 <div class="card-record-plaque">
-                  <div class="plaque-trophy">${getIconSvg("trophy", { size: 18, color: "#FFE082", fill: "#FFD700" })}</div>
-                  <span class="plaque-label">Récord: <strong class="plaque-value">${record}</strong> pts</span>
+                  <div class="plaque-trophy">${getIconSvg("trophy", { size: 16, color: "#FFE082", fill: "#FFD700" })}</div>
+                  <span class="plaque-label">RÉCORD: <strong class="plaque-value">${record}</strong> pts</span>
                 </div>
 
-                <!-- Botón Físico Dorado de Fantasía -->
+                <!-- Botón Físico Dorado de Fantasía (Acoplado a la placa dorada del marco) -->
                 <button class="btn-fantasy-play" aria-label="Jugar ${g.title}">
                   <span class="btn-play-label">¡JUGAR!</span>
                   <span class="btn-play-arrow">▶</span>
