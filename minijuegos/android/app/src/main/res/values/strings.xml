@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Feria Magica</string>
+    <string name="title_activity_main">Feria Magica</string>
+    <string name="package_name">com.feriamagica.minijuegos</string>
+    <string name="custom_url_scheme">com.feriamagica.minijuegos</string>
+</resources>
