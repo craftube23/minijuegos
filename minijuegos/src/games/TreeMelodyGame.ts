@@ -4,7 +4,7 @@
  * ==============================================================================
  * 
  * MECÁNICA:
- * - El gran Árbol Mágico de Navidad de la Feria tiene 4 esferas ornamentales táctiles gigantes:
+ * - El gran Árbol Mágico de Navidad de la Feria tiene 4 esferas ornamentales táctiles:
  *   1. Esfera Roja (bola-roja.png) - Nota Do
  *   2. Esfera Amarilla/Dorada (bola-amarilla.png) - Nota Mi
  *   3. Esfera Verde (bola-verde.png) - Nota Sol
@@ -40,7 +40,6 @@ export class TreeMelodyGame extends BaseGame {
   private isShowingSequence: boolean = false;
   private sequenceIndex: number = 0;
   private playbackTimer: number = 0;
-  private readonly stepDelay: number = 0.58;
   private currentRound: number = 1;
   private isRoundTransitioning: boolean = false;
 
@@ -100,22 +99,6 @@ export class TreeMelodyGame extends BaseGame {
 
     this.imgBallBlue = new Image();
     this.imgBallBlue.src = "/assets/images/bola-azul.png";
-
-    // Manejador táctil
-    this.input.onTap = (x: number, y: number) => {
-      if (this.isShowingSequence || this.isRoundTransitioning || this.timeRemaining <= 0 || !this.isRunning) {
-        return;
-      }
-
-      for (const bulb of this.bulbs) {
-        const dist = Math.hypot(x - bulb.x, y - bulb.y);
-        // Zona táctil generosa y ergonómica
-        if (dist <= bulb.radius + 20) {
-          this.handleBulbTouch(bulb.id);
-          break;
-        }
-      }
-    };
   }
 
   public override resize(width: number, height: number): void {
@@ -126,29 +109,27 @@ export class TreeMelodyGame extends BaseGame {
   private layoutBulbs(): void {
     const cx = this.width / 2;
 
-    // Árbol más ancho, frondoso y pegado abajo
-    const treeAspectRatio = 1.15; // Árbol robusto y amplio
-    this.treeH = Math.min(this.height * 0.80, this.width * 1.08);
-    this.treeW = this.treeH / treeAspectRatio;
+    // Árbol ancho, frondoso y pegado a la base inferior
+    this.treeH = Math.min(this.height * 0.76, this.width * 0.98);
+    this.treeW = this.treeH * 1.25;
     this.treeX = cx - this.treeW / 2;
-    // Pegado directamente a la base/suelo
-    this.treeY = this.height - this.treeH + 22;
+    this.treeY = this.height - this.treeH + 8;
 
-    // Estrella ajustada a la copa superior
-    this.starSize = Math.max(70, Math.min(125, this.width * 0.21));
+    // Estrella ajustada a la copa
+    this.starSize = Math.max(68, Math.min(110, this.width * 0.19));
     this.starX = cx;
-    this.starY = this.treeY + this.treeH * 0.05;
+    this.starY = this.treeY + this.treeH * 0.08;
 
-    // Radio de las esferas
-    const radius = Math.min(54, Math.max(38, this.width * 0.108));
+    // Radio de las esferas táctiles
+    const radius = Math.min(48, Math.max(34, this.width * 0.088));
 
-    // Nivel superior (Esfera Roja y Amarilla dentro de las hojas superiores)
+    // Nivel superior (Esfera Roja y Amarilla dentro de las ramas verdes superiores)
     const upperY = this.treeY + this.treeH * 0.44;
-    const upperOffsetX = this.treeW * 0.22;
+    const upperOffsetX = this.treeW * 0.20;
 
-    // Nivel inferior (Esfera Verde y Azul dentro del follaje ancho inferior)
-    const lowerY = this.treeY + this.treeH * 0.69;
-    const lowerOffsetX = this.treeW * 0.27;
+    // Nivel inferior (Esfera Verde y Azul dentro de las ramas anchas inferiores)
+    const lowerY = this.treeY + this.treeH * 0.70;
+    const lowerOffsetX = this.treeW * 0.29;
 
     this.bulbs = [
       {
@@ -213,7 +194,7 @@ export class TreeMelodyGame extends BaseGame {
     this.isShowingSequence = true;
     this.isRoundTransitioning = false;
     this.sequenceIndex = 0;
-    this.playbackTimer = 0.75; // Pausa inicial antes de empezar a tocar
+    this.playbackTimer = 0.40; // Breve pausa antes de que suene la melodía
   }
 
   protected onStart(): void {
@@ -222,13 +203,30 @@ export class TreeMelodyGame extends BaseGame {
     this.currentRound = 1;
     this.starPulse = 0;
     this.isRoundTransitioning = false;
+
+    // Conectar el manejador táctil exclusivo de este minijuego
+    this.input.onTap = (x: number, y: number) => {
+      if (this.isShowingSequence || this.isRoundTransitioning || this.timeRemaining <= 0 || !this.isRunning) {
+        return;
+      }
+
+      for (const bulb of this.bulbs) {
+        const dist = Math.hypot(x - bulb.x, y - bulb.y);
+        // Zona táctil muy amplia y sensible
+        if (dist <= bulb.radius * 1.55 + 24) {
+          this.handleBulbTouch(bulb.id);
+          break;
+        }
+      }
+    };
+
     this.startNewRound();
   }
 
   protected onUpdate(dt: number): void {
     this.starPulse += dt * 3;
 
-    // 1. Actualizar iluminación y rebote elástico de las 4 esferas
+    // 1. Actualizar timers y rebote elástico de las 4 esferas
     for (const bulb of this.bulbs) {
       if (bulb.isLit) {
         bulb.litTimer -= dt;
@@ -241,17 +239,22 @@ export class TreeMelodyGame extends BaseGame {
       }
     }
 
-    // 2. Reproducción de la Secuencia Musical
+    // 2. Reproducción ágil de la Secuencia Musical
     if (this.isShowingSequence && !this.isRoundTransitioning) {
       this.playbackTimer -= dt;
       if (this.playbackTimer <= 0) {
         if (this.sequenceIndex < this.sequence.length) {
           const bulbId = this.sequence[this.sequenceIndex];
-          this.lightBulb(bulbId, 0.40);
+          this.lightBulb(bulbId, 0.35);
           this.sequenceIndex++;
-          this.playbackTimer = this.stepDelay;
+          if (this.sequenceIndex < this.sequence.length) {
+            this.playbackTimer = 0.52;
+          } else {
+            // El último elemento ha sonado: inmediatamente tras el flash pasa el turno
+            this.playbackTimer = 0.35;
+          }
         } else {
-          // Secuencia completada: el turno pasa al jugador
+          // Secuencia completada: el turno pasa de inmediato al jugador
           this.isShowingSequence = false;
           this.playerStep = 0;
         }
@@ -259,7 +262,7 @@ export class TreeMelodyGame extends BaseGame {
     }
   }
 
-  private lightBulb(bulbId: number, duration: number = 0.38): void {
+  private lightBulb(bulbId: number, duration: number = 0.35): void {
     const bulb = this.bulbs[bulbId];
     if (bulb) {
       bulb.isLit = true;
@@ -271,7 +274,7 @@ export class TreeMelodyGame extends BaseGame {
   }
 
   private handleBulbTouch(bulbId: number): void {
-    this.lightBulb(bulbId, 0.32);
+    this.lightBulb(bulbId, 0.30);
 
     const expectedBulb = this.sequence[this.playerStep];
     if (bulbId === expectedBulb) {
@@ -285,7 +288,7 @@ export class TreeMelodyGame extends BaseGame {
         this.isRoundTransitioning = true;
         const roundBonus = this.sequence.length * 150;
         this.addScore(roundBonus);
-        this.addFloatingText(`¡RONDA ${this.currentRound} SUPERADA! +${roundBonus}`, this.width / 2, this.height * 0.16, "#FFD700", 1.35);
+        this.addFloatingText(`¡RONDA ${this.currentRound} SUPERADA! +${roundBonus}`, this.width / 2, this.height * 0.22, "#FFD700", 1.35);
         this.audio.playCatchItem();
         this.particles.emitConfetti(this.width, 30);
         this.currentRound++;
@@ -300,20 +303,20 @@ export class TreeMelodyGame extends BaseGame {
           if (this.timeRemaining > 0 && this.isRunning) {
             this.startNewRound();
           }
-        }, 900);
+        }, 750);
       }
     } else {
       // Error de secuencia
       this.audio.playError();
       this.triggerShake(0.25, 8);
-      this.addFloatingText("¡VUELVE A INTENTAR!", this.width / 2, this.height * 0.16, "#FF1744", 1.25);
+      this.addFloatingText("¡VUELVE A INTENTAR!", this.width / 2, this.height * 0.22, "#FF1744", 1.25);
       this.particles.emitBurst(this.bulbs[bulbId].x, this.bulbs[bulbId].y, "#FF416C", 20);
 
       // Repetir la misma secuencia para que el jugador la vuelva a escuchar
       this.isShowingSequence = true;
       this.sequenceIndex = 0;
       this.playerStep = 0;
-      this.playbackTimer = 1.0;
+      this.playbackTimer = 0.65;
     }
   }
 
@@ -335,13 +338,14 @@ export class TreeMelodyGame extends BaseGame {
       ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    // 2. Gran Árbol Navideño (Sprite HD con proporciones naturales intactas)
+    // 2. Gran Árbol Navideño Ancho (Recorte limpio del follaje sin márgenes vacíos)
     if (this.treeImage && this.treeImage.complete && this.treeImage.naturalWidth > 0) {
       ctx.save();
       ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
       ctx.shadowBlur = 25;
       ctx.shadowOffsetY = 12;
-      ctx.drawImage(this.treeImage, this.treeX, this.treeY, this.treeW, this.treeH);
+      // Recorte de origen exacto del árbol: sx: 165, sy: 75, sw: 345, sh: 298
+      ctx.drawImage(this.treeImage, 165, 75, 345, 298, this.treeX, this.treeY, this.treeW, this.treeH);
       ctx.restore();
     }
 
@@ -362,8 +366,13 @@ export class TreeMelodyGame extends BaseGame {
     if (this.starImage && this.starImage.complete && this.starImage.naturalWidth > 0) {
       ctx.shadowColor = "rgba(255, 215, 0, 0.9)";
       ctx.shadowBlur = 18;
+      // Recorte de origen exacto de la estrella: sx: 168, sy: 103, sw: 340, sh: 267
       ctx.drawImage(
         this.starImage,
+        168,
+        103,
+        340,
+        267,
         this.starX - currentStarSize / 2,
         this.starY - currentStarSize / 2,
         currentStarSize,
@@ -372,7 +381,7 @@ export class TreeMelodyGame extends BaseGame {
     }
     ctx.restore();
 
-    // 4. Dibujar las 4 Esferas Navideñas Táctiles sobre las ramas
+    // 4. Dibujar las 4 Esferas Navideñas Táctiles DENTRO de las ramas
     for (const bulb of this.bulbs) {
       ctx.save();
       ctx.translate(bulb.x, bulb.y);
@@ -380,14 +389,14 @@ export class TreeMelodyGame extends BaseGame {
 
       // Efecto de halo expansivo cuando la esfera se enciende
       if (bulb.isLit) {
-        const halo = ctx.createRadialGradient(0, 0, bulb.radius * 0.3, 0, 0, bulb.radius * 1.6);
+        const halo = ctx.createRadialGradient(0, 0, bulb.radius * 0.3, 0, 0, bulb.radius * 1.7);
         halo.addColorStop(0, bulb.litColor);
         halo.addColorStop(0.6, bulb.litColor);
         halo.addColorStop(1, "rgba(0, 0, 0, 0)");
         ctx.fillStyle = halo;
-        ctx.globalAlpha = 0.88;
+        ctx.globalAlpha = 0.90;
         ctx.beginPath();
-        ctx.arc(0, 0, bulb.radius * 1.6, 0, Math.PI * 2);
+        ctx.arc(0, 0, bulb.radius * 1.7, 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1.0;
       }
@@ -399,12 +408,13 @@ export class TreeMelodyGame extends BaseGame {
       else if (bulb.id === 2) ballImg = this.imgBallGreen;
       else if (bulb.id === 3) ballImg = this.imgBallBlue;
 
-      const drawSize = bulb.radius * 2.15;
+      const drawSize = bulb.radius * 2.30;
 
       if (ballImg && ballImg.complete && ballImg.naturalWidth > 0) {
         ctx.shadowColor = bulb.isLit ? bulb.litColor : "rgba(0, 0, 0, 0.75)";
-        ctx.shadowBlur = bulb.isLit ? 28 : 10;
-        ctx.drawImage(ballImg, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+        ctx.shadowBlur = bulb.isLit ? 30 : 12;
+        // Recorte limpio del centro de la esfera: sx: 225, sy: 45, sw: 220, sh: 280
+        ctx.drawImage(ballImg, 225, 45, 220, 280, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
 
         // Borde blanco de pulso si está encendida
         if (bulb.isLit) {
@@ -418,40 +428,5 @@ export class TreeMelodyGame extends BaseGame {
 
       ctx.restore();
     }
-
-    // 5. Placa de Instrucción Superior (Ubicada en la parte superior sin tapar el árbol)
-    const bannerText = this.isShowingSequence
-      ? `MIRA LA MELODÍA (Ronda ${this.currentRound})`
-      : `¡TU TURNO! (Paso ${this.playerStep + 1} de ${this.sequence.length})`;
-
-    const isPlayerTurn = !this.isShowingSequence;
-    const bannerBorder = isPlayerTurn ? "#00E676" : "#FFD700";
-    const bannerTextColor = isPlayerTurn ? "#E8F8F5" : "#FFF9C4";
-
-    ctx.save();
-    const bannerW = Math.min(this.width * 0.82, 420);
-    const bannerH = 42;
-    const bannerX = (this.width - bannerW) / 2;
-    const bannerY = Math.max(14, this.height * 0.035); // En la parte superior despejada
-
-    // Fondo de madera/pergamino oscuro
-    ctx.fillStyle = "rgba(10, 20, 35, 0.92)";
-    ctx.strokeStyle = bannerBorder;
-    ctx.lineWidth = 2.5;
-
-    ctx.beginPath();
-    ctx.roundRect(bannerX, bannerY, bannerW, bannerH, [20]);
-    ctx.fill();
-    ctx.stroke();
-
-    // Texto con sombra
-    ctx.font = "800 17px 'Outfit', sans-serif";
-    ctx.fillStyle = bannerTextColor;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
-    ctx.shadowBlur = 6;
-    ctx.fillText(bannerText, this.width / 2, bannerY + bannerH / 2);
-    ctx.restore();
   }
 }

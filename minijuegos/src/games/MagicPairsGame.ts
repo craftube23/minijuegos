@@ -72,9 +72,22 @@ export class MagicPairsGame extends BaseGame {
 
     this.spriteLogo = new Image();
     this.spriteLogo.src = BRANDING.getLogoPath(1);
+  }
 
+  public override resize(width: number, height: number): void {
+    super.resize(width, height);
+    this.layoutCards();
+  }
+
+  protected onStart(): void {
+    this.pairsFound = 0;
+    this.firstSelectedCard = null;
+    this.secondSelectedCard = null;
+    this.isCheckingMatch = false;
+
+    // Asignar manejador de toques exclusivo
     this.input.onTap = (x: number, y: number) => {
-      if (this.isCheckingMatch || this.timeRemaining <= 0) return;
+      if (this.isCheckingMatch || this.timeRemaining <= 0 || !this.isRunning) return;
       for (const card of this.cards) {
         if (
           !card.isMatched &&
@@ -89,18 +102,7 @@ export class MagicPairsGame extends BaseGame {
         }
       }
     };
-  }
 
-  public override resize(width: number, height: number): void {
-    super.resize(width, height);
-    this.layoutCards();
-  }
-
-  protected onStart(): void {
-    this.pairsFound = 0;
-    this.firstSelectedCard = null;
-    this.secondSelectedCard = null;
-    this.isCheckingMatch = false;
     this.setupDeck();
   }
 
