@@ -115,10 +115,10 @@ export class TreeMelodyGame extends BaseGame {
     this.treeX = cx - this.treeW / 2;
     this.treeY = this.height - this.treeH + 10;
 
-    // Estrella ajustada a la copa
-    this.starSize = Math.max(65, Math.min(100, this.width * 0.16));
+    // Estrella ajustada exactamente a la punta/copa del árbol
+    this.starSize = Math.max(68, Math.min(105, this.width * 0.17));
     this.starX = cx;
-    this.starY = this.treeY + this.treeH * 0.04;
+    this.starY = this.treeY - this.starSize * 0.32;
 
     // Radio de las esferas táctiles
     const radius = Math.min(46, Math.max(32, this.width * 0.082));
