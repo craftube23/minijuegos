@@ -126,28 +126,28 @@ export class TreeMelodyGame extends BaseGame {
   private layoutBulbs(): void {
     const cx = this.width / 2;
 
-    // Calcular proporción natural del árbol para que nunca se distorsione ni se estire
-    const naturalRatio = 1.32; // Relación alto/ancho óptima del árbol
-    this.treeH = Math.min(this.height * 0.72, this.width * 1.18);
-    this.treeW = this.treeH / naturalRatio;
+    // Árbol más ancho, frondoso y pegado abajo
+    const treeAspectRatio = 1.15; // Árbol robusto y amplio
+    this.treeH = Math.min(this.height * 0.80, this.width * 1.08);
+    this.treeW = this.treeH / treeAspectRatio;
     this.treeX = cx - this.treeW / 2;
-    // Apoyar la base del árbol naturalmente sobre la alfombra del suelo
-    this.treeY = this.height * 0.95 - this.treeH;
+    // Pegado directamente a la base/suelo
+    this.treeY = this.height - this.treeH + 22;
 
-    // Estrella en la copa superior del árbol
-    this.starSize = Math.max(65, Math.min(115, this.width * 0.20));
+    // Estrella ajustada a la copa superior
+    this.starSize = Math.max(70, Math.min(125, this.width * 0.21));
     this.starX = cx;
-    this.starY = this.treeY + 22;
+    this.starY = this.treeY + this.treeH * 0.05;
 
-    // Radio de las esferas (dimensionadas para quedar perfectamente dentro del follaje)
-    const radius = Math.min(56, Math.max(38, this.width * 0.11));
+    // Radio de las esferas
+    const radius = Math.min(54, Math.max(38, this.width * 0.108));
 
-    // Nivel superior (Esfera Roja y Esfera Amarilla/Dorada sobre las ramas superiores)
-    const upperY = this.treeY + this.treeH * 0.42;
-    const upperOffsetX = this.treeW * 0.21;
+    // Nivel superior (Esfera Roja y Amarilla dentro de las hojas superiores)
+    const upperY = this.treeY + this.treeH * 0.44;
+    const upperOffsetX = this.treeW * 0.22;
 
-    // Nivel inferior (Esfera Verde y Esfera Azul sobre las ramas anchas inferiores)
-    const lowerY = this.treeY + this.treeH * 0.68;
+    // Nivel inferior (Esfera Verde y Azul dentro del follaje ancho inferior)
+    const lowerY = this.treeY + this.treeH * 0.69;
     const lowerOffsetX = this.treeW * 0.27;
 
     this.bulbs = [
