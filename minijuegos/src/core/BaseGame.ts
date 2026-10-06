@@ -310,7 +310,14 @@ export abstract class BaseGame {
     ctx.fillText(`${this.score}`, starX + starRadius + 5, textY);
 
     // 2. VIDAS Y TIEMPO RESTANTE (Centro)
-    const timeFormatted = Math.ceil(this.timeRemaining);
+    let timeFormatted: string;
+    if (this.timeRemaining >= 60) {
+      const mins = Math.floor(this.timeRemaining / 60);
+      const secs = Math.floor(this.timeRemaining % 60);
+      timeFormatted = `${mins}:${secs.toString().padStart(2, "0")}`;
+    } else {
+      timeFormatted = `${Math.ceil(this.timeRemaining)}s`;
+    }
     
     if (this.showLives) {
       const heartSize = Math.max(9, fontMain * 0.52);
@@ -341,12 +348,12 @@ export abstract class BaseGame {
       ctx.font = `900 ${fontMain * 0.95}px 'Outfit', sans-serif`;
       ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
       ctx.textAlign = "left";
-      ctx.fillText(`${timeFormatted}s`, this.width / 2 + (isNarrow ? 8 : 15), textY);
+      ctx.fillText(timeFormatted, this.width / 2 + (isNarrow ? 8 : 15), textY);
     } else {
       ctx.font = `900 ${fontMain * 1.05}px 'Outfit', sans-serif`;
       ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
       ctx.textAlign = "center";
-      ctx.fillText(`${timeFormatted}s`, this.width / 2, textY);
+      ctx.fillText(timeFormatted, this.width / 2, textY);
     }
 
     // 3. RÉCORD / MEJOR PUNTUACIÓN (Derecha)

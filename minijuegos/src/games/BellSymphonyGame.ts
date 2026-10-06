@@ -260,15 +260,20 @@ export class BellSymphonyGame extends BaseGame {
     this.hitLineY = this.height * 0.80;
   }
 
-  public override start(_durationSeconds: number = 135): void {
-    // La duración de Sinfonía de Campanas se rige por la duración real del audio (128s), no por el temporizador arcade fijo de 45s
-    super.start(9999);
-    this.timeRemaining = 9999;
+  public override start(_durationSeconds: number = 129): void {
+    super.start(this.songDuration);
+    this.timeRemaining = this.songDuration;
   }
 
   public override update(dt: number): void {
     if (!this.isRunning || this.isGameOver) return;
-    this.timeRemaining = 9999; // Evita que BaseGame corte la canción a los 45s
+
+    // Calcular el tiempo restante real de la canción para el HUD
+    if (this.gameState === "song-select") {
+      this.timeRemaining = this.songDuration;
+    } else {
+      this.timeRemaining = Math.max(0, this.songDuration - this.currentTime);
+    }
 
     // Feedback visual y de partículas
     if (this.shakeTimer > 0) {
