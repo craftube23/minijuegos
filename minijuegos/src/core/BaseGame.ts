@@ -24,6 +24,10 @@ export interface GameResult {
   highScore: number;
   isNewRecord: boolean;
   logoUsed: LogoConfig;
+  isCustomChart?: boolean;
+  customNotes?: any[];
+  songFile?: string;
+  bpm?: number;
 }
 
 export interface FloatingText {
@@ -384,7 +388,7 @@ export abstract class BaseGame {
     if (this.score < 0) this.score = 0;
   }
 
-  public endGame(): void {
+  public endGame(extraData?: Partial<GameResult>): void {
     if (this.isGameOver) return;
     this.isRunning = false;
     this.isGameOver = true;
@@ -404,7 +408,8 @@ export abstract class BaseGame {
         score: this.score,
         highScore: recordCheck.highScore,
         isNewRecord: recordCheck.isNewRecord,
-        logoUsed: this.activeLogo
+        logoUsed: this.activeLogo,
+        ...extraData
       });
     }
   }

@@ -188,6 +188,9 @@ export class BellSymphonyGame extends BaseGame {
 
   // Editor y Grabador de notas en tiempo real
   private chartEditor: ChartEditorModal;
+  private isCustomChartPlaying: boolean = false;
+  private lastCustomNotes: ChartNoteRecord[] = [];
+  private lastCustomSongFile: string = "jingle-bells.mp3";
 
   // Listener de teclado desacoplable
   private keydownHandler?: (e: KeyboardEvent) => void;
@@ -297,6 +300,7 @@ export class BellSymphonyGame extends BaseGame {
     this.selectedSongIndex = Math.max(0, Math.min(this.songList.length - 1, index));
     const song = this.songList[this.selectedSongIndex];
 
+    this.isCustomChartPlaying = false;
     this.bpm = song.bpm;
     this.noteSpeed = song.speed;
     this.currentTime = 0;
@@ -329,15 +333,21 @@ export class BellSymphonyGame extends BaseGame {
     this.particles.emitConfetti(this.width, 30);
   }
 
-  public openChartEditor(): void {
+  public openChartEditor(defaultSongFile?: string, initialNotes?: ChartNoteRecord[]): void {
     if (this.bgAudioElement) {
       this.bgAudioElement.pause();
     }
     const song = this.songList[this.selectedSongIndex];
-    this.chartEditor.show(song ? song.audioFile : "jingle-bells.mp3");
+    const file = defaultSongFile || (this.isCustomChartPlaying ? this.lastCustomSongFile : (song ? song.audioFile : "jingle-bells.mp3"));
+    const notes = initialNotes || (this.lastCustomNotes.length > 0 ? this.lastCustomNotes : undefined);
+    this.chartEditor.show(file, notes);
   }
 
   public startCustomChart(customNotes: ChartNoteRecord[], songFile: string, bpm: number): void {
+    this.isCustomChartPlaying = true;
+    this.lastCustomNotes = [...customNotes];
+    this.lastCustomSongFile = songFile;
+
     this.bpm = bpm;
     this.noteSpeed = 520;
     this.currentTime = 0;
@@ -1312,7 +1322,12 @@ export class BellSymphonyGame extends BaseGame {
     if (this.bgAudioElement) {
       this.bgAudioElement.pause();
     }
-    super.endGame();
+    super.endGame({
+      isCustomChart: this.isCustomChartPlaying,
+      customNotes: this.lastCustomNotes.length > 0 ? this.lastCustomNotes : undefined,
+      songFile: this.isCustomChartPlaying ? this.lastCustomSongFile : (this.songList[this.selectedSongIndex]?.audioFile || "jingle-bells.mp3"),
+      bpm: this.bpm
+    });
   }
 
   public override destroy(): void {

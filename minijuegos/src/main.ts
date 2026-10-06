@@ -186,6 +186,25 @@ class KioskApp {
     this.gameOverModal.onBackToMenu = () => {
       this.goToMenu();
     };
+
+    // 5. Al pulsar "Seguir Editando / Grabar" en la pantalla de resultados
+    this.gameOverModal.onEditAgain = (songFile?: string, customNotes?: any[]) => {
+      const bellGame = this.games.get("bell-symphony") as BellSymphonyGame | undefined;
+      if (bellGame) {
+        if (this.currentGame !== bellGame) {
+          if (this.currentGame) this.currentGame.destroy();
+          this.currentGame = bellGame;
+          this.appState = "playing";
+          this.attractScreen.hide();
+          this.gameMenu.hide();
+          this.gameOverModal.hide();
+          bellGame.start();
+        } else {
+          this.gameOverModal.hide();
+        }
+        bellGame.openChartEditor(songFile, customNotes);
+      }
+    };
   }
 
   /**
