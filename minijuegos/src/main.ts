@@ -5,17 +5,17 @@
  * 
  * Controla el flujo completo del Kiosco:
  * 1. Inicialización de Audio, Partículas, Entrada Táctil y Carrusel Publicitario.
- * 2. Transición entre pantallas:
- *      Pantalla de Atracción (Salvapantallas) 
- *        → Menú de Selección 
- *        → Juego Activo (60 FPS) 
- *        → Pantalla de Resultados
- * 3. Temporizador de inactividad de Kiosco (30s sin toques regresa al inicio).
+ * 2. Transición cinemática inicial: Tormenta de Nieve & Revelación.
+ * 3. Transición de Portal a los Juegos: Glow + Zoom + Vuelo a la derecha.
+ * 4. Cuenta regresiva arcade 3-2-1 antes de comenzar cada minijuego.
+ * 5. Touch Magic Trail interactivo continuo.
+ * 6. Temporizador de inactividad de Kiosco (regreso suave al inicio).
  */
 
 import { AudioManager } from "./core/AudioManager";
 import { InputManager } from "./core/InputManager";
 import { ParticleSystem } from "./core/ParticleSystem";
+import { ScreenTransition } from "./core/ScreenTransition";
 import { BaseGame, type GameResult } from "./core/BaseGame";
 import { KIOSK_CONFIG } from "./config/kiosk";
 
@@ -51,6 +51,7 @@ class KioskApp {
 
   // Estado del Kiosco: 'attract' | 'menu' | 'playing' | 'gameover'
   private appState: "attract" | "menu" | "playing" | "gameover" = "attract";
+  private isTransitioning: boolean = false;
 
   // Temporizador de inactividad
   private lastUserInteractionTime: number = Date.now();
@@ -87,11 +88,20 @@ class KioskApp {
     // 6. Conectar eventos y callbacks entre pantallas
     this.setupNavigationCallbacks();
 
-    // 7. Configurar detector de inactividad para modo Kiosco
+    // 7. Configurar detector de inactividad y estela mágica táctil
     this.setupInactivityWatcher();
+    this.setupTouchMagicTrail();
 
-    // 8. Arrancar bucle de renderizado a 60 FPS
+    // 8. Arrancar bucle de renderizado
     this.startMainLoop();
+
+    // 9. Ejecutar Tormenta de Nieve Inicial & Revelación
+    const kioskAppContainer = document.getElementById("kiosk-app");
+    if (kioskAppContainer) {
+      ScreenTransition.getInstance().runInitialSnowstorm(kioskAppContainer, () => {
+        console.log("[Feria Mágica del Juguete] Magia Revelada y Lista");
+      });
+    }
 
     console.log("[Feria Mágica del Juguete] Kiosco Interactivo Listo");
   }
@@ -143,9 +153,15 @@ class KioskApp {
       this.goToMenu();
     };
 
-    // 2. Al seleccionar un juego en el Menú → Iniciar Partida
-    this.gameMenu.onSelectGame = (gameId: string) => {
-      this.launchGame(gameId);
+    // 2. Al seleccionar un juego en el Menú → Transición Cinemática de Despegue y Cuenta Regresiva
+    this.gameMenu.onSelectGame = (gameId: string, cardElement: HTMLElement) => {
+      if (this.isTransitioning) return;
+      this.isTransitioning = true;
+
+      const allCards = document.querySelectorAll<HTMLElement>(".game-card-fantasy");
+      ScreenTransition.getInstance().playCardLaunch(cardElement, allCards, () => {
+        this.launchGameWithCountdown(gameId);
+      });
     };
 
     // 3. Al pulsar el botón "Menú" en la barra superior
@@ -156,7 +172,7 @@ class KioskApp {
     // 4. Al terminar una partida: "Jugar de nuevo" o "Otros juegos"
     this.gameOverModal.onPlayAgain = () => {
       if (this.currentGame) {
-        this.launchGame(this.currentGame.id);
+        this.launchGameDirect(this.currentGame.id);
       } else {
         this.goToMenu();
       }
@@ -168,6 +184,34 @@ class KioskApp {
   }
 
   /**
+   * Estela mágica táctil (Touch Magic Trail)
+   */
+  private setupTouchMagicTrail(): void {
+    const emit = (clientX: number, clientY: number, count: number) => {
+      const rect = this.canvas.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      this.particles.emitTouchTrail(x, y, count);
+    };
+
+    window.addEventListener(
+      "pointermove",
+      (e) => {
+        if (Math.random() < 0.6) emit(e.clientX, e.clientY, 1);
+      },
+      { passive: true }
+    );
+
+    window.addEventListener(
+      "pointerdown",
+      (e) => {
+        emit(e.clientX, e.clientY, 4);
+      },
+      { passive: true }
+    );
+  }
+
+  /**
    * Navega a la pantalla de selección de juegos
    */
   public goToMenu(): void {
@@ -175,6 +219,7 @@ class KioskApp {
       this.currentGame.destroy();
       this.currentGame = null;
     }
+    this.isTransitioning = false;
     this.input.reset();
     this.appState = "menu";
     this.attractScreen.hide();
@@ -184,9 +229,38 @@ class KioskApp {
   }
 
   /**
-   * Inicia un minijuego específico
+   * Inicia el minijuego con la cuenta regresiva cinemática 3-2-1
    */
-  public launchGame(gameId: string): void {
+  public launchGameWithCountdown(gameId: string): void {
+    const game = this.games.get(gameId);
+    if (!game) {
+      this.isTransitioning = false;
+      return;
+    }
+
+    this.currentGame = game;
+    this.appState = "playing";
+
+    this.attractScreen.hide();
+    this.gameMenu.hide();
+    this.gameOverModal.hide();
+
+    this.input.reset();
+    this.resetInactivity();
+
+    const mainContainer = document.getElementById("kiosk-main") || document.body;
+
+    // Ejecutar cuenta regresiva antes de activar el tiempo del juego
+    ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+      this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
+      this.isTransitioning = false;
+    });
+  }
+
+  /**
+   * Inicio directo (para revancha desde el modal de resultados)
+   */
+  public launchGameDirect(gameId: string): void {
     const game = this.games.get(gameId);
     if (!game) return;
 
@@ -198,8 +272,12 @@ class KioskApp {
     this.gameOverModal.hide();
 
     this.input.reset();
-    this.currentGame.start(KIOSK_CONFIG.defaultGameDurationSeconds);
     this.resetInactivity();
+
+    const mainContainer = document.getElementById("kiosk-main") || document.body;
+    ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+      this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
+    });
   }
 
   /**
@@ -207,6 +285,7 @@ class KioskApp {
    */
   private handleGameOver(result: GameResult): void {
     this.appState = "gameover";
+    this.audio.playVictory();
     this.gameOverModal.show(result);
     this.resetInactivity();
   }
@@ -219,6 +298,7 @@ class KioskApp {
       this.currentGame.destroy();
       this.currentGame = null;
     }
+    this.isTransitioning = false;
     this.appState = "attract";
     this.gameMenu.hide();
     this.gameOverModal.hide();
@@ -239,7 +319,7 @@ class KioskApp {
     window.setInterval(() => {
       const elapsedSeconds = (Date.now() - this.lastUserInteractionTime) / 1000;
       if (elapsedSeconds >= KIOSK_CONFIG.inactivityTimeoutSeconds) {
-        if (this.appState !== "attract") {
+        if (this.appState !== "attract" && !this.isTransitioning) {
           console.log("⏱️ Tiempo de inactividad superado. Regresando a pantalla de bienvenida...");
           this.goToAttractScreen();
         }
@@ -252,7 +332,7 @@ class KioskApp {
   }
 
   /**
-   * Bucle principal de animación a 60 FPS
+   * Bucle principal de animación a 60 FPS (o tasa de refresco del hardware)
    */
   private startMainLoop(): void {
     const loop = (currentTime: number) => {
@@ -264,7 +344,7 @@ class KioskApp {
         this.currentGame.update(dt);
         this.currentGame.draw();
       } else {
-        // Dibujar partículas de nieve ambiente de fondo
+        // Dibujar partículas de nieve ambiente y chispas táctiles de fondo
         const ctx = this.canvas.getContext("2d");
         if (ctx) {
           ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

@@ -292,151 +292,513 @@ html, body {
 }
 
 /* ==========================================================================
-   MENÚ DE SELECCIÓN DE JUEGOS (4 TARJETAS GRANDES Y COLORIDAS)
+   MENÚ DE SELECCIÓN DE JUEGOS (2D FANTASY GAME UI)
    ========================================================================== */
 .menu-layer {
-  background: radial-gradient(circle at center, rgba(15, 36, 68, 0.65) 0%, rgba(6, 14, 26, 0.88) 100%),
+  background: radial-gradient(circle at center, rgba(15, 36, 68, 0.70) 0%, rgba(6, 14, 26, 0.92) 100%),
               url('/assets/images/fondo-empresas.webp') center center / cover no-repeat #060e1a;
-  padding: clamp(16px, 2.5vh, 32px) clamp(14px, 2vw, 26px);
+  padding: clamp(14px, 2vh, 28px) clamp(12px, 2vw, 24px);
   overflow-y: auto;
   align-items: center;
+  justify-content: flex-start;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .menu-header {
   text-align: center;
-  margin-bottom: clamp(14px, 2.2vh, 26px);
+  margin-bottom: clamp(12px, 1.8vh, 20px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.menu-ribbon-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(180deg, rgba(60, 32, 12, 0.92) 0%, rgba(30, 15, 5, 0.95) 100%);
+  border: 1.5px solid var(--color-gold);
+  border-radius: 20px;
+  padding: 4px 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7), inset 0 1px 3px rgba(255, 215, 0, 0.4);
+  margin-bottom: 6px;
+}
+
+.ribbon-flourish {
+  color: var(--color-gold);
+  font-size: 1.1rem;
+}
+
+.ribbon-text {
+  font-family: var(--font-main);
+  font-size: clamp(0.78rem, 1.6vw, 0.95rem);
+  color: #FFF9C4;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .menu-title {
   font-family: var(--font-festive);
-  font-size: clamp(1.75rem, 4.4vw, 2.8rem);
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
   font-weight: 900;
   color: #FFF275;
   letter-spacing: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   text-shadow: 
-    0 2px 0 #D4AF37,
-    0 4px 0 #A83232,
-    0 6px 14px rgba(0, 0, 0, 0.9),
-    0 0 28px rgba(255, 215, 0, 0.65);
-}
-
-.menu-subtitle {
-  font-family: var(--font-main);
-  font-size: clamp(0.9rem, 2vw, 1.25rem);
-  color: #CBD5E1;
-  margin-top: 5px;
-  font-weight: 600;
+    0 2px 0 #B8860B,
+    0 4px 0 #7A1E1E,
+    0 6px 14px rgba(0, 0, 0, 0.95),
+    0 0 25px rgba(255, 215, 0, 0.7);
+  line-height: 1.15;
 }
 
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: clamp(12px, 2.2vw, 22px);
+  gap: clamp(14px, 2.2vw, 24px);
   width: 100%;
-  max-width: 860px;
+  max-width: 900px;
+  padding-bottom: 12px;
 }
 
-.game-card {
-  border-radius: 24px;
-  padding: clamp(16px, 2.2vh, 26px);
+/* ==========================================================================
+   TARJETA DE VIDEOJUEGO DE FANTASÍA 2D (GAME CARD FANTASY)
+   ========================================================================== */
+.game-card-fantasy {
+  position: relative;
+  border-radius: 20px;
+  padding: clamp(14px, 1.8vh, 20px);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  border: 3px solid var(--color-gold);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.3);
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.2s;
-  min-height: clamp(210px, 28vh, 290px);
+  overflow: hidden;
+  box-shadow: 
+    0 14px 30px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(0, 0, 0, 0.9),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, filter 0.3s ease, opacity 0.3s ease;
+  animation: cardStaggerIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+@keyframes cardStaggerIn {
+  0% {
+    opacity: 0;
+    transform: translateY(35px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.game-card-fantasy:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.85), 0 0 24px rgba(255, 215, 0, 0.45);
+}
+
+.game-card-fantasy.is-pressed,
+.game-card-fantasy:active {
+  transform: scale(0.97) translateY(2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.9);
+}
+
+/* --- Variantes Temáticas de Materiales y Marcos --- */
+
+/* 1. Atrapa-Regalos: Marco de Madera Tallada & Rubí */
+.theme-wood-red {
+  background: 
+    radial-gradient(circle at center, rgba(211, 47, 47, 0.95) 0%, rgba(139, 0, 0, 0.98) 75%, rgba(60, 10, 10, 1) 100%);
+  border: 5px solid #8B4513;
+  outline: 2.5px solid #FFD700;
+  outline-offset: -3px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85), inset 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+/* 2. Dispara-Regalos: Marco de Piedra Encantada & Zafiro */
+.theme-stone-blue {
+  background: 
+    radial-gradient(circle at center, rgba(13, 71, 161, 0.95) 0%, rgba(2, 30, 80, 0.98) 75%, rgba(4, 15, 40, 1) 100%);
+  border: 5px solid #2C3E50;
+  outline: 2.5px solid #00E5FF;
+  outline-offset: -3px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85), inset 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+/* 3. Enciende el Árbol: Marco Forestal & Esmeralda */
+.theme-forest-green {
+  background: 
+    radial-gradient(circle at center, rgba(39, 174, 96, 0.95) 0%, rgba(18, 90, 48, 0.98) 75%, rgba(6, 40, 20, 1) 100%);
+  border: 5px solid #5D4037;
+  outline: 2.5px solid #00E676;
+  outline-offset: -3px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85), inset 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+/* 4. Parejas de Juguetes: Marco de Piedra Rúnica & Amatista */
+.theme-magic-purple {
+  background: 
+    radial-gradient(circle at center, rgba(142, 68, 173, 0.95) 0%, rgba(74, 20, 140, 0.98) 75%, rgba(30, 6, 60, 1) 100%);
+  border: 5px solid #4A3B52;
+  outline: 2.5px solid #E040FB;
+  outline-offset: -3px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85), inset 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+/* --- Esquinas Ornamentadas con Gemas --- */
+.corner-ornament {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: radial-gradient(circle at 35% 35%, #FFFFFF 0%, var(--gem-color) 45%, #000000 100%);
+  border: 2px solid #FFD700;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8), 0 0 8px var(--gem-color);
+  z-index: 5;
+  transform: rotate(45deg);
+}
+
+.corner-ornament.top-left { top: 4px; left: 4px; }
+.corner-ornament.top-right { top: 4px; right: 4px; }
+.corner-ornament.bottom-left { bottom: 4px; left: 4px; }
+.corner-ornament.bottom-right { bottom: 4px; right: 4px; }
+
+/* --- Reflejo de Luz Periódico (Shine Sweep) --- */
+.card-shine-sweep {
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 40%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(25deg);
+  pointer-events: none;
+  animation: shinePass 6s ease-in-out infinite;
+  z-index: 6;
+}
+
+@keyframes shinePass {
+  0%, 80% { left: -60%; opacity: 0; }
+  85% { opacity: 1; }
+  100% { left: 140%; opacity: 0; }
+}
+
+/* --- Cuerpo Interior de la Tarjeta --- */
+.card-inner-body {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: space-between;
+  gap: 6px;
+  z-index: 2;
 }
 
-.game-card:active {
-  transform: scale(0.96);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8);
-}
-
-.game-card-icon {
-  margin-bottom: 8px;
+/* --- Miniatura Ilustrada Central --- */
+.card-art-box {
+  position: relative;
+  width: clamp(75px, 12vw, 110px);
+  height: clamp(75px, 12vw, 110px);
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5));
+  margin-top: 4px;
 }
 
-.game-card-category {
-  font-size: clamp(0.72rem, 1.4vw, 0.88rem);
-  text-transform: uppercase;
-  font-weight: 900;
-  font-family: var(--font-ribbon);
-  letter-spacing: 1.5px;
-  background: rgba(0, 0, 0, 0.45);
-  color: var(--color-gold-light);
-  padding: 4px 12px;
-  border-radius: 12px;
-  display: inline-block;
-  margin-bottom: 6px;
-  border: 1px solid rgba(255, 215, 0, 0.3);
+.card-art-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.75));
+  animation: floatArt 3.5s ease-in-out infinite alternate;
+  z-index: 3;
 }
 
-.game-card-title {
-  font-size: clamp(1.1rem, 2.4vw, 1.55rem);
-  font-weight: 900;
+@keyframes floatArt {
+  0% { transform: translateY(0px) scale(1); }
+  100% { transform: translateY(-5px) scale(1.04); }
+}
+
+.art-glow-halo {
+  position: absolute;
+  width: 110%;
+  height: 110%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.35) 0%, rgba(255, 215, 0, 0) 70%);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* --- Título de Fantasía con Volumen 3D --- */
+.card-fantasy-title {
   font-family: var(--font-game);
-  color: var(--color-white);
-  margin-bottom: 4px;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  font-size: clamp(1.05rem, 2.2vw, 1.45rem);
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 2px 0;
+  line-height: 1.15;
+  text-shadow: 
+    0 2px 0 rgba(0, 0, 0, 0.9),
+    0 3px 0 rgba(0, 0, 0, 0.8),
+    0 5px 10px rgba(0, 0, 0, 0.95);
+  letter-spacing: 0.5px;
+}
+
+/* --- Cinta de Pergamino para Categoría --- */
+.card-ribbon-category {
+  background: linear-gradient(180deg, #F9E79F 0%, #D4AC0D 100%);
+  border: 1.5px solid #7D6608;
+  border-radius: 4px;
+  padding: 3px 12px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.7);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0% 50%);
+  min-width: 140px;
+}
+
+.card-ribbon-category span {
+  font-family: var(--font-ribbon);
+  font-size: clamp(0.7rem, 1.3vw, 0.82rem);
+  font-weight: 900;
+  color: #422502;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* --- Tagline Descriptivo --- */
+.card-fantasy-tagline {
+  font-size: clamp(0.78rem, 1.5vw, 0.92rem);
+  color: #F8FAFC;
+  margin: 2px 0 4px 0;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
   line-height: 1.2;
 }
 
-.game-card-tagline {
-  font-size: clamp(0.82rem, 1.6vw, 0.98rem);
-  color: #F8FAFC;
-  margin-bottom: 8px;
-  font-weight: 500;
+/* --- Placa de Madera para Récord --- */
+.card-record-plaque {
+  width: 95%;
+  background: linear-gradient(180deg, #5D3A1A 0%, #3E240D 100%);
+  border: 1.5px solid #C49746;
+  border-radius: 8px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
-.game-card-record {
-  font-size: clamp(0.82rem, 1.6vw, 1.05rem);
-  color: #FFF385;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 6px 14px;
-  border-radius: 14px;
-  margin-bottom: 12px;
-  width: 100%;
+.plaque-trophy {
+  display: flex;
+  align-items: center;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8));
+}
+
+.plaque-label {
+  font-family: var(--font-main);
+  font-size: clamp(0.76rem, 1.4vw, 0.92rem);
+  color: #FFF9C4;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.plaque-value {
+  color: #FFD700;
+  font-weight: 900;
+}
+
+/* --- Botón Físico Dorado de Fantasía (3D Beveled Arcade Button) --- */
+.btn-fantasy-play {
+  width: 95%;
+  background: linear-gradient(180deg, #FFF176 0%, #FBC02D 35%, #F57F17 100%);
+  border: 2.5px solid #FFF9C4;
+  border-radius: 12px;
+  padding: clamp(8px, 1.4vh, 12px) 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 1px solid rgba(255, 215, 0, 0.35);
-  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 
+    0 5px 0 #A0522D,
+    0 8px 16px rgba(0, 0, 0, 0.85),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  margin-top: 2px;
 }
 
-.btn-card-play {
-  background: linear-gradient(180deg, #FFE082 0%, #FFD700 40%, #FFA000 100%);
-  color: #0A192F;
-  border: 2px solid #FFF8E1;
-  font-size: clamp(1rem, 2.2vw, 1.25rem);
-  font-weight: 900;
+.btn-fantasy-play:active,
+.game-card-fantasy.is-pressed .btn-fantasy-play {
+  transform: translateY(4px);
+  box-shadow: 
+    0 1px 0 #A0522D,
+    0 3px 8px rgba(0, 0, 0, 0.9),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+.btn-play-label {
   font-family: var(--font-game);
-  padding: clamp(10px, 1.6vh, 14px) clamp(18px, 3vw, 32px);
-  border-radius: 30px;
-  cursor: pointer;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), inset 0 2px 3px rgba(255, 255, 255, 0.8);
+  font-size: clamp(0.95rem, 2vw, 1.25rem);
+  font-weight: 900;
+  color: #3E240D;
+  letter-spacing: 1.5px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.btn-play-arrow {
+  color: #3E240D;
+  font-size: 0.95rem;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* ==========================================================================
+   TRANSICIÓN CINEMÁTICA: DESPEGUE MÁGICO A LOS JUEGOS (LAUNCH PORTAL)
+   ========================================================================== */
+.game-card-fantasy.is-launching {
+  z-index: 100 !important;
+  animation: cardLaunchRight 0.65s cubic-bezier(0.35, 0, 0.15, 1) forwards !important;
+  pointer-events: none;
+}
+
+@keyframes cardLaunchRight {
+  0% {
+    transform: scale(1) translateY(0);
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.9), 0 0 80px rgba(255, 255, 255, 0.8);
+    filter: brightness(1.2);
+  }
+  25% {
+    transform: scale(1.15) translateY(-5px);
+    box-shadow: 0 0 60px rgba(255, 215, 0, 1), 0 0 100px rgba(255, 255, 255, 0.9);
+    filter: brightness(1.4);
+  }
+  100% {
+    transform: scale(1.45) translateX(140vw);
+    opacity: 0;
+    filter: blur(8px) brightness(1.8);
+  }
+}
+
+.game-card-fantasy.is-fading-out {
+  animation: cardFadeAway 0.35s ease-out forwards !important;
+  pointer-events: none;
+}
+
+@keyframes cardFadeAway {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.82);
+    filter: blur(8px);
+  }
+}
+
+/* ==========================================================================
+   OVERLAY CINEMÁTICO DE CUENTA REGRESIVA 3-2-1
+   ========================================================================== */
+.countdown-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(12, 27, 51, 0.82) 0%, rgba(4, 10, 18, 0.94) 100%);
+  backdrop-filter: blur(8px);
+  z-index: 150;
+  pointer-events: none;
+  animation: fadeInQuick 0.2s ease-out;
+}
+
+.countdown-number {
+  font-family: var(--font-festive);
+  font-size: clamp(4.5rem, 16vw, 9rem);
+  font-weight: 900;
+  color: #FFF275;
+  text-shadow: 
+    0 4px 0 #B8860B,
+    0 8px 0 #7A1E1E,
+    0 12px 28px rgba(0, 0, 0, 0.95),
+    0 0 50px rgba(255, 215, 0, 0.9);
+  animation: countdownPop 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  letter-spacing: 2px;
+}
+
+.countdown-subtext {
+  font-family: var(--font-main);
+  font-size: clamp(1.1rem, 3vw, 1.8rem);
+  font-weight: 800;
+  color: #E2E8F0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  letter-spacing: 1px;
+  margin-top: 10px;
+}
+
+@keyframes countdownPop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+    filter: blur(10px);
+  }
+  40% {
+    transform: scale(1.18);
+    opacity: 1;
+    filter: blur(0);
+  }
+  70% {
+    transform: scale(1.0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+    filter: blur(6px);
+  }
+}
+
+/* ==========================================================================
+   TRANSICIÓN INICIAL: TORMENTA DE NIEVE MÁGICA Y REVELACIÓN
+   ========================================================================== */
+.snowstorm-curtain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, #0D2342 0%, #050D18 100%);
+  z-index: 200;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  letter-spacing: 1.5px;
+  flex-direction: column;
+  transition: opacity 0.75s ease-out, filter 0.75s ease-out;
+  pointer-events: none;
 }
 
-.btn-card-play:active {
-  transform: scale(0.96);
+.snowstorm-curtain.is-revealed {
+  opacity: 0;
+  filter: blur(12px);
 }
 
 /* ==========================================================================

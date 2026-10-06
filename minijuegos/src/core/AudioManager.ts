@@ -257,6 +257,90 @@ export class AudioManager {
   }
 
   /**
+   * Sonido de cuenta regresiva (3, 2, 1) - Campana afinada con armónico brillante
+   */
+  public playCountdownStep(stepNumber: number): void {
+    Haptics.medium();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    // Frecuencias ascendentes: 3 = 659Hz (Mi), 2 = 784Hz (Sol), 1 = 988Hz (Si)
+    const freqs = [659.25, 783.99, 987.77];
+    const freq = freqs[Math.max(0, 3 - stepNumber)] || 880;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+    gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.45);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.45);
+  }
+
+  /**
+   * Sonido de ¡A JUGAR! / Inicio de partida (Acorde triunfal rápido)
+   */
+  public playGameStart(): void {
+    Haptics.celebration();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    [1046.50, 1318.51, 1567.98].forEach((freq, i) => {
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.04);
+
+      gain.gain.setValueAtTime(0.35, this.ctx.currentTime + i * 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.55);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(this.ctx.currentTime + i * 0.04);
+      osc.stop(this.ctx.currentTime + 0.55);
+    });
+  }
+
+  /**
+   * Sonido Whoosh mágico para transiciones cinemáticas
+   */
+  public playWhoosh(): void {
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.35);
+
+    gain.gain.setValueAtTime(0.01, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.35);
+  }
+
+  /**
    * Método opcional para reproducir un archivo de audio externo si lo colocas en public/assets/audio/
    */
   public playFile(filePath: string, volume: number = 1.0): void {
