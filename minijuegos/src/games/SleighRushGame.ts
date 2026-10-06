@@ -83,10 +83,10 @@ export class SleighRushGame extends BaseGame {
 
     // Cargar sprites oficiales
     this.giftRedImg = new Image();
-    this.giftRedImg.src = "/assets/images/regalo-rojo.png";
+    this.giftRedImg.src = "./assets/images/regalo-rojo.png";
 
     this.giftGreenImg = new Image();
-    this.giftGreenImg.src = "/assets/images/regalo-verde.png";
+    this.giftGreenImg.src = "./assets/images/regalo-verde.png";
 
     this.fairLogoImg = new Image();
     this.fairLogoImg.src = BRANDING.getLogoPath(1);

@@ -32,7 +32,7 @@ export const BANNER_CONFIG = {
       iconName: "sparkles",
       bgGradient: "linear-gradient(90deg, #0B192C 0%, #1E3E62 50%, #000000 100%)",
       badgeColor: "#00E5FF",
-      image: "/assets/logos/logo-campus-con-fondo.png"
+      image: "./assets/logos/logo-campus-con-fondo.png"
     },
     {
       id: "banner-show",

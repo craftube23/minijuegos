@@ -31,7 +31,7 @@ export const BRANDING = {
     logo1: {
       id: "logo-1",
       name: "Feria Mágica del Juguete",
-      path: "/assets/logos/Feria-magica-del-jugete-sin-fondo.png",
+      path: "./assets/logos/Feria-magica-del-jugete-sin-fondo.png",
       alt: "Feria Mágica del Juguete",
       themeColor: "#FFD700",
       bonusMultiplier: 2,
@@ -41,7 +41,7 @@ export const BRANDING = {
     logo2: {
       id: "logo-2",
       name: "Campuslands",
-      path: "/assets/logos/logo-campus-con-fondo.png",
+      path: "./assets/logos/logo-campus-con-fondo.png",
       alt: "Campuslands - Colaborador Oficial",
       themeColor: "#00E5FF",
       bonusMultiplier: 2,
@@ -51,7 +51,7 @@ export const BRANDING = {
     collaborator: {
       id: "logo-campus",
       name: "Campuslands",
-      path: "/assets/logos/logo-campus-con-fondo.png",
+      path: "./assets/logos/logo-campus-con-fondo.png",
       alt: "Campuslands - Colaborador Oficial",
       themeColor: "#00E5FF",
       bonusMultiplier: 2,

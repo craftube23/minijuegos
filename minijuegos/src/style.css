@@ -42,7 +42,7 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: url('/assets/images/fondo-empresas.webp') center center / cover no-repeat #07111e;
+  background: url('../public/assets/images/fondo-empresas.webp') center center / cover no-repeat #07111e;
   font-family: var(--font-main);
   color: var(--color-white);
   touch-action: none;
@@ -61,7 +61,7 @@ html, body {
   padding: 0;
   display: flex;
   flex-direction: column;
-  background: url('/assets/images/fondo-empresas.webp') center center / cover no-repeat var(--color-bg);
+  background: url('../public/assets/images/fondo-empresas.webp') center center / cover no-repeat var(--color-bg);
   position: fixed;
   top: 0;
   left: 0;
@@ -148,7 +148,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: url('/assets/images/fondo-nieve.webp') center center / cover no-repeat #060e18;
+  background: url('../public/assets/images/fondo-nieve.webp') center center / cover no-repeat #060e18;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,7 +176,7 @@ html, body {
    ========================================================================== */
 .attract-layer {
   background: radial-gradient(circle at center, rgba(22, 54, 102, 0.45) 0%, rgba(7, 17, 30, 0.75) 100%),
-              url('/assets/images/fondo-empresas.webp') center center / cover no-repeat #07111e;
+              url('../public/assets/images/fondo-empresas.webp') center center / cover no-repeat #07111e;
   align-items: center;
   justify-content: center;
   padding: clamp(14px, 3vh, 32px);
@@ -297,7 +297,7 @@ html, body {
    ========================================================================== */
 .menu-layer {
   background: radial-gradient(circle at center, rgba(15, 36, 68, 0.70) 0%, rgba(6, 14, 26, 0.92) 100%),
-              url('/assets/images/fondo-empresas.webp') center center / cover no-repeat #060e1a;
+              url('../public/assets/images/fondo-empresas.webp') center center / cover no-repeat #060e1a;
   padding: clamp(14px, 2vh, 28px) clamp(12px, 2vw, 24px);
   overflow-y: auto;
   align-items: center;
@@ -378,12 +378,12 @@ html, body {
   align-items: center;
   text-align: center;
   cursor: pointer;
-  overflow: visible;
+  overflow: hidden;
   background: transparent;
   border: none;
   aspect-ratio: 298 / 231;
-  min-height: clamp(230px, 35vh, 320px);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.85);
+  width: 100%;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85);
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease;
   animation: cardStaggerIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
   touch-action: manipulation;
@@ -456,7 +456,7 @@ html, body {
   z-index: 3;
   width: 100%;
   height: 100%;
-  padding: clamp(10px, 1.6vh, 16px) clamp(12px, 2vw, 18px) clamp(8px, 1.4vh, 14px) clamp(12px, 2vw, 18px);
+  padding: 4.5% 5.5% 15.5% 5.5%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -468,37 +468,32 @@ html, body {
 .card-art-box {
   position: relative;
   width: 100%;
-  height: clamp(65px, 11vh, 95px);
+  height: 33%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-top: 2px;
 }
 
-.card-art-box.art-custom-icon {
-  height: clamp(80px, 13vh, 115px);
-  margin-top: 4px;
-}
-
 .card-art-image {
   width: auto;
   height: 100%;
-  max-width: 90%;
+  max-width: 88%;
   object-fit: contain;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.85));
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.85));
   animation: floatArt 3.5s ease-in-out infinite alternate;
   z-index: 3;
 }
 
 @keyframes floatArt {
   0% { transform: translateY(0px) scale(1); }
-  100% { transform: translateY(-4px) scale(1.03); }
+  100% { transform: translateY(-3px) scale(1.02); }
 }
 
 .art-glow-halo {
   position: absolute;
-  width: 100px;
-  height: 100px;
+  width: 90px;
+  height: 90px;
   background: radial-gradient(circle, rgba(255, 215, 0, 0.40) 0%, rgba(255, 215, 0, 0) 70%);
   border-radius: 50%;
   z-index: 1;
@@ -507,52 +502,48 @@ html, body {
 /* --- Título de Fantasía 3D Volumétrico (Titan One / Lilita One) --- */
 .card-fantasy-title {
   font-family: var(--font-card-title);
-  font-size: clamp(1.18rem, 2.3vw, 1.55rem);
+  font-size: clamp(0.95rem, 1.95vw, 1.35rem);
   font-weight: 900;
   color: #FFFDE7;
-  margin: 1px 0 2px 0;
+  margin: 0;
   line-height: 1.15;
   text-shadow: 
     0 2px 0 #3A1B05,
     0 3.5px 0 #200D02,
     0 5px 10px rgba(0, 0, 0, 0.95);
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
 }
 
 /* --- Cinta de Pergamino Medieval para Categoría --- */
 .card-ribbon-category {
   background: linear-gradient(180deg, #FDF2E9 0%, #F5CBA7 45%, #E59866 100%);
-  border: 1.5px solid #873600;
+  border: 1.2px solid #873600;
   border-radius: 3px;
-  padding: 2px 14px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+  padding: 1.5px 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.8);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  clip-path: polygon(6px 0%, calc(100% - 6px) 0%, 100% 50%, calc(100% - 6px) 100%, 6px 100%, 0% 50%);
-  min-width: 140px;
-  margin: 1px 0;
+  clip-path: polygon(5px 0%, calc(100% - 5px) 0%, 100% 50%, calc(100% - 5px) 100%, 5px 100%, 0% 50%);
+  min-width: 120px;
+  margin: 0;
 }
 
 .card-ribbon-category span {
   font-family: var(--font-main);
-  font-size: clamp(0.68rem, 1.2vw, 0.78rem);
+  font-size: clamp(0.6rem, 1.05vw, 0.72rem);
   font-weight: 900;
   color: #2C1405;
   text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.card-ribbon-spacer {
-  height: 2px;
+  letter-spacing: 0.8px;
 }
 
 /* --- Tagline Descriptivo --- */
 .card-fantasy-tagline {
   font-family: var(--font-main);
-  font-size: clamp(0.74rem, 1.3vw, 0.88rem);
+  font-size: clamp(0.64rem, 1.1vw, 0.78rem);
   color: #FFF9E6;
-  margin: 1px 0 3px 0;
+  margin: 0;
   font-weight: 700;
   text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.95);
   line-height: 1.15;
@@ -560,21 +551,21 @@ html, body {
 
 /* --- Placa de Madera Rústica para Récord (Imagen 2) --- */
 .card-record-plaque {
-  width: 82%;
+  width: 78%;
   background: linear-gradient(180deg, #4A2B11 0%, #2A1608 100%);
-  border: 1.5px solid #7D481F;
-  border-radius: 8px;
-  padding: 3px 10px;
+  border: 1.2px solid #7D481F;
+  border-radius: 6px;
+  padding: 2px 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 0.6);
-  margin-bottom: 2px;
+  gap: 5px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8), 0 2px 5px rgba(0, 0, 0, 0.6);
+  margin: 0;
 }
 
 .plaque-trophy {
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   display: inline-flex;
   align-items: center;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
@@ -582,7 +573,7 @@ html, body {
 
 .plaque-label {
   font-family: var(--font-main);
-  font-size: clamp(0.74rem, 1.3vw, 0.88rem);
+  font-size: clamp(0.64rem, 1.1vw, 0.78rem);
   color: #FAD7A0;
   font-weight: 700;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
@@ -593,42 +584,80 @@ html, body {
   font-weight: 900;
 }
 
-/* --- Botón Físico Integrado en la Placa Dorada del Marco (Imagen 2) --- */
+/* --- Botón Físico Integrado Exactamente en la Placa del Marco --- */
 .btn-fantasy-play {
-  width: 62%;
+  position: absolute;
+  bottom: 4.8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56%;
+  height: 12.8%;
   background: transparent;
   border: none;
   border-radius: 12px;
-  padding: clamp(3px, 0.8vh, 6px) 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   cursor: pointer;
-  margin-bottom: 3px;
   box-shadow: none;
+  z-index: 10;
+  padding: 0;
   transition: transform 0.08s ease;
 }
 
 .btn-fantasy-play:active,
 .game-card-fantasy.is-pressed .btn-fantasy-play {
-  transform: translateY(2px) scale(0.96);
+  transform: translateX(-50%) translateY(2px) scale(0.96);
 }
 
 .btn-play-label {
   font-family: var(--font-card-title);
-  font-size: clamp(1.15rem, 2.3vw, 1.45rem);
+  font-size: clamp(1rem, 2.1vw, 1.35rem);
   font-weight: 900;
   color: #3E1E04;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   text-shadow: 0 1px 0 rgba(255, 245, 200, 0.8);
 }
 
 .btn-play-arrow {
   color: #FFFFFF;
-  font-size: clamp(0.92rem, 1.8vw, 1.18rem);
+  font-size: clamp(0.82rem, 1.6vw, 1.05rem);
   -webkit-text-stroke: 1.2px #3E1E04;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+
+/* Adaptación del color del texto del botón según la placa de cada tema */
+.theme-wood-red .btn-play-label {
+  color: #3E1E04;
+  text-shadow: 0 1px 0 rgba(255, 245, 200, 0.8);
+}
+.theme-wood-red .btn-play-arrow {
+  -webkit-text-stroke: 1.2px #3E1E04;
+}
+
+.theme-stone-blue .btn-play-label {
+  color: #06233B;
+  text-shadow: 0 1px 0 rgba(190, 245, 255, 0.8);
+}
+.theme-stone-blue .btn-play-arrow {
+  -webkit-text-stroke: 1.2px #06233B;
+}
+
+.theme-forest-green .btn-play-label {
+  color: #052A14;
+  text-shadow: 0 1px 0 rgba(200, 255, 220, 0.8);
+}
+.theme-forest-green .btn-play-arrow {
+  -webkit-text-stroke: 1.2px #052A14;
+}
+
+.theme-magic-purple .btn-play-label {
+  color: #34053A;
+  text-shadow: 0 1px 0 rgba(255, 215, 250, 0.8);
+}
+.theme-magic-purple .btn-play-arrow {
+  -webkit-text-stroke: 1.2px #34053A;
 }
 
 /* ==========================================================================

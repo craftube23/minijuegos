@@ -62,13 +62,13 @@ export class MagicPairsGame extends BaseGame {
     );
 
     this.spriteTeddy = new Image();
-    this.spriteTeddy.src = "/assets/images/osito.png";
+    this.spriteTeddy.src = "./assets/images/osito.png";
 
     this.spriteRobot = new Image();
-    this.spriteRobot.src = "/assets/images/robot.png";
+    this.spriteRobot.src = "./assets/images/robot.png";
 
     this.spriteGift = new Image();
-    this.spriteGift.src = "/assets/images/regalo-rojo.png";
+    this.spriteGift.src = "./assets/images/regalo-rojo.png";
 
     this.spriteLogo = new Image();
     this.spriteLogo.src = BRANDING.getLogoPath(1);

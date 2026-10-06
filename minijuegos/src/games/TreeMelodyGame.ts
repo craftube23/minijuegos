@@ -80,25 +80,25 @@ export class TreeMelodyGame extends BaseGame {
 
     // Carga de Sprites
     this.bgImage = new Image();
-    this.bgImage.src = "/assets/images/fondo-habitacion.webp";
+    this.bgImage.src = "./assets/images/fondo-habitacion.webp";
 
     this.treeImage = new Image();
-    this.treeImage.src = "/assets/images/arbol.png";
+    this.treeImage.src = "./assets/images/arbol.png";
 
     this.starImage = new Image();
-    this.starImage.src = "/assets/images/estrella con logo.png";
+    this.starImage.src = "./assets/images/estrella con logo.png";
 
     this.imgBallRed = new Image();
-    this.imgBallRed.src = "/assets/images/bola-roja.png";
+    this.imgBallRed.src = "./assets/images/bola-roja.png";
 
     this.imgBallYellow = new Image();
-    this.imgBallYellow.src = "/assets/images/bola-amarilla.png";
+    this.imgBallYellow.src = "./assets/images/bola-amarilla.png";
 
     this.imgBallGreen = new Image();
-    this.imgBallGreen.src = "/assets/images/bola-verde.png";
+    this.imgBallGreen.src = "./assets/images/bola-verde.png";
 
     this.imgBallBlue = new Image();
-    this.imgBallBlue.src = "/assets/images/bola-azul.png";
+    this.imgBallBlue.src = "./assets/images/bola-azul.png";
   }
 
   public override resize(width: number, height: number): void {

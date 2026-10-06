@@ -35,8 +35,8 @@ export class GameMenu {
     {
       id: "toy-catch",
       title: "Atrapa-Regalos Mágico",
-      imageSrc: "/assets/images/targetas/icon-regalos-magicos.png",
-      frameImageSrc: "/assets/images/marco-juego-rojo.png",
+      imageSrc: "./assets/images/icon-regalos-magicos.png",
+      frameImageSrc: "./assets/images/marco-juego-rojo.png",
       themeClass: "theme-wood-red",
       category: "ACCIÓN & REFLEJOS",
       tagline: "¡Atrapa juguetes con el saco de Santa!",
@@ -45,8 +45,8 @@ export class GameMenu {
     {
       id: "sleigh-rush",
       title: "Dispara-Regalos",
-      imageSrc: "/assets/images/elfo-planeador.png",
-      frameImageSrc: "/assets/images/marco-juego-azul.png",
+      imageSrc: "./assets/images/elfo-planeador.png",
+      frameImageSrc: "./assets/images/marco-juego-azul.png",
       themeClass: "theme-stone-blue",
       category: "PUNTERÍA & VUELO",
       tagline: "¡Vuela en ala delta y encesta en chimeneas!",
@@ -55,8 +55,8 @@ export class GameMenu {
     {
       id: "tree-melody",
       title: "Enciende el Árbol",
-      imageSrc: "/assets/images/arbol.png",
-      frameImageSrc: "/assets/images/marco-juego-verde.png",
+      imageSrc: "./assets/images/arbol.png",
+      frameImageSrc: "./assets/images/marco-juego-verde.png",
       themeClass: "theme-forest-green",
       category: "MEMORIA MUSICAL",
       tagline: "¡Repite la melodía de campanas mágicas!",
@@ -65,8 +65,8 @@ export class GameMenu {
     {
       id: "magic-pairs",
       title: "Parejas de Juguetes",
-      imageSrc: "/assets/images/estrella con logo.png",
-      frameImageSrc: "/assets/images/marco-juego-morado.png",
+      imageSrc: "./assets/images/estrella con logo.png",
+      frameImageSrc: "./assets/images/marco-juego-morado.png",
       themeClass: "theme-magic-purple",
       category: "INGENIO & RAPIDEZ",
       tagline: "¡Encuentra las parejas de cartas mágicas!",

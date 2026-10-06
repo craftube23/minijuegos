@@ -108,19 +108,19 @@ export class ChimneyDropGame extends BaseGame {
 
     // Cargar sprites oficiales
     this.spriteElf = new Image();
-    this.spriteElf.src = "/assets/images/elfo-planeador.png";
+    this.spriteElf.src = "./assets/images/elfo-planeador.png";
 
     this.spriteHouseRed = new Image();
-    this.spriteHouseRed.src = "/assets/images/casa-roja.png";
+    this.spriteHouseRed.src = "./assets/images/casa-roja.png";
 
     this.spriteGiftRed = new Image();
-    this.spriteGiftRed.src = "/assets/images/regalo-rojo.png";
+    this.spriteGiftRed.src = "./assets/images/regalo-rojo.png";
 
     this.spriteGiftGreen = new Image();
-    this.spriteGiftGreen.src = "/assets/images/regalo-verde.png";
+    this.spriteGiftGreen.src = "./assets/images/regalo-verde.png";
 
     this.spriteTeddy = new Image();
-    this.spriteTeddy.src = "/assets/images/osito.png";
+    this.spriteTeddy.src = "./assets/images/osito.png";
 
     this.spriteFairLogo = new Image();
     this.spriteFairLogo.src = BRANDING.getLogoPath(1);

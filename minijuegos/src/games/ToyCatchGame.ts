@@ -72,25 +72,25 @@ export class ToyCatchGame extends BaseGame {
     );
 
     this.bagImage = new Image();
-    this.bagImage.src = "/assets/images/bolsa de regalos.png";
+    this.bagImage.src = "./assets/images/bolsa de regalos.png";
 
     this.imgGiftRed = new Image();
-    this.imgGiftRed.src = "/assets/images/regalo-rojo.png";
+    this.imgGiftRed.src = "./assets/images/regalo-rojo.png";
 
     this.imgGiftGreen = new Image();
-    this.imgGiftGreen.src = "/assets/images/regalo-verde.png";
+    this.imgGiftGreen.src = "./assets/images/regalo-verde.png";
 
     this.imgTeddy = new Image();
-    this.imgTeddy.src = "/assets/images/osito.png";
+    this.imgTeddy.src = "./assets/images/osito.png";
 
     this.imgRobot = new Image();
-    this.imgRobot.src = "/assets/images/robot.png";
+    this.imgRobot.src = "./assets/images/robot.png";
 
     this.imgCoal = new Image();
-    this.imgCoal.src = "/assets/images/carbon.png";
+    this.imgCoal.src = "./assets/images/carbon.png";
 
     this.imgIce = new Image();
-    this.imgIce.src = "/assets/images/hielo.png";
+    this.imgIce.src = "./assets/images/hielo.png";
 
     this.showLives = true;
     this.lives = 3;
