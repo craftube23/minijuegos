@@ -90,7 +90,7 @@ export class ToyCatchGame extends BaseGame {
     this.imgCoal.src = "/assets/images/carbon.png";
 
     this.imgIce = new Image();
-    this.imgIce.src = "/assets/images/hielo.jfif";
+    this.imgIce.src = "/assets/images/hielo.png";
 
     this.showLives = true;
     this.lives = 3;

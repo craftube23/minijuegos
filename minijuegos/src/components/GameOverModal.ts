@@ -62,9 +62,9 @@ export class GameOverModal {
         <!-- Integración de los Logos Oficiales (Feria Mágica + Campuslands) -->
         <div class="modal-branding">
           <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
-            <img src="${BRANDING.getLogoPath(1)}" alt="${BRANDING.fairName}" class="modal-logo" style="max-height: 52px; max-width: 170px;" />
+            <img src="${BRANDING.getLogoPath(1)}" alt="${BRANDING.fairName}" class="modal-logo" style="height: 48px; width: auto; max-width: 160px; object-fit: contain;" />
             <span style="font-size: 1.2rem; color: var(--color-gold); font-weight: 900;">×</span>
-            <img src="${BRANDING.getCollaboratorLogoPath()}" alt="Campuslands" class="modal-logo" style="max-height: 44px; max-width: 140px; border-radius: 8px; box-shadow: 0 3px 10px rgba(0,0,0,0.6);" />
+            <img src="${BRANDING.getCollaboratorLogoPath()}" alt="Campuslands" class="modal-logo" style="height: 36px; width: auto; max-width: 120px; object-fit: contain; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.6);" />
           </div>
           <p class="modal-promo-text">¡Sigue jugando y diviértete en la Feria Mágica del Juguete!</p>
         </div>
