@@ -67,8 +67,8 @@ export class BellSymphonyGame extends BaseGame {
       id: "jingle-bells",
       title: "Jingle Bells Rock",
       subtitle: "Ritmo clásico y alegre",
-      bpm: 124,
-      speed: 480,
+      bpm: 119,
+      speed: 490,
       stars: 2,
       difficultyLabel: "FÁCIL",
       tagColor: "#00E676",
@@ -390,27 +390,37 @@ export class BellSymphonyGame extends BaseGame {
     let pattern: { lane: number; b: number; isStar?: boolean }[] = [];
 
     if (song.id === "jingle-bells") {
-      pattern = [
-        { lane: 1, b: 2.0 }, { lane: 1, b: 2.5 }, { lane: 1, b: 3.0 },
-        { lane: 1, b: 4.0 }, { lane: 1, b: 4.5 }, { lane: 1, b: 5.0 },
-        { lane: 1, b: 6.0 }, { lane: 2, b: 6.5 }, { lane: 0, b: 7.0 }, { lane: 1, b: 7.5, isStar: true },
-        { lane: 2, b: 8.5 }, { lane: 2, b: 9.0 }, { lane: 2, b: 9.5 }, { lane: 2, b: 10.0 },
-        { lane: 1, b: 10.5 }, { lane: 1, b: 11.0 }, { lane: 1, b: 11.5 },
-        { lane: 1, b: 12.0 }, { lane: 0, b: 12.5 }, { lane: 0, b: 13.0 }, { lane: 1, b: 13.5 }, { lane: 0, b: 14.0 }, { lane: 2, b: 14.5, isStar: true },
-
-        { lane: 1, b: 16.0 }, { lane: 1, b: 16.5 }, { lane: 1, b: 17.0 },
-        { lane: 1, b: 18.0 }, { lane: 1, b: 18.5 }, { lane: 1, b: 19.0 },
-        { lane: 1, b: 20.0 }, { lane: 2, b: 20.5 }, { lane: 0, b: 21.0 }, { lane: 1, b: 21.5 },
-        { lane: 2, b: 22.0 }, { lane: 2, b: 22.5 }, { lane: 2, b: 23.0 }, { lane: 2, b: 23.5 },
-        { lane: 3, b: 24.0, isStar: true }, { lane: 3, b: 24.5 }, { lane: 2, b: 25.0 }, { lane: 1, b: 25.5 }, { lane: 0, b: 26.0 },
-
-        { lane: 0, b: 28.0 }, { lane: 1, b: 29.0 }, { lane: 2, b: 30.0 }, { lane: 3, b: 31.0, isStar: true },
-        { lane: 2, b: 32.0 }, { lane: 1, b: 33.0 }, { lane: 0, b: 34.0 }, { lane: 1, b: 35.0 },
-        { lane: 0, b: 36.5 }, { lane: 1, b: 37.0 }, { lane: 2, b: 37.5 }, { lane: 3, b: 38.0, isStar: true },
-        { lane: 3, b: 39.0 }, { lane: 2, b: 39.5 }, { lane: 1, b: 40.0 }, { lane: 0, b: 40.5 },
-        { lane: 0, b: 42.0 }, { lane: 3, b: 42.0, isStar: true },
-        { lane: 1, b: 43.5 }, { lane: 2, b: 43.5, isStar: true }
+      // 88 golpes rítmicos exactos detectados de jingle-bells.mp3 (119 BPM)
+      const detectedBeats = [
+        1.44, 1.91, 2.39, 2.88, 3.39, 3.88, 4.36, 4.84, 5.35, 5.83, 6.32, 6.81, 7.33, 7.82, 8.31, 8.81,
+        9.32, 9.81, 10.30, 10.80, 11.31, 11.80, 12.28, 12.78, 13.29, 13.78, 14.28, 14.77, 15.28, 15.77, 16.27, 16.76,
+        17.27, 17.76, 18.25, 18.75, 19.26, 19.75, 20.24, 20.73, 21.24, 21.73, 22.23, 22.73, 23.23, 23.73, 24.23, 24.72,
+        25.23, 25.72, 26.22, 26.71, 27.22, 27.71, 28.20, 28.70, 29.21, 29.70, 30.19, 30.69, 31.20, 31.69, 32.18, 32.68,
+        33.19, 33.68, 34.18, 34.67, 35.18, 35.67, 36.16, 36.66, 37.17, 37.66, 38.16, 38.65, 39.16, 39.65, 40.15, 40.64,
+        41.15, 41.64, 42.13, 42.63, 43.14, 43.63, 44.13, 44.62
       ];
+
+      for (let i = 0; i < detectedBeats.length; i++) {
+        const time = detectedBeats[i];
+        if (i < 8) {
+          pattern.push({ lane: i % 4, b: time / secondsPerBeat, isStar: i === 7 });
+        } else if (i >= 8 && i < 24) {
+          const sub = i - 8;
+          let lane = sub % 2 === 0 ? 1 : 2;
+          if (sub === 3 || sub === 7) lane = 0;
+          if (sub === 5 || sub === 11) lane = 3;
+          pattern.push({ lane, b: time / secondsPerBeat, isStar: sub === 6 || sub === 14 });
+        } else if (i >= 24 && i < 44) {
+          const sub = i - 24;
+          pattern.push({ lane: (sub * 2) % 4, b: time / secondsPerBeat, isStar: sub % 8 === 0 });
+        } else if (i >= 44 && i < 68) {
+          const sub = i - 44;
+          pattern.push({ lane: (sub + 1) % 4, b: time / secondsPerBeat, isStar: sub % 6 === 0 });
+        } else {
+          const sub = i - 68;
+          pattern.push({ lane: sub % 4, b: time / secondsPerBeat, isStar: sub % 5 === 0 });
+        }
+      }
     } else if (song.id === "deck-the-halls") {
       pattern = [
         { lane: 3, b: 2.0, isStar: true }, { lane: 2, b: 3.0 }, { lane: 1, b: 4.0 }, { lane: 0, b: 5.0 },
@@ -670,7 +680,11 @@ export class BellSymphonyGame extends BaseGame {
       return;
     }
 
-    this.currentTime += dt;
+    if (this.bgAudioElement && !this.bgAudioElement.paused && this.bgAudioElement.currentTime > 0) {
+      this.currentTime = this.bgAudioElement.currentTime;
+    } else {
+      this.currentTime += dt;
+    }
 
     if (this.isStarPowerActive) {
       this.starPowerTimer -= dt;
