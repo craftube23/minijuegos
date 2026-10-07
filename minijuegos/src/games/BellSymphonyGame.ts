@@ -1004,8 +1004,6 @@ export class BellSymphonyGame extends BaseGame {
     hitBarGlow.addColorStop(1, "rgba(255, 215, 0, 0.8)");
     ctx.strokeStyle = hitBarGlow;
     ctx.lineWidth = this.isStarPowerActive ? 6 : 4;
-    ctx.shadowColor = this.isStarPowerActive ? (this.activeStarPowerType === 2 ? "rgba(0, 229, 255, 0.95)" : "rgba(255, 215, 0, 0.95)") : "rgba(255, 215, 0, 0.9)";
-    ctx.shadowBlur = this.isStarPowerActive ? 22 : 15;
     ctx.beginPath();
     ctx.moveTo(this.laneStartX, this.hitLineY);
     ctx.lineTo(this.laneStartX + totalW, this.hitLineY);
@@ -1044,9 +1042,10 @@ export class BellSymphonyGame extends BaseGame {
       ctx.font = "900 24px 'Cinzel Decorative', 'Outfit', sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
+      ctx.strokeStyle = "rgba(0,0,0,0.8)";
+      ctx.lineWidth = 4;
+      ctx.strokeText(lane.arrow, 0, -1);
       ctx.fillStyle = isPressed ? "#FFFFFF" : lane.color;
-      ctx.shadowColor = "rgba(0,0,0,0.8)";
-      ctx.shadowBlur = 6;
       ctx.fillText(lane.arrow, 0, -1);
 
       ctx.font = "700 12px 'Outfit', sans-serif";
@@ -1086,6 +1085,12 @@ export class BellSymphonyGame extends BaseGame {
         ctx.closePath();
         ctx.fill();
 
+        // Resplandor circular suave
+        ctx.fillStyle = glowColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 1.15, 0, Math.PI * 2);
+        ctx.fill();
+
         // Sprite de Flecha de Bastón de Caramelo o Logo de la Marca
         let sprite: HTMLImageElement | null = null;
         if (note.isStar) {
@@ -1102,13 +1107,9 @@ export class BellSymphonyGame extends BaseGame {
         const drawSize = radius * 2.35;
 
         if (sprite && sprite.complete && sprite.naturalWidth > 0) {
-          ctx.shadowColor = glowColor;
-          ctx.shadowBlur = note.isStar ? 24 : 16;
           ctx.drawImage(sprite, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
         } else {
           // Renderizado vectorial nítido de respaldo
-          ctx.shadowColor = glowColor;
-          ctx.shadowBlur = 14;
           ctx.fillStyle = note.isStar ? "#FFD700" : lane.color;
           ctx.beginPath();
           ctx.arc(0, 0, radius, 0, Math.PI * 2);
@@ -1170,9 +1171,10 @@ export class BellSymphonyGame extends BaseGame {
 
       ctx.font = "900 clamp(1.8rem, 4.5vw, 2.8rem) 'Cinzel Decorative', 'Outfit', sans-serif";
       ctx.textAlign = "center";
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+      ctx.lineWidth = 5;
+      ctx.strokeText(`${this.combo} COMBO!`, 0, 0);
       ctx.fillStyle = this.isStarPowerActive || this.combo >= 20 ? "#FFD700" : "#FFFFFF";
-      ctx.shadowColor = this.isStarPowerActive || this.combo >= 20 ? "rgba(255, 215, 0, 0.9)" : "rgba(0, 0, 0, 0.9)";
-      ctx.shadowBlur = 15;
       ctx.fillText(`${this.combo} COMBO!`, 0, 0);
 
       const mult = this.getMultiplier();
@@ -1190,10 +1192,10 @@ export class BellSymphonyGame extends BaseGame {
       ctx.globalAlpha = j.alpha;
       ctx.font = `900 clamp(1.4rem, 3.8vw, 2.2rem) 'Cinzel Decorative', 'Outfit', sans-serif`;
       ctx.textAlign = "center";
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.95)";
+      ctx.lineWidth = 4;
+      ctx.strokeText(j.text, j.x, j.y);
       ctx.fillStyle = j.color;
-      ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
-      ctx.shadowBlur = 12;
-      ctx.shadowOffsetY = 3;
       ctx.fillText(j.text, j.x, j.y);
       ctx.restore();
     }
@@ -1273,12 +1275,9 @@ export class BellSymphonyGame extends BaseGame {
 
         if (isAlive) {
           ctx.font = `${bellSize}px sans-serif`;
-          ctx.shadowColor = "rgba(255, 215, 0, 0.95)";
-          ctx.shadowBlur = 10;
           ctx.fillText("🔔", bx, by);
         } else {
           ctx.font = `${bellSize * 0.85}px sans-serif`;
-          ctx.shadowBlur = 0;
           ctx.globalAlpha = 0.25;
           ctx.fillText("🔔", bx, by);
           ctx.globalAlpha = 1.0;
@@ -1342,14 +1341,10 @@ export class BellSymphonyGame extends BaseGame {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#FFD700";
-    ctx.shadowColor = "rgba(255, 215, 0, 0.8)";
-    ctx.shadowBlur = 10;
     ctx.fillText("SELECCIONA TU CANCIÓN", cx, titleY);
 
     ctx.font = `700 clamp(0.70rem, 2.1vw, 0.85rem) 'Outfit', sans-serif`;
     ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = "transparent";
     ctx.fillText("Toca una canción para comenzar el concierto navideño", cx, subY);
 
     // 2. Tarjetas de Canción estilizadas

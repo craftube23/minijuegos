@@ -312,15 +312,6 @@ export class ToyCatchGame extends BaseGame {
 
       const drawSize = item.size;
 
-      // Aplicar resplandor según sea positivo (verde) o peligroso (rojo)
-      if (item.type === "ice" || item.type === "rock") {
-        ctx.shadowColor = "rgba(255, 23, 68, 0.85)";
-        ctx.shadowBlur = 18;
-      } else if (item.type === "gift_red" || item.type === "gift_green" || item.type === "teddy" || item.type === "robot") {
-        ctx.shadowColor = "rgba(0, 230, 118, 0.8)";
-        ctx.shadowBlur = 14;
-      }
-
       if (item.type === "gift_red" && this.imgGiftRed.complete && this.imgGiftRed.naturalWidth > 0) {
         ctx.drawImage(this.imgGiftRed, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
       } else if (item.type === "gift_green" && this.imgGiftGreen.complete && this.imgGiftGreen.naturalWidth > 0) {
@@ -337,11 +328,7 @@ export class ToyCatchGame extends BaseGame {
         // Medallón de alto contraste y energía dorada mística
         const radius = drawSize * 0.72;
         
-        // Halo exterior dorado pulsante
         ctx.save();
-        ctx.shadowColor = "rgba(255, 215, 0, 0.95)";
-        ctx.shadowBlur = 22;
-        
         // Fondo blanco perlado de alto contraste (para que se distinga 100% sobre la nieve)
         const bgGrad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
         bgGrad.addColorStop(0, "rgba(255, 255, 255, 0.98)");
@@ -368,9 +355,6 @@ export class ToyCatchGame extends BaseGame {
         const radius = drawSize * 0.72;
 
         ctx.save();
-        ctx.shadowColor = "rgba(0, 229, 255, 0.95)";
-        ctx.shadowBlur = 22;
-
         // Base blanca nítida para evitar que el logo azul se confunda con la nieve
         const bgGrad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
         bgGrad.addColorStop(0, "rgba(255, 255, 255, 1.0)");
@@ -444,9 +428,6 @@ export class ToyCatchGame extends BaseGame {
         const logoY = imgH * 0.12;
 
         ctx.save();
-        ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
-        ctx.shadowBlur = 10;
-        ctx.shadowOffsetY = 4;
         ctx.drawImage(this.logoImage1, -logoW / 2, logoY - logoH / 2, logoW, logoH);
         ctx.restore();
       }

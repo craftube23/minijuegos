@@ -15,11 +15,11 @@
   --color-purple: #8e44ad;
   --color-white: #ffffff;
   --font-main: 'Outfit', system-ui, -apple-system, sans-serif;
-  --font-script: 'Grand Hotel', cursive;
-  --font-festive: 'Rye', 'Alfa Slab One', serif;
-  --font-display: 'Alfa Slab One', 'Rye', serif;
-  --font-game: 'Alfa Slab One', 'Outfit', sans-serif;
-  --font-card-title: 'Titan One', 'Lilita One', 'Alfa Slab One', cursive, sans-serif;
+  --font-script: 'Outfit', cursive, sans-serif;
+  --font-festive: 'Cinzel', 'Outfit', serif;
+  --font-display: 'Cinzel', 'Outfit', serif;
+  --font-game: 'Outfit', sans-serif;
+  --font-card-title: 'Outfit', sans-serif;
   --font-ribbon: 'Cinzel', serif;
 }
 

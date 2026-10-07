@@ -362,18 +362,6 @@ export class MagicPairsGame extends BaseGame {
       const isCardSelected = card === this.firstSelectedCard || card === this.secondSelectedCard;
       const isMismatch = this.isCheckingMatch && isCardSelected;
 
-      // Glow / Halo Visual (🟢 Verde si acertó, 🔴 Rojo si falló, 🟡 Dorado al revelar)
-      if (card.isMatched) {
-        ctx.shadowColor = "rgba(0, 230, 118, 0.95)";
-        ctx.shadowBlur = 16;
-      } else if (isMismatch) {
-        ctx.shadowColor = "rgba(255, 23, 68, 0.95)";
-        ctx.shadowBlur = 20;
-      } else if (isCardSelected) {
-        ctx.shadowColor = "rgba(255, 215, 0, 0.85)";
-        ctx.shadowBlur = 14;
-      }
-
       if (card.isMatched) {
         ctx.globalAlpha = 0.65;
       }

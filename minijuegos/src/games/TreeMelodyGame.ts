@@ -348,9 +348,6 @@ export class TreeMelodyGame extends BaseGame {
     // 2. Gran Árbol Navideño Ancho HD
     if (this.treeImage && this.treeImage.complete && this.treeImage.naturalWidth > 0) {
       ctx.save();
-      ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
-      ctx.shadowBlur = 25;
-      ctx.shadowOffsetY = 12;
       ctx.drawImage(this.treeImage, this.treeX, this.treeY, this.treeW, this.treeH);
       ctx.restore();
     }
@@ -370,8 +367,6 @@ export class TreeMelodyGame extends BaseGame {
     ctx.fill();
 
     if (this.starImage && this.starImage.complete && this.starImage.naturalWidth > 0) {
-      ctx.shadowColor = "rgba(255, 215, 0, 0.9)";
-      ctx.shadowBlur = 18;
       ctx.drawImage(
         this.starImage,
         this.starX - currentStarSize / 2,
@@ -413,8 +408,6 @@ export class TreeMelodyGame extends BaseGame {
       const drawW = drawH * (212 / 286);
 
       if (ballImg && ballImg.complete && ballImg.naturalWidth > 0) {
-        ctx.shadowColor = bulb.isLit ? bulb.litColor : "rgba(0, 0, 0, 0.75)";
-        ctx.shadowBlur = bulb.isLit ? 30 : 12;
         ctx.drawImage(ballImg, -drawW / 2, -drawH / 2, drawW, drawH);
 
         // Borde blanco de pulso si está encendida
