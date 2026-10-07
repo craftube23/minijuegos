@@ -162,6 +162,37 @@ export class AudioManager {
   }
 
   /**
+   * Sonido mágico de desenvoltorio de regalo y apertura de telón
+   */
+  public playGiftUnwrap(): void {
+    Haptics.celebration();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    // Arpegio ascendente festivo con timbres brillantes
+    const arpeggio = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+    arpeggio.forEach((freq, idx) => {
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      const startTime = this.ctx.currentTime + idx * 0.045;
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.28, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.42);
+    });
+  }
+
+  /**
    * Sonido de nota de campana para el minijuego de música/luces
    * @param noteIndex 0: Do, 1: Mi, 2: Sol, 3: Si/Do agudo
    */

@@ -171,4 +171,94 @@ export class ScreenTransition {
       }, 250);
     }, 3350);
   }
+
+  /**
+   * 4. Transición de Telón / Desenvolvimiento de Regalo Navideño (Gift Unwrap Transition)
+   * Cierra dos telones de terciopelo/papel de regalo con lazo dorado y abre mágicamente el minijuego.
+   */
+  public runGiftUnwrapTransition(
+    container: HTMLElement,
+    gameData: { title: string; icon: string; themeColor?: string },
+    particles: ParticleSystem,
+    onMidpoint: () => void,
+    onComplete: () => void
+  ): void {
+    const overlay = document.createElement("div");
+    overlay.className = "gift-transition-overlay";
+    overlay.innerHTML = `
+      <!-- Telón Izquierdo de Regalo -->
+      <div class="gift-curtain gift-curtain-left">
+        <div class="gift-curtain-pattern"></div>
+        <div class="gift-curtain-gold-trim"></div>
+      </div>
+
+      <!-- Telón Derecho de Regalo -->
+      <div class="gift-curtain gift-curtain-right">
+        <div class="gift-curtain-pattern"></div>
+        <div class="gift-curtain-gold-trim"></div>
+      </div>
+
+      <!-- Cintas Doradas Cruzadas del Paquete de Regalo -->
+      <div class="gift-ribbon gift-ribbon-horizontal"></div>
+      <div class="gift-ribbon gift-ribbon-vertical"></div>
+
+      <!-- Sello Central de la Feria con Moño Mágico -->
+      <div class="gift-center-box" style="--seal-theme-color: ${gameData.themeColor || '#FFD700'}">
+        <div class="gift-magic-sparkle s1">✨</div>
+        <div class="gift-magic-sparkle s2">⭐</div>
+        <div class="gift-magic-sparkle s3">✦</div>
+        <div class="gift-magic-sparkle s4">✨</div>
+
+        <div class="gift-bow-wrapper">
+          <div class="gift-bow-ribbon-loop loop-left"></div>
+          <div class="gift-bow-ribbon-loop loop-right"></div>
+          <div class="gift-bow-knot">
+            <img src="./assets/images/estrella con logo.png" alt="Feria Mágica" class="gift-bow-star" />
+          </div>
+        </div>
+
+        <div class="gift-game-badge">
+          <span class="gift-game-icon">${gameData.icon}</span>
+          <h2 class="gift-game-title">${gameData.title}</h2>
+          <span class="gift-game-sub">🎁 ¡ABRIENDO REGALO MÁGICO! 🎁</span>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(overlay);
+
+    // Sonido de cierre de telón / envoltorio
+    this.audio.playWhoosh();
+
+    // 1. Envolver (Cerrar telones hacia el centro)
+    requestAnimationFrame(() => {
+      overlay.classList.add("is-wrapping");
+    });
+
+    // 2. Punto medio: La pantalla está 100% cubierta por el regalo
+    setTimeout(() => {
+      onMidpoint();
+
+      // Efecto sonoro de desatar el lazo y desenvolver
+      this.audio.playGiftUnwrap();
+
+      const bounds = container.getBoundingClientRect();
+      particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 25);
+      particles.emitConfetti(bounds.width, 35);
+
+      // 3. ¡Desatar el lazo y abrir el regalo!
+      overlay.classList.remove("is-wrapping");
+      overlay.classList.add("is-unwrapping");
+
+      // 4. Finalización y remoción del DOM
+      setTimeout(() => {
+        overlay.classList.add("is-finished");
+        setTimeout(() => {
+          overlay.remove();
+          onComplete();
+        }, 350);
+      }, 700);
+
+    }, 550);
+  }
 }

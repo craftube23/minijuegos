@@ -54,7 +54,6 @@ class KioskApp {
   // Estado del Kiosco: 'attract' | 'menu' | 'playing' | 'gameover'
   private appState: "attract" | "menu" | "playing" | "gameover" = "attract";
   private isTransitioning: boolean = false;
-  private pendingCardElement: HTMLElement | null = null;
 
   // Temporizador de inactividad
   private lastUserInteractionTime: number = Date.now();
@@ -184,25 +183,15 @@ class KioskApp {
     };
 
     // 3. Al seleccionar un juego en el Menú → Mostrar Modal de Instrucciones Visuales (~5s)
-    this.gameMenu.onSelectGame = (gameId: string, cardElement: HTMLElement) => {
+    this.gameMenu.onSelectGame = (gameId: string) => {
       if (this.isTransitioning) return;
-      this.pendingCardElement = cardElement;
       this.instructionsModal.show(gameId);
     };
 
     // 4. Cuando el usuario confirma "¡A JUGAR! ▶" en el modal de instrucciones
     this.instructionsModal.onStartGame = (gameId: string) => {
       this.isTransitioning = true;
-      const allCards = document.querySelectorAll<HTMLElement>(".game-card-fantasy");
-      const cardToLaunch = this.pendingCardElement || allCards[0];
-
-      if (cardToLaunch) {
-        ScreenTransition.getInstance().playCardLaunch(cardToLaunch, allCards, () => {
-          this.launchGameWithCountdown(gameId);
-        });
-      } else {
-        this.launchGameWithCountdown(gameId);
-      }
+      this.launchGameWithCountdown(gameId);
     };
 
     // 5. Al pulsar el botón "Menú" en la barra superior
@@ -317,8 +306,18 @@ class KioskApp {
     this.resetInactivity();
   }
 
+  private getGameTransitionInfo(gameId: string): { title: string; icon: string; themeColor: string } {
+    const map: Record<string, { title: string; icon: string; themeColor: string }> = {
+      "toy-catch": { title: "Atrapa-Regalos Mágico", icon: "🎁", themeColor: "#FF2A4D" },
+      "bell-symphony": { title: "Sinfonía de Campanas", icon: "🔔", themeColor: "#00E5FF" },
+      "tree-melody": { title: "Tambores del Cascanueces", icon: "🥁", themeColor: "#FFB300" },
+      "magic-pairs": { title: "Parejas de Juguetes", icon: "🃏", themeColor: "#D500F9" }
+    };
+    return map[gameId] || { title: "Minijuego Mágico", icon: "🎄", themeColor: "#FFD700" };
+  }
+
   /**
-   * Inicia el minijuego con la cuenta regresiva cinemática 3-2-1
+   * Inicia el minijuego con la transición de regalo navideño y cuenta regresiva cinemática 3-2-1
    */
   public launchGameWithCountdown(gameId: string): void {
     const game = this.games.get(gameId);
@@ -327,50 +326,72 @@ class KioskApp {
       return;
     }
 
-    this.currentGame = game;
-    this.appState = "playing";
-
-    this.attractScreen.hide();
-    this.gameMenu.hide();
-    this.gameOverModal.hide();
-
-    this.input.reset();
-    this.resetInactivity();
-
     const mainContainer = document.getElementById("kiosk-main") || document.body;
+    const gameInfo = this.getGameTransitionInfo(gameId);
 
-    // Ejecutar cuenta regresiva antes de activar el tiempo del juego
-    ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
-      this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
-      this.isTransitioning = false;
-    });
+    // 1. Transición Cinemática: Telón / Desenvolvimiento de Regalo Navideño
+    ScreenTransition.getInstance().runGiftUnwrapTransition(
+      mainContainer,
+      gameInfo,
+      this.particles,
+      () => {
+        // Punto medio: La pantalla está 100% cubierta por el regalo
+        this.currentGame = game;
+        this.appState = "playing";
+
+        this.attractScreen.hide();
+        this.gameMenu.hide();
+        this.gameOverModal.hide();
+        this.instructionsModal.hide();
+
+        this.input.reset();
+        this.resetInactivity();
+      },
+      () => {
+        // Al terminar de abrir el regalo, arrancar cuenta regresiva arcade 3-2-1
+        ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+          this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
+          this.isTransitioning = false;
+        });
+      }
+    );
   }
 
   /**
-   * Inicio directo (para revancha desde el modal de resultados)
+   * Inicio directo con transición mágica (para revancha desde el modal de resultados)
    */
   public launchGameDirect(gameId: string): void {
     const game = this.games.get(gameId);
     if (!game) return;
 
-    this.currentGame = game;
-    this.appState = "playing";
-
-    this.attractScreen.hide();
-    this.gameMenu.hide();
-    this.gameOverModal.hide();
-
-    this.input.reset();
-    this.resetInactivity();
-
     const mainContainer = document.getElementById("kiosk-main") || document.body;
-    ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
-      if (game instanceof BellSymphonyGame) {
-        game.replayLastSong();
-      } else {
-        game.start(KIOSK_CONFIG.defaultGameDurationSeconds);
+    const gameInfo = this.getGameTransitionInfo(gameId);
+
+    ScreenTransition.getInstance().runGiftUnwrapTransition(
+      mainContainer,
+      gameInfo,
+      this.particles,
+      () => {
+        this.currentGame = game;
+        this.appState = "playing";
+
+        this.attractScreen.hide();
+        this.gameMenu.hide();
+        this.gameOverModal.hide();
+
+        this.input.reset();
+        this.resetInactivity();
+      },
+      () => {
+        ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+          if (game instanceof BellSymphonyGame) {
+            game.replayLastSong();
+          } else {
+            game.start(KIOSK_CONFIG.defaultGameDurationSeconds);
+          }
+        });
       }
-    });
+    );
   }
 
   /**
