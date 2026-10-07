@@ -186,79 +186,130 @@ export class ScreenTransition {
     const overlay = document.createElement("div");
     overlay.className = "gift-transition-overlay";
     overlay.innerHTML = `
-      <!-- Telón Izquierdo de Regalo -->
+      <!-- Destello de Fondo / God Rays al abrirse -->
+      <div class="gift-backdrop-glow"></div>
+
+      <!-- Telón Izquierdo de Regalo de Terciopelo con Pliegues 3D y Brocado -->
       <div class="gift-curtain gift-curtain-left">
-        <div class="gift-curtain-pattern"></div>
-        <div class="gift-curtain-gold-trim"></div>
+        <div class="gift-curtain-folds"></div>
+        <div class="gift-curtain-damask"></div>
+        <div class="gift-curtain-gold-trim">
+          <div class="gift-trim-braid"></div>
+        </div>
       </div>
 
-      <!-- Telón Derecho de Regalo -->
+      <!-- Telón Derecho de Regalo de Terciopelo con Pliegues 3D y Brocado -->
       <div class="gift-curtain gift-curtain-right">
-        <div class="gift-curtain-pattern"></div>
-        <div class="gift-curtain-gold-trim"></div>
+        <div class="gift-curtain-folds"></div>
+        <div class="gift-curtain-damask"></div>
+        <div class="gift-curtain-gold-trim">
+          <div class="gift-trim-braid"></div>
+        </div>
       </div>
 
-      <!-- Cintas Doradas Cruzadas del Paquete de Regalo -->
-      <div class="gift-ribbon gift-ribbon-horizontal"></div>
-      <div class="gift-ribbon gift-ribbon-vertical"></div>
+      <!-- Cintas de Satén Dorado 3D con Costuras y Reflejo Líquido -->
+      <div class="gift-ribbon gift-ribbon-horizontal">
+        <div class="gift-ribbon-stitch top"></div>
+        <div class="gift-ribbon-glint"></div>
+        <div class="gift-ribbon-stitch bottom"></div>
+      </div>
+      <div class="gift-ribbon gift-ribbon-vertical">
+        <div class="gift-ribbon-stitch left"></div>
+        <div class="gift-ribbon-glint-v"></div>
+        <div class="gift-ribbon-stitch right"></div>
+      </div>
 
-      <!-- Sello Central de la Feria con Moño Mágico -->
+      <!-- Anillo de Onda de Choque Mágica al cerrar y abrir -->
+      <div class="gift-shockwave-ring"></div>
+
+      <!-- Gran Moño 3D y Sello Mágico Festivo -->
       <div class="gift-center-box" style="--seal-theme-color: ${gameData.themeColor || '#FFD700'}">
-        <div class="gift-magic-sparkle s1">✨</div>
-        <div class="gift-magic-sparkle s2">⭐</div>
-        <div class="gift-magic-sparkle s3">✦</div>
-        <div class="gift-magic-sparkle s4">✨</div>
+        <!-- Partículas y Estrellas Giratorias -->
+        <div class="gift-floating-particles">
+          <span class="g-sparkle s1">✨</span>
+          <span class="g-sparkle s2">⭐</span>
+          <span class="g-sparkle s3">✦</span>
+          <span class="g-sparkle s4">❄️</span>
+          <span class="g-sparkle s5">✨</span>
+          <span class="g-sparkle s6">★</span>
+        </div>
 
-        <div class="gift-bow-wrapper">
-          <div class="gift-bow-ribbon-loop loop-left"></div>
-          <div class="gift-bow-ribbon-loop loop-right"></div>
-          <div class="gift-bow-knot">
+        <!-- Moño 3D con Orejas y Cintas Colgantes -->
+        <div class="gift-luxury-bow">
+          <!-- Colas de cinta colgantes -->
+          <div class="gift-bow-tail tail-left"></div>
+          <div class="gift-bow-tail tail-right"></div>
+          
+          <!-- Lazos superiores e inferiores en capas 3D -->
+          <div class="gift-bow-loop loop-back-left"></div>
+          <div class="gift-bow-loop loop-back-right"></div>
+          <div class="gift-bow-loop loop-main-left"></div>
+          <div class="gift-bow-loop loop-main-right"></div>
+
+          <!-- Nudo Central con Logo Estrella 3D -->
+          <div class="gift-bow-center-knot">
+            <div class="gift-knot-aura"></div>
             <img src="./assets/images/estrella con logo.png" alt="Feria Mágica" class="gift-bow-star" />
           </div>
         </div>
 
+        <!-- Placa Emblema Tallada en Oro y Madera Festiva -->
         <div class="gift-game-badge">
-          <span class="gift-game-icon">${gameData.icon}</span>
+          <div class="gift-badge-corner tl"></div>
+          <div class="gift-badge-corner tr"></div>
+          <div class="gift-badge-corner bl"></div>
+          <div class="gift-badge-corner br"></div>
+
+          <div class="gift-icon-container">
+            <div class="gift-icon-glow"></div>
+            <span class="gift-game-icon">${gameData.icon}</span>
+          </div>
+          
           <h2 class="gift-game-title">${gameData.title}</h2>
-          <span class="gift-game-sub">🎁 ¡ABRIENDO REGALO MÁGICO! 🎁</span>
+          
+          <div class="gift-unwrapping-pill">
+            <span class="gift-pill-dot"></span>
+            <span class="gift-pill-text">¡ABRIENDO JUGUETE MÁGICO!</span>
+            <span class="gift-pill-dot"></span>
+          </div>
         </div>
       </div>
     `;
 
     container.appendChild(overlay);
 
-    // Sonido de cierre de telón / envoltorio
+    // Sonido de cierre envolvente con whoosh cinematográfico
     this.audio.playWhoosh();
 
-    // 1. Envolver (Cerrar telones hacia el centro)
+    // 1. Envolver (Cierre elástico con impacto)
     requestAnimationFrame(() => {
       overlay.classList.add("is-wrapping");
     });
 
-    // 2. Punto medio: La pantalla está 100% cubierta por el regalo
+    // 2. Punto medio: La pantalla está 100% cubierta
     setTimeout(() => {
       onMidpoint();
 
-      // Efecto sonoro de desatar el lazo y desenvolver
+      // Sonido de desenvoltorio festivo y desatado de lazo
       this.audio.playGiftUnwrap();
 
       const bounds = container.getBoundingClientRect();
-      particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 25);
-      particles.emitConfetti(bounds.width, 35);
+      particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 35);
+      particles.emitConfetti(bounds.width, 50);
 
-      // 3. ¡Desatar el lazo y abrir el regalo!
+      // 3. ¡Desatar lazo y abrir telones con efecto dramático!
       overlay.classList.remove("is-wrapping");
       overlay.classList.add("is-unwrapping");
 
-      // 4. Finalización y remoción del DOM
+      // 4. Finalización suave
       setTimeout(() => {
         overlay.classList.add("is-finished");
         setTimeout(() => {
           overlay.remove();
           onComplete();
-        }, 350);
-      }, 700);
+        }, 380);
+      }, 750);
 
-    }, 550);
+    }, 600);
   }
 }

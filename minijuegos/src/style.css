@@ -2160,7 +2160,7 @@ html, body {
 }
 
 /* ==========================================================================
-   TRANSICIÓN DE DESENVOLVIMIENTO DE REGALO / TELÓN NAVIDEÑO (Gift Unwrap)
+   TRANSICIÓN DE DESENVOLVIMIENTO DE REGALO / TELÓN NAVIDEÑO 3D ULTRA-DETALLADO
    ========================================================================== */
 .gift-transition-overlay {
   position: fixed;
@@ -2171,222 +2171,486 @@ html, body {
   justify-content: center;
   pointer-events: all;
   overflow: hidden;
-  perspective: 1000px;
+  perspective: 1200px;
 }
 
-/* 1. Telones / Solapas de Papel de Regalo de Terciopelo */
+/* 0. Destello de Fondo / God Rays al abrirse el telón */
+.gift-backdrop-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 215, 0, 0.95) 0%, rgba(255, 143, 0, 0.6) 40%, rgba(10, 25, 48, 0.9) 80%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease-out;
+  z-index: 1;
+}
+
+/* 1. Telones de Terciopelo Rojo Carmesí con Pliegues Volumétricos 3D */
 .gift-curtain {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 50.5%;
+  width: 50.8%;
   height: 100%;
   will-change: transform;
-  transition: transform 0.48s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 35px rgba(0, 0, 0, 0.85);
+  transition: transform 0.52s cubic-bezier(0.18, 1.15, 0.32, 1);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.95);
   overflow: hidden;
+  z-index: 2;
 }
 
 .gift-curtain-left {
   left: 0;
   transform: translateX(-102%);
-  background: linear-gradient(135deg, #7A0C1E 0%, #B71C1C 45%, #550713 100%);
-  border-right: 2px solid rgba(255, 215, 0, 0.6);
+  background: linear-gradient(135deg, #4A040F 0%, #800F2F 30%, #A4133C 55%, #590D22 85%, #2B020B 100%);
+  border-right: 3px solid rgba(255, 215, 0, 0.8);
 }
 
 .gift-curtain-right {
   right: 0;
   transform: translateX(102%);
-  background: linear-gradient(225deg, #7A0C1E 0%, #B71C1C 45%, #550713 100%);
-  border-left: 2px solid rgba(255, 215, 0, 0.6);
+  background: linear-gradient(225deg, #4A040F 0%, #800F2F 30%, #A4133C 55%, #590D22 85%, #2B020B 100%);
+  border-left: 3px solid rgba(255, 215, 0, 0.8);
 }
 
-/* Patrón festivo sutil de copos de nieve en el terciopelo */
-.gift-curtain-pattern {
+/* Pliegues de Telón de Terciopelo Teatral 3D */
+.gift-curtain-folds {
   position: absolute;
   inset: 0;
-  background-image: 
-    radial-gradient(circle at 25px 25px, rgba(255, 215, 0, 0.12) 2px, transparent 3px),
-    radial-gradient(circle at 75px 75px, rgba(255, 255, 255, 0.08) 2px, transparent 3px);
-  background-size: 100px 100px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.65) 0px,
+    rgba(0, 0, 0, 0.25) 22px,
+    rgba(255, 255, 255, 0.14) 44px,
+    rgba(0, 0, 0, 0.7) 78px,
+    rgba(255, 215, 0, 0.08) 105px
+  );
+  mix-blend-mode: overlay;
   pointer-events: none;
 }
 
-/* Borde dorado de unión en el centro */
+/* Brocado Navideño Damasco en Relieve */
+.gift-curtain-damask {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 35px 35px, rgba(255, 215, 0, 0.22) 2.5px, transparent 3.5px),
+    radial-gradient(circle at 105px 105px, rgba(255, 255, 255, 0.16) 3px, transparent 4.5px),
+    radial-gradient(circle at 70px 70px, rgba(255, 215, 0, 0.12) 5px, transparent 6px);
+  background-size: 140px 140px;
+  pointer-events: none;
+}
+
+/* Ribete de Oro Trenzado con Flecos en la Unión Central */
 .gift-curtain-gold-trim {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 6px;
-  background: linear-gradient(180deg, #FFE082 0%, #FFD700 50%, #FF8F00 100%);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+  width: 14px;
+  background: linear-gradient(180deg, #FFE082 0%, #FFD700 25%, #FFA000 50%, #FFD700 75%, #FFE082 100%);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.9), inset 0 0 4px rgba(0, 0, 0, 0.4);
 }
 
-.gift-curtain-left .gift-curtain-gold-trim {
-  right: 0;
+.gift-curtain-left .gift-curtain-gold-trim { right: 0; }
+.gift-curtain-right .gift-curtain-gold-trim { left: 0; }
+
+.gift-trim-braid {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(141, 73, 37, 0.6) 0px,
+    rgba(141, 73, 37, 0.6) 3px,
+    transparent 3px,
+    transparent 6px
+  );
 }
 
-.gift-curtain-right .gift-curtain-gold-trim {
-  left: 0;
-}
-
-/* 2. Cintas Doradas Cruzadas del Paquete de Regalo */
+/* 2. Cintas de Satén Dorado 3D con Costuras y Reflejo Líquido */
 .gift-ribbon {
   position: absolute;
-  background: linear-gradient(135deg, #FFF9C4 0%, #FFD700 35%, #FF8F00 70%, #FFE082 100%);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.7), inset 0 0 8px rgba(0, 0, 0, 0.3);
-  z-index: 2;
-  transition: all 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+  background: linear-gradient(
+    135deg,
+    #FFF9C4 0%,
+    #FFE082 15%,
+    #FFD700 40%,
+    #FF8F00 70%,
+    #C97500 90%,
+    #FFE082 100%
+  );
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.8),
+    0 0 35px rgba(255, 215, 0, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+  z-index: 3;
+  transition: all 0.45s cubic-bezier(0.18, 1.25, 0.35, 1);
   opacity: 0;
+  overflow: hidden;
 }
 
 .gift-ribbon-horizontal {
   top: 50%;
   left: 0;
   width: 100%;
-  height: 28px;
+  height: 48px;
   transform: translateY(-50%) scaleX(0);
 }
 
 .gift-ribbon-vertical {
   left: 50%;
   top: 0;
-  width: 28px;
+  width: 48px;
   height: 100%;
   transform: translateX(-50%) scaleY(0);
 }
 
-/* 3. Sello Central y Moño 3D */
+/* Costura Punteada de Oro */
+.gift-ribbon-stitch {
+  position: absolute;
+  border-color: rgba(255, 255, 255, 0.65);
+  border-style: dashed;
+}
+
+.gift-ribbon-stitch.top { top: 4px; left: 0; right: 0; border-top-width: 1.5px; }
+.gift-ribbon-stitch.bottom { bottom: 4px; left: 0; right: 0; border-bottom-width: 1.5px; }
+.gift-ribbon-stitch.left { left: 4px; top: 0; bottom: 0; border-left-width: 1.5px; }
+.gift-ribbon-stitch.right { right: 4px; top: 0; bottom: 0; border-right-width: 1.5px; }
+
+/* Destello Líquido que Recorre la Cinta */
+.gift-ribbon-glint {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 120px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.85) 50%, transparent 100%);
+  transform: skewX(-25deg);
+  animation: ribbonGlintH 1.8s infinite ease-in-out;
+}
+
+.gift-ribbon-glint-v {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.85) 50%, transparent 100%);
+  animation: ribbonGlintV 1.8s infinite ease-in-out;
+}
+
+@keyframes ribbonGlintH {
+  0% { left: -150px; }
+  100% { left: 110%; }
+}
+
+@keyframes ribbonGlintV {
+  0% { top: -150px; }
+  100% { top: 110%; }
+}
+
+/* Onda de Choque Mágica al Impactar y Desatarse */
+.gift-shockwave-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  border: 4px solid #FFD700;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* 3. Sello Central y Gran Moño 3D */
 .gift-center-box {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.3);
+  transform: translate(-50%, -50%) scale(0.2) rotate(-8deg);
   opacity: 0;
-  z-index: 3;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 24px 32px;
-  background: radial-gradient(circle at center, rgba(14, 28, 54, 0.96) 0%, rgba(5, 12, 24, 0.98) 100%);
-  border: 3px solid var(--seal-theme-color, #FFD700);
-  border-radius: 28px;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9), 0 0 35px var(--seal-theme-color, rgba(255, 215, 0, 0.5));
-  transition: all 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  gap: 16px;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   text-align: center;
-  max-width: min(88vw, 420px);
+  max-width: min(90vw, 460px);
 }
 
-.gift-bow-wrapper {
+/* Partículas Mágicas Flotantes en 3D */
+.gift-floating-particles {
+  position: absolute;
+  inset: -50px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.g-sparkle {
+  position: absolute;
+  font-size: 1.6rem;
+  color: #FFD700;
+  filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.9));
+  animation: sparkleOrbit 2.4s infinite alternate ease-in-out;
+}
+
+.g-sparkle.s1 { top: 5%; left: 8%; animation-delay: 0s; }
+.g-sparkle.s2 { top: 10%; right: 6%; animation-delay: 0.3s; font-size: 1.8rem; }
+.g-sparkle.s3 { bottom: 15%; left: 4%; animation-delay: 0.6s; }
+.g-sparkle.s4 { bottom: 20%; right: 8%; animation-delay: 0.9s; font-size: 2rem; color: #00E5FF; }
+.g-sparkle.s5 { top: 48%; left: -10%; animation-delay: 1.2s; }
+.g-sparkle.s6 { top: 52%; right: -12%; animation-delay: 1.5s; font-size: 2.2rem; }
+
+@keyframes sparkleOrbit {
+  0% { transform: translateY(0) scale(0.8) rotate(0deg); opacity: 0.5; }
+  100% { transform: translateY(-16px) scale(1.3) rotate(60deg); opacity: 1; }
+}
+
+/* Moño 3D de Satén con Múltiples Lazos y Colas */
+.gift-luxury-bow {
   position: relative;
-  width: 90px;
-  height: 90px;
+  width: 170px;
+  height: 125px;
   display: flex;
   align-items: center;
   justify-content: center;
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.8));
 }
 
-.gift-bow-ribbon-loop {
+/* Colas de Cinta con Corte en 'V' */
+.gift-bow-tail {
   position: absolute;
-  width: 36px;
-  height: 36px;
-  border: 5px solid #FFD700;
-  border-radius: 50% 50% 10% 50%;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.4) 0%, rgba(255, 143, 0, 0.6) 100%);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+  top: 55px;
+  width: 44px;
+  height: 90px;
+  background: linear-gradient(180deg, #FFD700 0%, #FF8F00 70%, #B25900 100%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), inset 0 0 8px rgba(255, 255, 255, 0.5);
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 82%, 0% 100%);
+  z-index: 1;
 }
 
-.gift-bow-ribbon-loop.loop-left {
-  left: 4px;
-  transform: rotate(-35deg);
+.gift-bow-tail.tail-left {
+  left: 28px;
+  transform: rotate(26deg);
+  transform-origin: top center;
+  animation: tailWaveLeft 2s infinite ease-in-out alternate;
 }
 
-.gift-bow-ribbon-loop.loop-right {
-  right: 4px;
-  transform: rotate(125deg);
+.gift-bow-tail.tail-right {
+  right: 28px;
+  transform: rotate(-26deg);
+  transform-origin: top center;
+  animation: tailWaveRight 2s infinite ease-in-out alternate;
 }
 
-.gift-bow-knot {
-  position: relative;
-  z-index: 4;
+@keyframes tailWaveLeft {
+  from { transform: rotate(24deg); }
+  to { transform: rotate(32deg) scale(1.03); }
+}
+
+@keyframes tailWaveRight {
+  from { transform: rotate(-24deg); }
+  to { transform: rotate(-32deg) scale(1.03); }
+}
+
+/* Lazos del Moño en Capas Superpuestas 3D */
+.gift-bow-loop {
+  position: absolute;
+  border-radius: 50% 50% 15% 50%;
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.6),
+    inset 0 4px 8px rgba(255, 255, 255, 0.8),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.5);
+}
+
+.gift-bow-loop.loop-back-left {
   width: 58px;
   height: 58px;
+  left: 12px;
+  top: 10px;
+  background: linear-gradient(135deg, #FF8F00 0%, #E65100 100%);
+  transform: rotate(-45deg) scale(0.9);
+  z-index: 2;
+}
+
+.gift-bow-loop.loop-back-right {
+  width: 58px;
+  height: 58px;
+  right: 12px;
+  top: 10px;
+  background: linear-gradient(225deg, #FF8F00 0%, #E65100 100%);
+  transform: rotate(135deg) scale(0.9);
+  z-index: 2;
+}
+
+.gift-bow-loop.loop-main-left {
+  width: 68px;
+  height: 68px;
+  left: 8px;
+  top: 20px;
+  background: linear-gradient(135deg, #FFF59D 0%, #FFD700 45%, #FFA000 85%, #FF6F00 100%);
+  transform: rotate(-30deg);
+  z-index: 3;
+}
+
+.gift-bow-loop.loop-main-right {
+  width: 68px;
+  height: 68px;
+  right: 8px;
+  top: 20px;
+  background: linear-gradient(225deg, #FFF59D 0%, #FFD700 45%, #FFA000 85%, #FF6F00 100%);
+  transform: rotate(120deg);
+  z-index: 3;
+}
+
+/* Nudo Central con Logo Estrella 3D */
+.gift-bow-center-knot {
+  position: relative;
+  z-index: 5;
+  width: 76px;
+  height: 76px;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: bowPulse 1.2s infinite ease-in-out;
+  animation: bowGlowPulse 1.4s infinite ease-in-out;
+}
+
+.gift-knot-aura {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, rgba(255, 143, 0, 0.4) 50%, transparent 70%);
+  filter: blur(8px);
+  animation: knotAuraSpin 4s linear infinite;
+}
+
+@keyframes knotAuraSpin {
+  0% { transform: rotate(0deg) scale(0.9); }
+  50% { transform: rotate(180deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(0.9); }
 }
 
 .gift-bow-star {
+  position: relative;
+  z-index: 2;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 0 14px rgba(255, 215, 0, 0.85));
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1));
 }
 
-@keyframes bowPulse {
+@keyframes bowGlowPulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
+  50% { transform: scale(1.12); }
 }
 
+/* Placa Emblema Tallada en Oro y Madera Festiva */
 .gift-game-badge {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 10px;
+  padding: 24px 34px;
+  background: radial-gradient(circle at center, rgba(14, 30, 60, 0.98) 0%, rgba(5, 14, 28, 0.99) 100%);
+  border: 3.5px solid var(--seal-theme-color, #FFD700);
+  border-radius: 26px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.95),
+    0 0 40px var(--seal-theme-color, rgba(255, 215, 0, 0.6)),
+    inset 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+/* Remaches y Adornos de Esquina en la Placa */
+.gift-badge-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: #FFD700;
+  border-style: solid;
+}
+
+.gift-badge-corner.tl { top: 8px; left: 8px; border-width: 3px 0 0 3px; }
+.gift-badge-corner.tr { top: 8px; right: 8px; border-width: 3px 3px 0 0; }
+.gift-badge-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 3px 3px; }
+.gift-badge-corner.br { bottom: 8px; right: 8px; border-width: 0 3px 3px 0; }
+
+.gift-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gift-icon-glow {
+  position: absolute;
+  inset: -15px;
+  background: radial-gradient(circle, var(--seal-theme-color, #FFD700) 0%, transparent 70%);
+  opacity: 0.6;
+  filter: blur(10px);
 }
 
 .gift-game-icon {
-  font-size: 2.8rem;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.6));
-  animation: gameIconBounce 0.8s infinite alternate ease-in-out;
+  font-size: 3.6rem;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.8));
+  animation: gameIconLevitate 1s infinite alternate ease-in-out;
 }
 
-@keyframes gameIconBounce {
-  from { transform: translateY(0); }
-  to { transform: translateY(-6px); }
+@keyframes gameIconLevitate {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-8px) scale(1.1); }
 }
 
 .gift-game-title {
   font-family: var(--font-festive), var(--font-main);
-  font-size: clamp(1.3rem, 3.8vw, 1.7rem);
+  font-size: clamp(1.4rem, 4.2vw, 1.9rem);
   color: #FFFFFF;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 20px var(--seal-theme-color, #FFD700);
+  text-shadow: 
+    0 3px 12px rgba(0, 0, 0, 0.9),
+    0 0 25px var(--seal-theme-color, #FFD700);
   margin: 0;
+  letter-spacing: 0.5px;
 }
 
-.gift-game-sub {
-  font-size: 0.8rem;
+/* Píldora Luminosa de Estado */
+.gift-unwrapping-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.25) 0%, rgba(255, 143, 0, 0.35) 100%);
+  border: 1.5px solid #FFD700;
+  padding: 5px 16px;
+  border-radius: 30px;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.gift-pill-dot {
+  width: 8px;
+  height: 8px;
+  background: #FFD700;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #FFD700;
+  animation: pillDotBlink 0.8s infinite alternate;
+}
+
+@keyframes pillDotBlink {
+  from { opacity: 0.4; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1.3); }
+}
+
+.gift-pill-text {
+  font-size: 0.78rem;
   font-weight: 900;
-  color: #FFD700;
-  letter-spacing: 1px;
-}
-
-/* Chispas Mágicas en las Esquinas del Sello */
-.gift-magic-sparkle {
-  position: absolute;
-  color: #FFD700;
-  font-size: 1.3rem;
-  pointer-events: none;
-  animation: sparkleFloat 1s infinite alternate ease-in-out;
-}
-
-.gift-magic-sparkle.s1 { top: 8px; left: 12px; }
-.gift-magic-sparkle.s2 { top: 8px; right: 12px; animation-delay: 0.2s; }
-.gift-magic-sparkle.s3 { bottom: 8px; left: 12px; animation-delay: 0.4s; }
-.gift-magic-sparkle.s4 { bottom: 8px; right: 12px; animation-delay: 0.6s; }
-
-@keyframes sparkleFloat {
-  from { transform: scale(0.8) rotate(0deg); opacity: 0.6; }
-  to { transform: scale(1.2) rotate(45deg); opacity: 1; }
+  color: #FFF9C4;
+  letter-spacing: 1.2px;
 }
 
 /* ==========================================================================
-   ESTADOS DE ANIMACIÓN: WRAPPING (Cerrar Regalo) vs UNWRAPPING (Abrir Regalo)
+   SECUENCIA DINÁMICA DE APERTURA: WRAPPING (Cierre) vs UNWRAPPING (Apertura)
    ========================================================================== */
 
-/* Estado 1: Cierre envolvente */
+/* 1. Estado de Cierre Envolvente (Wrapping) */
 .gift-transition-overlay.is-wrapping .gift-curtain-left,
 .gift-transition-overlay.is-wrapping .gift-curtain-right {
   transform: translateX(0);
@@ -2403,40 +2667,69 @@ html, body {
 }
 
 .gift-transition-overlay.is-wrapping .gift-center-box {
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-50%, -50%) scale(1) rotate(0deg);
   opacity: 1;
 }
 
-/* Estado 2: Desenvolvimiento y Apertura Mágica */
-.gift-transition-overlay.is-unwrapping .gift-center-box {
-  transform: translate(-50%, -50%) scale(1.35);
-  opacity: 0;
-  filter: blur(8px);
-  transition: all 0.35s cubic-bezier(0.4, 0, 1, 1);
+.gift-transition-overlay.is-wrapping .gift-shockwave-ring {
+  animation: shockwavePulse 0.6s ease-out;
 }
 
-.gift-transition-overlay.is-unwrapping .gift-ribbon-horizontal,
+@keyframes shockwavePulse {
+  0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(4.5); opacity: 0; }
+}
+
+/* 2. Estado de Desenvolvimiento y Desatado de Moño (Unwrapping) */
+.gift-transition-overlay.is-unwrapping .gift-backdrop-glow {
+  opacity: 1;
+}
+
+.gift-transition-overlay.is-unwrapping .gift-luxury-bow {
+  animation: bowUntieExplode 0.4s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@keyframes bowUntieExplode {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  40% { transform: scale(1.4) rotate(15deg); opacity: 1; filter: brightness(2); }
+  100% { transform: scale(2.2) rotate(35deg); opacity: 0; filter: blur(12px); }
+}
+
+.gift-transition-overlay.is-unwrapping .gift-center-box {
+  transform: translate(-50%, -50%) scale(1.4) rotate(6deg);
+  opacity: 0;
+  filter: blur(10px);
+  transition: all 0.38s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.gift-transition-overlay.is-unwrapping .gift-ribbon-horizontal {
+  opacity: 0;
+  transform: translateY(-50%) scaleX(1.3) scaleY(0);
+  transition: all 0.32s ease-out;
+}
+
 .gift-transition-overlay.is-unwrapping .gift-ribbon-vertical {
   opacity: 0;
-  transform: scale(1.2);
-  transition: all 0.28s ease-out;
+  transform: translateX(-50%) scaleY(1.3) scaleX(0);
+  transition: all 0.32s ease-out;
 }
 
 .gift-transition-overlay.is-unwrapping .gift-curtain-left {
-  transform: translateX(-102%);
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-104%);
+  transition: transform 0.68s cubic-bezier(0.32, 0, 0.15, 1);
 }
 
 .gift-transition-overlay.is-unwrapping .gift-curtain-right {
-  transform: translateX(102%);
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(104%);
+  transition: transform 0.68s cubic-bezier(0.32, 0, 0.15, 1);
 }
 
-/* Estado 3: Finalización */
+/* 3. Finalización */
 .gift-transition-overlay.is-finished {
   opacity: 0;
-  transition: opacity 0.3s ease-out;
+  transition: opacity 0.32s ease-out;
 }
+
 
 
 
