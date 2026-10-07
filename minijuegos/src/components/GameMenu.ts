@@ -83,16 +83,6 @@ export class GameMenu {
       category: "INGENIO & MEMORIA",
       tagline: "¡Encuentra las parejas de cartas mágicas!",
       gemColor: "#D500F9"
-    },
-    {
-      id: "village-runner",
-      title: "La Carrera Mágica de la Villa",
-      imageSrc: "./assets/images/icon-carrera-magica.png",
-      frameImageSrc: "./assets/images/marco-juego-verde.png",
-      themeClass: "theme-forest-green",
-      category: "RUNNER 2.5D",
-      tagline: "¡Esquiva, salta y deslízate en el trineo mágico!",
-      gemColor: "#FFB300"
     }
   ];
 
