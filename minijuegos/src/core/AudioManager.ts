@@ -213,45 +213,38 @@ export class AudioManager {
   }
 
   /**
-   * Sonido feroz de corte y desgarre con garras (Claw Slash / Garou Claw Strike)
-   * Simula 3 ráfagas de cortes afilados que desgarran el paquete a gran velocidad.
+   * Sonido de niño abriendo un regalo con emoción y rapidez (Excited Kid Unboxing)
+   * Ráfaga física y alegre de chasquido de cinta + 3 desgarres sucesivos de papel + campanas de revelación
    */
-  public playClawSlash(): void {
-    Haptics.impact();
+  public playExcitedKidUnwrap(): void {
+    Haptics.celebration();
     if (this.isMuted) return;
     this.unlockAudio();
     if (!this.ctx) return;
 
     const t = this.ctx.currentTime;
 
-    // Ráfagas de corte de cuchillas / garras (3 cortes rápidos)
-    [0, 0.06, 0.13].forEach((offset, idx) => {
+    // 1. Chasquido elástico del lazo rompiéndose (Pop!)
+    const oscPop = this.ctx.createOscillator();
+    const gainPop = this.ctx.createGain();
+    oscPop.type = "sine";
+    oscPop.frequency.setValueAtTime(420, t);
+    oscPop.frequency.exponentialRampToValueAtTime(80, t + 0.08);
+    gainPop.gain.setValueAtTime(0.4, t);
+    gainPop.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    oscPop.connect(gainPop);
+    gainPop.connect(this.ctx.destination);
+    oscPop.start(t);
+    oscPop.stop(t + 0.08);
+
+    // Función auxiliar para generar ráfagas de papel rasgado ultra realista
+    const createPaperTear = (time: number, dur: number, fLow: number, fHigh: number, vol: number) => {
       if (!this.ctx) return;
-      const startTime = t + offset;
-
-      // 1. Silbido y corte metálico/afilado (Swish de la garra)
-      const osc = this.ctx.createOscillator();
-      const oscGain = this.ctx.createGain();
-
-      osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(2800 - idx * 400, startTime);
-      osc.frequency.exponentialRampToValueAtTime(160, startTime + 0.14);
-
-      oscGain.gain.setValueAtTime(0.35, startTime);
-      oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.14);
-
-      osc.connect(oscGain);
-      oscGain.connect(this.ctx.destination);
-
-      osc.start(startTime);
-      osc.stop(startTime + 0.14);
-
-      // 2. Ruido blanco de desgarre de tela/papel por el filo de la garra
-      const bufferSize = Math.floor(this.ctx.sampleRate * 0.12);
+      const bufferSize = Math.floor(this.ctx.sampleRate * dur);
       const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1);
+        data[i] = (Math.random() * 2 - 1) * (Math.random() > 0.25 ? 1 : 0.3);
       }
 
       const noise = this.ctx.createBufferSource();
@@ -259,20 +252,46 @@ export class AudioManager {
 
       const filter = this.ctx.createBiquadFilter();
       filter.type = "bandpass";
-      filter.frequency.setValueAtTime(3200, startTime);
-      filter.frequency.linearRampToValueAtTime(800, startTime + 0.12);
-      filter.Q.setValueAtTime(4.0, startTime);
+      filter.frequency.setValueAtTime(fLow, time);
+      filter.frequency.linearRampToValueAtTime(fHigh, time + dur);
+      filter.Q.setValueAtTime(2.8, time);
 
-      const noiseGain = this.ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.45, startTime);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.12);
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(vol, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
 
       noise.connect(filter);
-      filter.connect(noiseGain);
-      noiseGain.connect(this.ctx.destination);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
 
-      noise.start(startTime);
-      noise.stop(startTime + 0.12);
+      noise.start(time);
+      noise.stop(time + dur);
+    };
+
+    // 2. Tres desgarres rápidos sucesivos (Capa por Capa)
+    createPaperTear(t + 0.04, 0.14, 1100, 2400, 0.5);  // Primer jalón de cinta y tira central
+    createPaperTear(t + 0.14, 0.22, 1800, 3600, 0.6);  // Desgarre veloz de la solapa izquierda
+    createPaperTear(t + 0.26, 0.25, 2200, 4400, 0.55); // Desgarre final de la solapa derecha y fondo
+
+    // 3. Arpegio mágico de descubrimiento cuando aparece el juguete
+    const chords = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+    chords.forEach((freq, idx) => {
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const noteTime = t + 0.28 + idx * 0.04;
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, noteTime);
+
+      gain.gain.setValueAtTime(0.25, noteTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(noteTime);
+      osc.stop(noteTime + 0.38);
     });
   }
 

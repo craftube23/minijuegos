@@ -359,10 +359,10 @@ export class ScreenTransition {
   }
 
   /**
-   * 5. Transición Kiosco -> Minijuegos: ¡GARRAS FEROCES TIPO GAROU DESGARRANDO EL PAQUETE EN PEDAZOS!
-   * Envuelve el regalo y una ráfaga de garras corta el paquete en múltiples tajadas y fragmentos en 3D.
+   * 5. Transición Kiosco -> Minijuegos: ¡DESEMPAQUE EMOCIONADO DE UN NIÑO CAPA POR CAPA!
+   * Enfoque en primer plano del paquete de regalo que es desgarrado con rapidez y euforia capa por capa.
    */
-  public runClawSlashGameTransition(
+  public runExcitedKidGiftTransition(
     container: HTMLElement,
     gameData: { title: string; icon: string; themeColor?: string; subtitle?: string },
     particles: ParticleSystem,
@@ -370,96 +370,92 @@ export class ScreenTransition {
     onComplete: () => void
   ): void {
     const overlay = document.createElement("div");
-    overlay.className = "gift-transition-overlay claw-mode";
-    const subText = gameData.subtitle || "¡DESGARRANDO JUGUETE MÁGICO!";
+    overlay.className = "gift-transition-overlay kid-unboxing-mode";
+    const subText = gameData.subtitle || "¡ABRIENDO JUGUETE MÁGICO!";
     
     overlay.innerHTML = `
-      <!-- Destello de Fondo God Rays -->
-      <div class="gift-backdrop-glow claw-bg-glow"></div>
+      <!-- Destello Radiante de Fondo y Partículas Mágicas -->
+      <div class="gift-backdrop-glow kid-bg-glow"></div>
 
-      <!-- Flash de Energía y Corte de Garra de Alta Intensidad -->
-      <div class="claw-screen-flash"></div>
+      <!-- Capa 0: Caja Interior Dorada con Brillo Mágico que se asoma -->
+      <div class="kid-inner-gift-box">
+        <div class="kid-inner-glow"></div>
+        <div class="kid-inner-toy-preview">
+          <span class="kid-preview-icon">${gameData.icon}</span>
+        </div>
+      </div>
 
-      <!-- 6 Tiras y Fragmentos Diagonales de Papel de Regalo Cortados por Garras -->
-      <div class="claw-shred-slice slice-1">
+      <!-- Capa 1: Capas de Papel de Regalo Navideño que se Desgarran una a una -->
+      
+      <!-- 1.1 Solapa de Fondo Inferior -->
+      <div class="kid-paper-layer layer-bottom">
         <div class="gift-paper-texture"></div>
         <div class="gift-paper-damask"></div>
-        <div class="claw-cut-bleed top"></div>
-        <div class="claw-cut-bleed bottom"></div>
+        <div class="kid-torn-fringe top"></div>
       </div>
 
-      <div class="claw-shred-slice slice-2">
+      <!-- 1.2 Solapa Izquierda (Se desgasta y arruga a la izquierda) -->
+      <div class="kid-paper-layer layer-left">
         <div class="gift-paper-texture"></div>
         <div class="gift-paper-damask"></div>
-        <div class="claw-cut-bleed top"></div>
-        <div class="claw-cut-bleed bottom"></div>
+        <div class="kid-torn-fringe right"></div>
+        <div class="kid-paper-crease c1"></div>
       </div>
 
-      <div class="claw-shred-slice slice-3">
+      <!-- 1.3 Solapa Derecha (Se desgasta y arruga a la derecha) -->
+      <div class="kid-paper-layer layer-right">
         <div class="gift-paper-texture"></div>
         <div class="gift-paper-damask"></div>
-        <div class="claw-cut-bleed top"></div>
-        <div class="claw-cut-bleed bottom"></div>
+        <div class="kid-torn-fringe left"></div>
+        <div class="kid-paper-crease c2"></div>
       </div>
 
-      <div class="claw-shred-slice slice-4">
+      <!-- 1.4 Tira Central de Rasgado Rápido (Se arranca primero hacia arriba) -->
+      <div class="kid-paper-layer layer-center-strip">
         <div class="gift-paper-texture"></div>
         <div class="gift-paper-damask"></div>
-        <div class="claw-cut-bleed top"></div>
-        <div class="claw-cut-bleed bottom"></div>
+        <div class="kid-torn-fringe left"></div>
+        <div class="kid-torn-fringe right"></div>
+        <div class="kid-rip-tear-line"></div>
       </div>
 
-      <div class="claw-shred-slice slice-5">
-        <div class="gift-paper-texture"></div>
-        <div class="gift-paper-damask"></div>
-        <div class="claw-cut-bleed top"></div>
-        <div class="claw-cut-bleed bottom"></div>
+      <!-- 1.5 Manitas Rápidas que Desgarran con Emoción -->
+      <div class="kid-rapid-hand hand-left-rip">
+        <div class="kid-glove-shape"></div>
+      </div>
+      <div class="kid-rapid-hand hand-right-rip">
+        <div class="kid-glove-shape"></div>
       </div>
 
-      <!-- 4 Estelas de Garras de Energía Brillante (Tipo Garou / Bestia Cortante) -->
-      <div class="claw-slash-trail claw-trail-1">
-        <div class="claw-blade-glow"></div>
-        <div class="claw-sparks"></div>
-      </div>
-      <div class="claw-slash-trail claw-trail-2">
-        <div class="claw-blade-glow"></div>
-        <div class="claw-sparks"></div>
-      </div>
-      <div class="claw-slash-trail claw-trail-3">
-        <div class="claw-blade-glow"></div>
-        <div class="claw-sparks"></div>
-      </div>
-      <div class="claw-slash-trail claw-trail-4">
-        <div class="claw-blade-glow"></div>
-        <div class="claw-sparks"></div>
-      </div>
-
-      <!-- Virutas y Pedazos Cortados Disparados por el Zarpazo -->
-      <div class="claw-flying-shard shard-1"></div>
-      <div class="claw-flying-shard shard-2"></div>
-      <div class="claw-flying-shard shard-3"></div>
-      <div class="claw-flying-shard shard-4"></div>
-      <div class="claw-flying-shard shard-5"></div>
-      <div class="claw-flying-shard shard-6"></div>
-      <div class="claw-flying-shard shard-7"></div>
-      <div class="claw-flying-shard shard-8"></div>
-
-      <!-- Cintas de Satén Dorado Cortadas por la Garra -->
-      <div class="gift-ribbon gift-ribbon-horizontal claw-cut-ribbon">
+      <!-- Cintas de Satén que se parten y revientan con el primer tirón -->
+      <div class="kid-ribbon kid-ribbon-h">
         <div class="gift-ribbon-stitch top"></div>
         <div class="gift-ribbon-glint"></div>
         <div class="gift-ribbon-stitch bottom"></div>
+        <div class="kid-ribbon-snap-break"></div>
       </div>
-      <div class="gift-ribbon gift-ribbon-vertical claw-cut-ribbon">
+
+      <div class="kid-ribbon kid-ribbon-v">
         <div class="gift-ribbon-stitch left"></div>
         <div class="gift-ribbon-glint-v"></div>
         <div class="gift-ribbon-stitch right"></div>
+        <div class="kid-ribbon-snap-break"></div>
       </div>
 
-      <div class="gift-shockwave-ring"></div>
+      <!-- Retazos y Tiras de Papel Rasgado que Vuelan por los Aires -->
+      <div class="kid-paper-shred shred-1"></div>
+      <div class="kid-paper-shred shred-2"></div>
+      <div class="kid-paper-shred shred-3"></div>
+      <div class="kid-paper-shred shred-4"></div>
+      <div class="kid-paper-shred shred-5"></div>
+      <div class="kid-paper-shred shred-6"></div>
+      <div class="kid-paper-shred shred-7"></div>
+      <div class="kid-paper-shred shred-8"></div>
+      <div class="kid-paper-shred shred-9"></div>
+      <div class="kid-paper-shred shred-10"></div>
 
-      <!-- Gran Moño 3D y Sello Mágico del Minijuego -->
-      <div class="gift-center-box" style="--seal-theme-color: ${gameData.themeColor || '#FFD700'}">
+      <!-- Moño 3D y Placa con el Título del Minijuego -->
+      <div class="gift-center-box kid-center-box" style="--seal-theme-color: ${gameData.themeColor || '#FFD700'}">
         <div class="gift-floating-particles">
           <span class="g-sparkle s1">✨</span>
           <span class="g-sparkle s2">⭐</span>
@@ -508,45 +504,44 @@ export class ScreenTransition {
     container.appendChild(overlay);
     this.audio.playWhoosh();
 
-    // 1. Envolver paquete
+    // 1. Envolver con suavidad (0 a 600ms)
     requestAnimationFrame(() => {
       overlay.classList.add("is-wrapping");
     });
 
-    // 2. Punto medio: Pantalla cubierta
+    // 2. Punto medio: Pantalla cubierta por el regalo completo
     setTimeout(() => {
       onMidpoint();
 
-      // Pausa para ver la tarjeta del juego
+      // Pausa breve para apreciar el paquete cerrado
       setTimeout(() => {
-        // ¡ZARPAZO DE GARRAS CORTANDO EL PAQUETE!
-        this.audio.playClawSlash();
-        setTimeout(() => this.audio.playGiftUnwrap(), 180);
+        // 3. ¡PUM! Comienza el desgarre rápido capa por capa
+        this.audio.playExcitedKidUnwrap();
 
         const bounds = container.getBoundingClientRect();
-        particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FF2A4D", 50);
+        particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 50);
         particles.emitConfetti(bounds.width, 80);
 
-        // Activar animación de corte feroz por garras
+        // Desencadenar la secuencia de desgarre por capas
         overlay.classList.remove("is-wrapping");
-        overlay.classList.add("is-claw-slashing");
+        overlay.classList.add("is-kid-unboxing");
 
-        // 4. Finalización limpia
+        // 4. Finalización limpia revelando el juego
         setTimeout(() => {
           overlay.classList.add("is-finished");
           setTimeout(() => {
             overlay.remove();
             onComplete();
           }, 400);
-        }, 900);
+        }, 950);
 
-      }, 850);
+      }, 800);
 
     }, 600);
   }
 
   /**
-   * Alias de compatibilidad: redirige al zarpazo de garras para juegos
+   * Alias de compatibilidad: redirige al desempaque rápido de niño para los juegos
    */
   public runGiftUnwrapTransition(
     container: HTMLElement,
@@ -555,6 +550,19 @@ export class ScreenTransition {
     onMidpoint: () => void,
     onComplete: () => void
   ): void {
-    this.runClawSlashGameTransition(container, gameData, particles, onMidpoint, onComplete);
+    this.runExcitedKidGiftTransition(container, gameData, particles, onMidpoint, onComplete);
+  }
+
+  /**
+   * Alias para llamadas de zarpazo de garras si existen
+   */
+  public runClawSlashGameTransition(
+    container: HTMLElement,
+    gameData: { title: string; icon: string; themeColor?: string; subtitle?: string },
+    particles: ParticleSystem,
+    onMidpoint: () => void,
+    onComplete: () => void
+  ): void {
+    this.runExcitedKidGiftTransition(container, gameData, particles, onMidpoint, onComplete);
   }
 }
