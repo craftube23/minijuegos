@@ -182,16 +182,39 @@ class KioskApp {
       this.goToAttractScreen();
     };
 
-    // 3. Al seleccionar un juego en el Menú → Mostrar Modal de Instrucciones Visuales (~5s)
+    // 3. Al seleccionar un juego en el Menú → Efecto de Desenvolvimiento de Regalo / Telón antes de mostrar Instrucciones
     this.gameMenu.onSelectGame = (gameId: string) => {
       if (this.isTransitioning) return;
-      this.instructionsModal.show(gameId);
+      this.isTransitioning = true;
+
+      const mainContainer = document.getElementById("kiosk-main") || document.body;
+      const gameInfo = this.getGameTransitionInfo(gameId);
+
+      // Ejecutar la transición mágica de regalo ANTES de entrar al modal de instrucciones
+      ScreenTransition.getInstance().runGiftUnwrapTransition(
+        mainContainer,
+        gameInfo,
+        this.particles,
+        () => {
+          // Punto medio: Pantalla 100% cubierta por el regalo. Cambiar pantalla de forma invisible
+          this.gameMenu.hide();
+          this.instructionsModal.show(gameId);
+        },
+        () => {
+          // El regalo se abre revelando el modal de instrucciones
+          this.isTransitioning = false;
+        }
+      );
     };
 
     // 4. Cuando el usuario confirma "¡A JUGAR! ▶" en el modal de instrucciones
     this.instructionsModal.onStartGame = (gameId: string) => {
       this.isTransitioning = true;
       this.launchGameWithCountdown(gameId);
+    };
+
+    this.instructionsModal.onBack = () => {
+      this.goToMenu();
     };
 
     // 5. Al pulsar el botón "Menú" en la barra superior
@@ -317,7 +340,7 @@ class KioskApp {
   }
 
   /**
-   * Inicia el minijuego con la transición de regalo navideño y cuenta regresiva cinemática 3-2-1
+   * Inicia el minijuego con la cuenta regresiva cinemática 3-2-1
    */
   public launchGameWithCountdown(gameId: string): void {
     const game = this.games.get(gameId);
@@ -326,35 +349,24 @@ class KioskApp {
       return;
     }
 
+    this.currentGame = game;
+    this.appState = "playing";
+
+    this.attractScreen.hide();
+    this.gameMenu.hide();
+    this.gameOverModal.hide();
+    this.instructionsModal.hide();
+
+    this.input.reset();
+    this.resetInactivity();
+
     const mainContainer = document.getElementById("kiosk-main") || document.body;
-    const gameInfo = this.getGameTransitionInfo(gameId);
 
-    // 1. Transición Cinemática: Telón / Desenvolvimiento de Regalo Navideño
-    ScreenTransition.getInstance().runGiftUnwrapTransition(
-      mainContainer,
-      gameInfo,
-      this.particles,
-      () => {
-        // Punto medio: La pantalla está 100% cubierta por el regalo
-        this.currentGame = game;
-        this.appState = "playing";
-
-        this.attractScreen.hide();
-        this.gameMenu.hide();
-        this.gameOverModal.hide();
-        this.instructionsModal.hide();
-
-        this.input.reset();
-        this.resetInactivity();
-      },
-      () => {
-        // Al terminar de abrir el regalo, arrancar cuenta regresiva arcade 3-2-1
-        ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
-          this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
-          this.isTransitioning = false;
-        });
-      }
-    );
+    // Ejecutar cuenta regresiva arcade 3-2-1 antes de activar el tiempo del juego
+    ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+      this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
+      this.isTransitioning = false;
+    });
   }
 
   /**
