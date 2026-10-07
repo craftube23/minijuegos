@@ -213,8 +213,8 @@ export class AudioManager {
   }
 
   /**
-   * Sonido de niño abriendo un regalo con emoción y rapidez (Excited Kid Unboxing)
-   * Ráfaga física y alegre de chasquido de cinta + 3 desgarres sucesivos de papel + campanas de revelación
+   * Sonido de desempaque de regalo pausado y detallado capa por capa (Layer-by-layer Unboxing)
+   * Diseñado para una animación clara y visible donde se aprecia cada etapa del rasgado.
    */
   public playExcitedKidUnwrap(): void {
     Haptics.celebration();
@@ -224,27 +224,14 @@ export class AudioManager {
 
     const t = this.ctx.currentTime;
 
-    // 1. Chasquido elástico del lazo rompiéndose (Pop!)
-    const oscPop = this.ctx.createOscillator();
-    const gainPop = this.ctx.createGain();
-    oscPop.type = "sine";
-    oscPop.frequency.setValueAtTime(420, t);
-    oscPop.frequency.exponentialRampToValueAtTime(80, t + 0.08);
-    gainPop.gain.setValueAtTime(0.4, t);
-    gainPop.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
-    oscPop.connect(gainPop);
-    gainPop.connect(this.ctx.destination);
-    oscPop.start(t);
-    oscPop.stop(t + 0.08);
-
-    // Función auxiliar para generar ráfagas de papel rasgado ultra realista
+    // Función auxiliar para generar ráfagas de papel rasgado realista
     const createPaperTear = (time: number, dur: number, fLow: number, fHigh: number, vol: number) => {
       if (!this.ctx) return;
       const bufferSize = Math.floor(this.ctx.sampleRate * dur);
       const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * (Math.random() > 0.25 ? 1 : 0.3);
+        data[i] = (Math.random() * 2 - 1) * (Math.random() > 0.2 ? 1 : 0.3);
       }
 
       const noise = this.ctx.createBufferSource();
@@ -254,7 +241,7 @@ export class AudioManager {
       filter.type = "bandpass";
       filter.frequency.setValueAtTime(fLow, time);
       filter.frequency.linearRampToValueAtTime(fHigh, time + dur);
-      filter.Q.setValueAtTime(2.8, time);
+      filter.Q.setValueAtTime(2.5, time);
 
       const gain = this.ctx.createGain();
       gain.gain.setValueAtTime(vol, time);
@@ -268,30 +255,47 @@ export class AudioManager {
       noise.stop(time + dur);
     };
 
-    // 2. Tres desgarres rápidos sucesivos (Capa por Capa)
-    createPaperTear(t + 0.04, 0.14, 1100, 2400, 0.5);  // Primer jalón de cinta y tira central
-    createPaperTear(t + 0.14, 0.22, 1800, 3600, 0.6);  // Desgarre veloz de la solapa izquierda
-    createPaperTear(t + 0.26, 0.25, 2200, 4400, 0.55); // Desgarre final de la solapa derecha y fondo
+    // 1. Chasquido de cinta rompiéndose (t = 0ms)
+    const oscPop = this.ctx.createOscillator();
+    const gainPop = this.ctx.createGain();
+    oscPop.type = "sine";
+    oscPop.frequency.setValueAtTime(480, t);
+    oscPop.frequency.exponentialRampToValueAtTime(90, t + 0.12);
+    gainPop.gain.setValueAtTime(0.4, t);
+    gainPop.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    oscPop.connect(gainPop);
+    gainPop.connect(this.ctx.destination);
+    oscPop.start(t);
+    oscPop.stop(t + 0.12);
 
-    // 3. Arpegio mágico de descubrimiento cuando aparece el juguete
+    // 2. Primer desgarre: Tira central de papel abriéndose (t = 0.5s)
+    createPaperTear(t + 0.5, 0.45, 900, 2400, 0.5);
+
+    // 3. Segundo desgarre: Solapa izquierda desprendiéndose (t = 1.2s)
+    createPaperTear(t + 1.2, 0.55, 1400, 3200, 0.55);
+
+    // 4. Tercer desgarre: Solapa derecha y fondo despegándose (t = 1.9s)
+    createPaperTear(t + 1.9, 0.6, 1800, 4200, 0.6);
+
+    // 5. Fanfarria mágica al revelarse el juguete (t = 2.6s)
     const chords = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
     chords.forEach((freq, idx) => {
       if (!this.ctx) return;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      const noteTime = t + 0.28 + idx * 0.04;
+      const noteTime = t + 2.5 + idx * 0.08;
 
       osc.type = "triangle";
       osc.frequency.setValueAtTime(freq, noteTime);
 
-      gain.gain.setValueAtTime(0.25, noteTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.35);
+      gain.gain.setValueAtTime(0.28, noteTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.5);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
       osc.start(noteTime);
-      osc.stop(noteTime + 0.38);
+      osc.stop(noteTime + 0.52);
     });
   }
 

@@ -504,40 +504,40 @@ export class ScreenTransition {
     container.appendChild(overlay);
     this.audio.playWhoosh();
 
-    // 1. Envolver con suavidad (0 a 600ms)
+    // 1. Envolver el paquete (0 a 700ms)
     requestAnimationFrame(() => {
       overlay.classList.add("is-wrapping");
     });
 
-    // 2. Punto medio: Pantalla cubierta por el regalo completo
+    // 2. Punto medio: Pantalla 100% cubierta por el regalo completo
     setTimeout(() => {
       onMidpoint();
 
-      // Pausa breve para apreciar el paquete cerrado
+      // Pausa generosa (1.2s) para que el jugador aprecie en primer plano el regalo cerrado con su moño y sello
       setTimeout(() => {
-        // 3. ¡PUM! Comienza el desgarre rápido capa por capa
+        // 3. Comienza la secuencia de desgarre pausada y visible capa por capa
         this.audio.playExcitedKidUnwrap();
 
         const bounds = container.getBoundingClientRect();
-        particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 50);
-        particles.emitConfetti(bounds.width, 80);
+        particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 40);
+        particles.emitConfetti(bounds.width, 60);
 
-        // Desencadenar la secuencia de desgarre por capas
+        // Desencadenar la animación progresiva capa por capa
         overlay.classList.remove("is-wrapping");
         overlay.classList.add("is-kid-unboxing");
 
-        // 4. Finalización limpia revelando el juego
+        // 4. Finalización suave y limpia revelando el juego
         setTimeout(() => {
           overlay.classList.add("is-finished");
           setTimeout(() => {
             overlay.remove();
             onComplete();
-          }, 400);
-        }, 950);
+          }, 500);
+        }, 3400);
 
-      }, 800);
+      }, 1200);
 
-    }, 600);
+    }, 700);
   }
 
   /**
