@@ -1119,6 +1119,13 @@ html, body {
   box-shadow: 0 6px 18px rgba(255, 65, 108, 0.5);
 }
 
+.btn-change-song {
+  background: linear-gradient(135deg, #00C853 0%, #00897B 100%);
+  border: 2.5px solid var(--color-gold);
+  color: var(--color-white);
+  box-shadow: 0 6px 18px rgba(0, 200, 83, 0.5);
+}
+
 .btn-editor-action {
   background: linear-gradient(135deg, #FFD700 0%, #FF9100 100%);
   border: 2.5px solid #FFFFFF;

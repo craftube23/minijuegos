@@ -346,6 +346,39 @@ export class BellSymphonyGame extends BaseGame {
     this.particles.emitConfetti(this.width, 30);
   }
 
+  /**
+   * Reinicia la última canción o partitura jugada inmediatamente
+   */
+  public replayLastSong(): void {
+    if (this.bgAudioElement) {
+      this.bgAudioElement.pause();
+      this.bgAudioElement = null;
+    }
+    this.score = 0;
+    this.isRunning = true;
+    this.isGameOver = false;
+    this.highScore = this.highScore;
+    this.particles.clear();
+    this.recalculateLayout();
+
+    if (this.isCustomChartPlaying && this.lastCustomNotes.length > 0) {
+      this.startCustomChart(this.lastCustomNotes, this.lastCustomSongFile, this.bpm);
+    } else {
+      this.startSong(this.selectedSongIndex);
+    }
+  }
+
+  /**
+   * Regresa al selector interno de canciones de Sinfonía de Campanas
+   */
+  public goToSongSelect(): void {
+    if (this.bgAudioElement) {
+      this.bgAudioElement.pause();
+      this.bgAudioElement = null;
+    }
+    this.start();
+  }
+
   public openChartEditor(defaultSongFile?: string, initialNotes?: ChartNoteRecord[]): void {
     if (this.bgAudioElement) {
       this.bgAudioElement.pause();

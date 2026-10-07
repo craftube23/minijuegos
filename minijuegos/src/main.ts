@@ -210,12 +210,29 @@ class KioskApp {
       this.goToMenu();
     };
 
-    // 6. Al terminar una partida: "Jugar de nuevo" o "Otros juegos"
+    // 6. Al terminar una partida: "Jugar de nuevo", "Cambiar canción" o "Otros juegos"
     this.gameOverModal.onPlayAgain = () => {
       if (this.currentGame) {
         this.launchGameDirect(this.currentGame.id);
       } else {
         this.goToMenu();
+      }
+    };
+
+    this.gameOverModal.onChangeSong = () => {
+      const bellGame = this.games.get("bell-symphony") as BellSymphonyGame | undefined;
+      if (bellGame) {
+        if (this.currentGame !== bellGame) {
+          if (this.currentGame) this.currentGame.destroy();
+          this.currentGame = bellGame;
+          this.appState = "playing";
+          this.attractScreen.hide();
+          this.gameMenu.hide();
+          this.gameOverModal.hide();
+        } else {
+          this.gameOverModal.hide();
+        }
+        bellGame.goToSongSelect();
       }
     };
 
@@ -348,7 +365,11 @@ class KioskApp {
 
     const mainContainer = document.getElementById("kiosk-main") || document.body;
     ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
-      this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
+      if (game instanceof BellSymphonyGame) {
+        game.replayLastSong();
+      } else {
+        game.start(KIOSK_CONFIG.defaultGameDurationSeconds);
+      }
     });
   }
 

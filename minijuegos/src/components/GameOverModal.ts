@@ -19,6 +19,7 @@ export class GameOverModal {
   private audio: AudioManager;
   public onPlayAgain?: () => void;
   public onBackToMenu?: () => void;
+  public onChangeSong?: () => void;
   public onEditAgain?: (songFile?: string, customNotes?: any[]) => void;
 
   constructor(containerId: string, audio: AudioManager) {
@@ -80,12 +81,15 @@ export class GameOverModal {
 
         <!-- ACCIONES / BOTONES -->
         <div class="modal-actions ${isRhythmGame ? "modal-actions-rhythm" : ""}">
-          <button id="btn-modal-again" class="btn-action btn-again" title="Jugar otra vez">
+          <button id="btn-modal-again" class="btn-action btn-again" title="${isRhythmGame ? "Reintentar esta canción" : "Jugar otra vez"}">
             ${getIconSvg("replay", { size: 22, color: "#ffffff" })}
-            <span>${isCustom ? "JUGAR DE NUEVO" : "¡VOLVER A INTENTAR!"}</span>
+            <span>${isRhythmGame ? "¡REINTENTAR CANCIÓN!" : "¡VOLVER A INTENTAR!"}</span>
           </button>
 
           ${isRhythmGame ? `
+            <button id="btn-modal-change-song" class="btn-action btn-change-song" title="Elegir otra canción de campanas">
+              <span>🎵 CAMBIAR CANCIÓN</span>
+            </button>
             <button id="btn-modal-editor" class="btn-action btn-editor-action" title="Abrir el editor con tus notas">
               <span>🛠️ ${isCustom ? "SEGUIR EDITANDO / GRABAR" : "MODO GRABADOR"}</span>
             </button>
@@ -114,6 +118,7 @@ export class GameOverModal {
 
   private setupEvents(result: GameResult): void {
     const btnAgain = this.container.querySelector("#btn-modal-again");
+    const btnChangeSong = this.container.querySelector("#btn-modal-change-song");
     const btnMenu = this.container.querySelector("#btn-modal-menu");
     const btnEditor = this.container.querySelector("#btn-modal-editor");
     const btnCopy = this.container.querySelector("#btn-modal-copy");
@@ -122,6 +127,12 @@ export class GameOverModal {
       this.audio.playTap();
       this.hide();
       if (this.onPlayAgain) this.onPlayAgain();
+    });
+
+    btnChangeSong?.addEventListener("click", () => {
+      this.audio.playTap();
+      this.hide();
+      if (this.onChangeSong) this.onChangeSong();
     });
 
     btnMenu?.addEventListener("click", () => {
