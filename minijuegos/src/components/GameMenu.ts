@@ -57,7 +57,7 @@ export class GameMenu {
     {
       id: "tree-melody",
       title: "Tambores del Cascanueces",
-      imageSrc: "./assets/images/arbol.png",
+      imageSrc: "./assets/images/icon-tambores.png",
       frameImageSrc: "./assets/images/marco-juego-verde.png",
       themeClass: "theme-forest-green",
       category: "TAIKO & RITMO",
