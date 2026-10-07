@@ -377,15 +377,7 @@ export class ScreenTransition {
       <!-- Destello Radiante de Fondo y Partículas Mágicas -->
       <div class="gift-backdrop-glow kid-bg-glow"></div>
 
-      <!-- Capa 0: Caja Interior Dorada con Brillo Mágico que se asoma -->
-      <div class="kid-inner-gift-box">
-        <div class="kid-inner-glow"></div>
-        <div class="kid-inner-toy-preview">
-          <span class="kid-preview-icon">${gameData.icon}</span>
-        </div>
-      </div>
-
-      <!-- Capa 1: Capas de Papel de Regalo Navideño que se Desgarran una a una -->
+      <!-- Capas de Papel de Regalo Navideño que se Desgarran una a una -->
       
       <!-- 1.1 Solapa de Fondo Inferior -->
       <div class="kid-paper-layer layer-bottom">

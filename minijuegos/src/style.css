@@ -3043,70 +3043,19 @@ html, body {
    MODO DESEMPAQUE EMOCIONADO DE NIÑO CAPA POR CAPA (Excited Kid Unboxing)
    ========================================================================== */
 
-/* 0. Fondo Radiante y Caja Interior con Juguete Asomándose */
+/* 0. Fondo Radiante con Resplandor Mágico */
 .kid-bg-glow {
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at center, rgba(255, 215, 0, 0.95) 0%, rgba(255, 143, 0, 0.6) 45%, rgba(10, 25, 48, 0.95) 85%);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s ease-out;
+  transition: opacity 0.5s ease-out;
   z-index: 1;
 }
 
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-bg-glow {
   opacity: 1;
-}
-
-.kid-inner-gift-box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: min(88vw, 460px);
-  height: min(80vh, 420px);
-  transform: translate(-50%, -50%) scale(0.85);
-  background: linear-gradient(135deg, #FFB300 0%, #FF8F00 50%, #C97500 100%);
-  border-radius: 26px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), inset 0 2px 6px rgba(255, 255, 255, 0.8);
-  border: 4px solid #FFE082;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.4s cubic-bezier(0.18, 1.25, 0.35, 1);
-}
-
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-inner-gift-box {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.kid-inner-glow {
-  position: absolute;
-  inset: -20px;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, transparent 70%);
-  filter: blur(16px);
-  animation: kidGlowPulse 1.2s infinite alternate ease-in-out;
-}
-
-@keyframes kidGlowPulse {
-  from { opacity: 0.6; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1.1); }
-}
-
-.kid-inner-toy-preview {
-  position: relative;
-  z-index: 2;
-  font-size: 5rem;
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.7));
-  animation: toyPeek 0.6s infinite alternate ease-in-out;
-}
-
-@keyframes toyPeek {
-  from { transform: translateY(0) scale(0.95); }
-  to { transform: translateY(-10px) scale(1.1); }
 }
 
 /* 1. Capas Físicas de Papel de Regalo Navideño */
