@@ -19,6 +19,9 @@ export class AudioManager {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
   private isUnlocked: boolean = false;
+  private bgmAudio: HTMLAudioElement | null = null;
+  private bgmVolume: number = 0.45;
+  private currentBgmPath: string = "./assets/audio/Rockin' Around The Christmas Tree.mp3";
 
   private constructor() {
     // Inicialización perezosa (lazy)
@@ -35,19 +38,65 @@ export class AudioManager {
    * Desbloquea el contexto de audio tras el primer toque del usuario
    */
   public unlockAudio(): void {
-    if (this.isUnlocked && this.ctx && this.ctx.state === "running") return;
+    if (this.isUnlocked && this.ctx && this.ctx.state === "running" && this.bgmAudio && !this.bgmAudio.paused) return;
 
-    try {
-      const AudioCtxClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (!this.ctx) {
-        this.ctx = new AudioCtxClass();
+    if (this.ctx && this.ctx.state === "suspended") {
+      this.ctx.resume().catch(() => {});
+    }
+    this.isUnlocked = true;
+
+    // Si la música de fondo está pendiente por la política de autoplay, reproducir ahora
+    if (this.bgmAudio && this.bgmAudio.paused && !this.isMuted) {
+      this.bgmAudio.play().catch(() => {});
+    }
+  }
+
+  /**
+   * Reproduce la música de fondo ambiental (BGM) en bucle
+   */
+  public playMenuBGM(src: string = "./assets/audio/Rockin' Around The Christmas Tree.mp3", volume: number = 0.45): void {
+    this.bgmVolume = volume;
+    this.currentBgmPath = src;
+
+    if (!this.bgmAudio) {
+      this.bgmAudio = new Audio(src);
+      this.bgmAudio.loop = true;
+    } else {
+      // Si la ruta cambió, actualizar fuente
+      if (!this.bgmAudio.src.includes(encodeURI("Rockin' Around The Christmas Tree.mp3"))) {
+        this.bgmAudio.src = src;
       }
-      if (this.ctx.state === "suspended") {
-        this.ctx.resume();
+    }
+
+    this.bgmAudio.volume = this.isMuted ? 0 : this.bgmVolume;
+
+    if (this.bgmAudio.paused && !this.isMuted) {
+      this.bgmAudio.play().catch(() => {
+        // Se desbloqueará en el primer toque del usuario
+      });
+    }
+  }
+
+  /**
+   * Pausa la música de fondo al iniciar un minijuego
+   */
+  public pauseMenuBGM(): void {
+    if (this.bgmAudio && !this.bgmAudio.paused) {
+      this.bgmAudio.pause();
+    }
+  }
+
+  /**
+   * Reanuda la música de fondo al volver al menú o a la pantalla de inicio
+   */
+  public resumeMenuBGM(): void {
+    if (this.bgmAudio && !this.isMuted) {
+      this.bgmAudio.volume = this.bgmVolume;
+      if (this.bgmAudio.paused) {
+        this.bgmAudio.play().catch(() => {});
       }
-      this.isUnlocked = true;
-    } catch (e) {
-      console.warn("No se pudo desbloquear el AudioContext:", e);
+    } else if (!this.bgmAudio) {
+      this.playMenuBGM(this.currentBgmPath, this.bgmVolume);
     }
   }
 
@@ -56,6 +105,12 @@ export class AudioManager {
    */
   public toggleMute(): boolean {
     this.isMuted = !this.isMuted;
+    if (this.bgmAudio) {
+      this.bgmAudio.muted = this.isMuted;
+      if (!this.isMuted && this.bgmAudio.paused) {
+        this.bgmAudio.play().catch(() => {});
+      }
+    }
     return this.isMuted;
   }
 
@@ -65,6 +120,12 @@ export class AudioManager {
 
   public setMuted(muted: boolean): void {
     this.isMuted = muted;
+    if (this.bgmAudio) {
+      this.bgmAudio.muted = this.isMuted;
+      if (!this.isMuted && this.bgmAudio.paused) {
+        this.bgmAudio.play().catch(() => {});
+      }
+    }
   }
 
   // ==========================================================================

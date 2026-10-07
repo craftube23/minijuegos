@@ -107,6 +107,9 @@ class KioskApp {
       });
     }
 
+    // 10. Iniciar música de fondo festiva para inicio y menú
+    this.audio.playMenuBGM();
+
     console.log("[Feria Mágica del Juguete] Kiosco Interactivo Listo");
   }
 
@@ -175,6 +178,7 @@ class KioskApp {
     this.attractScreen.onStartClick = () => {
       this.audio.unlockAudio();
       this.audio.playTap();
+      this.audio.resumeMenuBGM();
       this.tryEnterFullscreen();
 
       if (this.isTransitioning) return;
@@ -338,6 +342,7 @@ class KioskApp {
    */
   public goToMenu(withTransition: boolean = true): void {
     if (this.isTransitioning) return;
+    this.audio.resumeMenuBGM();
 
     if (withTransition && this.appState !== "attract") {
       this.isTransitioning = true;
@@ -407,6 +412,7 @@ class KioskApp {
       return;
     }
 
+    this.audio.pauseMenuBGM();
     this.currentGame = game;
     this.appState = "playing";
 
@@ -434,6 +440,7 @@ class KioskApp {
     const game = this.games.get(gameId);
     if (!game) return;
 
+    this.audio.pauseMenuBGM();
     const mainContainer = document.getElementById("kiosk-main") || document.body;
     const gameInfo = this.getGameTransitionInfo(gameId);
 
@@ -469,6 +476,7 @@ class KioskApp {
    */
   private handleGameOver(result: GameResult): void {
     this.appState = "gameover";
+    this.audio.resumeMenuBGM();
     this.audio.playVictory();
     this.gameOverModal.show(result);
     this.resetInactivity();
@@ -482,6 +490,7 @@ class KioskApp {
       this.currentGame.destroy();
       this.currentGame = null;
     }
+    this.audio.resumeMenuBGM();
     this.isTransitioning = false;
     this.appState = "attract";
     this.gameMenu.hide();
