@@ -29,14 +29,16 @@ Los archivos finales listos para desplegar quedarán en la carpeta `dist/`.
 
 ---
 
-## 🎮 Los 4 Minijuegos Desarrollados
+## 🎮 Los 4 Minijuegos Desarrollados y Operativos
 
-| Minijuego | Icono | Mecánica Principal | Integración del Logo |
+| Minijuego | Icono | Mecánica Principal | Integración de Branding |
 | :--- | :---: | :--- | :--- |
-| **1. Atrapa-Regalos Mágico** | 🎁 | Deslizar el saco de Santa para recoger regalos y juguetes que caen. | **Logo 1:** Caja dorada especial que activa la *Lluvia Mágica* (puntos x2). |
-| **2. El Vuelo del Trineo Mágico** | 🛷 | Tocar 3 carriles táctiles para volar esquivando chimeneas y nubes. | **Logo 2:** *Portal de la Feria* que otorga turbo e invulnerabilidad. |
-| **3. Enciende el Árbol Mágico** | 💡 | Memoria musical tocando 4 bombillas/campanas gigantes iluminadas. | **Logo 1:** La gran estrella del árbol se ilumina y lanza confeti al superar rondas. |
-| **4. Parejas Mágicas de Juguetes** | 🃏 | Memorama táctil de cartas con juguetes navideños clásicos. | **Logo 1:** Reverso oficial de las cartas.<br>**Logo 2:** Pareja comodín dorada de 1.000 pts. |
+| **1. Atrapa-Regalos Mágico** | 🎁 | Deslizar el saco de Santa para recoger juguetes y regalos, esquivando carbones y bloques de hielo. | **Logo Feria & Campuslands:** Medallones de alto contraste con lluvia de juguetes x2 y aura de energía. |
+| **2. Sinfonía de Campanas Navideñas** | 🔔 | Ritmo estilo Guitar Hero con **5 canciones MP3 reales**, editor/grabador de ritmo en vivo, Star Power x4 y 5 campanas de vida. | **Star Power Feria & Campus:** Multiplicador de puntos x4 y notas estelares con logos oficiales. |
+| **3. Enciende el Árbol Mágico** | 💡 | Memoria musical tipo Simón Dice tocando 4 esferas HD navideñas iluminadas con Web Audio API. | **Logo Feria:** La gran estrella del árbol se ilumina y lanza confeti al superar rondas altas. |
+| **4. Parejas Mágicas de Juguetes** | 🃏 | Memorama táctil de cartas con giro 3D de juguetes navideños y comodines dorados. | **Logo Feria & Campus:** Reverso oficial de cartas y pareja comodín dorada de puntos x2. |
+
+> 📖 **Catálogo Extendido:** Consulta la guía completa [`guia jueguitos.md`](file:///c:/Users/ESSA7/OneDrive/Documentos/feria%20magica%20el%20jugete/guia%20jueguitos.md) para ver la documentación técnica y diseño de los **35 minijuegos interactivos**.
 
 ---
 
