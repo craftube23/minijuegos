@@ -625,6 +625,116 @@ export class AudioManager {
   }
 
   /**
+   * Sonidos dedicados para La Carrera Mágica de la Villa (2.5D Runner)
+   */
+  public playRunnerJump(): void {
+    Haptics.light();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(320, t);
+    osc.frequency.exponentialRampToValueAtTime(750, t + 0.16);
+
+    gain.gain.setValueAtTime(0.3, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.2);
+  }
+
+  public playRunnerSlide(): void {
+    Haptics.tap();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const bufferSize = Math.floor(this.ctx.sampleRate * 0.22);
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.4;
+    }
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(3200, t);
+    filter.frequency.exponentialRampToValueAtTime(1100, t + 0.22);
+    filter.Q.setValueAtTime(4.0, t);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.35, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    noise.start(t);
+    noise.stop(t + 0.22);
+  }
+
+  public playRunnerLaneSwitch(): void {
+    Haptics.tap();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(400, t);
+    osc.frequency.exponentialRampToValueAtTime(620, t + 0.08);
+
+    gain.gain.setValueAtTime(0.18, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.1);
+  }
+
+  public playRunnerHit(): void {
+    Haptics.impact();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(140, t);
+    osc.frequency.exponentialRampToValueAtTime(40, t + 0.22);
+
+    gain.gain.setValueAtTime(0.45, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.25);
+  }
+
+  /**
    * Método opcional para reproducir un archivo de audio externo si lo colocas en public/assets/audio/
    */
   public playFile(filePath: string, volume: number = 1.0): void {

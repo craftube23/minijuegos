@@ -40,10 +40,18 @@ export class MagicPairsGame extends BaseGame {
   private level: number = 1;
   private totalPairs: number = 2; // Nivel 1: 2 pares (4 cartas)
 
-  // Sprites Oficiales HD
+  // Sprites Oficiales HD y Nuevos Ítems
   private spriteTeddy: HTMLImageElement;
   private spriteRobot: HTMLImageElement;
-  private spriteGift: HTMLImageElement;
+  private spriteGiftRed: HTMLImageElement;
+  private spriteGiftGreen: HTMLImageElement;
+  private spriteCandyCane: HTMLImageElement;
+  private spriteFlyingElf: HTMLImageElement;
+  private spriteDrums: HTMLImageElement;
+  private spriteBells: HTMLImageElement;
+  private spriteTree: HTMLImageElement;
+  private spriteHouse: HTMLImageElement;
+  private spriteStarLogo: HTMLImageElement;
   private spriteLogo1: HTMLImageElement;
   private spriteLogo2: HTMLImageElement;
 
@@ -63,14 +71,39 @@ export class MagicPairsGame extends BaseGame {
       particles
     );
 
+    // Cargar todos los ítems únicos del universo navideño
     this.spriteTeddy = new Image();
     this.spriteTeddy.src = "./assets/images/osito.png";
 
     this.spriteRobot = new Image();
     this.spriteRobot.src = "./assets/images/robot.png";
 
-    this.spriteGift = new Image();
-    this.spriteGift.src = "./assets/images/regalo-rojo.png";
+    this.spriteGiftRed = new Image();
+    this.spriteGiftRed.src = "./assets/images/regalo-rojo2.png";
+
+    this.spriteGiftGreen = new Image();
+    this.spriteGiftGreen.src = "./assets/images/regalo-verde.png";
+
+    this.spriteCandyCane = new Image();
+    this.spriteCandyCane.src = "./assets/images/baston-caramelo.png";
+
+    this.spriteFlyingElf = new Image();
+    this.spriteFlyingElf.src = "./assets/images/elfo-volador.png";
+
+    this.spriteDrums = new Image();
+    this.spriteDrums.src = "./assets/images/icon-tambores.png";
+
+    this.spriteBells = new Image();
+    this.spriteBells.src = "./assets/images/icon-campanas.png";
+
+    this.spriteTree = new Image();
+    this.spriteTree.src = "./assets/images/arbol.png";
+
+    this.spriteHouse = new Image();
+    this.spriteHouse.src = "./assets/images/casa-obstaculo.png";
+
+    this.spriteStarLogo = new Image();
+    this.spriteStarLogo.src = "./assets/images/estrella con logo.png";
 
     this.spriteLogo1 = new Image();
     this.spriteLogo1.src = BRANDING.getLogoPath(1);
@@ -118,38 +151,48 @@ export class MagicPairsGame extends BaseGame {
     this.secondSelectedCard = null;
     this.isCheckingMatch = false;
 
-    // Determinar cantidad de parejas según nivel (4 → 6 → 8 → 12)
-    // Nivel 1: 2 pares (4 cartas)
-    // Nivel 2: 3 pares (6 cartas)
-    // Nivel 3: 4 pares (8 cartas)
-    // Nivel 4+: 6 pares (12 cartas)
-    const allAvailablePairs = [
-      { key: "teddy", isSpecial: false },
-      { key: "fair_logo", isSpecial: true },   // Feria Mágica (Dorado x2)
-      { key: "robot", isSpecial: false },
-      { key: "campus_logo", isSpecial: true }, // Campuslands (Cian x2)
-      { key: "gift", isSpecial: false },
-      { key: "teddy_blue", isSpecial: false }
+    // Catálogo completo de parejas únicas sin elementos repetidos
+    const fullPool = [
+      { key: "elf_flyer", name: "Elfo Volador", isSpecial: false },
+      { key: "candy_cane", name: "Bastón Dulce", isSpecial: false },
+      { key: "drums", name: "Tambores Mágicos", isSpecial: false },
+      { key: "bells", name: "Campanas", isSpecial: false },
+      { key: "tree", name: "Pino Navideño", isSpecial: false },
+      { key: "house", name: "Villa Navideña", isSpecial: false },
+      { key: "star_logo", name: "Estrella Mágica", isSpecial: true },
+      { key: "gift_green", name: "Regalo Verde", isSpecial: false },
+      { key: "gift_red", name: "Regalo Rojo", isSpecial: false },
+      { key: "teddy", name: "Osito", isSpecial: false },
+      { key: "robot", name: "Robot", isSpecial: false },
+      { key: "fair_logo", name: "Feria Mágica", isSpecial: true },
+      { key: "campus_logo", name: "Campuslands", isSpecial: true }
     ];
 
     if (this.level === 1) {
-      this.totalPairs = 2;
+      this.totalPairs = 2; // 4 cartas
     } else if (this.level === 2) {
-      this.totalPairs = 3;
+      this.totalPairs = 3; // 6 cartas
     } else if (this.level === 3) {
-      this.totalPairs = 4;
+      this.totalPairs = 4; // 8 cartas
     } else {
-      this.totalPairs = 6;
+      this.totalPairs = 6; // 12 cartas
     }
 
-    const selectedPairs = allAvailablePairs.slice(0, this.totalPairs);
+    // Barajar el pool completo para seleccionar parejas distintas en cada partida/nivel
+    const shuffledPool = [...fullPool];
+    for (let i = shuffledPool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledPool[i], shuffledPool[j]] = [shuffledPool[j], shuffledPool[i]];
+    }
+
+    const selectedPairs = shuffledPool.slice(0, this.totalPairs);
     const rawDeck: Array<{ pairKey: string; isSpecial: boolean }> = [];
     for (const p of selectedPairs) {
       rawDeck.push({ pairKey: p.key, isSpecial: p.isSpecial });
       rawDeck.push({ pairKey: p.key, isSpecial: p.isSpecial });
     }
 
-    // Barajar cartas (Fisher-Yates)
+    // Barajar las cartas en el tablero (Fisher-Yates)
     for (let i = rawDeck.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [rawDeck[i], rawDeck[j]] = [rawDeck[j], rawDeck[i]];
@@ -266,7 +309,9 @@ export class MagicPairsGame extends BaseGame {
       const isLogo = this.firstSelectedCard.isSpecialLogo;
       const isCampus = this.firstSelectedCard.pairKey === "campus_logo";
       const isFair = this.firstSelectedCard.pairKey === "fair_logo";
-      const points = isLogo ? 500 : 200;
+      const isStar = this.firstSelectedCard.pairKey === "star_logo";
+      const isElf = this.firstSelectedCard.pairKey === "elf_flyer";
+      const points = isLogo ? 500 : (isElf ? 300 : 200);
       this.addScore(points);
 
       const centerX = (this.firstSelectedCard.x + this.secondSelectedCard.x) / 2 + this.firstSelectedCard.w / 2;
@@ -280,9 +325,24 @@ export class MagicPairsGame extends BaseGame {
         this.triggerLogoPowerUp(2, 6);
         this.addFloatingText("¡PAREJA CAMPUSLANDS! +500", centerX, centerY, "#00E5FF", 1.35);
         this.particles.emitConfetti(this.width, 35);
+      } else if (isStar) {
+        this.addFloatingText("⭐ ¡ESTRELLA MÁGICA! +500", centerX, centerY, "#FFE082", 1.35);
+        this.particles.emitBurst(centerX, centerY, "#FFD700", 25);
+      } else if (isElf) {
+        this.addFloatingText("🧝‍♂️ ¡ELFO VOLADOR! +300", centerX, centerY, "#76FF03", 1.3);
+        this.particles.emitBurst(centerX, centerY, "#00E676", 20);
+      } else if (this.firstSelectedCard.pairKey === "candy_cane") {
+        this.addFloatingText("🍬 ¡BASTÓN DE DULCE! +200", centerX, centerY, "#FF1744", 1.25);
+        this.particles.emitBurst(centerX, centerY, "#FF5252", 18);
+      } else if (this.firstSelectedCard.pairKey === "drums") {
+        this.addFloatingText("🥁 ¡TAMBORES! +200", centerX, centerY, "#FF9100", 1.25);
+        this.particles.emitBurst(centerX, centerY, "#FFAB40", 18);
+      } else if (this.firstSelectedCard.pairKey === "bells") {
+        this.addFloatingText("🔔 ¡CAMPANAS! +200", centerX, centerY, "#FFD700", 1.25);
+        this.particles.emitBurst(centerX, centerY, "#FFE57F", 18);
       } else {
         this.addFloatingText(`+${points} ¡PAREJA!`, centerX, centerY, "#00E676", 1.2);
-        this.particles.emitBurst(centerX, centerY, "#00E676", 20);
+        this.particles.emitBurst(centerX, centerY, "#00E676", 18);
       }
 
       this.firstSelectedCard = null;
@@ -407,12 +467,13 @@ export class MagicPairsGame extends BaseGame {
         // --- FRENTE DE LA CARTA (Juguete / Logo Revelado) ---
         const isFair = card.pairKey === "fair_logo";
         const isCampus = card.pairKey === "campus_logo";
+        const isStar = card.pairKey === "star_logo";
 
         if (card.isMatched) {
           ctx.fillStyle = "#E8F5E9"; // Fondo suave verde al acertar
         } else if (isMismatch) {
           ctx.fillStyle = "#FFEBEE"; // Fondo suave rojo al fallar
-        } else if (isFair) {
+        } else if (isFair || isStar) {
           ctx.fillStyle = "#FFF9C4";
         } else if (isCampus) {
           ctx.fillStyle = "#E0F7FA";
@@ -423,7 +484,7 @@ export class MagicPairsGame extends BaseGame {
         ctx.roundRect(-halfW, -halfH, card.w, card.h, [16]);
         ctx.fill();
 
-        let strokeColor = isFair ? "#FFD700" : (isCampus ? "#00E5FF" : "#E0E0E0");
+        let strokeColor = isFair || isStar ? "#FFD700" : (isCampus ? "#00E5FF" : "#E0E0E0");
         if (card.isMatched) strokeColor = "#00E676";
         if (isMismatch) strokeColor = "#FF1744";
 
@@ -431,16 +492,23 @@ export class MagicPairsGame extends BaseGame {
         ctx.lineWidth = card.isMatched || isMismatch ? 5 : (card.isSpecialLogo ? 4.5 : 3);
         ctx.stroke();
 
-        // Renderizar Sprite Oficial del Juguete / Logo
+        // Renderizar Sprite Oficial del Juguete / Objeto
         let imgToDraw: HTMLImageElement | null = null;
-        if (card.pairKey === "teddy") imgToDraw = this.spriteTeddy;
+        if (card.pairKey === "elf_flyer") imgToDraw = this.spriteFlyingElf;
+        else if (card.pairKey === "candy_cane") imgToDraw = this.spriteCandyCane;
+        else if (card.pairKey === "drums") imgToDraw = this.spriteDrums;
+        else if (card.pairKey === "bells") imgToDraw = this.spriteBells;
+        else if (card.pairKey === "tree") imgToDraw = this.spriteTree;
+        else if (card.pairKey === "house") imgToDraw = this.spriteHouse;
+        else if (card.pairKey === "star_logo") imgToDraw = this.spriteStarLogo;
+        else if (card.pairKey === "gift_red") imgToDraw = this.spriteGiftRed;
+        else if (card.pairKey === "gift_green") imgToDraw = this.spriteGiftGreen;
+        else if (card.pairKey === "teddy") imgToDraw = this.spriteTeddy;
         else if (card.pairKey === "robot") imgToDraw = this.spriteRobot;
-        else if (card.pairKey === "gift") imgToDraw = this.spriteGift;
-        else if (card.pairKey === "teddy_blue") imgToDraw = this.spriteTeddy;
         else if (card.pairKey === "fair_logo") imgToDraw = this.spriteLogo1;
         else if (card.pairKey === "campus_logo") imgToDraw = this.spriteLogo2;
 
-        const iconSize = Math.min(card.w, card.h) * 0.65;
+        const iconSize = Math.min(card.w, card.h) * 0.68;
 
         if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth > 0) {
           ctx.drawImage(imgToDraw, -iconSize / 2, -iconSize / 2, iconSize, iconSize);
@@ -464,6 +532,12 @@ export class MagicPairsGame extends BaseGame {
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText("CAMPUS x2", 0, halfH - 14);
+        } else if (isStar) {
+          ctx.fillStyle = "#B78103";
+          ctx.font = "800 12px 'Outfit', sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("ESTRELLA", 0, halfH - 14);
         }
       }
 

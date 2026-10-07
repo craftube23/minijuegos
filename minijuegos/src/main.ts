@@ -33,6 +33,7 @@ import { BellSymphonyGame } from "./games/BellSymphonyGame";
 import { NutcrackerDrumsGame } from "./games/NutcrackerDrumsGame";
 import { FlyingElfGame } from "./games/FlyingElfGame";
 import { MagicPairsGame } from "./games/MagicPairsGame";
+import { VillageRunnerGame } from "./games/VillageRunnerGame";
 
 class KioskApp {
   private canvas: HTMLCanvasElement;
@@ -159,9 +160,10 @@ class KioskApp {
     const game3 = new NutcrackerDrumsGame(this.canvas, this.input, this.audio, this.particles);
     const game4 = new FlyingElfGame(this.canvas, this.input, this.audio, this.particles);
     const game5 = new MagicPairsGame(this.canvas, this.input, this.audio, this.particles);
+    const game6 = new VillageRunnerGame(this.canvas, this.input, this.audio, this.particles);
 
     // Conectar callback de Game Over de cada juego
-    [game1, game2, game3, game4, game5].forEach((g) => {
+    [game1, game2, game3, game4, game5, game6].forEach((g) => {
       g.onGameOver = (result: GameResult) => this.handleGameOver(result);
       this.games.set(g.id, g);
     });

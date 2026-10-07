@@ -90,7 +90,7 @@ export class FlyingElfGame extends BaseGame {
   private spawnItemTimer: number = 0;
   private spawnObstacleTimer: number = 0;
   private speedMultiplier: number = 1.0;
-  private baseScrollSpeed: number = 520; // Velocidad base incrementada para alta adrenalina arcade
+  private baseScrollSpeed: number = 460; // Velocidad base equilibrada para arcade accesible
 
   // Ráfagas de viento / Vórtice mágico
   private windTimer: number = 0;
@@ -200,9 +200,9 @@ export class FlyingElfGame extends BaseGame {
     this.obstacles = [];
     this.groundProps = [];
     this.backgroundSigns = [];
-    this.spawnItemTimer = 0.35;
-    this.spawnObstacleTimer = 0.95;
-    this.windTimer = 5.5;
+    this.spawnItemTimer = 0.4;
+    this.spawnObstacleTimer = 1.1;
+    this.windTimer = 6.5;
     this.isWindActive = false;
 
     // Inicializar decoraciones del suelo y carteles publicitarios de fondo
@@ -245,16 +245,16 @@ export class FlyingElfGame extends BaseGame {
   }
 
   protected override onUpdate(dt: number): void {
-    // 1. Progresión de Dificultad Dinámica Elevada (Arcade rápido y desafiante)
+    // 1. Progresión de Dificultad Dinámica Equilibrada (Suave al inicio, desafiante al final)
     const timeElapsed = 45 - this.timeRemaining;
-    if (timeElapsed < 10) {
-      this.speedMultiplier = 1.15;
-    } else if (timeElapsed < 22) {
+    if (timeElapsed < 12) {
+      this.speedMultiplier = 1.05;
+    } else if (timeElapsed < 25) {
+      this.speedMultiplier = 1.28;
+    } else if (timeElapsed < 38) {
       this.speedMultiplier = 1.55;
-    } else if (timeElapsed < 35) {
-      this.speedMultiplier = 1.95;
     } else {
-      this.speedMultiplier = 2.40; // Clímax ultra rápido
+      this.speedMultiplier = 1.90; // Clímax dinámico
     }
 
     if (this.isLogoPowerUpActive) {
@@ -262,20 +262,20 @@ export class FlyingElfGame extends BaseGame {
     }
 
     const currentScrollSpeed = this.baseScrollSpeed * this.speedMultiplier * dt;
-    this.bgScrollX += currentScrollSpeed * 0.45;
+    this.bgScrollX += currentScrollSpeed * 0.44;
     this.groundScrollX += currentScrollSpeed * 1.0;
-    this.gliderSwayTime += dt * 5.0;
+    this.gliderSwayTime += dt * 4.6;
 
-    // 2. Sistema de Viento / Turbulencia Mágica
+    // 2. Sistema de Viento / Turbulencia Mágica Agradable
     this.windTimer -= dt;
     if (this.windTimer <= 0) {
       if (!this.isWindActive) {
         this.isWindActive = true;
-        this.windTimer = 3.5;
-        this.windForceY = (Math.random() > 0.5 ? 1 : -1) * (380 + Math.random() * 260);
+        this.windTimer = 3.2;
+        this.windForceY = (Math.random() > 0.5 ? 1 : -1) * (240 + Math.random() * 160);
       } else {
         this.isWindActive = false;
-        this.windTimer = 5.0 + Math.random() * 4.0;
+        this.windTimer = 6.0 + Math.random() * 4.5;
         this.windForceY = 0;
       }
     }
@@ -290,17 +290,17 @@ export class FlyingElfGame extends BaseGame {
 
     const thrusting = isTouchThrust || isKeyboardThrust;
 
-    // 4. Físicas ágiles del Elfo (Mayor respuesta y reto en caída/elevación)
-    const gravity = 1550; // px/s^2
-    const lift = 2600;    // px/s^2
+    // 4. Físicas ágiles pero dóciles del Elfo
+    const gravity = 1420; // px/s^2
+    const lift = 2380;    // px/s^2
 
     if (thrusting) {
       this.elfVy -= lift * dt;
-      if (this.elfVy < -640) this.elfVy = -640;
-      this.elfTargetAngle = -0.24;
+      if (this.elfVy < -580) this.elfVy = -580;
+      this.elfTargetAngle = -0.22;
 
       // Estela mágica de vuelo
-      if (Math.random() < 0.5) {
+      if (Math.random() < 0.45) {
         const exhaustX = this.elfX - this.elfWidth * 0.28;
         const exhaustY = this.elfY + this.elfHeight * 0.12;
         this.particles.emitBurst(
@@ -312,17 +312,17 @@ export class FlyingElfGame extends BaseGame {
       }
     } else {
       this.elfVy += gravity * dt;
-      if (this.elfVy > 660) this.elfVy = 660;
-      this.elfTargetAngle = 0.18;
+      if (this.elfVy > 600) this.elfVy = 600;
+      this.elfTargetAngle = 0.16;
     }
 
     // Efecto de viento sobre el elfo
     if (this.isWindActive) {
-      this.elfVy += this.windForceY * dt * 0.85;
+      this.elfVy += this.windForceY * dt * 0.65;
     }
 
     // Suavizado del ángulo de cabeceo
-    this.elfAngle += (this.elfTargetAngle - this.elfAngle) * 9.5 * dt;
+    this.elfAngle += (this.elfTargetAngle - this.elfAngle) * 8.0 * dt;
 
     // Actualizar posición vertical
     this.elfY += this.elfVy * dt;
@@ -376,17 +376,17 @@ export class FlyingElfGame extends BaseGame {
     this.updateObstacles(dt, currentScrollSpeed);
     this.updateChimneyPuffs(dt);
 
-    // 6. Generación Rápida de Nuevos Objetos y Obstáculos Desafiantes
+    // 6. Generación de Nuevos Objetos y Obstáculos Equilibrados
     this.spawnItemTimer -= dt;
     if (this.spawnItemTimer <= 0) {
       this.spawnCollectiblePattern();
-      this.spawnItemTimer = Math.max(0.32, 0.82 / this.speedMultiplier);
+      this.spawnItemTimer = Math.max(0.38, 0.95 / this.speedMultiplier);
     }
 
     this.spawnObstacleTimer -= dt;
     if (this.spawnObstacleTimer <= 0) {
       this.spawnObstacle();
-      this.spawnObstacleTimer = Math.max(0.55, 1.25 / this.speedMultiplier);
+      this.spawnObstacleTimer = Math.max(0.80, 1.55 / this.speedMultiplier);
     }
   }
 
@@ -549,22 +549,24 @@ export class FlyingElfGame extends BaseGame {
   private updateCollectibles(dt: number, scrollSpeed: number): void {
     for (let i = this.collectibles.length - 1; i >= 0; i--) {
       const item = this.collectibles[i];
+      let beingPulled = false;
 
-      // Atracción magnética si el Power-Up está activo
+      // Atracción magnética en tiempo real si el Power-Up está activo
       if (this.isLogoPowerUpActive) {
         const dx = this.elfX - item.x;
         const dy = this.elfY - item.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < this.magnetRadius) {
-          item.isMagnetized = true;
-          const pullForce = 820 * dt;
+        if (dist < this.magnetRadius && dist > 1) {
+          beingPulled = true;
+          const pullForce = 920 * dt;
           item.x += (dx / dist) * pullForce;
           item.y += (dy / dist) * pullForce;
         }
       }
 
-      if (!item.isMagnetized) {
+      // Si no está siendo atraído activamente por el imán, se desplaza y oscila normalmente (NUNCA se queda congelado)
+      if (!beingPulled) {
         item.x -= scrollSpeed;
         item.bobOffset += item.bobSpeed * dt;
       }
@@ -715,15 +717,15 @@ export class FlyingElfGame extends BaseGame {
 
     if (this.hitCooldown > 0) return;
 
-    this.hitCooldown = 1.35;
-    this.timeRemaining = Math.max(1, this.timeRemaining - 3.5); // Penalización estricta -3.5s
+    this.hitCooldown = 1.5;
+    this.timeRemaining = Math.max(1, this.timeRemaining - 2.0); // Penalización equilibrada -2.0s
     this.comboCount = 0;
 
     // Feedback de impacto controlado
-    this.triggerShake(0.40, 14);
+    this.triggerShake(0.35, 12);
     this.audio.playError();
-    this.particles.emitBurst(this.elfX, this.elfY, "#FF1744", 20);
-    this.addFloatingText("-3.5s ⚠️", this.elfX, this.elfY - 45, "#FF1744", 1.35);
+    this.particles.emitBurst(this.elfX, this.elfY, "#FF1744", 16);
+    this.addFloatingText("-2.0s ⚠️", this.elfX, this.elfY - 45, "#FF1744", 1.25);
   }
 
   protected override onDraw(ctx: CanvasRenderingContext2D): void {
