@@ -107,17 +107,16 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
     title: "La Carrera Mágica de la Villa",
     icon: "🛷",
     themeColor: "#FFB300",
-    goal: "Esquiva obstáculos y recoge regalos a toda velocidad en tu trineo.",
+    goal: "Toca la pantalla para saltar vallas, carretas y bloques de hielo con tu trineo.",
     positiveItems: [
       { icon: "🎁", label: "Regalos y Dulces (+100 a +150 pts)" },
       { icon: "🎪", label: "Medallón Feria (¡Poder x2 + Imán!)" },
-      { icon: "🪵", label: "Vallas (¡Salta por encima!)" },
-      { icon: "🧊", label: "Arcos de Hielo (¡Deslízate abajo!)" }
+      { icon: "⬆️", label: "Saltos limpios (¡Mantén el combo!)" }
     ],
     negativeItems: [
-      { icon: "💥", label: "Carretas y Choques (Resta 100 pts y velocidad)" }
+      { icon: "💥", label: "Vallas, Carretas y Hielo (Resta 100 pts)" }
     ],
-    controls: "Desliza en pantalla: ◄ ► Mover | ▲ Saltar | ▼ Agacharse"
+    controls: "Toca la pantalla (o pulsa ESPACIO) para SALTAR"
   }
 };
 
