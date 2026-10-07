@@ -211,6 +211,7 @@ class KioskApp {
     this.gameMenu.onSelectGame = (gameId: string) => {
       if (this.isTransitioning) return;
       this.isTransitioning = true;
+      this.audio.stopMenuBGM();
 
       const mainContainer = document.getElementById("kiosk-main") || document.body;
       const gameInfo = this.getGameTransitionInfo(gameId);
@@ -235,10 +236,12 @@ class KioskApp {
     // 4. Cuando el usuario confirma "¡A JUGAR! ▶" en el modal de instrucciones
     this.instructionsModal.onStartGame = (gameId: string) => {
       this.isTransitioning = true;
+      this.audio.stopMenuBGM();
       this.launchGameWithCountdown(gameId);
     };
 
     this.instructionsModal.onBack = () => {
+      this.audio.restartMenuBGM();
       this.goToMenu();
     };
 

@@ -78,26 +78,46 @@ export class AudioManager {
   }
 
   /**
-   * Pausa la música de fondo al iniciar un minijuego
+   * Detiene y reinicia la música de fondo ambiental al entrar a un juego
    */
-  public pauseMenuBGM(): void {
-    if (this.bgmAudio && !this.bgmAudio.paused) {
+  public stopMenuBGM(): void {
+    if (this.bgmAudio) {
       this.bgmAudio.pause();
+      this.bgmAudio.currentTime = 0;
     }
   }
 
   /**
-   * Reanuda la música de fondo al volver al menú o a la pantalla de inicio
+   * Pausa la música de fondo
+   */
+  public pauseMenuBGM(): void {
+    if (this.bgmAudio) {
+      this.bgmAudio.pause();
+      this.bgmAudio.currentTime = 0;
+    }
+  }
+
+  /**
+   * Reinicia la música de fondo desde el principio al volver al menú o a la pantalla de inicio
+   */
+  public restartMenuBGM(): void {
+    if (!this.bgmAudio) {
+      this.playMenuBGM(this.currentBgmPath, this.bgmVolume);
+      return;
+    }
+
+    if (!this.isMuted) {
+      this.bgmAudio.volume = this.bgmVolume;
+      this.bgmAudio.currentTime = 0;
+      this.bgmAudio.play().catch(() => {});
+    }
+  }
+
+  /**
+   * Reanuda la música de fondo
    */
   public resumeMenuBGM(): void {
-    if (this.bgmAudio && !this.isMuted) {
-      this.bgmAudio.volume = this.bgmVolume;
-      if (this.bgmAudio.paused) {
-        this.bgmAudio.play().catch(() => {});
-      }
-    } else if (!this.bgmAudio) {
-      this.playMenuBGM(this.currentBgmPath, this.bgmVolume);
-    }
+    this.restartMenuBGM();
   }
 
   /**
