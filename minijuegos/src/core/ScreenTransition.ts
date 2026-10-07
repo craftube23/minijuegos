@@ -178,13 +178,15 @@ export class ScreenTransition {
    */
   public runGiftUnwrapTransition(
     container: HTMLElement,
-    gameData: { title: string; icon: string; themeColor?: string },
+    gameData: { title: string; icon: string; themeColor?: string; subtitle?: string },
     particles: ParticleSystem,
     onMidpoint: () => void,
     onComplete: () => void
   ): void {
     const overlay = document.createElement("div");
     overlay.className = "gift-transition-overlay";
+    const subText = gameData.subtitle || "¡ABRIENDO JUGUETE MÁGICO!";
+    
     overlay.innerHTML = `
       <!-- Destello de Fondo / God Rays al abrirse -->
       <div class="gift-backdrop-glow"></div>
@@ -234,7 +236,7 @@ export class ScreenTransition {
           <span class="g-sparkle s6">★</span>
         </div>
 
-        <!-- Moño 3D con Orejas y Cintas Colgantes -->
+        <!-- Moño 3D Majestuoso con Orejas y Cintas Colgantes -->
         <div class="gift-luxury-bow">
           <!-- Colas de cinta colgantes -->
           <div class="gift-bow-tail tail-left"></div>
@@ -246,7 +248,7 @@ export class ScreenTransition {
           <div class="gift-bow-loop loop-main-left"></div>
           <div class="gift-bow-loop loop-main-right"></div>
 
-          <!-- Nudo Central con Logo Estrella 3D -->
+          <!-- Nudo Central con Gran Logo Estrella 3D -->
           <div class="gift-bow-center-knot">
             <div class="gift-knot-aura"></div>
             <img src="./assets/images/estrella con logo.png" alt="Feria Mágica" class="gift-bow-star" />
@@ -269,7 +271,7 @@ export class ScreenTransition {
           
           <div class="gift-unwrapping-pill">
             <span class="gift-pill-dot"></span>
-            <span class="gift-pill-text">¡ABRIENDO JUGUETE MÁGICO!</span>
+            <span class="gift-pill-text">${subText}</span>
             <span class="gift-pill-dot"></span>
           </div>
         </div>
@@ -281,7 +283,7 @@ export class ScreenTransition {
     // Sonido de cierre envolvente con whoosh cinematográfico
     this.audio.playWhoosh();
 
-    // 1. Envolver (Cierre elástico con impacto)
+    // 1. Envolver (Cierre elástico con impacto en 650ms)
     requestAnimationFrame(() => {
       overlay.classList.add("is-wrapping");
     });
@@ -290,26 +292,29 @@ export class ScreenTransition {
     setTimeout(() => {
       onMidpoint();
 
-      // Sonido de desenvoltorio festivo y desatado de lazo
-      this.audio.playGiftUnwrap();
-
-      const bounds = container.getBoundingClientRect();
-      particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 35);
-      particles.emitConfetti(bounds.width, 50);
-
-      // 3. ¡Desatar lazo y abrir telones con efecto dramático!
-      overlay.classList.remove("is-wrapping");
-      overlay.classList.add("is-unwrapping");
-
-      // 4. Finalización suave
+      // Pausa adecuada para que el jugador aprecie la presentación del regalo y el logo
       setTimeout(() => {
-        overlay.classList.add("is-finished");
-        setTimeout(() => {
-          overlay.remove();
-          onComplete();
-        }, 380);
-      }, 750);
+        // Sonido de desenvoltorio festivo y desatado de lazo
+        this.audio.playGiftUnwrap();
 
-    }, 600);
+        const bounds = container.getBoundingClientRect();
+        particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 40);
+        particles.emitConfetti(bounds.width, 60);
+
+        // 3. ¡Desatar lazo y abrir telones con efecto dramático!
+        overlay.classList.remove("is-wrapping");
+        overlay.classList.add("is-unwrapping");
+
+        // 4. Finalización suave
+        setTimeout(() => {
+          overlay.classList.add("is-finished");
+          setTimeout(() => {
+            overlay.remove();
+            onComplete();
+          }, 450);
+        }, 850);
+      }, 950);
+
+    }, 650);
   }
 }

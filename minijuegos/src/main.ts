@@ -313,20 +313,56 @@ class KioskApp {
   }
 
   /**
-   * Navega a la pantalla de selección de juegos
+   * Navega a la pantalla de selección de juegos con transición mágica
    */
-  public goToMenu(): void {
-    if (this.currentGame) {
-      this.currentGame.destroy();
-      this.currentGame = null;
+  public goToMenu(withTransition: boolean = true): void {
+    if (this.isTransitioning) return;
+
+    if (withTransition && this.appState !== "attract") {
+      this.isTransitioning = true;
+      const mainContainer = document.getElementById("kiosk-main") || document.body;
+      const menuInfo = {
+        title: "FERIA MÁGICA",
+        icon: "🎪",
+        themeColor: "#FFD700",
+        subtitle: "¡ELIGE TU JUEGO MÁGICO!"
+      };
+
+      ScreenTransition.getInstance().runGiftUnwrapTransition(
+        mainContainer,
+        menuInfo,
+        this.particles,
+        () => {
+          if (this.currentGame) {
+            this.currentGame.destroy();
+            this.currentGame = null;
+          }
+          this.input.reset();
+          this.appState = "menu";
+          this.attractScreen.hide();
+          this.gameOverModal.hide();
+          this.instructionsModal.hide();
+          this.gameMenu.show();
+          this.resetInactivity();
+        },
+        () => {
+          this.isTransitioning = false;
+        }
+      );
+    } else {
+      if (this.currentGame) {
+        this.currentGame.destroy();
+        this.currentGame = null;
+      }
+      this.isTransitioning = false;
+      this.input.reset();
+      this.appState = "menu";
+      this.attractScreen.hide();
+      this.gameOverModal.hide();
+      this.instructionsModal.hide();
+      this.gameMenu.show();
+      this.resetInactivity();
     }
-    this.isTransitioning = false;
-    this.input.reset();
-    this.appState = "menu";
-    this.attractScreen.hide();
-    this.gameOverModal.hide();
-    this.gameMenu.show();
-    this.resetInactivity();
   }
 
   private getGameTransitionInfo(gameId: string): { title: string; icon: string; themeColor: string } {

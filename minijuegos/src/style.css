@@ -2407,39 +2407,39 @@ html, body {
   100% { transform: translateY(-16px) scale(1.3) rotate(60deg); opacity: 1; }
 }
 
-/* Moño 3D de Satén con Múltiples Lazos y Colas */
+/* Moño 3D de Satén Majestuoso con Múltiples Lazos y Colas */
 .gift-luxury-bow {
   position: relative;
-  width: 170px;
-  height: 125px;
+  width: 250px;
+  height: 165px;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.8));
+  filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.85));
 }
 
 /* Colas de Cinta con Corte en 'V' */
 .gift-bow-tail {
   position: absolute;
-  top: 55px;
-  width: 44px;
-  height: 90px;
+  top: 75px;
+  width: 62px;
+  height: 125px;
   background: linear-gradient(180deg, #FFD700 0%, #FF8F00 70%, #B25900 100%);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), inset 0 0 8px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65), inset 0 0 10px rgba(255, 255, 255, 0.6);
   clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 82%, 0% 100%);
   z-index: 1;
 }
 
 .gift-bow-tail.tail-left {
-  left: 28px;
-  transform: rotate(26deg);
+  left: 36px;
+  transform: rotate(28deg);
   transform-origin: top center;
   animation: tailWaveLeft 2s infinite ease-in-out alternate;
 }
 
 .gift-bow-tail.tail-right {
-  right: 28px;
-  transform: rotate(-26deg);
+  right: 36px;
+  transform: rotate(-28deg);
   transform-origin: top center;
   animation: tailWaveRight 2s infinite ease-in-out alternate;
 }
@@ -2459,57 +2459,57 @@ html, body {
   position: absolute;
   border-radius: 50% 50% 15% 50%;
   box-shadow: 
-    0 10px 25px rgba(0, 0, 0, 0.6),
-    inset 0 4px 8px rgba(255, 255, 255, 0.8),
-    inset 0 -6px 12px rgba(0, 0, 0, 0.5);
+    0 12px 30px rgba(0, 0, 0, 0.65),
+    inset 0 6px 12px rgba(255, 255, 255, 0.85),
+    inset 0 -8px 16px rgba(0, 0, 0, 0.55);
 }
 
 .gift-bow-loop.loop-back-left {
-  width: 58px;
-  height: 58px;
-  left: 12px;
-  top: 10px;
+  width: 82px;
+  height: 82px;
+  left: 16px;
+  top: 14px;
   background: linear-gradient(135deg, #FF8F00 0%, #E65100 100%);
-  transform: rotate(-45deg) scale(0.9);
+  transform: rotate(-45deg) scale(0.92);
   z-index: 2;
 }
 
 .gift-bow-loop.loop-back-right {
-  width: 58px;
-  height: 58px;
-  right: 12px;
-  top: 10px;
+  width: 82px;
+  height: 82px;
+  right: 16px;
+  top: 14px;
   background: linear-gradient(225deg, #FF8F00 0%, #E65100 100%);
-  transform: rotate(135deg) scale(0.9);
+  transform: rotate(135deg) scale(0.92);
   z-index: 2;
 }
 
 .gift-bow-loop.loop-main-left {
-  width: 68px;
-  height: 68px;
-  left: 8px;
-  top: 20px;
-  background: linear-gradient(135deg, #FFF59D 0%, #FFD700 45%, #FFA000 85%, #FF6F00 100%);
+  width: 96px;
+  height: 96px;
+  left: 10px;
+  top: 24px;
+  background: linear-gradient(135deg, #FFF9C4 0%, #FFD700 45%, #FFA000 85%, #FF6F00 100%);
   transform: rotate(-30deg);
   z-index: 3;
 }
 
 .gift-bow-loop.loop-main-right {
-  width: 68px;
-  height: 68px;
-  right: 8px;
-  top: 20px;
-  background: linear-gradient(225deg, #FFF59D 0%, #FFD700 45%, #FFA000 85%, #FF6F00 100%);
+  width: 96px;
+  height: 96px;
+  right: 10px;
+  top: 24px;
+  background: linear-gradient(225deg, #FFF9C4 0%, #FFD700 45%, #FFA000 85%, #FF6F00 100%);
   transform: rotate(120deg);
   z-index: 3;
 }
 
-/* Nudo Central con Logo Estrella 3D */
+/* Nudo Central con Gran Logo Estrella 3D */
 .gift-bow-center-knot {
   position: relative;
   z-index: 5;
-  width: 76px;
-  height: 76px;
+  width: 115px;
+  height: 115px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2518,10 +2518,10 @@ html, body {
 
 .gift-knot-aura {
   position: absolute;
-  inset: -12px;
+  inset: -18px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, rgba(255, 143, 0, 0.4) 50%, transparent 70%);
-  filter: blur(8px);
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.9) 0%, rgba(255, 143, 0, 0.5) 50%, transparent 70%);
+  filter: blur(12px);
   animation: knotAuraSpin 4s linear infinite;
 }
 
@@ -2537,7 +2537,7 @@ html, body {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1));
+  filter: drop-shadow(0 0 25px rgba(255, 215, 0, 1)) drop-shadow(0 0 50px rgba(255, 143, 0, 0.8));
 }
 
 @keyframes bowGlowPulse {
