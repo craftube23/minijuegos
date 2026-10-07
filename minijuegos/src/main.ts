@@ -169,12 +169,31 @@ class KioskApp {
    * Conecta los botones y transiciones entre pantallas
    */
   private setupNavigationCallbacks(): void {
-    // 1. Al presionar "Toca para Jugar" en el Salvapantallas → Solicitar Fullscreen e Ir al Menú
+    // 1. Al presionar "Toca para Jugar" en el Salvapantallas → Manos de Santa desgarran el gran paquete para revelar el Menú
     this.attractScreen.onStartClick = () => {
       this.audio.unlockAudio();
       this.audio.playTap();
       this.tryEnterFullscreen();
-      this.goToMenu();
+
+      if (this.isTransitioning) return;
+      this.isTransitioning = true;
+
+      const mainContainer = document.getElementById("kiosk-main") || document.body;
+      ScreenTransition.getInstance().runHandsTearLandingTransition(
+        mainContainer,
+        this.particles,
+        () => {
+          this.appState = "menu";
+          this.attractScreen.hide();
+          this.gameOverModal.hide();
+          this.instructionsModal.hide();
+          this.gameMenu.show();
+          this.resetInactivity();
+        },
+        () => {
+          this.isTransitioning = false;
+        }
+      );
     };
 
     // 2. Al pulsar "🎪 VOLVER A LA FERIA" en el Dashboard de juegos → Regresar a la Landing
@@ -182,7 +201,7 @@ class KioskApp {
       this.goToAttractScreen();
     };
 
-    // 3. Al seleccionar un juego en el Menú → Efecto de Desenvolvimiento de Regalo / Telón antes de mostrar Instrucciones
+    // 3. Al seleccionar un juego en el Menú → ¡ZARPAZO DE GARRAS TIPO GAROU DESGARRANDO EL PAQUETE!
     this.gameMenu.onSelectGame = (gameId: string) => {
       if (this.isTransitioning) return;
       this.isTransitioning = true;
@@ -190,18 +209,18 @@ class KioskApp {
       const mainContainer = document.getElementById("kiosk-main") || document.body;
       const gameInfo = this.getGameTransitionInfo(gameId);
 
-      // Ejecutar la transición mágica de regalo ANTES de entrar al modal de instrucciones
-      ScreenTransition.getInstance().runGiftUnwrapTransition(
+      // Ejecutar la transición de garras cortando el paquete
+      ScreenTransition.getInstance().runClawSlashGameTransition(
         mainContainer,
         gameInfo,
         this.particles,
         () => {
-          // Punto medio: Pantalla 100% cubierta por el regalo. Cambiar pantalla de forma invisible
+          // Punto medio: Pantalla cubierta. Cambiar pantalla de fondo
           this.gameMenu.hide();
           this.instructionsModal.show(gameId);
         },
         () => {
-          // El regalo se abre revelando el modal de instrucciones
+          // Las garras terminan de desgarrar y revelan las instrucciones
           this.isTransitioning = false;
         }
       );

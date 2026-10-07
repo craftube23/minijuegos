@@ -173,19 +173,16 @@ export class ScreenTransition {
   }
 
   /**
-   * 4. Transición de Papel de Regalo Navideño con Efecto Físico de Desgarre por Manos (Hands Tearing / Unboxing)
-   * Envuelve la pantalla en papel de regalo navideño con lazos dorados y dos manos animadas desgarran el paquete con fuerza.
+   * 4. Transición Landing -> Kiosquito: Manos de Santa/Elfo Desgarrando el Gran Paquete de la Feria
    */
-  public runGiftUnwrapTransition(
+  public runHandsTearLandingTransition(
     container: HTMLElement,
-    gameData: { title: string; icon: string; themeColor?: string; subtitle?: string },
     particles: ParticleSystem,
     onMidpoint: () => void,
     onComplete: () => void
   ): void {
     const overlay = document.createElement("div");
-    overlay.className = "gift-transition-overlay";
-    const subText = gameData.subtitle || "¡ABRIENDO JUGUETE MÁGICO!";
+    overlay.className = "gift-transition-overlay hands-mode";
     
     overlay.innerHTML = `
       <!-- Destello de Fondo / God Rays al abrirse -->
@@ -194,7 +191,7 @@ export class ScreenTransition {
       <!-- Grieta Mágica de Rasgadura Central -->
       <div class="gift-tear-crack"></div>
 
-      <!-- 4 Paneles / Solapas de Papel de Regalo con Bordes Rasgados 3D -->
+      <!-- 4 Paneles de Papel de Regalo con Bordes Rasgados 3D -->
       <div class="gift-tear-piece tear-top-left">
         <div class="gift-paper-texture"></div>
         <div class="gift-paper-damask"></div>
@@ -253,7 +250,7 @@ export class ScreenTransition {
         </div>
       </div>
 
-      <!-- Trozos / Virutas de Papel Rasgado Volando en 3D -->
+      <!-- Virutas de Papel Rasgado Volando en 3D -->
       <div class="gift-flying-scrap scrap-1"></div>
       <div class="gift-flying-scrap scrap-2"></div>
       <div class="gift-flying-scrap scrap-3"></div>
@@ -261,7 +258,7 @@ export class ScreenTransition {
       <div class="gift-flying-scrap scrap-5"></div>
       <div class="gift-flying-scrap scrap-6"></div>
 
-      <!-- Cintas de Satén Dorado 3D con Costuras y Reflejo Líquido -->
+      <!-- Cintas de Satén Dorado 3D con Reflejo -->
       <div class="gift-ribbon gift-ribbon-horizontal">
         <div class="gift-ribbon-stitch top"></div>
         <div class="gift-ribbon-glint"></div>
@@ -273,12 +270,10 @@ export class ScreenTransition {
         <div class="gift-ribbon-stitch right"></div>
       </div>
 
-      <!-- Anillo de Onda de Choque Mágica al cerrar y abrir -->
       <div class="gift-shockwave-ring"></div>
 
-      <!-- Gran Moño 3D y Sello Mágico Festivo -->
-      <div class="gift-center-box" style="--seal-theme-color: ${gameData.themeColor || '#FFD700'}">
-        <!-- Partículas y Estrellas Giratorias -->
+      <!-- Gran Moño 3D y Emblema de la Feria Mágica -->
+      <div class="gift-center-box" style="--seal-theme-color: #FFD700">
         <div class="gift-floating-particles">
           <span class="g-sparkle s1">✨</span>
           <span class="g-sparkle s2">⭐</span>
@@ -288,26 +283,206 @@ export class ScreenTransition {
           <span class="g-sparkle s6">★</span>
         </div>
 
-        <!-- Moño 3D Majestuoso con Orejas y Cintas Colgantes -->
         <div class="gift-luxury-bow">
-          <!-- Colas de cinta colgantes -->
           <div class="gift-bow-tail tail-left"></div>
           <div class="gift-bow-tail tail-right"></div>
-          
-          <!-- Lazos superiores e inferiores en capas 3D -->
           <div class="gift-bow-loop loop-back-left"></div>
           <div class="gift-bow-loop loop-back-right"></div>
           <div class="gift-bow-loop loop-main-left"></div>
           <div class="gift-bow-loop loop-main-right"></div>
 
-          <!-- Nudo Central con Gran Logo Estrella 3D -->
           <div class="gift-bow-center-knot">
             <div class="gift-knot-aura"></div>
             <img src="./assets/images/estrella con logo.png" alt="Feria Mágica" class="gift-bow-star" />
           </div>
         </div>
 
-        <!-- Placa Emblema Tallada en Oro y Madera Festiva -->
+        <div class="gift-game-badge">
+          <div class="gift-badge-corner tl"></div>
+          <div class="gift-badge-corner tr"></div>
+          <div class="gift-badge-corner bl"></div>
+          <div class="gift-badge-corner br"></div>
+
+          <div class="gift-icon-container">
+            <div class="gift-icon-glow"></div>
+            <span class="gift-game-icon">🎪</span>
+          </div>
+          
+          <h2 class="gift-game-title">FERIA MÁGICA</h2>
+          
+          <div class="gift-unwrapping-pill">
+            <span class="gift-pill-dot"></span>
+            <span class="gift-pill-text">¡ABRIENDO KIOSCO DE JUEGOS!</span>
+            <span class="gift-pill-dot"></span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(overlay);
+    this.audio.playWhoosh();
+
+    requestAnimationFrame(() => {
+      overlay.classList.add("is-wrapping");
+    });
+
+    setTimeout(() => {
+      onMidpoint();
+
+      setTimeout(() => {
+        overlay.classList.add("is-hands-grabbing");
+
+        setTimeout(() => {
+          this.audio.playPaperTear();
+          setTimeout(() => this.audio.playGiftUnwrap(), 160);
+
+          const bounds = container.getBoundingClientRect();
+          particles.emitBurst(bounds.width / 2, bounds.height * 0.45, "#FFD700", 45);
+          particles.emitConfetti(bounds.width, 70);
+
+          overlay.classList.remove("is-wrapping");
+          overlay.classList.add("is-unwrapping");
+
+          setTimeout(() => {
+            overlay.classList.add("is-finished");
+            setTimeout(() => {
+              overlay.remove();
+              onComplete();
+            }, 450);
+          }, 950);
+
+        }, 220);
+
+      }, 850);
+
+    }, 600);
+  }
+
+  /**
+   * 5. Transición Kiosco -> Minijuegos: ¡GARRAS FEROCES TIPO GAROU DESGARRANDO EL PAQUETE EN PEDAZOS!
+   * Envuelve el regalo y una ráfaga de garras corta el paquete en múltiples tajadas y fragmentos en 3D.
+   */
+  public runClawSlashGameTransition(
+    container: HTMLElement,
+    gameData: { title: string; icon: string; themeColor?: string; subtitle?: string },
+    particles: ParticleSystem,
+    onMidpoint: () => void,
+    onComplete: () => void
+  ): void {
+    const overlay = document.createElement("div");
+    overlay.className = "gift-transition-overlay claw-mode";
+    const subText = gameData.subtitle || "¡DESGARRANDO JUGUETE MÁGICO!";
+    
+    overlay.innerHTML = `
+      <!-- Destello de Fondo God Rays -->
+      <div class="gift-backdrop-glow claw-bg-glow"></div>
+
+      <!-- Flash de Energía y Corte de Garra de Alta Intensidad -->
+      <div class="claw-screen-flash"></div>
+
+      <!-- 6 Tiras y Fragmentos Diagonales de Papel de Regalo Cortados por Garras -->
+      <div class="claw-shred-slice slice-1">
+        <div class="gift-paper-texture"></div>
+        <div class="gift-paper-damask"></div>
+        <div class="claw-cut-bleed top"></div>
+        <div class="claw-cut-bleed bottom"></div>
+      </div>
+
+      <div class="claw-shred-slice slice-2">
+        <div class="gift-paper-texture"></div>
+        <div class="gift-paper-damask"></div>
+        <div class="claw-cut-bleed top"></div>
+        <div class="claw-cut-bleed bottom"></div>
+      </div>
+
+      <div class="claw-shred-slice slice-3">
+        <div class="gift-paper-texture"></div>
+        <div class="gift-paper-damask"></div>
+        <div class="claw-cut-bleed top"></div>
+        <div class="claw-cut-bleed bottom"></div>
+      </div>
+
+      <div class="claw-shred-slice slice-4">
+        <div class="gift-paper-texture"></div>
+        <div class="gift-paper-damask"></div>
+        <div class="claw-cut-bleed top"></div>
+        <div class="claw-cut-bleed bottom"></div>
+      </div>
+
+      <div class="claw-shred-slice slice-5">
+        <div class="gift-paper-texture"></div>
+        <div class="gift-paper-damask"></div>
+        <div class="claw-cut-bleed top"></div>
+        <div class="claw-cut-bleed bottom"></div>
+      </div>
+
+      <!-- 4 Estelas de Garras de Energía Brillante (Tipo Garou / Bestia Cortante) -->
+      <div class="claw-slash-trail claw-trail-1">
+        <div class="claw-blade-glow"></div>
+        <div class="claw-sparks"></div>
+      </div>
+      <div class="claw-slash-trail claw-trail-2">
+        <div class="claw-blade-glow"></div>
+        <div class="claw-sparks"></div>
+      </div>
+      <div class="claw-slash-trail claw-trail-3">
+        <div class="claw-blade-glow"></div>
+        <div class="claw-sparks"></div>
+      </div>
+      <div class="claw-slash-trail claw-trail-4">
+        <div class="claw-blade-glow"></div>
+        <div class="claw-sparks"></div>
+      </div>
+
+      <!-- Virutas y Pedazos Cortados Disparados por el Zarpazo -->
+      <div class="claw-flying-shard shard-1"></div>
+      <div class="claw-flying-shard shard-2"></div>
+      <div class="claw-flying-shard shard-3"></div>
+      <div class="claw-flying-shard shard-4"></div>
+      <div class="claw-flying-shard shard-5"></div>
+      <div class="claw-flying-shard shard-6"></div>
+      <div class="claw-flying-shard shard-7"></div>
+      <div class="claw-flying-shard shard-8"></div>
+
+      <!-- Cintas de Satén Dorado Cortadas por la Garra -->
+      <div class="gift-ribbon gift-ribbon-horizontal claw-cut-ribbon">
+        <div class="gift-ribbon-stitch top"></div>
+        <div class="gift-ribbon-glint"></div>
+        <div class="gift-ribbon-stitch bottom"></div>
+      </div>
+      <div class="gift-ribbon gift-ribbon-vertical claw-cut-ribbon">
+        <div class="gift-ribbon-stitch left"></div>
+        <div class="gift-ribbon-glint-v"></div>
+        <div class="gift-ribbon-stitch right"></div>
+      </div>
+
+      <div class="gift-shockwave-ring"></div>
+
+      <!-- Gran Moño 3D y Sello Mágico del Minijuego -->
+      <div class="gift-center-box" style="--seal-theme-color: ${gameData.themeColor || '#FFD700'}">
+        <div class="gift-floating-particles">
+          <span class="g-sparkle s1">✨</span>
+          <span class="g-sparkle s2">⭐</span>
+          <span class="g-sparkle s3">✦</span>
+          <span class="g-sparkle s4">❄️</span>
+          <span class="g-sparkle s5">✨</span>
+          <span class="g-sparkle s6">★</span>
+        </div>
+
+        <div class="gift-luxury-bow">
+          <div class="gift-bow-tail tail-left"></div>
+          <div class="gift-bow-tail tail-right"></div>
+          <div class="gift-bow-loop loop-back-left"></div>
+          <div class="gift-bow-loop loop-back-right"></div>
+          <div class="gift-bow-loop loop-main-left"></div>
+          <div class="gift-bow-loop loop-main-right"></div>
+
+          <div class="gift-bow-center-knot">
+            <div class="gift-knot-aura"></div>
+            <img src="./assets/images/estrella con logo.png" alt="Feria Mágica" class="gift-bow-star" />
+          </div>
+        </div>
+
         <div class="gift-game-badge">
           <div class="gift-badge-corner tl"></div>
           <div class="gift-badge-corner tr"></div>
@@ -331,50 +506,55 @@ export class ScreenTransition {
     `;
 
     container.appendChild(overlay);
-
-    // Sonido de envoltorio con whoosh
     this.audio.playWhoosh();
 
-    // 1. Envolver (Cierre elástico con impacto en 600ms)
+    // 1. Envolver paquete
     requestAnimationFrame(() => {
       overlay.classList.add("is-wrapping");
     });
 
-    // 2. Punto medio: Pantalla completamente cubierta
+    // 2. Punto medio: Pantalla cubierta
     setTimeout(() => {
       onMidpoint();
 
-      // Pausa para apreciar el paquete de regalo antes de que aparezcan las manos a desgarrarlo
+      // Pausa para ver la tarjeta del juego
       setTimeout(() => {
-        // Las manos agarran el centro del paquete
-        overlay.classList.add("is-hands-grabbing");
+        // ¡ZARPAZO DE GARRAS CORTANDO EL PAQUETE!
+        this.audio.playClawSlash();
+        setTimeout(() => this.audio.playGiftUnwrap(), 180);
 
-        // 180ms después: ¡Jalón y desgarre violento del paquete!
+        const bounds = container.getBoundingClientRect();
+        particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FF2A4D", 50);
+        particles.emitConfetti(bounds.width, 80);
+
+        // Activar animación de corte feroz por garras
+        overlay.classList.remove("is-wrapping");
+        overlay.classList.add("is-claw-slashing");
+
+        // 4. Finalización limpia
         setTimeout(() => {
-          this.audio.playPaperTear();
-          setTimeout(() => this.audio.playGiftUnwrap(), 160);
-
-          const bounds = container.getBoundingClientRect();
-          particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 45);
-          particles.emitConfetti(bounds.width, 70);
-
-          // 3. ¡Desgarrar papel de regalo en 3D con las manos abriendo el hueco!
-          overlay.classList.remove("is-wrapping");
-          overlay.classList.add("is-unwrapping");
-
-          // 4. Finalización limpia
+          overlay.classList.add("is-finished");
           setTimeout(() => {
-            overlay.classList.add("is-finished");
-            setTimeout(() => {
-              overlay.remove();
-              onComplete();
-            }, 450);
-          }, 950);
-
-        }, 220);
+            overlay.remove();
+            onComplete();
+          }, 400);
+        }, 900);
 
       }, 850);
 
     }, 600);
+  }
+
+  /**
+   * Alias de compatibilidad: redirige al zarpazo de garras para juegos
+   */
+  public runGiftUnwrapTransition(
+    container: HTMLElement,
+    gameData: { title: string; icon: string; themeColor?: string; subtitle?: string },
+    particles: ParticleSystem,
+    onMidpoint: () => void,
+    onComplete: () => void
+  ): void {
+    this.runClawSlashGameTransition(container, gameData, particles, onMidpoint, onComplete);
   }
 }

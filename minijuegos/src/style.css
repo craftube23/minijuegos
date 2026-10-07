@@ -3039,12 +3039,325 @@ html, body {
   100% { transform: translate(150px, 290px) scale(0.2) rotate(-220deg); opacity: 0; }
 }
 
-/* 4. Finalización Limpia */
-.gift-transition-overlay.is-finished {
+/* ==========================================================================
+   MODO GARRAS FEROCES TIPO GAROU (Claw Slash Mode)
+   ========================================================================== */
+
+/* Flash de Pantalla al impactar las garras */
+.claw-screen-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0, 229, 255, 0.9) 0%, rgba(255, 215, 0, 0.7) 40%, rgba(255, 23, 68, 0.9) 80%);
   opacity: 0;
-  transition: opacity 0.32s ease-out;
+  pointer-events: none;
+  z-index: 20;
 }
 
+.gift-transition-overlay.claw-mode.is-claw-slashing .claw-screen-flash {
+  animation: clawFlashAnim 0.35s ease-out forwards;
+}
 
+@keyframes clawFlashAnim {
+  0% { opacity: 0; }
+  25% { opacity: 0.95; }
+  100% { opacity: 0; }
+}
 
+/* 5 Tajadas Diagonales de Papel de Regalo para el Zarpazo de Garras */
+.claw-shred-slice {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #4A040F 0%, #800F2F 35%, #A4133C 60%, #590D22 85%, #2B020B 100%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  will-change: transform, opacity;
+  z-index: 2;
+  overflow: hidden;
+  transition: transform 0.55s cubic-bezier(0.18, 1.15, 0.32, 1), opacity 0.4s ease;
+  transform: translate3d(0, 0, 0);
+  transform-style: preserve-3d;
+}
 
+.claw-mode:not(.is-wrapping):not(.is-claw-slashing) .claw-shred-slice {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.claw-shred-slice.slice-1 {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 18%, 65% 26%, 0% 32%);
+}
+
+.claw-shred-slice.slice-2 {
+  clip-path: polygon(0% 32%, 65% 26%, 100% 18%, 100% 46%, 42% 52%, 0% 58%);
+}
+
+.claw-shred-slice.slice-3 {
+  clip-path: polygon(0% 58%, 42% 52%, 100% 46%, 100% 74%, 28% 78%, 0% 84%);
+}
+
+.claw-shred-slice.slice-4 {
+  clip-path: polygon(0% 84%, 28% 78%, 100% 74%, 100% 100%, 0% 100%);
+}
+
+.claw-shred-slice.slice-5 {
+  clip-path: polygon(30% 0%, 70% 0%, 85% 100%, 45% 100%);
+  opacity: 0.15;
+  mix-blend-mode: color-dodge;
+  background: linear-gradient(180deg, #FFD700 0%, transparent 100%);
+}
+
+/* Borde de Corte Brillante de la Garra (Bleed de Energía) */
+.claw-cut-bleed {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #FF1744 0%, #00E5FF 50%, #FFD700 100%);
+  box-shadow: 0 0 15px 3px #00E5FF, 0 0 30px 6px #FFD700;
+}
+
+.claw-cut-bleed.top { top: 0; }
+.claw-cut-bleed.bottom { bottom: 0; }
+
+/* 4 Estelas de Garras de Energía Brillante (Tipo Garou / Anime Slashing Blades) */
+.claw-slash-trail {
+  position: absolute;
+  pointer-events: none;
+  z-index: 18;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.claw-blade-glow {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  filter: blur(2px);
+}
+
+.claw-trail-1 {
+  top: 15%;
+  left: -20%;
+  width: 140%;
+  height: 14px;
+  background: linear-gradient(90deg, transparent 0%, #00E5FF 30%, #FFFFFF 60%, #FFD700 85%, transparent 100%);
+  box-shadow: 0 0 25px #00E5FF, 0 0 50px #00B0FF;
+  transform: rotate(-18deg) scaleX(0);
+  transform-origin: left center;
+}
+
+.claw-trail-2 {
+  top: 38%;
+  left: -20%;
+  width: 140%;
+  height: 18px;
+  background: linear-gradient(90deg, transparent 0%, #FF1744 25%, #FFFFFF 60%, #00E5FF 85%, transparent 100%);
+  box-shadow: 0 0 30px #FF1744, 0 0 60px #FF5252;
+  transform: rotate(-22deg) scaleX(0);
+  transform-origin: left center;
+}
+
+.claw-trail-3 {
+  top: 62%;
+  left: -20%;
+  width: 140%;
+  height: 16px;
+  background: linear-gradient(90deg, transparent 0%, #FFD700 25%, #FFFFFF 60%, #FF9100 85%, transparent 100%);
+  box-shadow: 0 0 30px #FFD700, 0 0 60px #FF8F00;
+  transform: rotate(-19deg) scaleX(0);
+  transform-origin: left center;
+}
+
+.claw-trail-4 {
+  top: 84%;
+  left: -20%;
+  width: 140%;
+  height: 12px;
+  background: linear-gradient(90deg, transparent 0%, #00E5FF 30%, #FFFFFF 70%, transparent 100%);
+  box-shadow: 0 0 20px #00E5FF;
+  transform: rotate(-24deg) scaleX(0);
+  transform-origin: left center;
+}
+
+/* Animación del Zarpazo de Garras */
+.gift-transition-overlay.claw-mode.is-claw-slashing .claw-trail-1 {
+  animation: clawSlashSwipe1 0.35s cubic-bezier(0.1, 1, 0.2, 1) forwards;
+}
+
+.gift-transition-overlay.claw-mode.is-claw-slashing .claw-trail-2 {
+  animation: clawSlashSwipe2 0.38s cubic-bezier(0.1, 1, 0.2, 1) 0.04s forwards;
+}
+
+.gift-transition-overlay.claw-mode.is-claw-slashing .claw-trail-3 {
+  animation: clawSlashSwipe3 0.4s cubic-bezier(0.1, 1, 0.2, 1) 0.08s forwards;
+}
+
+.gift-transition-overlay.claw-mode.is-claw-slashing .claw-trail-4 {
+  animation: clawSlashSwipe4 0.42s cubic-bezier(0.1, 1, 0.2, 1) 0.12s forwards;
+}
+
+@keyframes clawSlashSwipe1 {
+  0% { transform: rotate(-18deg) scaleX(0); opacity: 1; }
+  35% { transform: rotate(-18deg) scaleX(1.1); opacity: 1; filter: brightness(2.5); }
+  100% { transform: rotate(-18deg) scaleX(1.3) translateX(25%); opacity: 0; filter: blur(8px); }
+}
+
+@keyframes clawSlashSwipe2 {
+  0% { transform: rotate(-22deg) scaleX(0); opacity: 1; }
+  35% { transform: rotate(-22deg) scaleX(1.1); opacity: 1; filter: brightness(2.5); }
+  100% { transform: rotate(-22deg) scaleX(1.3) translateX(25%); opacity: 0; filter: blur(8px); }
+}
+
+@keyframes clawSlashSwipe3 {
+  0% { transform: rotate(-19deg) scaleX(0); opacity: 1; }
+  35% { transform: rotate(-19deg) scaleX(1.1); opacity: 1; filter: brightness(2.5); }
+  100% { transform: rotate(-19deg) scaleX(1.3) translateX(25%); opacity: 0; filter: blur(8px); }
+}
+
+@keyframes clawSlashSwipe4 {
+  0% { transform: rotate(-24deg) scaleX(0); opacity: 1; }
+  35% { transform: rotate(-24deg) scaleX(1.1); opacity: 1; filter: brightness(2.5); }
+  100% { transform: rotate(-24deg) scaleX(1.3) translateX(25%); opacity: 0; filter: blur(8px); }
+}
+
+/* Tajadas Diagonales de Papel Salen Disparadas en 3D por el Zarpazo */
+.gift-transition-overlay.claw-mode.is-claw-slashing .slice-1 {
+  transform: translate3d(-120%, -140%, 160px) rotateX(45deg) rotateY(-35deg) rotateZ(-30deg);
+  opacity: 0;
+  transition: transform 0.68s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.5s ease-out;
+}
+
+.gift-transition-overlay.claw-mode.is-claw-slashing .slice-2 {
+  transform: translate3d(130%, -90%, 200px) rotateX(35deg) rotateY(45deg) rotateZ(25deg);
+  opacity: 0;
+  transition: transform 0.72s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.5s ease-out;
+}
+
+.gift-transition-overlay.claw-mode.is-claw-slashing .slice-3 {
+  transform: translate3d(-140%, 80%, 220px) rotateX(-40deg) rotateY(-40deg) rotateZ(35deg);
+  opacity: 0;
+  transition: transform 0.75s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.55s ease-out;
+}
+
+.gift-transition-overlay.claw-mode.is-claw-slashing .slice-4 {
+  transform: translate3d(120%, 140%, 180px) rotateX(-45deg) rotateY(35deg) rotateZ(-25deg);
+  opacity: 0;
+  transition: transform 0.78s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.55s ease-out;
+}
+
+.gift-transition-overlay.claw-mode.is-claw-slashing .slice-5 {
+  transform: scale(2.5) rotate(45deg);
+  opacity: 0;
+  transition: all 0.5s ease-out;
+}
+
+/* Virutas y Fragmentos Cortados por Garras Volando */
+.claw-flying-shard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: linear-gradient(135deg, #FF1744 0%, #FFD700 70%, #00E5FF 100%);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.9);
+  opacity: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.claw-flying-shard.shard-1 { width: 42px; height: 18px; clip-path: polygon(0% 0%, 100% 40%, 70% 100%, 10% 70%); }
+.claw-flying-shard.shard-2 { width: 50px; height: 14px; clip-path: polygon(15% 0%, 100% 10%, 85% 100%, 0% 90%); }
+.claw-flying-shard.shard-3 { width: 38px; height: 22px; clip-path: polygon(0% 25%, 85% 0%, 100% 85%, 20% 100%); }
+.claw-flying-shard.shard-4 { width: 46px; height: 16px; clip-path: polygon(25% 0%, 100% 20%, 75% 100%, 0% 80%); }
+.claw-flying-shard.shard-5 { width: 32px; height: 28px; clip-path: polygon(10% 0%, 90% 10%, 100% 90%, 0% 70%); }
+.claw-flying-shard.shard-6 { width: 40px; height: 15px; clip-path: polygon(0% 30%, 100% 0%, 70% 100%, 10% 90%); }
+.claw-flying-shard.shard-7 { width: 35px; height: 20px; clip-path: polygon(20% 0%, 100% 35%, 80% 100%, 0% 65%); }
+.claw-flying-shard.shard-8 { width: 48px; height: 18px; clip-path: polygon(0% 10%, 90% 0%, 100% 80%, 15% 100%); }
+
+.gift-transition-overlay.claw-mode.is-claw-slashing .shard-1 { animation: clawShardFly1 0.65s cubic-bezier(0.15, 1, 0.3, 1) forwards; }
+.gift-transition-overlay.claw-mode.is-claw-slashing .shard-2 { animation: clawShardFly2 0.68s cubic-bezier(0.15, 1, 0.3, 1) forwards; }
+.gift-transition-overlay.claw-mode.is-claw-slashing .shard-3 { animation: clawShardFly3 0.7s cubic-bezier(0.15, 1, 0.3, 1) forwards; }
+.gift-transition-overlay.claw-mode.is-claw-slashing .shard-4 { animation: clawShardFly4 0.72s cubic-bezier(0.15, 1, 0.3, 1) forwards; }
+.gift-transition-overlay.claw-mode.is-claw-slashing .shard-5 { animation: clawShardFly5 0.74s cubic-bezier(0.15, 1, 0.3, 1) forwards; }
+.gift-transition-overlay.claw-mode.is-claw-slashing .shard-6 { animation: clawShardFly6 0.76s cubic-bezier(0.15, 1, 0.3, 1) forwards; }
+.gift-transition-overlay.claw-mode.is-claw-slashing .shard-7 { animation: clawShardFly7 0.78s cubic-bezier(0.15, 1, 0.3, 1) forwards; }
+.gift-transition-overlay.claw-mode.is-claw-slashing .shard-8 { animation: clawShardFly8 0.8s cubic-bezier(0.15, 1, 0.3, 1) forwards; }
+
+@keyframes clawShardFly1 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-320px, -240px) scale(0.3) rotate(-380deg); opacity: 0; }
+}
+
+@keyframes clawShardFly2 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(320px, -260px) scale(0.25) rotate(380deg); opacity: 0; }
+}
+
+@keyframes clawShardFly3 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-290px, 280px) scale(0.3) rotate(-420deg); opacity: 0; }
+}
+
+@keyframes clawShardFly4 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(290px, 300px) scale(0.25) rotate(440deg); opacity: 0; }
+}
+
+@keyframes clawShardFly5 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-180px, -320px) scale(0.2) rotate(260deg); opacity: 0; }
+}
+
+@keyframes clawShardFly6 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(180px, 320px) scale(0.2) rotate(-260deg); opacity: 0; }
+}
+
+@keyframes clawShardFly7 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-340px, 50px) scale(0.25) rotate(-300deg); opacity: 0; }
+}
+
+@keyframes clawShardFly8 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(340px, -50px) scale(0.25) rotate(300deg); opacity: 0; }
+}
+
+/* Sacudida de Impacto de la Garra (Camera Shake) */
+.gift-transition-overlay.claw-mode.is-claw-slashing {
+  animation: clawImpactShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes clawImpactShake {
+  10%, 90% { transform: translate3d(-3px, 0, 0); }
+  20%, 80% { transform: translate3d(5px, -2px, 0); }
+  30%, 50%, 70% { transform: translate3d(-7px, 3px, 0); }
+  40%, 60% { transform: translate3d(7px, -3px, 0); }
+}
+
+/* Desintegración del Moño y Placa por el Zarpazo */
+.gift-transition-overlay.claw-mode.is-claw-slashing .gift-luxury-bow {
+  animation: bowClawShred 0.35s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@keyframes bowClawShred {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  30% { transform: scale(1.3) rotate(-15deg); filter: brightness(3); opacity: 1; }
+  100% { transform: scale(2.6) rotate(45deg); filter: blur(16px); opacity: 0; }
+}
+
+.gift-transition-overlay.claw-mode.is-claw-slashing .gift-center-box {
+  transform: translate(-50%, -50%) scale(1.5) rotate(-6deg);
+  opacity: 0;
+  filter: blur(10px);
+  transition: all 0.32s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.gift-transition-overlay.claw-mode.is-claw-slashing .gift-ribbon-horizontal {
+  opacity: 0;
+  transform: translateY(-50%) scaleX(1.5) scaleY(0) rotate(12deg);
+  transition: all 0.28s ease-out;
+}
+
+.gift-transition-overlay.claw-mode.is-claw-slashing .gift-ribbon-vertical {
+  opacity: 0;
+  transform: translateX(-50%) scaleY(1.5) scaleX(0) rotate(-12deg);
+  transition: all 0.28s ease-out;
+}

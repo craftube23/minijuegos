@@ -213,6 +213,70 @@ export class AudioManager {
   }
 
   /**
+   * Sonido feroz de corte y desgarre con garras (Claw Slash / Garou Claw Strike)
+   * Simula 3 ráfagas de cortes afilados que desgarran el paquete a gran velocidad.
+   */
+  public playClawSlash(): void {
+    Haptics.impact();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+
+    // Ráfagas de corte de cuchillas / garras (3 cortes rápidos)
+    [0, 0.06, 0.13].forEach((offset, idx) => {
+      if (!this.ctx) return;
+      const startTime = t + offset;
+
+      // 1. Silbido y corte metálico/afilado (Swish de la garra)
+      const osc = this.ctx.createOscillator();
+      const oscGain = this.ctx.createGain();
+
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(2800 - idx * 400, startTime);
+      osc.frequency.exponentialRampToValueAtTime(160, startTime + 0.14);
+
+      oscGain.gain.setValueAtTime(0.35, startTime);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.14);
+
+      osc.connect(oscGain);
+      oscGain.connect(this.ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.14);
+
+      // 2. Ruido blanco de desgarre de tela/papel por el filo de la garra
+      const bufferSize = Math.floor(this.ctx.sampleRate * 0.12);
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1);
+      }
+
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(3200, startTime);
+      filter.frequency.linearRampToValueAtTime(800, startTime + 0.12);
+      filter.Q.setValueAtTime(4.0, startTime);
+
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.45, startTime);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.12);
+
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(this.ctx.destination);
+
+      noise.start(startTime);
+      noise.stop(startTime + 0.12);
+    });
+  }
+
+  /**
    * Sonido mágico de desenvoltorio de regalo y apertura de telón
    */
   public playGiftUnwrap(): void {
