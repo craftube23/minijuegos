@@ -162,7 +162,7 @@ export class AudioManager {
   }
 
   /**
-   * Sonido crujiente de papel de regalo rasgándose (Paper Rip / Tear)
+   * Sonido crujiente de papel de regalo desgarrándose con fuerza (Paper Rip / Tear)
    */
   public playPaperTear(): void {
     Haptics.impact();
@@ -172,33 +172,44 @@ export class AudioManager {
 
     const t = this.ctx.currentTime;
 
-    // Ruido blanco filtrado para simular el crujido y rasgado del papel
-    const bufferSize = Math.floor(this.ctx.sampleRate * 0.22);
-    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
+    // Etapa 1: Ruido blanco filtrado paso-banda rápido (Primer jalón y rotura inicial)
+    const createRipBurst = (startTime: number, duration: number, freqStart: number, freqEnd: number, vol: number) => {
+      if (!this.ctx) return;
+      const bufferSize = Math.floor(this.ctx.sampleRate * duration);
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        // Ruido granular crujiente
+        data[i] = (Math.random() * 2 - 1) * (Math.random() > 0.3 ? 1 : 0.4);
+      }
 
-    const noise = this.ctx.createBufferSource();
-    noise.buffer = buffer;
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
 
-    const filter = this.ctx.createBiquadFilter();
-    filter.type = "bandpass";
-    filter.frequency.setValueAtTime(1800, t);
-    filter.frequency.linearRampToValueAtTime(3400, t + 0.18);
-    filter.Q.setValueAtTime(2.5, t);
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(freqStart, startTime);
+      filter.frequency.exponentialRampToValueAtTime(freqEnd, startTime + duration);
+      filter.Q.setValueAtTime(3.0, startTime);
 
-    const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0.32, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(vol, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
 
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.ctx.destination);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
 
-    noise.start(t);
-    noise.stop(t + 0.22);
+      noise.start(startTime);
+      noise.stop(startTime + duration);
+    };
+
+    // 1. Crujido inicial del agarre (0ms)
+    createRipBurst(t, 0.12, 1200, 2600, 0.4);
+    // 2. Gran desgarre central prolongado (70ms después)
+    createRipBurst(t + 0.07, 0.32, 2200, 4800, 0.55);
+    // 3. Desgarre de fibras y bordes finales (180ms después)
+    createRipBurst(t + 0.18, 0.25, 3400, 1600, 0.38);
   }
 
   /**

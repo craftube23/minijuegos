@@ -173,8 +173,8 @@ export class ScreenTransition {
   }
 
   /**
-   * 4. Transición de Telón / Desenvolvimiento de Regalo Navideño (Gift Unwrap Transition)
-   * Cierra dos telones de terciopelo/papel de regalo con lazo dorado y abre mágicamente el minijuego.
+   * 4. Transición de Papel de Regalo Navideño con Efecto Físico de Desgarre por Manos (Hands Tearing / Unboxing)
+   * Envuelve la pantalla en papel de regalo navideño con lazos dorados y dos manos animadas desgarran el paquete con fuerza.
    */
   public runGiftUnwrapTransition(
     container: HTMLElement,
@@ -200,6 +200,7 @@ export class ScreenTransition {
         <div class="gift-paper-damask"></div>
         <div class="gift-tear-edge edge-h"></div>
         <div class="gift-tear-edge edge-v"></div>
+        <div class="gift-paper-curl curl-tl"></div>
       </div>
 
       <div class="gift-tear-piece tear-top-right">
@@ -207,6 +208,7 @@ export class ScreenTransition {
         <div class="gift-paper-damask"></div>
         <div class="gift-tear-edge edge-h"></div>
         <div class="gift-tear-edge edge-v"></div>
+        <div class="gift-paper-curl curl-tr"></div>
       </div>
 
       <div class="gift-tear-piece tear-bottom-left">
@@ -214,6 +216,7 @@ export class ScreenTransition {
         <div class="gift-paper-damask"></div>
         <div class="gift-tear-edge edge-h"></div>
         <div class="gift-tear-edge edge-v"></div>
+        <div class="gift-paper-curl curl-bl"></div>
       </div>
 
       <div class="gift-tear-piece tear-bottom-right">
@@ -221,6 +224,33 @@ export class ScreenTransition {
         <div class="gift-paper-damask"></div>
         <div class="gift-tear-edge edge-h"></div>
         <div class="gift-tear-edge edge-v"></div>
+        <div class="gift-paper-curl curl-br"></div>
+      </div>
+
+      <!-- Costura Dentada de Rasgado Central -->
+      <div class="gift-rip-seam"></div>
+
+      <!-- Manos Animadas de Santa / Elfo Desgarrando el Paquete con Fuerza -->
+      <div class="gift-tearing-hand hand-left">
+        <div class="hand-sleeve"></div>
+        <div class="hand-cuff"></div>
+        <div class="hand-glove">
+          <div class="hand-finger f1"></div>
+          <div class="hand-finger f2"></div>
+          <div class="hand-finger f3"></div>
+          <div class="hand-thumb"></div>
+        </div>
+      </div>
+
+      <div class="gift-tearing-hand hand-right">
+        <div class="hand-sleeve"></div>
+        <div class="hand-cuff"></div>
+        <div class="hand-glove">
+          <div class="hand-finger f1"></div>
+          <div class="hand-finger f2"></div>
+          <div class="hand-finger f3"></div>
+          <div class="hand-thumb"></div>
+        </div>
       </div>
 
       <!-- Trozos / Virutas de Papel Rasgado Volando en 3D -->
@@ -228,6 +258,8 @@ export class ScreenTransition {
       <div class="gift-flying-scrap scrap-2"></div>
       <div class="gift-flying-scrap scrap-3"></div>
       <div class="gift-flying-scrap scrap-4"></div>
+      <div class="gift-flying-scrap scrap-5"></div>
+      <div class="gift-flying-scrap scrap-6"></div>
 
       <!-- Cintas de Satén Dorado 3D con Costuras y Reflejo Líquido -->
       <div class="gift-ribbon gift-ribbon-horizontal">
@@ -300,42 +332,49 @@ export class ScreenTransition {
 
     container.appendChild(overlay);
 
-    // Sonido de cierre envolvente con whoosh cinematográfico
+    // Sonido de envoltorio con whoosh
     this.audio.playWhoosh();
 
-    // 1. Envolver (Cierre elástico con impacto en 650ms)
+    // 1. Envolver (Cierre elástico con impacto en 600ms)
     requestAnimationFrame(() => {
       overlay.classList.add("is-wrapping");
     });
 
-    // 2. Punto medio: La pantalla está 100% cubierta
+    // 2. Punto medio: Pantalla completamente cubierta
     setTimeout(() => {
       onMidpoint();
 
-      // Pausa adecuada para que el jugador aprecie la presentación del regalo y el logo
+      // Pausa para apreciar el paquete de regalo antes de que aparezcan las manos a desgarrarlo
       setTimeout(() => {
-        // Sonido de papel rasgándose y crujiente de desempaque
-        this.audio.playPaperTear();
-        setTimeout(() => this.audio.playGiftUnwrap(), 120);
+        // Las manos agarran el centro del paquete
+        overlay.classList.add("is-hands-grabbing");
 
-        const bounds = container.getBoundingClientRect();
-        particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 40);
-        particles.emitConfetti(bounds.width, 60);
-
-        // 3. ¡Rasgar papel de regalo en 3D y abrir con efecto dramático!
-        overlay.classList.remove("is-wrapping");
-        overlay.classList.add("is-unwrapping");
-
-        // 4. Finalización suave
+        // 180ms después: ¡Jalón y desgarre violento del paquete!
         setTimeout(() => {
-          overlay.classList.add("is-finished");
-          setTimeout(() => {
-            overlay.remove();
-            onComplete();
-          }, 450);
-        }, 850);
-      }, 950);
+          this.audio.playPaperTear();
+          setTimeout(() => this.audio.playGiftUnwrap(), 160);
 
-    }, 650);
+          const bounds = container.getBoundingClientRect();
+          particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 45);
+          particles.emitConfetti(bounds.width, 70);
+
+          // 3. ¡Desgarrar papel de regalo en 3D con las manos abriendo el hueco!
+          overlay.classList.remove("is-wrapping");
+          overlay.classList.add("is-unwrapping");
+
+          // 4. Finalización limpia
+          setTimeout(() => {
+            overlay.classList.add("is-finished");
+            setTimeout(() => {
+              overlay.remove();
+              onComplete();
+            }, 450);
+          }, 950);
+
+        }, 220);
+
+      }, 850);
+
+    }, 600);
   }
 }

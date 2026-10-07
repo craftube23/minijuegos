@@ -2204,42 +2204,47 @@ html, body {
 /* 1. Cuatro Solapas de Papel de Regalo con Textura de Rasgado en 3D */
 .gift-tear-piece {
   position: absolute;
-  width: 51.5%;
-  height: 51.5%;
+  width: 52%;
+  height: 52%;
   will-change: transform, opacity;
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.85);
   overflow: hidden;
   z-index: 2;
   transition: transform 0.55s cubic-bezier(0.18, 1.15, 0.32, 1), opacity 0.4s ease;
   background: linear-gradient(135deg, #4A040F 0%, #800F2F 35%, #A4133C 60%, #590D22 85%, #2B020B 100%);
+  transform-style: preserve-3d;
 }
 
 .tear-top-left {
   top: 0;
   left: 0;
   transform: translate3d(-105%, -105%, 0);
-  clip-path: polygon(0% 0%, 100% 0%, 100% 92%, 94% 97%, 88% 93%, 80% 100%, 72% 95%, 62% 98%, 52% 93%, 42% 100%, 30% 94%, 18% 98%, 0% 93%);
+  transform-origin: top left;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 90%, 93% 96%, 86% 91%, 78% 100%, 70% 94%, 60% 98%, 50% 92%, 40% 100%, 28% 93%, 16% 98%, 0% 92%);
 }
 
 .tear-top-right {
   top: 0;
   right: 0;
   transform: translate3d(105%, -105%, 0);
-  clip-path: polygon(0% 0%, 100% 0%, 100% 93%, 88% 97%, 76% 93%, 65% 100%, 55% 94%, 44% 98%, 32% 93%, 20% 100%, 10% 94%, 0% 98%);
+  transform-origin: top right;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 92%, 87% 97%, 75% 92%, 64% 100%, 54% 93%, 43% 98%, 31% 92%, 19% 100%, 9% 93%, 0% 97%);
 }
 
 .tear-bottom-left {
   bottom: 0;
   left: 0;
   transform: translate3d(-105%, 105%, 0);
-  clip-path: polygon(0% 7%, 18% 2%, 30% 6%, 42% 0%, 52% 7%, 62% 2%, 72% 5%, 80% 0%, 88% 7%, 94% 3%, 100% 8%, 100% 100%, 0% 100%);
+  transform-origin: bottom left;
+  clip-path: polygon(0% 8%, 16% 2%, 28% 7%, 40% 0%, 50% 8%, 60% 2%, 70% 6%, 78% 0%, 86% 8%, 93% 3%, 100% 9%, 100% 100%, 0% 100%);
 }
 
 .tear-bottom-right {
   bottom: 0;
   right: 0;
   transform: translate3d(105%, 105%, 0);
-  clip-path: polygon(0% 2%, 10% 6%, 20% 0%, 32% 7%, 44% 2%, 55% 6%, 65% 0%, 76% 7%, 88% 3%, 100% 7%, 100% 100%, 0% 100%);
+  transform-origin: bottom right;
+  clip-path: polygon(0% 3%, 9% 8%, 19% 0%, 31% 8%, 43% 2%, 54% 7%, 64% 0%, 75% 8%, 87% 3%, 100% 8%, 100% 100%, 0% 100%);
 }
 
 /* Textura y Brocado Navideño en el Papel */
@@ -2271,8 +2276,8 @@ html, body {
 /* Borde Rasgado con Relieve Dorado y Fibra de Papel */
 .gift-tear-edge {
   position: absolute;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, #FFD700 50%, rgba(139, 69, 19, 0.8) 100%);
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, #FFD700 50%, rgba(139, 69, 19, 0.85) 100%);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.9);
   pointer-events: none;
 }
 
@@ -2281,19 +2286,163 @@ html, body {
 .tear-top-left .edge-v, .tear-bottom-left .edge-v { right: 0; top: 0; bottom: 0; width: 3px; }
 .tear-top-right .edge-v, .tear-bottom-right .edge-v { left: 0; top: 0; bottom: 0; width: 3px; }
 
+/* Rollo/Doblado 3D de Papel que se enrolla al rasgarse */
+.gift-paper-curl {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #FFF9C4 0%, #E0E0E0 50%, #757575 100%);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.curl-tl { bottom: 0; right: 0; border-radius: 50% 0 0 0; }
+.curl-tr { bottom: 0; left: 0; border-radius: 0 50% 0 0; }
+.curl-bl { top: 0; right: 0; border-radius: 0 0 0 50%; }
+.curl-br { top: 0; left: 0; border-radius: 0 0 50% 0; }
+
+/* Costura Dentada de Rasgado Central */
+.gift-rip-seam {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 120%;
+  background: linear-gradient(180deg, transparent 0%, #FFF9C4 20%, #FFD700 50%, #FFF9C4 80%, transparent 100%);
+  box-shadow: 0 0 35px 12px #FFD700, 0 0 70px 25px #FF8F00;
+  transform: translate(-50%, -50%) scaleY(0);
+  opacity: 0;
+  z-index: 7;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   MANOS DE SANTA / ELFO DESGARRANDO EL PAQUETE (Tearing Hands)
+   ========================================================================== */
+.gift-tearing-hand {
+  position: absolute;
+  top: 50%;
+  width: 140px;
+  height: 110px;
+  z-index: 15;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.85));
+}
+
+.gift-tearing-hand.hand-left {
+  left: 50%;
+  transform: translate(-190%, -50%) rotate(20deg) scale(0.6);
+  transform-origin: center right;
+}
+
+.gift-tearing-hand.hand-right {
+  right: 50%;
+  transform: translate(190%, -50%) rotate(-20deg) scaleX(-1) scale(0.6);
+  transform-origin: center right;
+}
+
+/* Manga Roja con Borde Dorado */
+.hand-sleeve {
+  position: absolute;
+  top: 25px;
+  left: 0;
+  width: 55px;
+  height: 60px;
+  background: linear-gradient(135deg, #D90429 0%, #A4133C 60%, #590D22 100%);
+  border-radius: 8px 0 0 8px;
+  border-left: 3px solid #FFD700;
+  box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.4), 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Puño de Peluche Blanco Afelpado */
+.hand-cuff {
+  position: absolute;
+  top: 18px;
+  left: 45px;
+  width: 25px;
+  height: 74px;
+  background: linear-gradient(90deg, #E5E7EB 0%, #FFFFFF 50%, #D1D5DB 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 2px 4px #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  z-index: 2;
+}
+
+/* Guante Blanco de Santa / Elfo con Dedos Sujetando */
+.hand-glove {
+  position: absolute;
+  top: 22px;
+  left: 60px;
+  width: 75px;
+  height: 66px;
+  background: radial-gradient(circle at 40% 40%, #FFFFFF 0%, #F3F4F6 60%, #D1D5DB 100%);
+  border-radius: 24px 34px 34px 20px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  border: 1.5px solid #9CA3AF;
+  z-index: 3;
+}
+
+/* Dedos Cerrados en Pinza Apretando el Papel */
+.hand-finger {
+  position: absolute;
+  right: -8px;
+  width: 32px;
+  height: 18px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #E5E7EB 100%);
+  border-radius: 12px;
+  border: 1.5px solid #9CA3AF;
+  box-shadow: inset 0 2px 3px #FFFFFF, 0 3px 6px rgba(0, 0, 0, 0.35);
+}
+
+.hand-finger.f1 { top: 4px; transform: rotate(15deg); }
+.hand-finger.f2 { top: 22px; transform: rotate(0deg); width: 34px; right: -10px; }
+.hand-finger.f3 { top: 40px; transform: rotate(-15deg); }
+
+/* Pulgar Apretando Hacia el Centro */
+.hand-thumb {
+  position: absolute;
+  top: -4px;
+  left: 18px;
+  width: 30px;
+  height: 24px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #E5E7EB 100%);
+  border-radius: 14px;
+  border: 1.5px solid #9CA3AF;
+  transform: rotate(-35deg);
+  box-shadow: inset 0 2px 4px #FFFFFF, 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
 /* Trozos / Virutas de Papel Rasgado Volando */
 .gift-flying-scrap {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, #B71C1C 0%, #FFD700 100%);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.7);
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #D90429 0%, #FFD700 100%);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.8);
   opacity: 0;
-  z-index: 5;
+  z-index: 10;
   pointer-events: none;
   clip-path: polygon(20% 0%, 90% 15%, 100% 85%, 35% 100%, 0% 60%);
+}
+
+.scrap-5 {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #FFF9C4 0%, #FF8F00 100%);
+  clip-path: polygon(0% 25%, 70% 0%, 100% 70%, 40% 100%);
+}
+
+.scrap-6 {
+  width: 44px;
+  height: 26px;
+  background: linear-gradient(135deg, #800F2F 0%, #FFD700 80%);
+  clip-path: polygon(15% 0%, 100% 30%, 80% 100%, 0% 80%);
 }
 
 /* 2. Cintas de Satén Dorado 3D con Costuras y Reflejo Líquido */
@@ -2677,7 +2826,7 @@ html, body {
 }
 
 /* ==========================================================================
-   SECUENCIA DINÁMICA DE APERTURA: WRAPPING (Cierre) vs UNWRAPPING (Rasgado)
+   SECUENCIA DINÁMICA DE APERTURA: WRAPPING -> HANDS GRAB -> TEARING / UNWRAP
    ========================================================================== */
 
 /* 1. Estado de Cierre Envolvente (Wrapping) */
@@ -2709,9 +2858,62 @@ html, body {
   100% { transform: translate(-50%, -50%) scale(4.5); opacity: 0; }
 }
 
-/* 2. Estado de Desenvolvimiento y Rasgadura de Papel 3D (Unwrapping / Tearing) */
+/* 2. Estado de Agarre de Manos (Hands Grabbing the Package) */
+.gift-transition-overlay.is-hands-grabbing .gift-tearing-hand.hand-left {
+  opacity: 1;
+  animation: handSwoopLeft 0.25s cubic-bezier(0.18, 1.4, 0.32, 1) forwards;
+}
+
+.gift-transition-overlay.is-hands-grabbing .gift-tearing-hand.hand-right {
+  opacity: 1;
+  animation: handSwoopRight 0.25s cubic-bezier(0.18, 1.4, 0.32, 1) forwards;
+}
+
+@keyframes handSwoopLeft {
+  0% { transform: translate(-190%, -50%) rotate(25deg) scale(0.6); opacity: 0; }
+  100% { transform: translate(-95%, -50%) rotate(5deg) scale(1.15); opacity: 1; }
+}
+
+@keyframes handSwoopRight {
+  0% { transform: translate(190%, -50%) rotate(-25deg) scaleX(-1) scale(0.6); opacity: 0; }
+  100% { transform: translate(95%, -50%) rotate(-5deg) scaleX(-1) scale(1.15); opacity: 1; }
+}
+
+/* 3. Estado de Desgarre Activo por las Manos (Unwrapping & Tearing Open) */
 .gift-transition-overlay.is-unwrapping .gift-backdrop-glow {
   opacity: 1;
+}
+
+/* Las Manos JALAN con Fuerza Hacia los Lados desgarrando */
+.gift-transition-overlay.is-unwrapping .gift-tearing-hand.hand-left {
+  animation: handTearAwayLeft 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.gift-transition-overlay.is-unwrapping .gift-tearing-hand.hand-right {
+  animation: handTearAwayRight 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes handTearAwayLeft {
+  0% { transform: translate(-95%, -50%) rotate(5deg) scale(1.15); opacity: 1; }
+  25% { transform: translate(-110%, -55%) rotate(-15deg) scale(1.25); opacity: 1; filter: drop-shadow(0 20px 30px rgba(255, 215, 0, 0.8)); }
+  100% { transform: translate(-280%, -80%) rotate(-45deg) scale(1); opacity: 0; }
+}
+
+@keyframes handTearAwayRight {
+  0% { transform: translate(95%, -50%) rotate(-5deg) scaleX(-1) scale(1.15); opacity: 1; }
+  25% { transform: translate(110%, -45%) rotate(15deg) scaleX(-1) scale(1.25); opacity: 1; filter: drop-shadow(0 20px 30px rgba(255, 215, 0, 0.8)); }
+  100% { transform: translate(280%, -20%) rotate(45deg) scaleX(-1) scale(1); opacity: 0; }
+}
+
+/* Costura Central se Abre y Emite Rayos */
+.gift-transition-overlay.is-unwrapping .gift-rip-seam {
+  animation: ripSeamBurst 0.5s ease-out forwards;
+}
+
+@keyframes ripSeamBurst {
+  0% { transform: translate(-50%, -50%) scaleY(0) scaleX(1); opacity: 1; }
+  40% { transform: translate(-50%, -50%) scaleY(1.2) scaleX(12); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scaleY(1.5) scaleX(40); opacity: 0; }
 }
 
 .gift-transition-overlay.is-unwrapping .gift-tear-crack {
@@ -2720,65 +2922,69 @@ html, body {
 
 @keyframes tearCrackBurst {
   0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-  50% { transform: translate(-50%, -50%) scale(25); opacity: 0.8; }
-  100% { transform: translate(-50%, -50%) scale(50); opacity: 0; }
+  50% { transform: translate(-50%, -50%) scale(30); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(60); opacity: 0; }
 }
 
 .gift-transition-overlay.is-unwrapping .gift-luxury-bow {
-  animation: bowUntieExplode 0.45s cubic-bezier(0.4, 0, 1, 1) forwards;
+  animation: bowUntieExplode 0.35s cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
 @keyframes bowUntieExplode {
   0% { transform: scale(1) rotate(0deg); opacity: 1; }
-  40% { transform: scale(1.4) rotate(15deg); opacity: 1; filter: brightness(2); }
-  100% { transform: scale(2.4) rotate(40deg); opacity: 0; filter: blur(14px); }
+  40% { transform: scale(1.3) rotate(15deg); opacity: 1; filter: brightness(2); }
+  100% { transform: scale(2.2) rotate(35deg); opacity: 0; filter: blur(14px); }
 }
 
 .gift-transition-overlay.is-unwrapping .gift-center-box {
-  transform: translate(-50%, -50%) scale(1.45) rotate(6deg);
+  transform: translate(-50%, -50%) scale(1.4) rotate(4deg);
   opacity: 0;
-  filter: blur(10px);
-  transition: all 0.4s cubic-bezier(0.4, 0, 1, 1);
+  filter: blur(8px);
+  transition: all 0.35s cubic-bezier(0.4, 0, 1, 1);
 }
 
 .gift-transition-overlay.is-unwrapping .gift-ribbon-horizontal {
   opacity: 0;
   transform: translateY(-50%) scaleX(1.4) scaleY(0);
-  transition: all 0.35s ease-out;
+  transition: all 0.3s ease-out;
 }
 
 .gift-transition-overlay.is-unwrapping .gift-ribbon-vertical {
   opacity: 0;
   transform: translateX(-50%) scaleY(1.4) scaleX(0);
-  transition: all 0.35s ease-out;
+  transition: all 0.3s ease-out;
 }
 
-/* Las 4 Solapas se Desgarran Físicamente hacia afuera en 3D */
+/* Las Solapas de Papel se Desgarran Físicamente en 3D y se Doblan */
+.gift-transition-overlay.is-unwrapping .gift-paper-curl {
+  opacity: 1;
+}
+
 .gift-transition-overlay.is-unwrapping .tear-top-left {
-  transform: translate3d(-110%, -110%, 150px) rotateX(35deg) rotateY(-35deg) rotateZ(-15deg);
+  transform: translate3d(-115%, -115%, 180px) rotateX(40deg) rotateY(-40deg) rotateZ(-20deg);
   opacity: 0;
-  transition: transform 0.72s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.5s ease-out;
+  transition: transform 0.75s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.55s ease-out;
 }
 
 .gift-transition-overlay.is-unwrapping .tear-top-right {
-  transform: translate3d(110%, -110%, 150px) rotateX(35deg) rotateY(35deg) rotateZ(15deg);
+  transform: translate3d(115%, -115%, 180px) rotateX(40deg) rotateY(40deg) rotateZ(20deg);
   opacity: 0;
-  transition: transform 0.72s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.5s ease-out;
+  transition: transform 0.75s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.55s ease-out;
 }
 
 .gift-transition-overlay.is-unwrapping .tear-bottom-left {
-  transform: translate3d(-110%, 110%, 150px) rotateX(-35deg) rotateY(-35deg) rotateZ(15deg);
+  transform: translate3d(-115%, 115%, 180px) rotateX(-40deg) rotateY(-40deg) rotateZ(20deg);
   opacity: 0;
-  transition: transform 0.72s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.5s ease-out;
+  transition: transform 0.75s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.55s ease-out;
 }
 
 .gift-transition-overlay.is-unwrapping .tear-bottom-right {
-  transform: translate3d(110%, 110%, 150px) rotateX(-35deg) rotateY(35deg) rotateZ(-15deg);
+  transform: translate3d(115%, 115%, 180px) rotateX(-40deg) rotateY(40deg) rotateZ(-20deg);
   opacity: 0;
-  transition: transform 0.72s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.5s ease-out;
+  transition: transform 0.75s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.55s ease-out;
 }
 
-/* Virutas de Papel Rasgado Disparadas */
+/* Virutas y Retazos de Papel Rasgado Disparadas en 3D */
 .gift-transition-overlay.is-unwrapping .scrap-1 {
   animation: scrapFly1 0.7s cubic-bezier(0.2, 1, 0.3, 1) forwards;
 }
@@ -2795,27 +3001,45 @@ html, body {
   animation: scrapFly4 0.7s cubic-bezier(0.2, 1, 0.3, 1) forwards;
 }
 
+.gift-transition-overlay.is-unwrapping .scrap-5 {
+  animation: scrapFly5 0.7s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+}
+
+.gift-transition-overlay.is-unwrapping .scrap-6 {
+  animation: scrapFly6 0.7s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+}
+
 @keyframes scrapFly1 {
   0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-  100% { transform: translate(-250px, -200px) scale(0.4) rotate(320deg); opacity: 0; }
+  100% { transform: translate(-280px, -220px) scale(0.3) rotate(340deg); opacity: 0; }
 }
 
 @keyframes scrapFly2 {
   0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-  100% { transform: translate(250px, -220px) scale(0.3) rotate(-280deg); opacity: 0; }
+  100% { transform: translate(280px, -240px) scale(0.25) rotate(-300deg); opacity: 0; }
 }
 
 @keyframes scrapFly3 {
   0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-  100% { transform: translate(-220px, 240px) scale(0.4) rotate(-340deg); opacity: 0; }
+  100% { transform: translate(-250px, 260px) scale(0.3) rotate(-360deg); opacity: 0; }
 }
 
 @keyframes scrapFly4 {
   0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-  100% { transform: translate(240px, 260px) scale(0.3) rotate(360deg); opacity: 0; }
+  100% { transform: translate(260px, 280px) scale(0.25) rotate(380deg); opacity: 0; }
 }
 
-/* 3. Finalización */
+@keyframes scrapFly5 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-140px, -290px) scale(0.2) rotate(220deg); opacity: 0; }
+}
+
+@keyframes scrapFly6 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(150px, 290px) scale(0.2) rotate(-220deg); opacity: 0; }
+}
+
+/* 4. Finalización Limpia */
 .gift-transition-overlay.is-finished {
   opacity: 0;
   transition: opacity 0.32s ease-out;
