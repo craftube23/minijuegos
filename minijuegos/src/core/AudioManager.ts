@@ -162,6 +162,46 @@ export class AudioManager {
   }
 
   /**
+   * Sonido crujiente de papel de regalo rasgándose (Paper Rip / Tear)
+   */
+  public playPaperTear(): void {
+    Haptics.impact();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+
+    // Ruido blanco filtrado para simular el crujido y rasgado del papel
+    const bufferSize = Math.floor(this.ctx.sampleRate * 0.22);
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(1800, t);
+    filter.frequency.linearRampToValueAtTime(3400, t + 0.18);
+    filter.Q.setValueAtTime(2.5, t);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.32, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    noise.start(t);
+    noise.stop(t + 0.22);
+  }
+
+  /**
    * Sonido mágico de desenvoltorio de regalo y apertura de telón
    */
   public playGiftUnwrap(): void {

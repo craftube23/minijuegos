@@ -191,23 +191,43 @@ export class ScreenTransition {
       <!-- Destello de Fondo / God Rays al abrirse -->
       <div class="gift-backdrop-glow"></div>
 
-      <!-- Telón Izquierdo de Regalo de Terciopelo con Pliegues 3D y Brocado -->
-      <div class="gift-curtain gift-curtain-left">
-        <div class="gift-curtain-folds"></div>
-        <div class="gift-curtain-damask"></div>
-        <div class="gift-curtain-gold-trim">
-          <div class="gift-trim-braid"></div>
-        </div>
+      <!-- Grieta Mágica de Rasgadura Central -->
+      <div class="gift-tear-crack"></div>
+
+      <!-- 4 Paneles / Solapas de Papel de Regalo con Bordes Rasgados 3D -->
+      <div class="gift-tear-piece tear-top-left">
+        <div class="gift-paper-texture"></div>
+        <div class="gift-paper-damask"></div>
+        <div class="gift-tear-edge edge-h"></div>
+        <div class="gift-tear-edge edge-v"></div>
       </div>
 
-      <!-- Telón Derecho de Regalo de Terciopelo con Pliegues 3D y Brocado -->
-      <div class="gift-curtain gift-curtain-right">
-        <div class="gift-curtain-folds"></div>
-        <div class="gift-curtain-damask"></div>
-        <div class="gift-curtain-gold-trim">
-          <div class="gift-trim-braid"></div>
-        </div>
+      <div class="gift-tear-piece tear-top-right">
+        <div class="gift-paper-texture"></div>
+        <div class="gift-paper-damask"></div>
+        <div class="gift-tear-edge edge-h"></div>
+        <div class="gift-tear-edge edge-v"></div>
       </div>
+
+      <div class="gift-tear-piece tear-bottom-left">
+        <div class="gift-paper-texture"></div>
+        <div class="gift-paper-damask"></div>
+        <div class="gift-tear-edge edge-h"></div>
+        <div class="gift-tear-edge edge-v"></div>
+      </div>
+
+      <div class="gift-tear-piece tear-bottom-right">
+        <div class="gift-paper-texture"></div>
+        <div class="gift-paper-damask"></div>
+        <div class="gift-tear-edge edge-h"></div>
+        <div class="gift-tear-edge edge-v"></div>
+      </div>
+
+      <!-- Trozos / Virutas de Papel Rasgado Volando en 3D -->
+      <div class="gift-flying-scrap scrap-1"></div>
+      <div class="gift-flying-scrap scrap-2"></div>
+      <div class="gift-flying-scrap scrap-3"></div>
+      <div class="gift-flying-scrap scrap-4"></div>
 
       <!-- Cintas de Satén Dorado 3D con Costuras y Reflejo Líquido -->
       <div class="gift-ribbon gift-ribbon-horizontal">
@@ -294,14 +314,15 @@ export class ScreenTransition {
 
       // Pausa adecuada para que el jugador aprecie la presentación del regalo y el logo
       setTimeout(() => {
-        // Sonido de desenvoltorio festivo y desatado de lazo
-        this.audio.playGiftUnwrap();
+        // Sonido de papel rasgándose y crujiente de desempaque
+        this.audio.playPaperTear();
+        setTimeout(() => this.audio.playGiftUnwrap(), 120);
 
         const bounds = container.getBoundingClientRect();
         particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 40);
         particles.emitConfetti(bounds.width, 60);
 
-        // 3. ¡Desatar lazo y abrir telones con efecto dramático!
+        // 3. ¡Rasgar papel de regalo en 3D y abrir con efecto dramático!
         overlay.classList.remove("is-wrapping");
         overlay.classList.add("is-unwrapping");
 
