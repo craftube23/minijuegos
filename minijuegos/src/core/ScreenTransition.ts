@@ -185,9 +185,6 @@ export class ScreenTransition {
     overlay.className = "gift-transition-overlay hands-mode";
     
     overlay.innerHTML = `
-      <!-- Destello de Fondo / God Rays al abrirse -->
-      <div class="gift-backdrop-glow"></div>
-
       <!-- Grieta Mágica de Rasgadura Central -->
       <div class="gift-tear-crack"></div>
 
@@ -374,9 +371,6 @@ export class ScreenTransition {
     const subText = gameData.subtitle || "¡ABRIENDO JUGUETE MÁGICO!";
     
     overlay.innerHTML = `
-      <!-- Destello Radiante de Fondo y Partículas Mágicas -->
-      <div class="gift-backdrop-glow kid-bg-glow"></div>
-
       <!-- Capas de Papel de Regalo Navideño que se Desgarran una a una -->
       
       <!-- 1.1 Solapa de Fondo Inferior -->

@@ -2172,17 +2172,7 @@ html, body {
   pointer-events: all;
   overflow: hidden;
   perspective: 1400px;
-}
-
-/* 0. Destello de Fondo / God Rays al rasgarse el papel */
-.gift-backdrop-glow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(255, 215, 0, 0.95) 0%, rgba(255, 143, 0, 0.6) 40%, rgba(10, 25, 48, 0.95) 85%);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease-out;
-  z-index: 1;
+  background: transparent;
 }
 
 /* Grieta Luminosa de Rasgado */
@@ -2880,10 +2870,6 @@ html, body {
 }
 
 /* 3. Estado de Desgarre Activo por las Manos (Unwrapping & Tearing Open) */
-.gift-transition-overlay.is-unwrapping .gift-backdrop-glow {
-  opacity: 1;
-}
-
 /* Las Manos JALAN con Fuerza Hacia los Lados desgarrando */
 .gift-transition-overlay.is-unwrapping .gift-tearing-hand.hand-left {
   animation: handTearAwayLeft 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards;
@@ -3042,21 +3028,6 @@ html, body {
 /* ==========================================================================
    MODO DESEMPAQUE EMOCIONADO DE NIÑO CAPA POR CAPA (Excited Kid Unboxing)
    ========================================================================== */
-
-/* 0. Fondo Radiante con Resplandor Mágico */
-.kid-bg-glow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(255, 215, 0, 0.95) 0%, rgba(255, 143, 0, 0.6) 45%, rgba(10, 25, 48, 0.95) 85%);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease-out;
-  z-index: 1;
-}
-
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-bg-glow {
-  opacity: 1;
-}
 
 /* 1. Capas Físicas de Papel de Regalo Navideño */
 .kid-paper-layer {
