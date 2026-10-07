@@ -22,6 +22,8 @@ import {
   JINGLE_BELLS_CHART,
   ROCKIN_AROUND_CHART,
   DANIELA_CHART,
+  BURRITO_METAL_CHART,
+  JOY_TO_THE_WORLD_CHART,
   type SongDef,
   type ChartNoteRecord
 } from "../data/songs";
@@ -602,6 +604,10 @@ export class ChartEditorModal {
       this.recordedNotes = [...ROCKIN_AROUND_CHART];
     } else if (this.selectedSongFile === "DANIELA - Rodolfo Aicardi.mp3") {
       this.recordedNotes = [...DANIELA_CHART];
+    } else if (this.selectedSongFile.includes("Burrito")) {
+      this.recordedNotes = [...BURRITO_METAL_CHART];
+    } else if (this.selectedSongFile.includes("Joy")) {
+      this.recordedNotes = [...JOY_TO_THE_WORLD_CHART];
     }
     this.updateNotesView();
   }

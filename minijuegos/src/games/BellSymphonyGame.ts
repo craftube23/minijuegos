@@ -23,8 +23,8 @@ import {
   JINGLE_BELLS_CHART,
   ROCKIN_AROUND_CHART,
   DANIELA_CHART,
-  DECK_THE_HALLS_BEATS,
-  CAROL_OF_BELLS_BEATS,
+  BURRITO_METAL_CHART,
+  JOY_TO_THE_WORLD_CHART,
   type SongDef
 } from "../data/songs";
 
@@ -525,7 +525,6 @@ export class BellSymphonyGame extends BaseGame {
    */
   private generateSongChart(song: SongDef): void {
     this.notes = [];
-    const secondsPerBeat = 60 / song.bpm;
     let noteId = 0;
     let starCount = 0;
 
@@ -590,26 +589,45 @@ export class BellSymphonyGame extends BaseGame {
       return;
     }
 
-    // 2. Partituras basadas en compases
-    const pattern = song.id === "deck-the-halls" ? DECK_THE_HALLS_BEATS : CAROL_OF_BELLS_BEATS;
-
-    pattern.forEach((p) => {
-      let logoType: 1 | 2 = 1;
-      if (p.isStar) {
-        starCount++;
-        logoType = starCount % 2 === 0 ? 2 : 1; // Alterna entre Feria Mágica (1) y Campuslands (2)
+    if (song.id === "burrito-metal") {
+      for (const item of BURRITO_METAL_CHART) {
+        let logoType: 1 | 2 = 1;
+        if (item.isStar) {
+          starCount++;
+          logoType = starCount % 2 === 0 ? 2 : 1;
+        }
+        this.notes.push({
+          id: noteId++,
+          lane: item.lane,
+          targetTime: item.time,
+          hit: false,
+          missed: false,
+          isStar: item.isStar || false,
+          logoType: item.isStar ? logoType : undefined
+        });
       }
+      return;
+    }
 
-      this.notes.push({
-        id: noteId++,
-        lane: p.lane,
-        targetTime: p.b * secondsPerBeat,
-        hit: false,
-        missed: false,
-        isStar: p.isStar || false,
-        logoType: p.isStar ? logoType : undefined
-      });
-    });
+    if (song.id === "joy-to-world") {
+      for (const item of JOY_TO_THE_WORLD_CHART) {
+        let logoType: 1 | 2 = 1;
+        if (item.isStar) {
+          starCount++;
+          logoType = starCount % 2 === 0 ? 2 : 1;
+        }
+        this.notes.push({
+          id: noteId++,
+          lane: item.lane,
+          targetTime: item.time,
+          hit: false,
+          missed: false,
+          isStar: item.isStar || false,
+          logoType: item.isStar ? logoType : undefined
+        });
+      }
+      return;
+    }
   }
 
   /**
