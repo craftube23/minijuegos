@@ -30,7 +30,7 @@ import { GameInstructionsModal } from "./components/GameInstructionsModal";
 // Los 4 Minijuegos Navideños
 import { ToyCatchGame } from "./games/ToyCatchGame";
 import { BellSymphonyGame } from "./games/BellSymphonyGame";
-import { TreeMelodyGame } from "./games/TreeMelodyGame";
+import { NutcrackerDrumsGame } from "./games/NutcrackerDrumsGame";
 import { MagicPairsGame } from "./games/MagicPairsGame";
 
 class KioskApp {
@@ -156,7 +156,7 @@ class KioskApp {
   private registerGames(): void {
     const game1 = new ToyCatchGame(this.canvas, this.input, this.audio, this.particles);
     const game2 = new BellSymphonyGame(this.canvas, this.input, this.audio, this.particles);
-    const game3 = new TreeMelodyGame(this.canvas, this.input, this.audio, this.particles);
+    const game3 = new NutcrackerDrumsGame(this.canvas, this.input, this.audio, this.particles);
     const game4 = new MagicPairsGame(this.canvas, this.input, this.audio, this.particles);
 
     // Conectar callback de Game Over de cada juego

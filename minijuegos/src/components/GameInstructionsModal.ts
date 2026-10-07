@@ -59,18 +59,18 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
   },
   "tree-melody": {
     id: "tree-melody",
-    title: "Enciende el Árbol",
-    icon: "🎄",
-    themeColor: "#00E676",
-    goal: "Memoriza y repite la melodía de luces y campanas del árbol.",
+    title: "Tambores del Cascanueces",
+    icon: "🥁",
+    themeColor: "#FFB300",
+    goal: "Observa al elfo tocar el ritmo y repite exactamente su secuencia en los tambores.",
     positiveItems: [
-      { icon: "✨", label: "Secuencia correcta (+Puntos por ronda)" },
-      { icon: "⭐", label: "Rondas altas (¡Bonus de velocidad!)" }
+      { icon: "🥁", label: "Golpes al compás (+Puntos y Combo x2/x3)" },
+      { icon: "🟡", label: "Tambor Dorado (¡Doble puntuación festiva!)" }
     ],
     negativeItems: [
-      { icon: "❌", label: "Equivocarte repite la ronda y resta tiempo" }
+      { icon: "⚠️", label: "5 Fallos = ¡Fin del Concierto! (5 Vidas)" }
     ],
-    controls: "Toca las esferas del árbol o usa teclas [ 1 - 2 - 3 - 4 ]"
+    controls: "Toca los 3 tambores [ 🔴 DON | 🟡 STAR | 🔵 KA ] o teclas [ 1 - 2 - 3 ]"
   },
   "magic-pairs": {
     id: "magic-pairs",

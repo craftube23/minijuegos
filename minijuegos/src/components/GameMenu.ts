@@ -56,13 +56,13 @@ export class GameMenu {
     },
     {
       id: "tree-melody",
-      title: "Enciende el Árbol",
+      title: "Tambores del Cascanueces",
       imageSrc: "./assets/images/arbol.png",
       frameImageSrc: "./assets/images/marco-juego-verde.png",
       themeClass: "theme-forest-green",
-      category: "MEMORIA MUSICAL",
-      tagline: "¡Repite la melodía de campanas mágicas!",
-      gemColor: "#00E676"
+      category: "TAIKO & RITMO",
+      tagline: "¡Sigue el ritmo del elfo en los tambores mágicos!",
+      gemColor: "#FFB300"
     },
     {
       id: "magic-pairs",

@@ -340,6 +340,121 @@ export class AudioManager {
     osc.stop(this.ctx.currentTime + 0.35);
   }
 
+  // ==========================================================================
+  // SONIDOS DE PERCUSIÓN TAIKO / CASCA-NUECES (Estilo Taiko no Tatsujin)
+  // ==========================================================================
+
+  /**
+   * Golpe DON (🔴 Centro del Tambor Taiko - Grave y potente)
+   */
+  public playDrumDon(): void {
+    Haptics.impact();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(160, t);
+    osc.frequency.exponentialRampToValueAtTime(45, t + 0.18);
+
+    gain.gain.setValueAtTime(0.7, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.22);
+  }
+
+  /**
+   * Golpe KA (🔵 Borde / Aro Metálico - Seco y agudo)
+   */
+  public playDrumKa(): void {
+    Haptics.tap();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(520, t);
+    osc.frequency.exponentialRampToValueAtTime(220, t + 0.12);
+
+    gain.gain.setValueAtTime(0.55, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.14);
+  }
+
+  /**
+   * Golpe GOLD / STAR (🟡 Platillo Festivo + Cascabel Dorado Mágico)
+   */
+  public playDrumGold(): void {
+    Haptics.celebration();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const freqs = [880, 1320, 1760, 2640];
+    freqs.forEach((freq, idx) => {
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, t + idx * 0.02);
+
+      gain.gain.setValueAtTime(0.28, t + idx * 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(t + idx * 0.02);
+      osc.stop(t + 0.45);
+    });
+  }
+
+  /**
+   * Golpe Fallido (Madera hueca desafinada)
+   */
+  public playDrumMiss(): void {
+    Haptics.impact();
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "square";
+    osc.frequency.setValueAtTime(110, t);
+    osc.frequency.linearRampToValueAtTime(60, t + 0.15);
+
+    gain.gain.setValueAtTime(0.25, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.18);
+  }
+
   /**
    * Método opcional para reproducir un archivo de audio externo si lo colocas en public/assets/audio/
    */
