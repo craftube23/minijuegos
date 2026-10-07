@@ -1071,27 +1071,8 @@ export class BellSymphonyGame extends BaseGame {
         ctx.translate(noteX, noteY);
 
         const isCampus = note.logoType === 2;
-        const glowColor = note.isStar ? (isCampus ? "rgba(0, 229, 255, 0.95)" : "rgba(255, 215, 0, 0.95)") : lane.glowColor;
 
-        // Estela mágica luminosa detrás de la nota
-        const trailGrad = ctx.createLinearGradient(0, 0, 0, -65);
-        trailGrad.addColorStop(0, glowColor);
-        trailGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
-        ctx.fillStyle = trailGrad;
-        ctx.beginPath();
-        ctx.moveTo(-radius * 0.6, 0);
-        ctx.lineTo(radius * 0.6, 0);
-        ctx.lineTo(0, -70);
-        ctx.closePath();
-        ctx.fill();
-
-        // Resplandor circular suave
-        ctx.fillStyle = glowColor;
-        ctx.beginPath();
-        ctx.arc(0, 0, radius * 1.15, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Sprite de Flecha de Bastón de Caramelo o Logo de la Marca
+        // Sprite de Flecha de Bastón de Caramelo o Logo de la Marca (sin círculos de fondo)
         let sprite: HTMLImageElement | null = null;
         if (note.isStar) {
           if (isCampus) {
@@ -1109,19 +1090,11 @@ export class BellSymphonyGame extends BaseGame {
         if (sprite && sprite.complete && sprite.naturalWidth > 0) {
           ctx.drawImage(sprite, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
         } else {
-          // Renderizado vectorial nítido de respaldo
-          ctx.fillStyle = note.isStar ? "#FFD700" : lane.color;
-          ctx.beginPath();
-          ctx.arc(0, 0, radius, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = "#FFFFFF";
-          ctx.lineWidth = 3;
-          ctx.stroke();
-
-          ctx.font = "900 22px 'Cinzel Decorative', 'Outfit', sans-serif";
+          // Renderizado vectorial nítido de respaldo sólo si la imagen no ha cargado
+          ctx.font = "900 28px 'Cinzel Decorative', 'Outfit', sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillStyle = "#FFFFFF";
+          ctx.fillStyle = note.isStar ? "#FFD700" : lane.color;
           ctx.fillText(note.isStar ? "⭐" : lane.arrow, 0, 0);
         }
 
