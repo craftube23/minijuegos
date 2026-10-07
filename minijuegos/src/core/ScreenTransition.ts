@@ -499,9 +499,9 @@ export class ScreenTransition {
     setTimeout(() => {
       onMidpoint();
 
-      // Pausa generosa (1.2s) para que el jugador aprecie en primer plano el regalo cerrado con su moño y sello
+      // Pausa adecuada (700ms) para apreciar el regalo antes de desgarrarlo
       setTimeout(() => {
-        // 3. Comienza la secuencia de desgarre pausada y visible capa por capa
+        // 3. Comienza la secuencia de desgarre capa por capa
         this.audio.playExcitedKidUnwrap();
 
         const bounds = container.getBoundingClientRect();
@@ -518,10 +518,10 @@ export class ScreenTransition {
           setTimeout(() => {
             overlay.remove();
             onComplete();
-          }, 500);
-        }, 3400);
+          }, 350);
+        }, 2200);
 
-      }, 1200);
+      }, 700);
 
     }, 700);
   }

@@ -260,36 +260,36 @@ export class AudioManager {
     const gainPop = this.ctx.createGain();
     oscPop.type = "sine";
     oscPop.frequency.setValueAtTime(480, t);
-    oscPop.frequency.exponentialRampToValueAtTime(90, t + 0.12);
+    oscPop.frequency.exponentialRampToValueAtTime(90, t + 0.1);
     gainPop.gain.setValueAtTime(0.4, t);
-    gainPop.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    gainPop.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
     oscPop.connect(gainPop);
     gainPop.connect(this.ctx.destination);
     oscPop.start(t);
-    oscPop.stop(t + 0.12);
+    oscPop.stop(t + 0.1);
 
-    // 2. Primer desgarre: Tira central de papel abriéndose (t = 0.5s)
-    createPaperTear(t + 0.5, 0.45, 900, 2400, 0.5);
+    // 2. Primer desgarre: Tira central de papel abriéndose (t = 0.35s)
+    createPaperTear(t + 0.35, 0.35, 900, 2400, 0.5);
 
-    // 3. Segundo desgarre: Solapa izquierda desprendiéndose (t = 1.2s)
-    createPaperTear(t + 1.2, 0.55, 1400, 3200, 0.55);
+    // 3. Segundo desgarre: Solapa izquierda desprendiéndose (t = 0.8s)
+    createPaperTear(t + 0.8, 0.4, 1400, 3200, 0.55);
 
-    // 4. Tercer desgarre: Solapa derecha y fondo despegándose (t = 1.9s)
-    createPaperTear(t + 1.9, 0.6, 1800, 4200, 0.6);
+    // 4. Tercer desgarre: Solapa derecha y fondo despegándose (t = 1.25s)
+    createPaperTear(t + 1.25, 0.45, 1800, 4200, 0.6);
 
-    // 5. Fanfarria mágica al revelarse el juguete (t = 2.6s)
+    // 5. Fanfarria mágica al revelarse el juego (t = 1.65s)
     const chords = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
     chords.forEach((freq, idx) => {
       if (!this.ctx) return;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      const noteTime = t + 2.5 + idx * 0.08;
+      const noteTime = t + 1.65 + idx * 0.05;
 
       osc.type = "triangle";
       osc.frequency.setValueAtTime(freq, noteTime);
 
       gain.gain.setValueAtTime(0.28, noteTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.5);
+      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.45);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
