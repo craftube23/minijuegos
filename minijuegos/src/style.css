@@ -358,12 +358,29 @@ html, body {
 }
 
 .menu-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: clamp(14px, 2.2vw, 24px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: clamp(12px, 1.8vw, 22px);
   width: 100%;
-  max-width: 900px;
-  padding-bottom: 12px;
+  max-width: 920px;
+  padding-bottom: 16px;
+}
+
+.menu-grid .game-card-fantasy {
+  flex: 0 1 calc(50% - 14px);
+  max-width: 440px;
+}
+
+@media (min-width: 1080px) {
+  .menu-grid {
+    max-width: 1240px;
+  }
+  .menu-grid .game-card-fantasy {
+    flex: 0 1 calc(33.333% - 16px);
+    max-width: 380px;
+  }
 }
 
 /* ==========================================================================

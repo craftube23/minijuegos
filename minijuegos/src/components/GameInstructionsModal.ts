@@ -72,6 +72,21 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
     ],
     controls: "Toca los 3 tambores [ 🔴 DON | 🟡 STAR | 🔵 KA ] o teclas [ 1 - 2 - 3 ]"
   },
+  "flying-elf": {
+    id: "flying-elf",
+    title: "El Vuelo Mágico del Elfo",
+    icon: "🧝‍♂️",
+    themeColor: "#D500F9",
+    goal: "Mantén pulsada la pantalla para ascender y suelta para planear.",
+    positiveItems: [
+      { icon: "🎁", label: "Regalos y Dulces (+100 a +250 pts)" },
+      { icon: "⭐", label: "Logo Feria (¡Turbo + Imán x2 de Puntos!)" }
+    ],
+    negativeItems: [
+      { icon: "⚠️", label: "Chimeneas y Hielo (-2.5s de tiempo)" }
+    ],
+    controls: "Mantén presionado en pantalla táctil o usa [ Espacio / W / ▲ ]"
+  },
   "magic-pairs": {
     id: "magic-pairs",
     title: "Parejas de Juguetes",

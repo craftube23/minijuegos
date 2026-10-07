@@ -27,10 +27,11 @@ import { GameMenu } from "./components/GameMenu";
 import { GameOverModal } from "./components/GameOverModal";
 import { GameInstructionsModal } from "./components/GameInstructionsModal";
 
-// Los 4 Minijuegos Navideños
+// Los Minijuegos Navideños
 import { ToyCatchGame } from "./games/ToyCatchGame";
 import { BellSymphonyGame } from "./games/BellSymphonyGame";
 import { NutcrackerDrumsGame } from "./games/NutcrackerDrumsGame";
+import { FlyingElfGame } from "./games/FlyingElfGame";
 import { MagicPairsGame } from "./games/MagicPairsGame";
 
 class KioskApp {
@@ -156,10 +157,11 @@ class KioskApp {
     const game1 = new ToyCatchGame(this.canvas, this.input, this.audio, this.particles);
     const game2 = new BellSymphonyGame(this.canvas, this.input, this.audio, this.particles);
     const game3 = new NutcrackerDrumsGame(this.canvas, this.input, this.audio, this.particles);
-    const game4 = new MagicPairsGame(this.canvas, this.input, this.audio, this.particles);
+    const game4 = new FlyingElfGame(this.canvas, this.input, this.audio, this.particles);
+    const game5 = new MagicPairsGame(this.canvas, this.input, this.audio, this.particles);
 
     // Conectar callback de Game Over de cada juego
-    [game1, game2, game3, game4].forEach((g) => {
+    [game1, game2, game3, game4, game5].forEach((g) => {
       g.onGameOver = (result: GameResult) => this.handleGameOver(result);
       this.games.set(g.id, g);
     });
@@ -389,6 +391,7 @@ class KioskApp {
       "toy-catch": { title: "Atrapa-Regalos Mágico", icon: "🎁", themeColor: "#FF2A4D" },
       "bell-symphony": { title: "Sinfonía de Campanas", icon: "🔔", themeColor: "#00E5FF" },
       "tree-melody": { title: "Tambores del Cascanueces", icon: "🥁", themeColor: "#FFB300" },
+      "flying-elf": { title: "El Vuelo Mágico del Elfo", icon: "🧝‍♂️", themeColor: "#D500F9" },
       "magic-pairs": { title: "Parejas de Juguetes", icon: "🃏", themeColor: "#D500F9" }
     };
     return map[gameId] || { title: "Minijuego Mágico", icon: "🎄", themeColor: "#FFD700" };
