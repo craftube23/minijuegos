@@ -264,7 +264,7 @@ export class ToyCatchGame extends BaseGame {
       this.comboCount = 0;
       this.addScore(item.points);
       this.lives--;
-      this.audio.playWhoosh();
+      this.audio.playElfHit();
       this.triggerShake(0.26, 8); // Temblor de pantalla
 
       // Mensaje flotante de pérdida de vida
