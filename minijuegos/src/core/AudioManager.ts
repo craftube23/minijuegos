@@ -23,14 +23,15 @@ export class AudioManager {
   private bgmAudio: HTMLAudioElement | null = null;
   private bgmVolume: number = 0.45;
   private playlist: string[] = [
-    "./assets/audio/Rockin' Around The Christmas Tree.mp3",
     "./assets/audio/jingle-bells.mp3",
     "./assets/audio/Joy to the world.mp3",
-    "./assets/audio/Mi Burrito Sabanero  Metal (Paulo Cuevas).mp3",
-    "./assets/audio/DANIELA - Rodolfo Aicardi.mp3"
+    "./assets/audio/Deck The Halls.mp3",
+    "./assets/audio/Dance of the Sugar Plum Fairy.mp3",
+    "./assets/audio/Up on the Housetop.mp3",
+    "./assets/audio/We Wish You a Merry Christmas.mp3"
   ];
   private lastSongIndex: number = -1;
-  private currentBgmPath: string = "./assets/audio/Rockin' Around The Christmas Tree.mp3";
+  private currentBgmPath: string = "./assets/audio/jingle-bells.mp3";
 
   private constructor() {
     // Inicialización perezosa (lazy)
@@ -80,7 +81,7 @@ export class AudioManager {
    * Obtiene la siguiente canción al azar de la playlist evitando repetir la anterior
    */
   public getRandomSong(): string {
-    if (this.playlist.length === 0) return "./assets/audio/Rockin' Around The Christmas Tree.mp3";
+    if (this.playlist.length === 0) return "./assets/audio/jingle-bells.mp3";
     if (this.playlist.length === 1) return this.playlist[0];
 
     let randomIndex: number;
