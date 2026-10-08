@@ -211,7 +211,6 @@ class KioskApp {
     this.gameMenu.onSelectGame = (gameId: string) => {
       if (this.isTransitioning) return;
       this.isTransitioning = true;
-      this.audio.stopMenuBGM();
 
       const mainContainer = document.getElementById("kiosk-main") || document.body;
       const gameInfo = this.getGameTransitionInfo(gameId);
@@ -241,7 +240,6 @@ class KioskApp {
     };
 
     this.instructionsModal.onBack = () => {
-      this.audio.restartMenuBGM();
       this.goToMenu();
     };
 

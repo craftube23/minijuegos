@@ -52,7 +52,8 @@ export class AudioManager {
   }
 
   /**
-   * Reproduce la música de fondo ambiental (BGM) en bucle
+   * Reproduce la música de fondo ambiental (BGM) en bucle continuo
+   * Si ya está reproduciéndose, NO se corta ni se reinicia
    */
   public playMenuBGM(src: string = "./assets/audio/Rockin' Around The Christmas Tree.mp3", volume: number = 0.45): void {
     this.bgmVolume = volume;
@@ -61,24 +62,20 @@ export class AudioManager {
     if (!this.bgmAudio) {
       this.bgmAudio = new Audio(src);
       this.bgmAudio.loop = true;
-    } else {
-      // Si la ruta cambió, actualizar fuente
-      if (!this.bgmAudio.src.includes(encodeURI("Rockin' Around The Christmas Tree.mp3"))) {
-        this.bgmAudio.src = src;
-      }
     }
 
     this.bgmAudio.volume = this.isMuted ? 0 : this.bgmVolume;
 
+    // Solo iniciar reproducción si está pausada; si ya suena, continuar fluidamente
     if (this.bgmAudio.paused && !this.isMuted) {
       this.bgmAudio.play().catch(() => {
-        // Se desbloqueará en el primer toque del usuario
+        // Se activará con el primer toque del usuario
       });
     }
   }
 
   /**
-   * Detiene y reinicia la música de fondo ambiental al entrar a un juego
+   * Detiene por completo la música de fondo al entrar a un juego
    */
   public stopMenuBGM(): void {
     if (this.bgmAudio) {
@@ -88,36 +85,17 @@ export class AudioManager {
   }
 
   /**
-   * Pausa la música de fondo
+   * Pausa la música de fondo al entrar a un juego
    */
   public pauseMenuBGM(): void {
-    if (this.bgmAudio) {
-      this.bgmAudio.pause();
-      this.bgmAudio.currentTime = 0;
-    }
+    this.stopMenuBGM();
   }
 
   /**
-   * Reinicia la música de fondo desde el principio al volver al menú o a la pantalla de inicio
-   */
-  public restartMenuBGM(): void {
-    if (!this.bgmAudio) {
-      this.playMenuBGM(this.currentBgmPath, this.bgmVolume);
-      return;
-    }
-
-    if (!this.isMuted) {
-      this.bgmAudio.volume = this.bgmVolume;
-      this.bgmAudio.currentTime = 0;
-      this.bgmAudio.play().catch(() => {});
-    }
-  }
-
-  /**
-   * Reanuda la música de fondo
+   * Reanuda la música de fondo de forma fluida (sin reiniciar a cero si ya estaba sonando)
    */
   public resumeMenuBGM(): void {
-    this.restartMenuBGM();
+    this.playMenuBGM(this.currentBgmPath, this.bgmVolume);
   }
 
   /**
