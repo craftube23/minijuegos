@@ -128,49 +128,53 @@ export class ScreenTransition {
   public runCountdown(
     container: HTMLElement,
     particles: ParticleSystem,
-    onCountdownComplete: () => void
+    onCountdownComplete: () => void,
+    initialDelay: number = 500
   ): void {
     const overlay = document.createElement("div");
     overlay.className = "countdown-overlay";
     container.appendChild(overlay);
 
-    // Reproducir pista de audio oficial de cuenta regresiva
-    this.audio.playMenuCountdown();
-
-    const steps = [
-      { text: "3", subtext: "¡PREPÁRATE!", soundStep: 3, delay: 0 },
-      { text: "2", subtext: "¡LISTOS!", soundStep: 2, delay: 850 },
-      { text: "1", subtext: "¡ATENTOS!", soundStep: 1, delay: 1700 },
-      { text: "¡A JUGAR!", subtext: "¡BUENA SUERTE!", soundStep: 0, delay: 2550 }
-    ];
-
-    steps.forEach(({ text, subtext, soundStep, delay }) => {
-      setTimeout(() => {
-        overlay.innerHTML = `
-          <div class="countdown-number">${text}</div>
-          <div class="countdown-subtext">${subtext}</div>
-        `;
-
-        const bounds = container.getBoundingClientRect();
-        if (soundStep > 0) {
-          particles.emitBurst(bounds.width / 2, bounds.height * 0.45, "#FFD700", 20);
-        } else {
-          particles.emitBurst(bounds.width / 2, bounds.height * 0.45, "#00E5FF", 35);
-          particles.emitConfetti(bounds.width, 40);
-        }
-      }, delay);
-    });
-
-    // Finalizar cuenta regresiva y comenzar tiempo de juego
+    // Esperar 1/2 segundo (500ms) tras pulsar el botón para que el modal cierre limpio y el audio quede perfecto
     setTimeout(() => {
-      overlay.style.transition = "opacity 0.25s ease-out";
-      overlay.style.opacity = "0";
+      // Reproducir pista de audio oficial de cuenta regresiva
+      this.audio.playMenuCountdown();
 
+      const steps = [
+        { text: "3", subtext: "¡PREPÁRATE!", soundStep: 3, delay: 0 },
+        { text: "2", subtext: "¡LISTOS!", soundStep: 2, delay: 850 },
+        { text: "1", subtext: "¡ATENTOS!", soundStep: 1, delay: 1700 },
+        { text: "¡A JUGAR!", subtext: "¡BUENA SUERTE!", soundStep: 0, delay: 2550 }
+      ];
+
+      steps.forEach(({ text, subtext, soundStep, delay }) => {
+        setTimeout(() => {
+          overlay.innerHTML = `
+            <div class="countdown-number">${text}</div>
+            <div class="countdown-subtext">${subtext}</div>
+          `;
+
+          const bounds = container.getBoundingClientRect();
+          if (soundStep > 0) {
+            particles.emitBurst(bounds.width / 2, bounds.height * 0.45, "#FFD700", 20);
+          } else {
+            particles.emitBurst(bounds.width / 2, bounds.height * 0.45, "#00E5FF", 35);
+            particles.emitConfetti(bounds.width, 40);
+          }
+        }, delay);
+      });
+
+      // Finalizar cuenta regresiva y comenzar tiempo de juego
       setTimeout(() => {
-        overlay.remove();
-        onCountdownComplete();
-      }, 250);
-    }, 3350);
+        overlay.style.transition = "opacity 0.25s ease-out";
+        overlay.style.opacity = "0";
+
+        setTimeout(() => {
+          overlay.remove();
+          onCountdownComplete();
+        }, 250);
+      }, 3350);
+    }, initialDelay);
   }
 
   /**
