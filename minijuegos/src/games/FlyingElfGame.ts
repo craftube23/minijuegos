@@ -89,6 +89,7 @@ export class FlyingElfGame extends BaseGame {
   // Temporizadores de spawn y dificultad
   private spawnItemTimer: number = 0;
   private spawnObstacleTimer: number = 0;
+  private logoSpawnTimer: number = 6.0; // Cadencia garantizada para Logos cada 8-10s
   private speedMultiplier: number = 1.0;
   private baseScrollSpeed: number = 460; // Velocidad base equilibrada para arcade accesible
 
@@ -210,6 +211,7 @@ export class FlyingElfGame extends BaseGame {
     this.backgroundSigns = [];
     this.spawnItemTimer = 0.4;
     this.spawnObstacleTimer = 1.1;
+    this.logoSpawnTimer = 6.0; // El primer logo aparece rápido (a los ~6 segundos)
     this.windTimer = 6.5;
     this.isWindActive = false;
     this.wasThrusting = false;
@@ -409,6 +411,13 @@ export class FlyingElfGame extends BaseGame {
       this.spawnItemTimer = Math.max(0.38, 0.95 / this.speedMultiplier);
     }
 
+    // Generación periódica garantizada de Logos de la Feria y Campuslands cada 8-10 segundos
+    this.logoSpawnTimer -= dt;
+    if (this.logoSpawnTimer <= 0) {
+      this.spawnLogoMedallion();
+      this.logoSpawnTimer = 8.0 + Math.random() * 2.5; // Próximo logo en 8.0 a 10.5 segundos
+    }
+
     this.spawnObstacleTimer -= dt;
     if (this.spawnObstacleTimer <= 0) {
       this.spawnObstacle();
@@ -539,6 +548,30 @@ export class FlyingElfGame extends BaseGame {
         bobSpeed: 3.0 + Math.random() * 1.5
       });
     }
+  }
+
+  /**
+   * Genera un Medallón de Logo Oficial (Feria Mágica / Campuslands) en trayectoria accesible
+   */
+  private spawnLogoMedallion(): void {
+    const brandLogo: "logo_feria" | "logo_campus" | "logo_star" =
+      Math.random() < 0.48 ? "logo_feria" : Math.random() < 0.88 ? "logo_campus" : "logo_star";
+
+    const baseSpawnY = 160 + Math.random() * (this.height - 400);
+    const clampedY = Math.max(140, Math.min(this.height - 200, baseSpawnY));
+
+    this.collectibles.push({
+      x: this.width + 90,
+      y: clampedY,
+      size: 82,
+      type: brandLogo,
+      points: 500,
+      bobOffset: Math.random() * Math.PI * 2,
+      bobSpeed: 3.2
+    });
+
+    // Destello de anticipación mágica
+    this.particles.emitBurst(this.width + 80, clampedY, "#FFD700", 12);
   }
 
   private spawnObstacle(): void {
