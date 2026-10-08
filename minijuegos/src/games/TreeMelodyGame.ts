@@ -99,6 +99,10 @@ export class TreeMelodyGame extends BaseGame {
 
     this.imgBallBlue = new Image();
     this.imgBallBlue.src = "./assets/images/bola-azul.png";
+
+    // Música ambiental suave para que las campanas musicales resalten con claridad
+    this.inGameMusicPath = "./assets/audio/Joy to the world.mp3";
+    this.inGameMusicVolume = 0.22;
   }
 
   public override resize(width: number, height: number): void {

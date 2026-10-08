@@ -95,6 +95,10 @@ export class NutcrackerDrumsGame extends BaseGame {
     // Carga de Sprites de fondo
     this.bgRoom = new Image();
     this.bgRoom.src = "./assets/images/fondo-habitacion.webp";
+
+    // Música temática oficial del Cascanueces
+    this.inGameMusicPath = "./assets/audio/Dance of the Sugar Plum Fairy.mp3";
+    this.inGameMusicVolume = 0.40;
   }
 
   public override resize(width: number, height: number): void {

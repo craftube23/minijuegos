@@ -110,6 +110,10 @@ export class MagicPairsGame extends BaseGame {
 
     this.spriteLogo2 = new Image();
     this.spriteLogo2.src = BRANDING.getLogoPath(2);
+
+    // Música temática para Parejas Mágicas / Memoria
+    this.inGameMusicPath = "./assets/audio/We Wish You a Merry Christmas.mp3";
+    this.inGameMusicVolume = 0.45;
   }
 
   public override resize(width: number, height: number): void {

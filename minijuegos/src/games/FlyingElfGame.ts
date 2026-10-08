@@ -179,6 +179,10 @@ export class FlyingElfGame extends BaseGame {
 
     this.imgStarLogo = new Image();
     this.imgStarLogo.src = "./assets/images/estrella con logo.png";
+
+    // Música temática exclusiva para El Vuelo Mágico del Elfo
+    this.inGameMusicPath = "./assets/audio/The Builder.mp3";
+    this.inGameMusicVolume = 0.50;
   }
 
   protected override onStart(): void {

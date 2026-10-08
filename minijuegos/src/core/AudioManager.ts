@@ -22,6 +22,8 @@ export class AudioManager {
   private isGameActive: boolean = false;
   private bgmAudio: HTMLAudioElement | null = null;
   private bgmVolume: number = 0.45;
+  private gameBgmAudio: HTMLAudioElement | null = null;
+  private gameBgmVolume: number = 0.50;
   private playlist: string[] = [
     "./assets/audio/jingle-bells.mp3",
     "./assets/audio/Joy to the world.mp3",
@@ -70,6 +72,8 @@ export class AudioManager {
     this.isGameActive = active;
     if (active) {
       this.stopMenuBGM();
+    } else {
+      this.stopGameBGM();
     }
   }
 
@@ -188,14 +192,73 @@ export class AudioManager {
   }
 
   /**
+   * Reproduce música de fondo exclusiva para el minijuego activo
+   */
+  public playGameBGM(src: string, volume: number = 0.50, loop: boolean = true): void {
+    if (this.isMuted) return;
+    this.stopGameBGM();
+    this.gameBgmVolume = volume;
+
+    try {
+      this.gameBgmAudio = new Audio(src);
+      this.gameBgmAudio.loop = loop;
+      this.gameBgmAudio.volume = volume;
+      this.gameBgmAudio.muted = this.isMuted;
+      this.gameBgmAudio.play().catch((e) => {
+        console.warn("Aviso al reproducir música del minijuego:", e);
+      });
+    } catch (e) {
+      console.warn("Error al inicializar música de minijuego:", e);
+    }
+  }
+
+  /**
+   * Detiene y descarga de memoria la música de fondo del minijuego
+   */
+  public stopGameBGM(): void {
+    if (this.gameBgmAudio) {
+      try {
+        this.gameBgmAudio.pause();
+        this.gameBgmAudio.currentTime = 0;
+        this.gameBgmAudio.onended = null;
+        this.gameBgmAudio.onerror = null;
+        this.gameBgmAudio.removeAttribute("src");
+        this.gameBgmAudio.load();
+      } catch (e) {
+        console.warn("Aviso al detener música de minijuego:", e);
+      }
+      this.gameBgmAudio = null;
+    }
+  }
+
+  public pauseGameBGM(): void {
+    if (this.gameBgmAudio) {
+      this.gameBgmAudio.pause();
+    }
+  }
+
+  public resumeGameBGM(): void {
+    if (this.gameBgmAudio && !this.isMuted && this.isGameActive) {
+      this.gameBgmAudio.volume = this.gameBgmVolume;
+      this.gameBgmAudio.play().catch(() => {});
+    }
+  }
+
+  /**
    * Alterna entre silenciado y con sonido
    */
   public toggleMute(): boolean {
     this.isMuted = !this.isMuted;
     if (this.bgmAudio) {
       this.bgmAudio.muted = this.isMuted;
-      if (!this.isMuted && this.bgmAudio.paused) {
+      if (!this.isMuted && this.bgmAudio.paused && !this.isGameActive) {
         this.bgmAudio.play().catch(() => {});
+      }
+    }
+    if (this.gameBgmAudio) {
+      this.gameBgmAudio.muted = this.isMuted;
+      if (!this.isMuted && this.gameBgmAudio.paused && this.isGameActive) {
+        this.gameBgmAudio.play().catch(() => {});
       }
     }
     return this.isMuted;
@@ -209,8 +272,14 @@ export class AudioManager {
     this.isMuted = muted;
     if (this.bgmAudio) {
       this.bgmAudio.muted = this.isMuted;
-      if (!this.isMuted && this.bgmAudio.paused) {
+      if (!this.isMuted && this.bgmAudio.paused && !this.isGameActive) {
         this.bgmAudio.play().catch(() => {});
+      }
+    }
+    if (this.gameBgmAudio) {
+      this.gameBgmAudio.muted = this.isMuted;
+      if (!this.isMuted && this.gameBgmAudio.paused && this.isGameActive) {
+        this.gameBgmAudio.play().catch(() => {});
       }
     }
   }

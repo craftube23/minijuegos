@@ -86,6 +86,10 @@ export abstract class BaseGame {
   // Sistema de Textos flotantes (Score Popups)
   protected floatingTexts: FloatingText[] = [];
 
+  // Sistema de Música de Fondo del Juego
+  protected inGameMusicPath: string = "";
+  protected inGameMusicVolume: number = 0.48;
+
   // Sistema de Power-Up del Logo de la Feria
   protected isLogoPowerUpActive: boolean = false;
   protected logoPowerUpTimer: number = 0;
@@ -133,6 +137,9 @@ export abstract class BaseGame {
   public start(durationSeconds: number = 45): void {
     this.audio.setGameActive(true);
     this.audio.stopMenuBGM();
+    if (this.inGameMusicPath) {
+      this.audio.playGameBGM(this.inGameMusicPath, this.inGameMusicVolume, true);
+    }
     this.score = 0;
     this.timeRemaining = durationSeconds;
     this.isRunning = true;
@@ -414,6 +421,10 @@ export abstract class BaseGame {
     this.isRunning = false;
     this.isGameOver = true;
 
+    if (this.inGameMusicPath) {
+      this.audio.stopGameBGM();
+    }
+
     const recordCheck = StorageManager.saveScore(this.id, this.score);
     if (recordCheck.isNewRecord) {
       this.audio.playVictory();
@@ -451,6 +462,10 @@ export abstract class BaseGame {
 
   public destroy(): void {
     this.isRunning = false;
+    this.isGameOver = true;
+    if (this.inGameMusicPath) {
+      this.audio.stopGameBGM();
+    }
     this.audio.setGameActive(false);
   }
 }

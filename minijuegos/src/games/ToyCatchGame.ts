@@ -95,6 +95,10 @@ export class ToyCatchGame extends BaseGame {
     this.showLives = true;
     this.lives = 3;
     this.maxLives = 3;
+
+    // Música temática festiva para Atrapa-Regalos
+    this.inGameMusicPath = "./assets/audio/Up on the Housetop.mp3";
+    this.inGameMusicVolume = 0.48;
   }
 
   protected onStart(): void {
