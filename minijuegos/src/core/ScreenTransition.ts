@@ -129,13 +129,13 @@ export class ScreenTransition {
     container: HTMLElement,
     particles: ParticleSystem,
     onCountdownComplete: () => void,
-    initialDelay: number = 500
+    initialDelay: number = 1000
   ): void {
     const overlay = document.createElement("div");
     overlay.className = "countdown-overlay";
     container.appendChild(overlay);
 
-    // Esperar 1/2 segundo (500ms) tras pulsar el botón para que el modal cierre limpio y el audio quede perfecto
+    // Esperar 1 segundo (1000ms) tras pulsar el botón para que el modal cierre limpio y el audio quede perfecto
     setTimeout(() => {
       // Reproducir pista de audio oficial de cuenta regresiva
       this.audio.playMenuCountdown();
