@@ -331,7 +331,7 @@ export class ScreenTransition {
         overlay.classList.add("is-hands-grabbing");
 
         setTimeout(() => {
-          this.audio.playClawTear();
+          this.audio.playPaperTear();
           setTimeout(() => this.audio.playGiftUnwrap(), 160);
 
           const bounds = container.getBoundingClientRect();
@@ -500,9 +500,9 @@ export class ScreenTransition {
     setTimeout(() => {
       onMidpoint();
 
-      // Pausa adecuada (700ms) para apreciar el regalo antes de desgarrarlo
+      // Pausa ágil (260ms) para sincronizar inmediatamente con el audio
       setTimeout(() => {
-        // 3. Comienza la secuencia de desgarre capa por capa
+        // 3. Comienza la secuencia de 3 desgarres sincronizados con el audio
         this.audio.playClawTear();
 
         const bounds = container.getBoundingClientRect();
@@ -513,18 +513,18 @@ export class ScreenTransition {
         overlay.classList.remove("is-wrapping");
         overlay.classList.add("is-kid-unboxing");
 
-        // 4. Finalización suave y limpia revelando el juego
+        // 4. Finalización suave y limpia revelando el juego sincronizado con los 3 rasgados
         setTimeout(() => {
           overlay.classList.add("is-finished");
           setTimeout(() => {
             overlay.remove();
             onComplete();
-          }, 350);
-        }, 2200);
+          }, 300);
+        }, 1500);
 
-      }, 700);
+      }, 260);
 
-    }, 700);
+    }, 600);
   }
 
   /**

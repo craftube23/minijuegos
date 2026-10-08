@@ -446,36 +446,11 @@ export class AudioManager {
   }
 
   /**
-   * Sonido al atrapar un regalo o sumar puntos (Campanita brillante)
+   * Sonido al atrapar un regalo en el saco de Santa
    */
-  public playCatchItem(pitchMultiplier: number = 1.0): void {
+  public playCatchItem(_pitchMultiplier: number = 1.0): void {
     Haptics.light();
-    if (this.isMuted) return;
-    this.unlockAudio();
-    if (!this.ctx) return;
-
-    const baseFreq = 880 * pitchMultiplier; // Nota La5 brillante
-    const osc1 = this.ctx.createOscillator();
-    const osc2 = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-
-    osc1.type = "sine";
-    osc2.type = "triangle";
-
-    osc1.frequency.setValueAtTime(baseFreq, this.ctx.currentTime);
-    osc2.frequency.setValueAtTime(baseFreq * 1.5, this.ctx.currentTime);
-
-    gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
-
-    osc1.connect(gain);
-    osc2.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc1.start();
-    osc2.start();
-    osc1.stop(this.ctx.currentTime + 0.25);
-    osc2.stop(this.ctx.currentTime + 0.25);
+    this.playSoundEffect("./assets/audio/atrapa regalos/atrapar_saco.mp3", 0.90);
   }
 
   /**
