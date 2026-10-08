@@ -831,7 +831,7 @@ export class AudioManager {
   // ==========================================================================
 
   /**
-   * Golpe DON (🔴 Centro del Tambor Taiko - Grave y potente)
+   * Golpe DON (🔴 Centro del Tambor Taiko - Grave y potente con pegada)
    */
   public playDrumDon(): void {
     Haptics.impact();
@@ -840,25 +840,40 @@ export class AudioManager {
     if (!this.ctx) return;
 
     const t = this.ctx.currentTime;
+    
+    // 1. Cuerpo grave del tambor (Sub-bass / parche)
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
-
     osc.type = "sine";
-    osc.frequency.setValueAtTime(160, t);
-    osc.frequency.exponentialRampToValueAtTime(45, t + 0.18);
+    osc.frequency.setValueAtTime(180, t);
+    osc.frequency.exponentialRampToValueAtTime(45, t + 0.24);
 
-    gain.gain.setValueAtTime(0.7, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+    gain.gain.setValueAtTime(0.85, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.26);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
-
     osc.start(t);
-    osc.stop(t + 0.22);
+    osc.stop(t + 0.26);
+
+    // 2. Ataque / Impacto de la baqueta
+    const oscHit = this.ctx.createOscillator();
+    const gainHit = this.ctx.createGain();
+    oscHit.type = "triangle";
+    oscHit.frequency.setValueAtTime(260, t);
+    oscHit.frequency.exponentialRampToValueAtTime(70, t + 0.08);
+
+    gainHit.gain.setValueAtTime(0.40, t);
+    gainHit.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+
+    oscHit.connect(gainHit);
+    gainHit.connect(this.ctx.destination);
+    oscHit.start(t);
+    oscHit.stop(t + 0.08);
   }
 
   /**
-   * Golpe KA (🔵 Borde / Aro Metálico - Seco y agudo)
+   * Golpe KA (🔵 Borde / Aro Metálico - Seco, brillante y agudo)
    */
   public playDrumKa(): void {
     Haptics.tap();
@@ -871,17 +886,17 @@ export class AudioManager {
     const gain = this.ctx.createGain();
 
     osc.type = "triangle";
-    osc.frequency.setValueAtTime(520, t);
-    osc.frequency.exponentialRampToValueAtTime(220, t + 0.12);
+    osc.frequency.setValueAtTime(620, t);
+    osc.frequency.exponentialRampToValueAtTime(240, t + 0.14);
 
-    gain.gain.setValueAtTime(0.55, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+    gain.gain.setValueAtTime(0.70, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
     osc.start(t);
-    osc.stop(t + 0.14);
+    osc.stop(t + 0.16);
   }
 
   /**
@@ -901,15 +916,15 @@ export class AudioManager {
       const gain = this.ctx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(freq, t + idx * 0.02);
+      osc.frequency.setValueAtTime(freq, t + idx * 0.015);
 
-      gain.gain.setValueAtTime(0.28, t + idx * 0.02);
+      gain.gain.setValueAtTime(0.35, t + idx * 0.015);
       gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
-      osc.start(t + idx * 0.02);
+      osc.start(t + idx * 0.015);
       osc.stop(t + 0.45);
     });
   }

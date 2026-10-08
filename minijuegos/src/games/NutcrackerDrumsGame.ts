@@ -96,9 +96,8 @@ export class NutcrackerDrumsGame extends BaseGame {
     this.bgRoom = new Image();
     this.bgRoom.src = "./assets/images/fondo-habitacion.webp";
 
-    // Música temática oficial del Cascanueces
-    this.inGameMusicPath = "./assets/audio/Dance of the Sugar Plum Fairy.mp3";
-    this.inGameMusicVolume = 0.40;
+    // En el juego de tambores se mantiene silencio de fondo para escuchar con total nitidez cada golpe de percusión
+    this.inGameMusicPath = "";
   }
 
   public override resize(width: number, height: number): void {
