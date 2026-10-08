@@ -119,6 +119,8 @@ export abstract class BaseGame {
   }
 
   public start(durationSeconds: number = 45): void {
+    this.audio.setGameActive(true);
+    this.audio.stopMenuBGM();
     this.score = 0;
     this.timeRemaining = durationSeconds;
     this.isRunning = true;
@@ -437,5 +439,6 @@ export abstract class BaseGame {
 
   public destroy(): void {
     this.isRunning = false;
+    this.audio.setGameActive(false);
   }
 }

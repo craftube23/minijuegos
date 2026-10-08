@@ -19,6 +19,7 @@ export class AudioManager {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
   private isUnlocked: boolean = false;
+  private isGameActive: boolean = false;
   private bgmAudio: HTMLAudioElement | null = null;
   private bgmVolume: number = 0.45;
   private currentBgmPath: string = "./assets/audio/Rockin' Around The Christmas Tree.mp3";
@@ -35,27 +36,44 @@ export class AudioManager {
   }
 
   /**
-   * Desbloquea el contexto de audio tras el primer toque del usuario
+   * Desbloquea el contexto de audio Web Audio para efectos de sonido
+   * (NUNCA reproduce música de fondo dentro de un minijuego)
    */
   public unlockAudio(): void {
-    if (this.isUnlocked && this.ctx && this.ctx.state === "running" && this.bgmAudio && !this.bgmAudio.paused) return;
-
     if (this.ctx && this.ctx.state === "suspended") {
       this.ctx.resume().catch(() => {});
     }
     this.isUnlocked = true;
+  }
 
-    // Si la música de fondo está pendiente por la política de autoplay, reproducir ahora
-    if (this.bgmAudio && this.bgmAudio.paused && !this.isMuted) {
-      this.bgmAudio.play().catch(() => {});
+  public getIsUnlocked(): boolean {
+    return this.isUnlocked;
+  }
+
+  /**
+   * Establece si hay un minijuego activo
+   */
+  public setGameActive(active: boolean): void {
+    this.isGameActive = active;
+    if (active) {
+      this.stopMenuBGM();
     }
+  }
+
+  public getIsGameActive(): boolean {
+    return this.isGameActive;
   }
 
   /**
    * Reproduce la música de fondo ambiental (BGM) en bucle continuo
-   * Si ya está reproduciéndose, NO se corta ni se reinicia
+   * Solo suena en inicio y menú; NUNCA dentro de un minijuego
    */
   public playMenuBGM(src: string = "./assets/audio/Rockin' Around The Christmas Tree.mp3", volume: number = 0.45): void {
+    if (this.isGameActive || this.isMuted) {
+      this.stopMenuBGM();
+      return;
+    }
+
     this.bgmVolume = volume;
     this.currentBgmPath = src;
 
@@ -64,13 +82,10 @@ export class AudioManager {
       this.bgmAudio.loop = true;
     }
 
-    this.bgmAudio.volume = this.isMuted ? 0 : this.bgmVolume;
+    this.bgmAudio.volume = this.bgmVolume;
 
-    // Solo iniciar reproducción si está pausada; si ya suena, continuar fluidamente
-    if (this.bgmAudio.paused && !this.isMuted) {
-      this.bgmAudio.play().catch(() => {
-        // Se activará con el primer toque del usuario
-      });
+    if (this.bgmAudio.paused) {
+      this.bgmAudio.play().catch(() => {});
     }
   }
 
@@ -85,16 +100,17 @@ export class AudioManager {
   }
 
   /**
-   * Pausa la música de fondo al entrar a un juego
+   * Pausa la música de fondo
    */
   public pauseMenuBGM(): void {
     this.stopMenuBGM();
   }
 
   /**
-   * Reanuda la música de fondo de forma fluida (sin reiniciar a cero si ya estaba sonando)
+   * Reanuda la música de fondo de forma fluida
    */
   public resumeMenuBGM(): void {
+    this.isGameActive = false;
     this.playMenuBGM(this.currentBgmPath, this.bgmVolume);
   }
 
