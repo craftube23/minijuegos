@@ -342,11 +342,11 @@ export class AudioManager {
   }
 
   /**
-   * Sonido unificado para recoger regalos, bastones de caramelo y coleccionables
+   * Sonido unificado para recoger regalos, bastones de caramelo y coleccionables (0ms Latencia)
    */
   public playElfCollectItem(): void {
     Haptics.light();
-    this.playSoundEffect("./assets/audio/elfo/recoger_items.mp3", 0.85);
+    this.playSoundEffect("./assets/audio/elfo/recoger_items.wav", 0.85);
   }
 
   /**
