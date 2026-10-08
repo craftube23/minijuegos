@@ -520,7 +520,7 @@ export class ScreenTransition {
             overlay.remove();
             onComplete();
           }, 300);
-        }, 1500);
+        }, 1150);
 
       }, 260);
 

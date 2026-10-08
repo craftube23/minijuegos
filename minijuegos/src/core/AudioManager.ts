@@ -299,9 +299,9 @@ export class AudioManager {
   private sfxPool: Map<string, HTMLAudioElement[]> = new Map();
 
   /**
-   * Reproduce un archivo de efecto de sonido (.mp3 / .wav) con pool reutilizable sin lag
+   * Reproduce un archivo de efecto de sonido (.mp3 / .wav) con pool reutilizable sin lag y velocidad ajustable
    */
-  public playSoundEffect(src: string, volume: number = 0.85): void {
+  public playSoundEffect(src: string, volume: number = 0.85, playbackRate: number = 1.0): void {
     if (this.isMuted) return;
 
     try {
@@ -324,6 +324,7 @@ export class AudioManager {
       }
 
       player.currentTime = 0;
+      player.playbackRate = playbackRate;
       player.volume = Math.max(0, Math.min(1, volume));
       player.muted = this.isMuted;
       player.play().catch(() => {});
@@ -408,11 +409,11 @@ export class AudioManager {
   }
 
   /**
-   * Sonido de desgarre de paquete con garras / manos en las transiciones
+   * Sonido de desgarre de paquete con garras / manos en las transiciones (audio acelerado)
    */
-  public playClawTear(): void {
+  public playClawTear(playbackRate: number = 1.35): void {
     Haptics.impact();
-    this.playSoundEffect("./assets/audio/menu/garra_desgarre.mp3", 0.90);
+    this.playSoundEffect("./assets/audio/menu/garra_desgarre.mp3", 0.95, playbackRate);
   }
 
   // ==========================================================================

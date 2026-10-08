@@ -3579,32 +3579,32 @@ html, body {
   100% { transform: translate(220%, -90%) scaleX(-1) rotate(45deg); opacity: 0; }
 }
 
-/* 4. Capa 1 (Primer Rasgado): Tira Central se Desgarra Hacia Arriba (0.08s delay) */
+/* 4. Capa 1 (Primer Rasgado): Tira Central se Desgarra Hacia Arriba (0.06s delay) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-center-strip {
   transform: translate3d(0, -140%, 160px) rotateX(75deg) rotateZ(10deg);
   opacity: 0;
-  transition: transform 0.55s cubic-bezier(0.15, 1, 0.25, 1) 0.08s, opacity 0.45s ease-out 0.08s;
+  transition: transform 0.50s cubic-bezier(0.15, 1, 0.25, 1) 0.06s, opacity 0.40s ease-out 0.06s;
 }
 
-/* 5. Capa 2 (Segundo Rasgado): Solapa Izquierda se Desgarra y se Enrolla (0.38s delay) */
+/* 5. Capa 2 (Segundo Rasgado): Solapa Izquierda se Desgarra y se Enrolla (0.28s delay) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-left {
   transform: translate3d(-135%, 0, 130px) rotateY(-75deg) rotateZ(-15deg);
   opacity: 0;
-  transition: transform 0.60s cubic-bezier(0.15, 1, 0.25, 1) 0.38s, opacity 0.50s ease-out 0.38s;
+  transition: transform 0.52s cubic-bezier(0.15, 1, 0.25, 1) 0.28s, opacity 0.45s ease-out 0.28s;
 }
 
-/* 6. Capa 3 (Tercer Rasgado): Solapa Derecha se Desgarra y se Enrolla (0.68s delay) */
+/* 6. Capa 3 (Tercer Rasgado): Solapa Derecha se Desgarra y se Enrolla (0.50s delay) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-right {
   transform: translate3d(135%, 0, 130px) rotateY(75deg) rotateZ(15deg);
   opacity: 0;
-  transition: transform 0.60s cubic-bezier(0.15, 1, 0.25, 1) 0.68s, opacity 0.50s ease-out 0.68s;
+  transition: transform 0.52s cubic-bezier(0.15, 1, 0.25, 1) 0.50s, opacity 0.45s ease-out 0.50s;
 }
 
-/* 7. Capa 4: Fondo Inferior Cae Abriéndose Completamente (0.92s delay) */
+/* 7. Capa 4: Fondo Inferior Cae Abriéndose Completamente (0.72s delay) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-bottom {
   transform: translate3d(0, 135%, 80px) rotateX(-75deg);
   opacity: 0;
-  transition: transform 0.55s cubic-bezier(0.15, 1, 0.25, 1) 0.92s, opacity 0.45s ease-out 0.92s;
+  transition: transform 0.50s cubic-bezier(0.15, 1, 0.25, 1) 0.72s, opacity 0.40s ease-out 0.72s;
 }
 
 /* 8. Retazos de Papel Flotando en Arcos Rápidos y Dinámicos */
