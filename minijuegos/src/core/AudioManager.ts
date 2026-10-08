@@ -357,6 +357,34 @@ export class AudioManager {
   }
 
   // ==========================================================================
+  // EFECTOS DE SONIDO ESPECÍFICOS: PAREJAS MÁGICAS DE JUGUETES (CARTAS)
+  // ==========================================================================
+
+  /**
+   * Sonido al voltear una carta
+   */
+  public playCardFlip(): void {
+    Haptics.tap();
+    this.playSoundEffect("./assets/audio/cartas/carta_voltear.mp3", 0.85);
+  }
+
+  /**
+   * Sonido al encontrar una pareja correcta (acierto)
+   */
+  public playCardMatch(): void {
+    Haptics.medium();
+    this.playSoundEffect("./assets/audio/cartas/pareja_acierto.mp3", 0.90);
+  }
+
+  /**
+   * Sonido al fallar en encontrar una pareja (desacierto)
+   */
+  public playCardMismatch(): void {
+    Haptics.light();
+    this.playSoundEffect("./assets/audio/cartas/pareja_fallo.mp3", 0.80);
+  }
+
+  // ==========================================================================
   // EFECTOS DE SONIDO SINTETIZADOS (Navideños, mágicos y arcade)
   // ==========================================================================
 
