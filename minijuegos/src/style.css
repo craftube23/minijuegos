@@ -1021,24 +1021,24 @@ html, body {
 }
 
 .modal-title {
-  font-family: var(--font-festive);
-  font-size: clamp(1.65rem, 4.2vw, 2.5rem);
+  font-family: 'Titan One', 'Fredoka', var(--font-festive), cursive, sans-serif;
+  font-size: clamp(1.75rem, 4.5vw, 2.6rem);
   font-weight: 900;
   color: #FFF275;
   text-shadow: 
     0 2px 0 #D4AF37,
-    0 4px 0 #A83232,
-    0 6px 12px rgba(0, 0, 0, 0.9),
-    0 0 25px rgba(255, 215, 0, 0.6);
-  letter-spacing: 1.5px;
-  line-height: 1.15;
+    0 4px 0 #8B1E1E,
+    0 6px 14px rgba(0, 0, 0, 0.95),
+    0 0 25px rgba(255, 215, 0, 0.7);
+  letter-spacing: 1px;
+  line-height: 1.12;
 }
 
 .modal-game-name {
   font-size: clamp(0.88rem, 1.8vw, 1.05rem);
   color: #CBD5E1;
-  font-weight: 600;
-  font-family: var(--font-main);
+  font-weight: 700;
+  font-family: 'Fredoka', var(--font-main), sans-serif;
   margin-top: 2px;
 }
 
@@ -1092,13 +1092,13 @@ html, body {
 }
 
 /* ==========================================================================
-   MEDALLÓN 3D DE RANGO ARCADE (S+, S, A, B, C, D)
+   MEDALLÓN 3D DE RANGO ARCADE ESTILO FANTASY GAME CONCEPT ART
    ========================================================================== */
 .modal-rank-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 6px 0 8px 0;
+  margin: 6px 0 10px 0;
 }
 
 .rank-medallion-badge {
@@ -1106,29 +1106,30 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0A1B30 0%, #040E1A 50%, #0F2744 100%);
+  background: radial-gradient(circle at 50% 0%, #153255 0%, #09192C 65%, #040D18 100%);
   border: 3px solid var(--rank-theme, #FFD700);
-  border-radius: 24px;
-  padding: 12px 24px;
-  max-width: 420px;
+  border-radius: 26px;
+  padding: 14px 22px;
+  max-width: 440px;
   width: 100%;
   box-shadow: 
-    0 8px 30px rgba(0, 0, 0, 0.7),
-    0 0 25px var(--rank-theme, rgba(255, 215, 0, 0.45)),
-    inset 0 2px 4px rgba(255, 255, 255, 0.35),
-    inset 0 -2px 6px rgba(0, 0, 0, 0.6);
+    0 10px 32px rgba(0, 0, 0, 0.8),
+    0 0 30px var(--rank-theme, rgba(255, 215, 0, 0.45)),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.7);
   animation: floatDecor 3s ease-in-out infinite alternate;
 }
 
 .rank-medallion-halo {
   position: absolute;
   top: 50%;
-  left: 35px;
+  left: 45px;
   transform: translate(-50%, -50%);
-  width: 90px;
-  height: 90px;
+  width: 110px;
+  height: 110px;
   background: radial-gradient(circle, var(--rank-theme, #FFD700) 0%, rgba(0, 0, 0, 0) 70%);
-  opacity: 0.35;
+  opacity: 0.45;
+  filter: blur(8px);
   pointer-events: none;
 }
 
@@ -1137,23 +1138,103 @@ html, body {
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   width: 100%;
 }
 
-.rank-letter-3d {
-  font-family: 'Cinzel Decorative', 'Outfit', sans-serif;
-  font-size: clamp(3rem, 7.5vw, 4.2rem);
+/* --- ESCUDO / CREST DE FANTASÍA 2D STYLIZED --- */
+.rank-crest-frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 82px;
+  height: 82px;
+  min-width: 82px;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.4) 70%),
+              linear-gradient(180deg, #1A3A5E 0%, #071424 100%);
+  border: 3px solid var(--rank-theme, #FFD700);
+  border-radius: 20px;
+  box-shadow: 
+    0 6px 14px rgba(0, 0, 0, 0.8),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.8),
+    0 0 16px var(--rank-theme, rgba(255, 215, 0, 0.5));
+}
+
+.rank-frost-crown {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 15px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+  z-index: 4;
+}
+
+.rank-crest-shine {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: 16px 16px 40% 40%;
+  pointer-events: none;
+}
+
+/* --- LETRA VOLUMÉTRICA STYLIZED 2D CONCEPT ART --- */
+.rank-letter-art {
+  font-family: 'Titan One', 'Fredoka', 'Luckiest Guy', cursive, sans-serif;
+  font-size: clamp(2.8rem, 6.5vw, 3.8rem);
   font-weight: 900;
   line-height: 1;
-  color: #FFFFFF;
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--rank-theme, #FFD700) 65%, #C29600 100%);
+  text-align: center;
+  position: relative;
+  z-index: 3;
+  margin-top: -2px;
+}
+
+/* TEMAS ESTILIZADOS 2D POR RANGO */
+.rank-tier-splus .rank-letter-art,
+.rank-tier-s .rank-letter-art {
+  color: #FFFDF0;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFF59D 20%, #FFD700 50%, #FF8F00 80%, #C25E00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.9)) drop-shadow(0 0 15px var(--rank-theme, #FFD700));
-  letter-spacing: 1px;
-  min-width: 65px;
-  text-align: center;
+  filter: drop-shadow(0 3px 0 #7A3500) drop-shadow(0 5px 0 #3D1A00) drop-shadow(0 8px 12px rgba(0,0,0,0.9));
+}
+
+.rank-tier-a .rank-letter-art {
+  color: #F0FDFF;
+  background: linear-gradient(180deg, #FFFFFF 0%, #BAF7FF 20%, #00E5FF 50%, #0097A7 80%, #004D54 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 3px 0 #005662) drop-shadow(0 5px 0 #002D33) drop-shadow(0 8px 12px rgba(0,0,0,0.9));
+}
+
+.rank-tier-b .rank-letter-art {
+  color: #F0FFF4;
+  background: linear-gradient(180deg, #FFFFFF 0%, #A8F5D2 20%, #2ECC71 50%, #15803D 80%, #0B4520 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 3px 0 #0E4723) drop-shadow(0 5px 0 #062411) drop-shadow(0 8px 12px rgba(0,0,0,0.9));
+}
+
+.rank-tier-c .rank-letter-art {
+  color: #FFF8E1;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFE0B2 20%, #FF9800 50%, #E65100 80%, #7A2800 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 3px 0 #612000) drop-shadow(0 5px 0 #331000) drop-shadow(0 8px 12px rgba(0,0,0,0.9));
+}
+
+.rank-tier-d .rank-letter-art {
+  color: #FFF0F0;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFCDD2 20%, #EF5350 50%, #C62828 80%, #5C0000 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 3px 0 #5C0E0E) drop-shadow(0 5px 0 #2E0505) drop-shadow(0 8px 12px rgba(0,0,0,0.9));
 }
 
 .rank-info-column {
@@ -1165,43 +1246,48 @@ html, body {
 }
 
 .rank-tier-ribbon {
-  font-family: var(--font-festive);
-  font-size: clamp(1rem, 2.2vw, 1.35rem);
+  font-family: 'Titan One', 'Fredoka', var(--font-festive), sans-serif;
+  font-size: clamp(1.05rem, 2.3vw, 1.4rem);
   font-weight: 900;
   color: var(--rank-theme, #FFD700);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 0 12px var(--rank-theme, rgba(255, 215, 0, 0.6));
-  letter-spacing: 1px;
+  text-shadow: 
+    0 2px 0 #040E1A,
+    0 3px 0 rgba(0, 0, 0, 0.9),
+    0 0 16px var(--rank-theme, rgba(255, 215, 0, 0.7));
+  letter-spacing: 0.8px;
 }
 
 .rank-accuracy-meter {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   width: 100%;
 }
 
 .accuracy-bar-track {
   width: 100%;
-  height: 7px;
+  height: 8px;
   background: rgba(255, 255, 255, 0.12);
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .accuracy-bar-fill {
   height: 100%;
   background: linear-gradient(90deg, #00E5FF 0%, #00E676 60%, #FFD700 100%);
   border-radius: 6px;
-  box-shadow: 0 0 8px rgba(0, 230, 118, 0.8);
+  box-shadow: 0 0 10px rgba(0, 230, 118, 0.9);
   transition: width 0.8s ease-out;
 }
 
 .accuracy-label {
-  font-family: var(--font-main);
-  font-size: clamp(0.78rem, 1.5vw, 0.9rem);
+  font-family: 'Fredoka', 'Outfit', sans-serif;
+  font-size: clamp(0.82rem, 1.6vw, 0.95rem);
   font-weight: 700;
   color: #E2E8F0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 /* ==========================================================================
@@ -1219,10 +1305,10 @@ html, body {
 }
 
 .breakdown-title {
-  font-family: var(--font-ribbon);
-  font-size: clamp(0.72rem, 1.3vw, 0.82rem);
+  font-family: 'Titan One', 'Fredoka', sans-serif;
+  font-size: clamp(0.76rem, 1.4vw, 0.88rem);
   font-weight: 900;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   color: #CBD5E1;
   text-transform: uppercase;
 }
@@ -1246,15 +1332,15 @@ html, body {
 }
 
 .stat-chip .stat-name {
-  font-family: var(--font-main);
-  font-size: clamp(0.6rem, 1.1vw, 0.72rem);
+  font-family: 'Fredoka', 'Outfit', sans-serif;
+  font-size: clamp(0.62rem, 1.15vw, 0.74rem);
   font-weight: 800;
   letter-spacing: 0.5px;
 }
 
 .stat-chip .stat-val {
-  font-family: 'Cinzel Decorative', 'Outfit', sans-serif;
-  font-size: clamp(0.95rem, 1.8vw, 1.25rem);
+  font-family: 'Titan One', 'Fredoka', sans-serif;
+  font-size: clamp(1rem, 2vw, 1.32rem);
   font-weight: 900;
   line-height: 1.1;
 }
@@ -1316,17 +1402,18 @@ html, body {
 .score-label {
   font-size: clamp(0.72rem, 1.4vw, 0.85rem);
   font-weight: 900;
-  letter-spacing: 1.5px;
-  font-family: var(--font-ribbon);
+  letter-spacing: 1px;
+  font-family: 'Titan One', 'Fredoka', sans-serif;
   color: #CBD5E1;
 }
 
 .score-value {
-  font-family: var(--font-game);
+  font-family: 'Titan One', 'Fredoka', var(--font-game), sans-serif;
   font-size: clamp(1.8rem, 4.5vw, 2.6rem);
   font-weight: 900;
   color: var(--color-white);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+  letter-spacing: 1px;
 }
 
 .modal-branding {

@@ -73,12 +73,16 @@ export class GameOverModal {
           ` : ""}
         </div>
 
-        <!-- MEDALLÓN 3D DE RANGO ARCADE (S+, S, A, B, C, D) -->
+        <!-- MEDALLÓN 3D DE RANGO ARCADE ESTILO FANTASY GAME ART (S+, S, A, B, C, D) -->
         <div class="modal-rank-container">
-          <div class="rank-medallion-badge" style="--rank-theme: ${rankColor};">
+          <div class="rank-medallion-badge rank-tier-${rank.toLowerCase().replace('+', 'plus')}" style="--rank-theme: ${rankColor};">
             <div class="rank-medallion-halo"></div>
             <div class="rank-medallion-inner">
-              <div class="rank-letter-3d">${rank}</div>
+              <div class="rank-crest-frame">
+                <div class="rank-frost-crown">❄️</div>
+                <div class="rank-letter-art">${rank}</div>
+                <div class="rank-crest-shine"></div>
+              </div>
               <div class="rank-info-column">
                 <div class="rank-tier-ribbon">${rankLabel}</div>
                 ${result.accuracy !== undefined ? `
