@@ -3537,7 +3537,7 @@ html, body {
    SECUENCIA DINÁMICA: DESGARRE PAUSADO Y VISIBLE CAPA POR CAPA (.is-kid-unboxing)
    ========================================================================== */
 
-/* 1. Las Cuerdas y Cintas Revientan y se Quitan de Inmediato al Iniciar (0s) */
+/* 0. Las Cuerdas y Moño Revientan y se Quitan de Inmediato al Iniciar (0s) - SIN AUDIO */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-ribbon.kid-ribbon-h {
   opacity: 0;
   transform: translateY(-110px) scaleX(1.35) rotate(15deg);
@@ -3550,7 +3550,6 @@ html, body {
   transition: transform 0.75s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.55s ease-out;
 }
 
-/* 2. El Moño y la Placa se Elevan y se Quitan Primero (0s) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-center-box {
   transform: translate(-50%, -95%) scale(1.3) rotate(-4deg);
   opacity: 0;
@@ -3558,13 +3557,17 @@ html, body {
   transition: transform 0.70s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.55s ease-out;
 }
 
-/* 3. Manitas que Guían los Desgarres en Tiempo Exacto */
+/* Manitas que Guían los Desgarres en Tiempo Exacto */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .hand-left-rip {
-  animation: kidHandRipLeft 0.70s cubic-bezier(0.15, 1, 0.3, 1) 0.85s forwards;
+  animation: 
+    kidHandRipLeft 0.70s cubic-bezier(0.15, 1, 0.3, 1) 0.85s forwards,
+    kidHandSplitLeft 0.70s cubic-bezier(0.15, 1, 0.3, 1) 3.65s forwards;
 }
 
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .hand-right-rip {
-  animation: kidHandRipRight 0.70s cubic-bezier(0.15, 1, 0.3, 1) 2.20s forwards;
+  animation: 
+    kidHandRipRight 0.70s cubic-bezier(0.15, 1, 0.3, 1) 2.20s forwards,
+    kidHandSplitRight 0.70s cubic-bezier(0.15, 1, 0.3, 1) 3.65s forwards;
 }
 
 @keyframes kidHandRipLeft {
@@ -3579,35 +3582,47 @@ html, body {
   100% { transform: translate(220%, -90%) scaleX(-1) rotate(45deg); opacity: 0; }
 }
 
-/* 4. Capa 1 (Primer Rasgado): Tira Central se Desgarra Hacia Arriba (0.91s delay exacto FL Studio) */
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-center-strip {
-  transform: translate3d(0, -140%, 160px) rotateX(75deg) rotateZ(10deg);
+@keyframes kidHandSplitLeft {
+  0% { transform: translate(-100%, -50%) rotate(0deg); opacity: 0; }
+  30% { transform: translate(-45%, -50%) rotate(-15deg); opacity: 1; }
+  100% { transform: translate(-240%, -60%) rotate(-55deg); opacity: 0; }
+}
+
+@keyframes kidHandSplitRight {
+  0% { transform: translate(100%, -50%) scaleX(-1) rotate(0deg); opacity: 0; }
+  30% { transform: translate(45%, -50%) scaleX(-1) rotate(-15deg); opacity: 1; }
+  100% { transform: translate(240%, -60%) scaleX(-1) rotate(55deg); opacity: 0; }
+}
+
+/* 1. Paso 1: Rasgado Izquierdo (0.91s delay exacto FL Studio - 1er Sonido de Rasgado) */
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-left {
+  transform: translate3d(-140%, 0, 130px) rotateY(-80deg) rotateZ(-18deg);
   opacity: 0;
   transition: transform 0.65s cubic-bezier(0.15, 1, 0.25, 1) 0.91s, opacity 0.50s ease-out 0.91s;
 }
 
-/* 5. Capa 2 (Segundo Rasgado): Solapa Izquierda se Desgarra y se Enrolla (2.28s delay exacto FL Studio) */
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-left {
-  transform: translate3d(-135%, 0, 130px) rotateY(-75deg) rotateZ(-15deg);
+/* 2. Paso 2: Rasgado Derecho (2.28s delay exacto FL Studio - 2do Sonido de Rasgado) */
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-right {
+  transform: translate3d(140%, 0, 130px) rotateY(80deg) rotateZ(18deg);
   opacity: 0;
   transition: transform 0.65s cubic-bezier(0.15, 1, 0.25, 1) 2.28s, opacity 0.50s ease-out 2.28s;
 }
 
-/* 6. Capa 3 (Tercer Rasgado): Solapa Derecha se Desgarra y se Enrolla (3.72s delay exacto FL Studio) */
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-right {
-  transform: translate3d(135%, 0, 130px) rotateY(75deg) rotateZ(15deg);
+/* 3. Paso 3: Se Abre por la Mitad con las 2 Manos (3.72s delay exacto FL Studio - 3er y Último Sonido) */
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-center-strip {
+  transform: translate3d(0, -145%, 170px) rotateX(85deg) scale(1.1);
   opacity: 0;
   transition: transform 0.65s cubic-bezier(0.15, 1, 0.25, 1) 3.72s, opacity 0.50s ease-out 3.72s;
 }
 
-/* 7. Capa 4: Fondo Inferior Cae Abriéndose Completamente (4.10s delay) */
+/* 4. Fondo Inferior Cae Abriéndose Completamente (4.05s delay) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-bottom {
   transform: translate3d(0, 135%, 80px) rotateX(-75deg);
   opacity: 0;
-  transition: transform 0.55s cubic-bezier(0.15, 1, 0.25, 1) 4.10s, opacity 0.45s ease-out 4.10s;
+  transition: transform 0.55s cubic-bezier(0.15, 1, 0.25, 1) 4.05s, opacity 0.45s ease-out 4.05s;
 }
 
-/* 8. Retazos de Papel Sincronizados con Cada Desgarre */
+/* Retazos de Papel Sincronizados con Cada Desgarre */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-1 { animation: kidShredFly1 0.75s cubic-bezier(0.1, 1, 0.3, 1) 0.92s forwards; }
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-2 { animation: kidShredFly2 0.75s cubic-bezier(0.1, 1, 0.3, 1) 1.05s forwards; }
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-3 { animation: kidShredFly3 0.75s cubic-bezier(0.1, 1, 0.3, 1) 1.18s forwards; }
