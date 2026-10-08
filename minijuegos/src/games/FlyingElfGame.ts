@@ -224,7 +224,7 @@ export class FlyingElfGame extends BaseGame {
     this.backgroundSigns = [];
     this.spawnItemTimer = 0.4;
     this.spawnObstacleTimer = 1.1;
-    this.logoSpawnTimer = 20.0; // Cadencia de 20 segundos para Logos con 10% de probabilidad
+    this.logoSpawnTimer = 15.0; // Cadencia de 15 segundos para Logos con 10% de probabilidad
     this.windTimer = 6.5;
     this.isWindActive = false;
     this.wasThrusting = false;
@@ -430,10 +430,10 @@ export class FlyingElfGame extends BaseGame {
       this.spawnItemTimer = Math.max(0.38, 0.95 / this.speedMultiplier);
     }
 
-    // Chequeo de aparición de Logos Oficiales: cada 20 segundos con 10% de probabilidad
+    // Chequeo de aparición de Logos Oficiales: cada 15 segundos con 10% de probabilidad
     this.logoSpawnTimer -= dt;
     if (this.logoSpawnTimer <= 0) {
-      this.logoSpawnTimer = 20.0; // Intervalo de 20 segundos
+      this.logoSpawnTimer = 15.0; // Intervalo de 15 segundos
       if (!this.isLogoPowerUpActive && Math.random() < 0.10) {
         this.spawnLogoMedallion();
       }
