@@ -3537,25 +3537,25 @@ html, body {
    SECUENCIA DINÁMICA: DESGARRE PAUSADO Y VISIBLE CAPA POR CAPA (.is-kid-unboxing)
    ========================================================================== */
 
-/* 1. Las Cintas Revientan y se Desprenden al Iniciar el Desgarre */
+/* 1. Las Cuerdas y Cintas Revientan y se Quitan de Inmediato al Iniciar (0s) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-ribbon.kid-ribbon-h {
   opacity: 0;
   transform: translateY(-110px) scaleX(1.35) rotate(15deg);
-  transition: transform 0.85s cubic-bezier(0.15, 1, 0.3, 1) 0.85s, opacity 0.6s ease-out 0.85s;
+  transition: transform 0.75s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.55s ease-out;
 }
 
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-ribbon.kid-ribbon-v {
   opacity: 0;
   transform: translateX(110px) scaleY(1.35) rotate(-15deg);
-  transition: transform 0.85s cubic-bezier(0.15, 1, 0.3, 1) 0.85s, opacity 0.6s ease-out 0.85s;
+  transition: transform 0.75s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.55s ease-out;
 }
 
-/* 2. Moño y Placa se Elevan con el Primer Rasgado */
+/* 2. El Moño y la Placa se Elevan y se Quitan Primero (0s) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-center-box {
   transform: translate(-50%, -95%) scale(1.3) rotate(-4deg);
   opacity: 0;
   filter: blur(8px);
-  transition: transform 0.75s cubic-bezier(0.15, 1, 0.3, 1) 0.85s, opacity 0.6s ease-out 0.85s;
+  transition: transform 0.70s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.55s ease-out;
 }
 
 /* 3. Manitas que Guían los Desgarres en Tiempo Exacto */
