@@ -129,22 +129,22 @@ export class ScreenTransition {
     container: HTMLElement,
     particles: ParticleSystem,
     onCountdownComplete: () => void,
-    initialDelay: number = 200
+    initialDelay: number = 50
   ): void {
     const overlay = document.createElement("div");
     overlay.className = "countdown-overlay";
     container.appendChild(overlay);
 
-    // Esperar 0.2 segundos (200ms) tras pulsar el botón para entrada ágil y perfecta
     setTimeout(() => {
       // Reproducir pista de audio oficial de cuenta regresiva
       this.audio.playMenuCountdown();
 
+      // Sincronización exacta con los picos acústicos de FL Studio
       const steps = [
-        { text: "3", subtext: "¡PREPÁRATE!", soundStep: 3, delay: 0 },
-        { text: "2", subtext: "¡LISTOS!", soundStep: 2, delay: 850 },
-        { text: "1", subtext: "¡ATENTOS!", soundStep: 1, delay: 1700 },
-        { text: "¡A JUGAR!", subtext: "¡BUENA SUERTE!", soundStep: 0, delay: 2550 }
+        { text: "3", subtext: "¡PREPÁRATE!", soundStep: 3, delay: 1000 },
+        { text: "2", subtext: "¡LISTOS!", soundStep: 2, delay: 1970 },
+        { text: "1", subtext: "¡ATENTOS!", soundStep: 1, delay: 2920 },
+        { text: "¡A JUGAR!", subtext: "¡BUENA SUERTE!", soundStep: 0, delay: 4050 }
       ];
 
       steps.forEach(({ text, subtext, soundStep, delay }) => {
@@ -164,7 +164,7 @@ export class ScreenTransition {
         }, delay);
       });
 
-      // Finalizar cuenta regresiva y comenzar tiempo de juego
+      // Finalizar cuenta regresiva y comenzar tiempo de juego (4.9s)
       setTimeout(() => {
         overlay.style.transition = "opacity 0.25s ease-out";
         overlay.style.opacity = "0";
@@ -173,7 +173,7 @@ export class ScreenTransition {
           overlay.remove();
           onCountdownComplete();
         }, 250);
-      }, 3350);
+      }, 4900);
     }, initialDelay);
   }
 
