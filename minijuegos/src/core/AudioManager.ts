@@ -46,11 +46,22 @@ export class AudioManager {
     return AudioManager.instance;
   }
 
+  private initContext(): void {
+    if (!this.ctx && typeof window !== "undefined") {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        this.ctx = new AudioCtx();
+      }
+    }
+  }
+
   /**
-   * Desbloquea el contexto de audio Web Audio para efectos de sonido
-   * (NUNCA reproduce música de fondo dentro de un minijuego)
+   * Desbloquea e inicializa el contexto de audio Web Audio para efectos de sonido
    */
   public unlockAudio(): void {
+    if (!this.ctx) {
+      this.initContext();
+    }
     if (this.ctx && this.ctx.state === "suspended") {
       this.ctx.resume().catch(() => {});
     }
