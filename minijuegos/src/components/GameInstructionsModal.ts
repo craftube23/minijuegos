@@ -220,7 +220,6 @@ export class GameInstructionsModal {
     const btnBack = this.container.querySelector("#btn-instructions-back");
 
     btnPlay?.addEventListener("click", () => {
-      this.audio.playGameStart();
       this.hide();
       if (this.onStartGame) {
         this.onStartGame(this.currentGameId);
