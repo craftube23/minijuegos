@@ -1,16 +1,16 @@
 /**
  * ==============================================================================
- * JUEGO: SINFONÍA DE CAMPANAS NAVIDEÑAS (Bell Symphony Rhythm Rush)
+ * JUEGO: SINFONÍA DE CAMPANAS NAVIDEÑAS (Guitar Hero Edition)
  * ==============================================================================
  * 
- * Minijuego musical estilo Friday Night Funkin' (FNF) / Guitar Hero con estética
- * Stylized 2D Fantasy Game Art:
- * - Selector interactivo de canciones navideñas antes de jugar (Jingle Bells, Deck The Halls, Carol of the Bells).
- * - Notas rítmicas con Flechas de Bastón de Caramelo (Candy Cane Arrows) estilizadas con ribetes de oro.
- * - Star Notes con Logos Oficiales de la Feria Mágica del Juguete y Campuslands que activan el "MODO ESTRELLA x4" (Guitar Hero Style).
- * - Acompañamiento musical festivo sintetizado en tiempo real + soporte para MP3 personalizados.
- * - Sistema de juicio arcade: ¡PERFECTO!, ¡GENIAL!, ¡BIEN! y MISS.
- * - Control multitáctil en pads inferiores y teclado (D, F, J, K o flechas).
+ * Experiencia musical arcade de alto impacto con estética Stylized 2D Fantasy Art:
+ * - 6 Canciones oficiales de Alexander Nakarada (CreatorChords).
+ * - Intro de Créditos Cinemática estilo Guitar Hero antes de iniciar el concierto.
+ * - Soporte nativo para Notas Normales y NOTAS SOSTENIDAS (Sustain Notes).
+ * - Feedback táctil y visual continuo mientras se mantiene presionado el sustain.
+ * - Star Notes con Logos Oficiales de la Feria Mágica y Campuslands (Modo Estrella x4).
+ * - Control multitáctil responsivo para tótem Android 11 y teclado en PC (D, F, J, K o flechas).
+ * - Sistema de juicio arcade: ¡PERFECTO!, ¡GENIAL!, ¡BIEN!, ¡SUSTAIN PERFECTO! y MISS.
  */
 
 import { BaseGame } from "../core/BaseGame";
@@ -20,11 +20,12 @@ import { ParticleSystem } from "../core/ParticleSystem";
 import { ChartEditorModal, type ChartNoteRecord } from "../components/ChartEditorModal";
 import {
   RHYTHM_SONG_LIST,
-  JINGLE_BELLS_CHART,
-  ROCKIN_AROUND_CHART,
-  DANIELA_CHART,
-  BURRITO_METAL_CHART,
-  JOY_TO_THE_WORLD_CHART,
+  GOD_REST_METAL_CHART,
+  JINGLE_BELLS_ROCK_CHART,
+  TWELVE_DAYS_CHART,
+  JOY_TO_WORLD_POWER_CHART,
+  DECK_THE_HALLS_CHART,
+  WE_WISH_YOU_CHART,
   type SongDef
 } from "../data/songs";
 
@@ -33,9 +34,20 @@ export { type SongDef };
 interface FallingNote {
   id: number;
   lane: number; // 0: Rojo (← / D), 1: Dorado (↓ / F), 2: Verde (↑ / J), 3: Azul (→ / K)
-  targetTime: number; // Segundo exacto en que la nota debe impactar la línea de objetivo
-  hit: boolean;
-  missed: boolean;
+  targetTime: number; // Segundo exacto en que la cabeza debe impactar la línea de objetivo
+  duration: number; // Duración en segundos (0 para nota normal, > 0 para sustain)
+  type: "normal" | "sustain";
+  hit: boolean; // ¿Se tocó la cabeza?
+  missed: boolean; // ¿Se perdió la nota completamente?
+
+  // Estado del Sustain:
+  isHolding: boolean; // ¿El jugador la mantiene presionada en este momento?
+  holdStartTime: number; // Segundo en que se comenzó a sostener
+  holdDuration: number; // Duración total sostenida
+  sustainCompleted: boolean; // ¿Llegó al final con éxito?
+  sustainFailed: boolean; // ¿Se soltó demasiado pronto?
+  lastScoreTickTime: number; // Control de puntuación continua mientras se sostiene
+
   isStar?: boolean;
   logoType?: 1 | 2; // 1: Feria Mágica (Dorado), 2: Campuslands (Cian)
 }
@@ -121,10 +133,14 @@ export class BellSymphonyGame extends BaseGame {
   private laneWidth: number = 0;
   private laneStartX: number = 0;
 
+  // Intro de Créditos Guitar Hero
+  private songIntroTimer: number = 0;
+  private readonly SONG_INTRO_DURATION: number = 4.4;
+
   // Notas activas
   private notes: FallingNote[] = [];
   private lanePressed: boolean[] = [false, false, false, false];
-  private lanePressTimers: number[] = [0, 0, 0, 0];
+  private activePointerLanes: Map<number, number> = new Map(); // pointerId -> lane
 
   // Métricas, Combo y Vidas (5 Campanas Doradas)
   private combo: number = 0;
@@ -145,17 +161,16 @@ export class BellSymphonyGame extends BaseGame {
   private activeJudgements: JudgementPopup[] = [];
   private beatPulse: number = 0;
 
-  // Sistema de Música de Fondo (Sintetizador + MP3 opcional)
+  // Sistema de Audio
   private bgAudioElement: HTMLAudioElement | null = null;
-  private lastAccompanimentBeat: number = -1;
 
   // Editor y Grabador de notas en tiempo real
   private chartEditor: ChartEditorModal;
   private isCustomChartPlaying: boolean = false;
   private lastCustomNotes: ChartNoteRecord[] = [];
-  private lastCustomSongFile: string = "jingle-bells.mp3";
+  private lastCustomSongFile: string = "juego campanas/God Rest Ye Merry Metalmen.mp3";
 
-  // Listener de teclado desacoplable
+  // Listeners de teclado
   private keydownHandler?: (e: KeyboardEvent) => void;
   private keyupHandler?: (e: KeyboardEvent) => void;
 
@@ -168,7 +183,7 @@ export class BellSymphonyGame extends BaseGame {
     super(
       "bell-symphony",
       "🔔 Sinfonía de Campanas",
-      "¡Elige tu canción navideña y toca las flechas de bastón de caramelo al ritmo de la música!",
+      "¡Elige tu concierto navideño, toca las flechas y mantén las notas sostenidas al ritmo de la música!",
       canvas,
       input,
       audio,
@@ -191,7 +206,6 @@ export class BellSymphonyGame extends BaseGame {
     this.imgArrowRight = new Image();
     this.imgArrowRight.src = "./assets/images/flecha-der.png";
 
-    // Logos oficiales transparentes
     this.imgLogoFair = new Image();
     this.imgLogoFair.src = "./assets/logos/Feria-magica-del-jugete-sin-fondo.png";
 
@@ -201,7 +215,7 @@ export class BellSymphonyGame extends BaseGame {
     this.imgStarWithLogo = new Image();
     this.imgStarWithLogo.src = "./assets/images/estrella con logo.png";
 
-    // Editor de ritmos
+    // Editor de partituras
     this.chartEditor = new ChartEditorModal("chart-editor-modal");
     this.chartEditor.onPlayCustomChart = (customNotes, songFile, bpm) => {
       this.startCustomChart(customNotes, songFile, bpm);
@@ -219,7 +233,7 @@ export class BellSymphonyGame extends BaseGame {
     const totalTrackWidth = Math.min(this.width * 0.94, 620);
     this.laneWidth = totalTrackWidth / 4;
     this.laneStartX = (this.width - totalTrackWidth) / 2;
-    // Línea de impacto ubicada al 80% de la altura de la pantalla
+    // Línea de impacto al 80% de la pantalla
     this.hitLineY = this.height * 0.80;
   }
 
@@ -231,14 +245,13 @@ export class BellSymphonyGame extends BaseGame {
   public override update(dt: number): void {
     if (!this.isRunning || this.isGameOver) return;
 
-    // Calcular el tiempo restante real de la canción para el HUD
     if (this.gameState === "song-select") {
       this.timeRemaining = this.songDuration;
     } else {
       this.timeRemaining = Math.max(0, this.songDuration - this.currentTime);
     }
 
-    // Feedback visual y de partículas
+    // Screen Shake
     if (this.shakeTimer > 0) {
       this.shakeTimer -= dt;
       if (this.shakeTimer <= 0) {
@@ -247,6 +260,7 @@ export class BellSymphonyGame extends BaseGame {
       }
     }
 
+    // Textos flotantes
     for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
       const ft = this.floatingTexts[i];
       ft.life += dt;
@@ -273,15 +287,15 @@ export class BellSymphonyGame extends BaseGame {
     this.lives = this.maxLives;
     this.activeJudgements = [];
     this.lanePressed = [false, false, false, false];
-    this.lanePressTimers = [0, 0, 0, 0];
-    this.lastAccompanimentBeat = -1;
+    this.activePointerLanes.clear();
     this.starPowerTimer = 0;
     this.isStarPowerActive = false;
+    this.songIntroTimer = 0;
 
     this.recalculateLayout();
 
-    // Manejador táctil para selección de canciones y juego
-    this.input.onTap = (x: number, y: number) => {
+    // Multitouch en pantalla
+    this.input.onPointerDown = (pointerId: number, x: number, y: number) => {
       if (!this.isRunning || this.isGameOver) return;
 
       if (this.gameState === "song-select") {
@@ -289,14 +303,25 @@ export class BellSymphonyGame extends BaseGame {
       } else {
         const lane = Math.floor((x - this.laneStartX) / this.laneWidth);
         if (lane >= 0 && lane < 4) {
+          this.activePointerLanes.set(pointerId, lane);
           this.handleLanePress(lane);
+        }
+      }
+    };
+
+    this.input.onPointerUp = (pointerId: number, _x: number, _y: number) => {
+      if (this.gameState === "playing") {
+        const lane = this.activePointerLanes.get(pointerId);
+        if (lane !== undefined) {
+          this.activePointerLanes.delete(pointerId);
+          this.handleLaneRelease(lane);
         }
       }
     };
   }
 
   /**
-   * Inicia la canción elegida y genera su partitura rítmica
+   * Inicia la canción elegida y activa el intro Guitar Hero
    */
   public startSong(index: number): void {
     this.selectedSongIndex = Math.max(0, Math.min(this.songList.length - 1, index));
@@ -317,6 +342,9 @@ export class BellSymphonyGame extends BaseGame {
     this.starPowerTimer = 0;
     this.isStarPowerActive = false;
     this.songDuration = song.durationSeconds || 129;
+    this.songIntroTimer = this.SONG_INTRO_DURATION;
+    this.lanePressed = [false, false, false, false];
+    this.activePointerLanes.clear();
 
     if (this.bgAudioElement) {
       this.bgAudioElement.pause();
@@ -324,31 +352,33 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     try {
-      this.bgAudioElement = new Audio(`./assets/audio/${encodeURIComponent(song.audioFile)}`);
-      this.bgAudioElement.volume = 0.75;
+      const safeAudioUrl = `./assets/audio/${song.audioFile.split("/").map(encodeURIComponent).join("/")}`;
+      this.bgAudioElement = new Audio(safeAudioUrl);
+      this.bgAudioElement.volume = 0.80;
       this.bgAudioElement.addEventListener("loadedmetadata", () => {
         if (this.bgAudioElement && !isNaN(this.bgAudioElement.duration) && this.bgAudioElement.duration > 5) {
           this.songDuration = this.bgAudioElement.duration;
         }
       });
+      this.bgAudioElement.addEventListener("error", (e) => {
+        console.error("❌ Error cargando pista de audio:", safeAudioUrl, e);
+      });
       if (!this.audio.getIsMuted()) {
-        this.bgAudioElement.play().catch(() => {
-          // Fallback a Web Audio
+        this.bgAudioElement.play().catch((err) => {
+          console.warn("⚠️ Autoplay pendiente o bloqueado:", err);
         });
       }
-    } catch {
+    } catch (e) {
+      console.error("Error al inicializar Audio:", e);
       this.bgAudioElement = null;
     }
 
     this.generateSongChart(song);
     this.gameState = "playing";
     this.audio.playGameStart();
-    this.particles.emitConfetti(this.width, 30);
+    this.particles.emitConfetti(this.width, 35);
   }
 
-  /**
-   * Reinicia la última canción o partitura jugada inmediatamente
-   */
   public replayLastSong(): void {
     if (this.bgAudioElement) {
       this.bgAudioElement.pause();
@@ -357,7 +387,6 @@ export class BellSymphonyGame extends BaseGame {
     this.score = 0;
     this.isRunning = true;
     this.isGameOver = false;
-    this.highScore = this.highScore;
     this.particles.clear();
     this.recalculateLayout();
 
@@ -368,9 +397,6 @@ export class BellSymphonyGame extends BaseGame {
     }
   }
 
-  /**
-   * Regresa al selector interno de canciones de Sinfonía de Campanas
-   */
   public goToSongSelect(): void {
     if (this.bgAudioElement) {
       this.bgAudioElement.pause();
@@ -384,7 +410,7 @@ export class BellSymphonyGame extends BaseGame {
       this.bgAudioElement.pause();
     }
     const song = this.songList[this.selectedSongIndex];
-    const file = defaultSongFile || (this.isCustomChartPlaying ? this.lastCustomSongFile : (song ? song.audioFile : "Rockin' Around The Christmas Tree.mp3"));
+    const file = defaultSongFile || (this.isCustomChartPlaying ? this.lastCustomSongFile : (song ? song.audioFile : "juego campanas/God Rest Ye Merry Metalmen.mp3"));
     const notes = initialNotes || (this.lastCustomNotes.length > 0 ? this.lastCustomNotes : undefined);
     this.chartEditor.show(file, notes);
   }
@@ -407,8 +433,11 @@ export class BellSymphonyGame extends BaseGame {
     this.activeJudgements = [];
     this.starPowerTimer = 0;
     this.isStarPowerActive = false;
+    this.songIntroTimer = this.SONG_INTRO_DURATION;
+    this.lanePressed = [false, false, false, false];
+    this.activePointerLanes.clear();
 
-    const lastNoteTime = customNotes.length > 0 ? customNotes[customNotes.length - 1].time + 2.5 : 129;
+    const lastNoteTime = customNotes.length > 0 ? customNotes[customNotes.length - 1].time + (customNotes[customNotes.length - 1].duration || 0) + 2.5 : 129;
     this.songDuration = Math.max(129, lastNoteTime);
 
     if (this.bgAudioElement) {
@@ -417,12 +446,16 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     try {
-      this.bgAudioElement = new Audio(`./assets/audio/${encodeURIComponent(songFile)}`);
-      this.bgAudioElement.volume = 0.75;
+      const safeAudioUrl = `./assets/audio/${songFile.split("/").map(encodeURIComponent).join("/")}`;
+      this.bgAudioElement = new Audio(safeAudioUrl);
+      this.bgAudioElement.volume = 0.80;
       this.bgAudioElement.addEventListener("loadedmetadata", () => {
         if (this.bgAudioElement && !isNaN(this.bgAudioElement.duration) && this.bgAudioElement.duration > 5) {
           this.songDuration = Math.max(this.bgAudioElement.duration, lastNoteTime);
         }
+      });
+      this.bgAudioElement.addEventListener("error", (e) => {
+        console.error("❌ Error cargando pista de audio personalizada:", safeAudioUrl, e);
       });
       if (!this.audio.getIsMuted()) {
         this.bgAudioElement.play().catch(() => {});
@@ -440,12 +473,21 @@ export class BellSymphonyGame extends BaseGame {
         starCount++;
         logoType = starCount % 2 === 0 ? 2 : 1;
       }
+      const dur = item.duration && item.duration > 0 ? item.duration : 0;
       this.notes.push({
         id: noteId++,
         lane: item.lane,
         targetTime: item.time,
+        duration: dur,
+        type: dur > 0 ? "sustain" : "normal",
         hit: false,
         missed: false,
+        isHolding: false,
+        holdStartTime: 0,
+        holdDuration: 0,
+        sustainCompleted: false,
+        sustainFailed: false,
+        lastScoreTickTime: 0,
         isStar: item.isStar || false,
         logoType: item.isStar ? logoType : undefined
       });
@@ -453,16 +495,16 @@ export class BellSymphonyGame extends BaseGame {
 
     this.gameState = "playing";
     this.audio.playGameStart();
-    this.particles.emitConfetti(this.width, 30);
+    this.particles.emitConfetti(this.width, 35);
   }
 
   private handleSongSelectTouch(x: number, y: number): void {
     const count = this.songList.length;
-    const cardW = Math.min(this.width * 0.90, 500);
+    const cardW = Math.min(this.width * 0.92, 520);
     const titleY = Math.max(46, this.height * 0.07);
     const startY = titleY + 46;
-    const gap = Math.max(6, Math.min(9, this.height * 0.011));
-    const cardH = Math.min(62, Math.max(46, (this.height * 0.60) / count));
+    const gap = Math.max(5, Math.min(8, this.height * 0.010));
+    const cardH = Math.min(58, Math.max(44, (this.height * 0.60) / count));
     const cardX = (this.width - cardW) / 2;
 
     for (let i = 0; i < count; i++) {
@@ -495,6 +537,7 @@ export class BellSymphonyGame extends BaseGame {
         else if (e.key === "3") this.startSong(2);
         else if (e.key === "4") this.startSong(3);
         else if (e.key === "5") this.startSong(4);
+        else if (e.key === "6") this.startSong(5);
         else if (e.key === "e" || e.key === "E") this.openChartEditor();
         else if (e.key === "Enter" || e.key === " ") this.startSong(this.selectedSongIndex);
         return;
@@ -520,7 +563,7 @@ export class BellSymphonyGame extends BaseGame {
       else if (e.key === "k" || e.key === "K" || e.key === "ArrowRight") lane = 3;
 
       if (lane !== -1) {
-        this.lanePressed[lane] = false;
+        this.handleLaneRelease(lane);
       }
     };
 
@@ -529,122 +572,73 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Genera la partitura musical adaptada a la canción seleccionada con alternancia de logos
+   * Genera la partitura de notas para la canción
    */
   private generateSongChart(song: SongDef): void {
+    let sourceChart: ChartNoteRecord[] = [];
+
+    switch (song.id) {
+      case "god-rest-metal":
+        sourceChart = GOD_REST_METAL_CHART;
+        break;
+      case "jingle-bells-rock":
+        sourceChart = JINGLE_BELLS_ROCK_CHART;
+        break;
+      case "twelve-days":
+        sourceChart = TWELVE_DAYS_CHART;
+        break;
+      case "joy-to-world":
+        sourceChart = JOY_TO_WORLD_POWER_CHART;
+        break;
+      case "deck-the-halls":
+        sourceChart = DECK_THE_HALLS_CHART;
+        break;
+      case "we-wish-you":
+        sourceChart = WE_WISH_YOU_CHART;
+        break;
+      default:
+        sourceChart = GOD_REST_METAL_CHART;
+        break;
+    }
+
     this.notes = [];
     let noteId = 0;
     let starCount = 0;
 
-    // 1. Partitura directa por segundos exactos (Jingle Bells, Daniela, Rockin')
-    if (song.id === "daniela") {
-      for (const item of DANIELA_CHART) {
-        let logoType: 1 | 2 = 1;
-        if (item.isStar) {
-          starCount++;
-          logoType = starCount % 2 === 0 ? 2 : 1;
-        }
-        this.notes.push({
-          id: noteId++,
-          lane: item.lane,
-          targetTime: item.time,
-          hit: false,
-          missed: false,
-          isStar: item.isStar || false,
-          logoType: item.isStar ? logoType : undefined
-        });
+    for (const item of sourceChart) {
+      let logoType: 1 | 2 = 1;
+      if (item.isStar) {
+        starCount++;
+        logoType = starCount % 2 === 0 ? 2 : 1;
       }
-      return;
-    }
 
-    if (song.id === "jingle-bells") {
-      for (const item of JINGLE_BELLS_CHART) {
-        let logoType: 1 | 2 = 1;
-        if (item.isStar) {
-          starCount++;
-          logoType = starCount % 2 === 0 ? 2 : 1;
-        }
-        this.notes.push({
-          id: noteId++,
-          lane: item.lane,
-          targetTime: item.time,
-          hit: false,
-          missed: false,
-          isStar: item.isStar || false,
-          logoType: item.isStar ? logoType : undefined
-        });
-      }
-      return;
-    }
+      const dur = item.duration && item.duration > 0 ? item.duration : 0;
 
-    if (song.id === "rockin-around" && ROCKIN_AROUND_CHART.length > 0) {
-      for (const item of ROCKIN_AROUND_CHART) {
-        let logoType: 1 | 2 = 1;
-        if (item.isStar) {
-          starCount++;
-          logoType = starCount % 2 === 0 ? 2 : 1;
-        }
-        this.notes.push({
-          id: noteId++,
-          lane: item.lane,
-          targetTime: item.time,
-          hit: false,
-          missed: false,
-          isStar: item.isStar || false,
-          logoType: item.isStar ? logoType : undefined
-        });
-      }
-      return;
-    }
-
-    if (song.id === "burrito-metal") {
-      for (const item of BURRITO_METAL_CHART) {
-        let logoType: 1 | 2 = 1;
-        if (item.isStar) {
-          starCount++;
-          logoType = starCount % 2 === 0 ? 2 : 1;
-        }
-        this.notes.push({
-          id: noteId++,
-          lane: item.lane,
-          targetTime: item.time,
-          hit: false,
-          missed: false,
-          isStar: item.isStar || false,
-          logoType: item.isStar ? logoType : undefined
-        });
-      }
-      return;
-    }
-
-    if (song.id === "joy-to-world") {
-      for (const item of JOY_TO_THE_WORLD_CHART) {
-        let logoType: 1 | 2 = 1;
-        if (item.isStar) {
-          starCount++;
-          logoType = starCount % 2 === 0 ? 2 : 1;
-        }
-        this.notes.push({
-          id: noteId++,
-          lane: item.lane,
-          targetTime: item.time,
-          hit: false,
-          missed: false,
-          isStar: item.isStar || false,
-          logoType: item.isStar ? logoType : undefined
-        });
-      }
-      return;
+      this.notes.push({
+        id: noteId++,
+        lane: item.lane,
+        targetTime: item.time,
+        duration: dur,
+        type: dur > 0 ? "sustain" : "normal",
+        hit: false,
+        missed: false,
+        isHolding: false,
+        holdStartTime: 0,
+        holdDuration: 0,
+        sustainCompleted: false,
+        sustainFailed: false,
+        lastScoreTickTime: 0,
+        isStar: item.isStar || false,
+        logoType: item.isStar ? logoType : undefined
+      });
     }
   }
 
   /**
-   * Al presionar un carril: verifica timing de notas y emite hitsound cálido y agradable
+   * Presión de un carril: verifica timing de notas normales o inicio de sustain
    */
   private handleLanePress(lane: number): void {
     this.lanePressed[lane] = true;
-    this.lanePressTimers[lane] = 0.16;
-
     this.playHitsound(lane);
 
     let closestNote: FallingNote | null = null;
@@ -692,12 +686,19 @@ export class BellSymphonyGame extends BaseGame {
         this.particles.emitBurst(laneCenterX, this.hitLineY, "#00E676", 6);
       }
 
-      // Si es Nota Especial con Logo: ACTIVA MODO ESTRELLA GUITAR HERO (x4 por 7 segundos)
+      // Si es una NOTA SOSTENIDA: comenzar a registrar el sustain
+      if (closestNote.type === "sustain" && closestNote.duration > 0) {
+        closestNote.isHolding = true;
+        closestNote.holdStartTime = this.currentTime;
+        closestNote.lastScoreTickTime = this.currentTime;
+      }
+
+      // Star Note: ACTIVA MODO ESTRELLA GUITAR HERO (x4 por 7s)
       if (closestNote.isStar) {
         this.activateStarPower(7.0, laneCenterX, closestNote.logoType || 1);
       }
 
-      // Recuperar 1 vida (Campana 🔔) con Star Notes o cada 15 de combo
+      // Recuperar 1 campana (vida)
       if (closestNote.isStar || (this.combo > 0 && this.combo % 15 === 0)) {
         if (this.lives < this.maxLives) {
           this.lives = Math.min(this.maxLives, this.lives + 1);
@@ -712,7 +713,33 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Activa el Modo Estrella estilo Guitar Hero (Multiplicador x4 durante 7s) con el logo capturado
+   * Liberación de un carril: maneja corte o finalización anticipada de sustain
+   */
+  private handleLaneRelease(lane: number): void {
+    this.lanePressed[lane] = false;
+
+    for (const note of this.notes) {
+      if (note.lane === lane && note.isHolding && !note.sustainCompleted) {
+        note.isHolding = false;
+        const laneCenterX = this.laneStartX + lane * this.laneWidth + this.laneWidth / 2;
+
+        if (note.holdDuration < note.duration * 0.60) {
+          // Soltó demasiado pronto
+          note.sustainFailed = true;
+          this.spawnJudgement("¡SOLTADO!", "#FF9100", laneCenterX);
+        } else {
+          // Mantuvo una buena porción
+          note.sustainCompleted = true;
+          const partialBonus = 60 * this.getMultiplier();
+          this.addScore(partialBonus);
+          this.spawnJudgement("¡BIEN SOSTENIDO!", "#00E676", laneCenterX);
+        }
+      }
+    }
+  }
+
+  /**
+   * Activa el Modo Estrella estilo Guitar Hero (Multiplicador x4 durante 7s)
    */
   private activateStarPower(durationSeconds: number = 7.0, x: number = this.width / 2, logoType: 1 | 2 = 1): void {
     this.isStarPowerActive = true;
@@ -732,9 +759,7 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   private getMultiplier(): number {
-    if (this.isStarPowerActive) {
-      return 4;
-    }
+    if (this.isStarPowerActive) return 4;
     if (this.combo >= 30) return 4;
     if (this.combo >= 20) return 3;
     if (this.combo >= 10) return 2;
@@ -748,101 +773,13 @@ export class BellSymphonyGame extends BaseGame {
       alpha: 1.0,
       scale: 1.25,
       x,
-      y: this.hitLineY - 65,
+      y: this.hitLineY - 60,
       time: 0.65
     });
-    if (this.activeJudgements.length > 8) {
-      this.activeJudgements.shift();
-    }
   }
 
-  /**
-   * Hitsound cálido, rítmico y armónico (Sin tonos agudos chillones, perfectamente mezclado con la música)
-   */
-  private playHitsound(lane: number): void {
-    if (this.audio.getIsMuted()) return;
-    this.audio.unlockAudio();
-
-    try {
-      const AudioCtxClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const ctx = new AudioCtxClass();
-      if (ctx.state === "suspended") ctx.resume();
-
-      const now = ctx.currentTime;
-      // Frecuencias medias cálidas (La3, Do4, Re4, Mi4) entre 220Hz y 330Hz
-      const notes = [220.00, 261.63, 293.66, 329.63];
-      const freq = notes[lane % 4];
-
-      // 1. Golpe percusivo suave (Tap de percusión de madera)
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(freq, now);
-      osc.frequency.exponentialRampToValueAtTime(freq * 0.6, now + 0.08);
-
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.09);
-
-      // 2. Chime armónico sutil no invasivo
-      const chime = ctx.createOscillator();
-      const chimeGain = ctx.createGain();
-
-      chime.type = "triangle";
-      chime.frequency.setValueAtTime(freq * 1.5, now);
-      chimeGain.gain.setValueAtTime(0.04, now);
-      chimeGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-
-      chime.connect(chimeGain);
-      chimeGain.connect(ctx.destination);
-
-      chime.start(now);
-      chime.stop(now + 0.12);
-    } catch {
-      // Fallback
-    }
-  }
-
-  /**
-   * Acompañamiento rítmico sintetizado continuo (Cascabeles y Bajo alegre)
-   */
-  private updateAccompaniment(): void {
-    if (this.audio.getIsMuted() || (this.bgAudioElement && !this.bgAudioElement.paused)) return;
-
-    const secondsPerBeat = 60 / this.bpm;
-    const currentBeat = Math.floor(this.currentTime / secondsPerBeat);
-
-    if (currentBeat > this.lastAccompanimentBeat) {
-      this.lastAccompanimentBeat = currentBeat;
-
-      try {
-        const AudioCtxClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-        const ctx = new AudioCtxClass();
-        if (ctx.state === "suspended") ctx.resume();
-
-        const now = ctx.currentTime;
-
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(2400 + (currentBeat % 2 === 0 ? 300 : 0), now);
-        gain.gain.setValueAtTime(0.04, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.08);
-      } catch {
-        // Fallback
-      }
-    }
+  private playHitsound(_lane: number): void {
+    // Silenciado intencionalmente: No generar tonos/frecuencias sintéticas para que la música del juego suene limpia sin interferencias
   }
 
   protected onUpdate(dt: number): void {
@@ -857,6 +794,13 @@ export class BellSymphonyGame extends BaseGame {
       this.currentTime += dt;
     }
 
+    // Temporizador de Intro Guitar Hero
+    if (this.songIntroTimer > 0) {
+      this.songIntroTimer -= dt;
+      if (this.songIntroTimer < 0) this.songIntroTimer = 0;
+    }
+
+    // Temporizador de Modo Estrella
     if (this.isStarPowerActive) {
       this.starPowerTimer -= dt;
       if (this.starPowerTimer <= 0) {
@@ -865,39 +809,55 @@ export class BellSymphonyGame extends BaseGame {
       }
     }
 
-    this.updateAccompaniment();
-
-    for (let l = 0; l < 4; l++) {
-      if (this.lanePressTimers[l] > 0) {
-        this.lanePressTimers[l] -= dt;
-        if (this.lanePressTimers[l] <= 0) {
-          this.lanePressed[l] = false;
-        }
-      }
-    }
-
     this.beatPulse = (this.currentTime * (this.bpm / 60)) % 1.0;
 
+    // Actualización de Notas & NOTAS SOSTENIDAS
     for (const note of this.notes) {
+      const laneCenterX = this.laneStartX + note.lane * this.laneWidth + this.laneWidth / 2;
+
+      // 1. Manejo del Sustain activo (Holding)
+      if (note.type === "sustain" && note.isHolding && !note.sustainCompleted) {
+        note.holdDuration += dt;
+
+        // Puntuación por ticks continuos
+        if (this.currentTime - note.lastScoreTickTime >= 0.12) {
+          note.lastScoreTickTime = this.currentTime;
+          const tickPoints = 20 * this.getMultiplier();
+          this.addScore(tickPoints);
+          this.particles.emitBurst(laneCenterX, this.hitLineY, "#FFD700", 3);
+        }
+
+        // ¿Llegó al final del sustain mientras se mantenía presionado?
+        if (this.currentTime >= note.targetTime + note.duration) {
+          note.isHolding = false;
+          note.sustainCompleted = true;
+          const completeBonus = 160 * this.getMultiplier();
+          this.addScore(completeBonus);
+          this.combo++;
+          this.spawnJudgement("¡SUSTAIN PERFECTO!", "#FFD700", laneCenterX);
+          this.addFloatingText("+BONUS SUSTAIN", laneCenterX, this.hitLineY - 65, "#FFD700", 1.35);
+          this.particles.emitBurst(laneCenterX, this.hitLineY, "#FFD700", 18);
+        }
+      }
+
+      // 2. Manejo de Miss de notas no tocadas
       if (!note.hit && !note.missed) {
         if (this.currentTime - note.targetTime > 0.28) {
           note.missed = true;
           this.missCount++;
           this.combo = 0;
-          
-          // Solo restar vida después del segundo 1.0 para dar margen de reacción inicial
-          if (this.currentTime > 1.0) {
+
+          if (this.currentTime > 1.2) {
             this.lives = Math.max(0, this.lives - 1);
           }
 
-          const laneCenterX = this.laneStartX + note.lane * this.laneWidth + this.laneWidth / 2;
           this.spawnJudgement("MISS", "#E53935", laneCenterX);
           this.particles.emitBurst(laneCenterX, this.hitLineY, "#E53935", 10);
           this.audio.playError();
           this.triggerShake(0.18, 6);
 
           if (this.lives <= 0) {
-            this.addFloatingText("¡SIN VIDAS!", this.width / 2, this.height * 0.45, "#FF1744", 1.8);
+            this.addFloatingText("¡SIN CAMPANAS!", this.width / 2, this.height * 0.45, "#FF1744", 1.8);
             setTimeout(() => {
               this.endGame();
             }, 300);
@@ -907,6 +867,7 @@ export class BellSymphonyGame extends BaseGame {
       }
     }
 
+    // Actualización de popups de juicio
     for (let i = this.activeJudgements.length - 1; i >= 0; i--) {
       const j = this.activeJudgements[i];
       j.time -= dt;
@@ -918,13 +879,13 @@ export class BellSymphonyGame extends BaseGame {
       }
     }
 
+    // Fin de canción
     if (this.currentTime >= this.songDuration) {
       this.endGame();
     }
   }
 
   protected onDraw(ctx: CanvasRenderingContext2D): void {
-    // Fondo base 100% opaco para evitar que elementos inferiores se filtren
     ctx.fillStyle = "#060F1E";
     ctx.fillRect(0, 0, this.width, this.height);
 
@@ -946,7 +907,7 @@ export class BellSymphonyGame extends BaseGame {
     ctx.fillStyle = "rgba(10, 25, 48, 0.78)";
     ctx.fillRect(this.laneStartX, 0, totalW, trackH);
 
-    // Resplandor de MODO ESTRELLA GUITAR HERO (Dorado para Feria Mágica o Cian para Campuslands)
+    // Resplandor Star Power
     if (this.isStarPowerActive) {
       const isCampus = this.activeStarPowerType === 2;
       const starGlow = ctx.createLinearGradient(this.laneStartX, 0, this.laneStartX + totalW, 0);
@@ -970,7 +931,7 @@ export class BellSymphonyGame extends BaseGame {
       ctx.fillRect(this.laneStartX, 0, totalW, trackH);
     }
 
-    // Dibujar los 4 Carriles y Separadores
+    // Dibujar los 4 Carriles y Rayos de Presión
     for (let i = 0; i < 4; i++) {
       const lx = this.laneStartX + i * this.laneWidth;
       const lane = this.lanes[i];
@@ -996,7 +957,7 @@ export class BellSymphonyGame extends BaseGame {
     ctx.stroke();
     ctx.restore();
 
-    // Línea de Impacto Mágica
+    // Línea de Impacto
     ctx.save();
     const hitBarGlow = ctx.createLinearGradient(this.laneStartX, 0, this.laneStartX + totalW, 0);
     hitBarGlow.addColorStop(0, "rgba(255, 215, 0, 0.8)");
@@ -1010,7 +971,7 @@ export class BellSymphonyGame extends BaseGame {
     ctx.stroke();
     ctx.restore();
 
-    // 4 Receptores de Campanas Inferiores
+    // Receptores inferiores
     for (let i = 0; i < 4; i++) {
       const lane = this.lanes[i];
       const cx = this.laneStartX + i * this.laneWidth + this.laneWidth / 2;
@@ -1055,24 +1016,93 @@ export class BellSymphonyGame extends BaseGame {
       ctx.restore();
     }
 
-    // 5. Dibujar las Notas que Caen (Flechas de Bastón de Caramelo & Logos Star Power)
+    // ==========================================================================
+    // RENDERIZADO DE NOTAS Y NOTAS SOSTENIDAS (SUSTAIN NOTES)
+    // ==========================================================================
     for (const note of this.notes) {
-      if (note.hit || note.missed) continue;
+      if (note.missed) continue;
 
+      const lane = this.lanes[note.lane];
+      const noteX = this.laneStartX + note.lane * this.laneWidth + this.laneWidth / 2;
+      const radius = Math.min(this.laneWidth * 0.36, 36);
+
+      // Si es NOTA SOSTENIDA: Dibujar cuerpo y cola
+      if (note.type === "sustain" && note.duration > 0 && !note.sustainCompleted) {
+        const timeHeadDiff = note.targetTime - this.currentTime;
+        const timeTailDiff = (note.targetTime + note.duration) - this.currentTime;
+
+        let yHead = this.hitLineY - timeHeadDiff * this.noteSpeed;
+        const yTail = this.hitLineY - timeTailDiff * this.noteSpeed;
+
+        // Si se está sosteniendo, la cabeza permanece anclada en la línea de impacto
+        if (note.isHolding) {
+          yHead = this.hitLineY;
+        }
+
+        if (yHead > -100 && yTail < this.height + 100) {
+          const bodyWidth = Math.max(14, radius * 0.75);
+
+          ctx.save();
+
+          // 1. Cuerpo del Sustain (Haz de luz navideño / Bastón de Caramelo brillante)
+          const bodyGrad = ctx.createLinearGradient(noteX - bodyWidth / 2, 0, noteX + bodyWidth / 2, 0);
+          if (note.isHolding) {
+            bodyGrad.addColorStop(0, "#FFFFFF");
+            bodyGrad.addColorStop(0.3, lane.color);
+            bodyGrad.addColorStop(0.7, "#FFD700");
+            bodyGrad.addColorStop(1, "#FFFFFF");
+          } else {
+            bodyGrad.addColorStop(0, lane.glowColor);
+            bodyGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.85)");
+            bodyGrad.addColorStop(1, lane.glowColor);
+          }
+
+          ctx.fillStyle = bodyGrad;
+          ctx.beginPath();
+          ctx.roundRect(noteX - bodyWidth / 2, yTail, bodyWidth, Math.max(4, yHead - yTail), bodyWidth / 2);
+          ctx.fill();
+
+          // Borde con brillo
+          ctx.lineWidth = note.isHolding ? 3.0 : 1.8;
+          ctx.strokeStyle = note.isHolding ? "#FFFFFF" : lane.color;
+          ctx.stroke();
+
+          // 2. Extremo final (Cola / Terminación)
+          ctx.fillStyle = note.isHolding ? "#FFD700" : lane.color;
+          ctx.beginPath();
+          ctx.arc(noteX, yTail, bodyWidth * 0.7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#FFFFFF";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // 3. Efectos de chispas en la zona de contacto si se sostiene
+          if (note.isHolding) {
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = lane.color;
+            ctx.fillStyle = "#FFFFFF";
+            ctx.beginPath();
+            ctx.arc(noteX, this.hitLineY, radius * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.restore();
+        }
+      }
+
+      // Si la cabeza ya fue tocada, no volver a dibujarla
+      if (note.hit) continue;
+
+      // Dibujar Cabeza de la Nota
       const timeDiff = note.targetTime - this.currentTime;
       const noteY = this.hitLineY - timeDiff * this.noteSpeed;
 
       if (noteY > -80 && noteY < this.height + 40) {
-        const lane = this.lanes[note.lane];
-        const noteX = this.laneStartX + note.lane * this.laneWidth + this.laneWidth / 2;
-        const radius = Math.min(this.laneWidth * 0.36, 36);
-
         ctx.save();
         ctx.translate(noteX, noteY);
 
         const isCampus = note.logoType === 2;
 
-        // Sprite de Flecha de Bastón de Caramelo o Logo de la Marca (sin círculos de fondo)
         let sprite: HTMLImageElement | null = null;
         if (note.isStar) {
           if (isCampus) {
@@ -1090,7 +1120,6 @@ export class BellSymphonyGame extends BaseGame {
         if (sprite && sprite.complete && sprite.naturalWidth > 0) {
           ctx.drawImage(sprite, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
         } else {
-          // Renderizado vectorial nítido de respaldo sólo si la imagen no ha cargado
           ctx.font = "900 28px 'Cinzel Decorative', 'Outfit', sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -1102,230 +1131,134 @@ export class BellSymphonyGame extends BaseGame {
       }
     }
 
-    // Efectos de Modo Estrella y Contador de Combo
-    const cx = this.width / 2;
-    if (this.isStarPowerActive) {
-      ctx.save();
-      const bannerW = Math.min(this.width * 0.88, 440);
-      const bannerH = 34;
-      const bannerX = (this.width - bannerW) / 2;
-      const bannerY = this.hitLineY - 170;
-
-      const isCampus = this.activeStarPowerType === 2;
-      const starGrad = ctx.createLinearGradient(bannerX, 0, bannerX + bannerW, 0);
-      if (isCampus) {
-        starGrad.addColorStop(0, "#00E5FF");
-        starGrad.addColorStop(0.5, "#FFFFFF");
-        starGrad.addColorStop(1, "#00E5FF");
-      } else {
-        starGrad.addColorStop(0, "#FFD700");
-        starGrad.addColorStop(0.5, "#00E5FF");
-        starGrad.addColorStop(1, "#FFD700");
-      }
-      ctx.fillStyle = starGrad;
-      ctx.beginPath();
-      ctx.roundRect(bannerX, bannerY, bannerW, bannerH, 10);
-      ctx.fill();
-
-      ctx.font = "900 15px 'Outfit', sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillStyle = "#041424";
-      const bannerTitle = isCampus ? "⚡ ¡STAR POWER CAMPUS x4 ACTIVO! ⚡" : "⚡ ¡STAR POWER FERIA x4 ACTIVO! ⚡";
-      ctx.fillText(`${bannerTitle} (${Math.ceil(this.starPowerTimer)}s)`, cx, bannerY + bannerH / 2);
-      ctx.restore();
-    }
-
-    if (this.combo >= 2) {
-      ctx.save();
-      const comboScale = 1.0 + Math.sin(this.currentTime * 10) * 0.06;
-      ctx.translate(cx, this.hitLineY - 120);
-      ctx.scale(comboScale, comboScale);
-
-      ctx.font = "900 clamp(1.8rem, 4.5vw, 2.8rem) 'Cinzel Decorative', 'Outfit', sans-serif";
-      ctx.textAlign = "center";
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
-      ctx.lineWidth = 5;
-      ctx.strokeText(`${this.combo} COMBO!`, 0, 0);
-      ctx.fillStyle = this.isStarPowerActive || this.combo >= 20 ? "#FFD700" : "#FFFFFF";
-      ctx.fillText(`${this.combo} COMBO!`, 0, 0);
-
-      const mult = this.getMultiplier();
-      if (mult > 1) {
-        ctx.font = "800 clamp(0.85rem, 2vw, 1.15rem) 'Outfit', sans-serif";
-        ctx.fillStyle = "#FFF9C4";
-        ctx.fillText(`PUNTOS x${mult}`, 0, 24);
-      }
-      ctx.restore();
-    }
-
-    // Popups de Juicio (¡PERFECTO!, ¡GENIAL!, MISS)
+    // Dibujar Popups de Juicio
     for (const j of this.activeJudgements) {
       ctx.save();
       ctx.globalAlpha = j.alpha;
-      ctx.font = `900 clamp(1.4rem, 3.8vw, 2.2rem) 'Cinzel Decorative', 'Outfit', sans-serif`;
+      ctx.translate(j.x, j.y);
+      ctx.scale(j.scale, j.scale);
+
+      ctx.font = "900 22px 'Outfit', sans-serif";
       ctx.textAlign = "center";
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.95)";
-      ctx.lineWidth = 4;
-      ctx.strokeText(j.text, j.x, j.y);
+      ctx.textBaseline = "middle";
+
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+      ctx.lineWidth = 5;
+      ctx.strokeText(j.text, 0, 0);
+
       ctx.fillStyle = j.color;
-      ctx.fillText(j.text, j.x, j.y);
+      ctx.fillText(j.text, 0, 0);
+
       ctx.restore();
     }
+
+    // ==========================================================================
+    // INTRO DE CRÉDITOS CINEMÁTICA ESTILO GUITAR HERO
+    // ==========================================================================
+    this.drawGuitarHeroSongCredits(ctx);
   }
 
   /**
-   * Dibuja la barra de estado superior (HUD) con 5 Campanas Doradas 🔔
+   * Rótulo cinemático de inicio estilo Guitar Hero (Título, Autor y Créditos de Licencia)
    */
-  protected override drawHUD(ctx: CanvasRenderingContext2D): void {
+  private drawGuitarHeroSongCredits(ctx: CanvasRenderingContext2D): void {
+    if (this.songIntroTimer <= 0) return;
+
+    const song = this.songList[this.selectedSongIndex];
+    if (!song) return;
+
+    const elapsed = this.SONG_INTRO_DURATION - this.songIntroTimer;
+    let alpha = 1.0;
+    let slideOffsetX = 0;
+
+    // Fade In & Slide In (0.0s - 0.6s)
+    if (elapsed < 0.6) {
+      const progress = elapsed / 0.6;
+      alpha = progress;
+      slideOffsetX = (1 - progress) * -40;
+    } 
+    // Fade Out & Slide Out (3.6s - 4.4s)
+    else if (this.songIntroTimer < 0.8) {
+      const progress = this.songIntroTimer / 0.8;
+      alpha = progress;
+      slideOffsetX = (1 - progress) * -30;
+    }
+
     ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
 
-    const isNarrow = this.width < 460;
     const hudH = Math.max(44, Math.min(68, this.height * 0.075));
+    const cardX = 30 + slideOffsetX;
+    const cardY = hudH + 26;
 
-    // Fondo oscuro translúcido con borde dorado brillante
-    ctx.fillStyle = "rgba(7, 18, 34, 0.96)";
-    ctx.fillRect(0, 0, this.width, hudH);
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(0, hudH);
-    ctx.lineTo(this.width, hudH);
-    ctx.stroke();
+    // Rótulo de Estilo Guitar Hero / Rock Navideño
+    const titleFont = Math.max(16, Math.min(26, this.width * 0.046));
+    const authorFont = Math.max(12, Math.min(17, this.width * 0.032));
+    const creditFont = Math.max(9.5, Math.min(12.5, this.width * 0.024));
 
-    const fontMain = isNarrow ? Math.max(13, this.width * 0.038) : Math.max(15, Math.min(24, this.width * 0.036));
-    const fontSub = isNarrow ? Math.max(10, this.width * 0.028) : Math.max(12, Math.min(18, this.width * 0.028));
-    const textY = hudH * 0.65;
-    const paddingX = Math.max(10, this.width * 0.025);
-
-    // 1. PUNTUACIÓN (Izquierda con estrella)
-    const starRadius = fontMain * 0.44;
-    const starX = paddingX + starRadius;
-    const starY = textY - fontMain * 0.3;
-
-    ctx.fillStyle = "#FFD700";
-    ctx.beginPath();
-    for (let i = 0; i < 5; i++) {
-      const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-      const r = i % 2 === 0 ? starRadius : starRadius * 0.48;
-      const px = starX + Math.cos(angle) * r;
-      const py = starY + Math.sin(angle) * r;
-      if (i === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.font = `900 ${fontMain}px 'Outfit', sans-serif`;
-    ctx.fillStyle = "#FFD700";
+    // 1. TÍTULO DE LA CANCIÓN
+    ctx.font = `900 ${titleFont}px 'Cinzel Decorative', 'Outfit', sans-serif`;
     ctx.textAlign = "left";
-    ctx.fillText(`${this.score}`, starX + starRadius + 5, textY);
+    ctx.textBaseline = "top";
 
-    // 2. 🔔 5 CAMPANAS (VIDAS) + TIEMPO RESTANTE (Centro)
-    let timeFormatted: string;
-    if (this.timeRemaining >= 60) {
-      const mins = Math.floor(this.timeRemaining / 60);
-      const secs = Math.floor(this.timeRemaining % 60);
-      timeFormatted = `${mins}:${secs.toString().padStart(2, "0")}`;
-    } else {
-      timeFormatted = `${Math.ceil(this.timeRemaining)}s`;
-    }
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.95)";
+    ctx.lineWidth = 6;
+    ctx.strokeText(song.title.toUpperCase(), cardX, cardY);
 
-    if (this.gameState === "playing") {
-      const bellSize = isNarrow ? 15 : 19;
-      const bellGap = isNarrow ? 3 : 6;
-      const totalBellsW = this.maxLives * bellSize + (this.maxLives - 1) * bellGap;
-      const bellsStartX = (this.width / 2) - totalBellsW - (isNarrow ? 6 : 14);
+    const titleGrad = ctx.createLinearGradient(cardX, cardY, cardX + 300, cardY);
+    titleGrad.addColorStop(0, "#FFD700");
+    titleGrad.addColorStop(0.5, "#FFFFFF");
+    titleGrad.addColorStop(1, song.tagColor);
+    ctx.fillStyle = titleGrad;
+    ctx.fillText(song.title.toUpperCase(), cardX, cardY);
 
-      // Dibujar las 5 Campanas Doradas
-      for (let i = 0; i < this.maxLives; i++) {
-        const bx = bellsStartX + i * (bellSize + bellGap) + bellSize / 2;
-        const by = textY - fontMain * 0.28;
-        const isAlive = i < this.lives;
+    // 2. BY [ARTISTA]
+    const authorY = cardY + titleFont + 6;
+    ctx.font = `800 ${authorFont}px 'Outfit', sans-serif`;
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.95)";
+    ctx.lineWidth = 4;
+    ctx.strokeText(`BY ${song.artist.toUpperCase()}`, cardX, authorY);
+    ctx.fillStyle = "#E2E8F0";
+    ctx.fillText(`BY ${song.artist.toUpperCase()}`, cardX, authorY);
 
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
-        if (isAlive) {
-          ctx.font = `${bellSize}px sans-serif`;
-          ctx.fillText("🔔", bx, by);
-        } else {
-          ctx.font = `${bellSize * 0.85}px sans-serif`;
-          ctx.globalAlpha = 0.25;
-          ctx.fillText("🔔", bx, by);
-          ctx.globalAlpha = 1.0;
-          ctx.fillStyle = "#FF1744";
-          ctx.font = `900 ${bellSize * 0.7}px 'Outfit', sans-serif`;
-          ctx.fillText("✕", bx, by);
-        }
-      }
-
-      // Tiempo restante
-      ctx.font = `900 ${fontMain}px 'Outfit', sans-serif`;
-      ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
-      ctx.textAlign = "left";
-      ctx.fillText(timeFormatted, (this.width / 2) + (isNarrow ? 6 : 14), textY);
-
-      // Barra de progreso justo debajo del HUD
-      const barW = Math.min(this.width * 0.92, 500);
-      const barH = 5;
-      const barX = (this.width - barW) / 2;
-      const barY = hudH + 2;
-      const progress = Math.min(1, this.currentTime / this.songDuration);
-
-      ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-      ctx.fillRect(barX, barY, barW, barH);
-
-      const progGrad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
-      progGrad.addColorStop(0, "#FFD700");
-      progGrad.addColorStop(1, "#00E5FF");
-      ctx.fillStyle = progGrad;
-      ctx.fillRect(barX, barY, barW * progress, barH);
-    } else {
-      ctx.font = `900 ${fontMain * 1.05}px 'Outfit', sans-serif`;
-      ctx.fillStyle = "#FFFFFF";
-      ctx.textAlign = "center";
-      ctx.fillText(timeFormatted, this.width / 2, textY);
-    }
-
-    // 3. RÉCORD (Derecha)
-    ctx.font = `800 ${fontSub}px 'Outfit', sans-serif`;
-    ctx.fillStyle = "#2ECC71";
-    ctx.textAlign = "right";
-    const recordLabel = isNarrow ? `TOP: ${Math.max(this.score, this.highScore)}` : `RÉCORD: ${Math.max(this.score, this.highScore)}`;
-    ctx.fillText(recordLabel, this.width - paddingX, textY);
+    // 3. NOTA DE LICENCIA / CRÉDITOS
+    const creditY = authorY + authorFont + 4;
+    ctx.font = `600 ${creditFont}px 'Outfit', sans-serif`;
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.85)";
+    ctx.lineWidth = 3;
+    ctx.strokeText(song.credits, cardX, creditY);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+    ctx.fillText(song.credits, cardX, creditY);
 
     ctx.restore();
   }
 
   /**
-   * Dibuja la pantalla de Selección de Canción interactiva con las 5 canciones y el editor
+   * Pantalla de Selección de Canción interactiva con las 6 canciones
    */
   private drawSongSelector(ctx: CanvasRenderingContext2D): void {
     const cx = this.width / 2;
 
     ctx.save();
 
-    // 1. Título Principal y Subtítulo
     const titleY = Math.max(46, this.height * 0.07);
-    const subY = titleY + 26;
+    const subY = titleY + 24;
 
-    ctx.font = `900 clamp(1.15rem, 3.6vw, 1.7rem) 'Cinzel Decorative', 'Outfit', sans-serif`;
+    ctx.font = `900 clamp(1.15rem, 3.6vw, 1.65rem) 'Cinzel Decorative', 'Outfit', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#FFD700";
     ctx.fillText("SELECCIONA TU CANCIÓN", cx, titleY);
 
-    ctx.font = `700 clamp(0.70rem, 2.1vw, 0.85rem) 'Outfit', sans-serif`;
+    ctx.font = `700 clamp(0.70rem, 2.0vw, 0.85rem) 'Outfit', sans-serif`;
     ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-    ctx.fillText("Toca una canción para comenzar el concierto navideño", cx, subY);
+    ctx.fillText("Concierto Navideño • Alexander Nakarada", cx, subY);
 
-    // 2. Tarjetas de Canción estilizadas
     const count = this.songList.length;
-    const cardW = Math.min(this.width * 0.90, 500);
-    const startY = titleY + 46;
-    const gap = Math.max(6, Math.min(9, this.height * 0.011));
-    const cardH = Math.min(62, Math.max(46, (this.height * 0.60) / count));
+    const cardW = Math.min(this.width * 0.92, 520);
+    const startY = titleY + 44;
+    const gap = Math.max(5, Math.min(8, this.height * 0.010));
+    const cardH = Math.min(58, Math.max(44, (this.height * 0.60) / count));
     const cardX = (this.width - cardW) / 2;
 
     for (let i = 0; i < count; i++) {
@@ -1333,40 +1266,40 @@ export class BellSymphonyGame extends BaseGame {
       const cy = startY + i * (cardH + gap);
       const isSelected = i === this.selectedSongIndex;
 
-      // Fondo de la tarjeta
+      // Fondo
       ctx.fillStyle = isSelected ? "rgba(14, 40, 78, 0.95)" : "rgba(8, 20, 40, 0.90)";
       ctx.beginPath();
       ctx.roundRect(cardX, cy, cardW, cardH, 12);
       ctx.fill();
 
       // Borde brillante
-      ctx.lineWidth = isSelected ? 2.8 : 1.6;
+      ctx.lineWidth = isSelected ? 2.8 : 1.5;
       ctx.strokeStyle = isSelected ? song.tagColor : "rgba(255, 215, 0, 0.35)";
       ctx.stroke();
 
       // Icono
-      const iconSize = Math.max(18, Math.min(24, cardH * 0.42));
+      const iconSize = Math.max(17, Math.min(23, cardH * 0.40));
       ctx.font = `${iconSize}px sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(song.icon, cardX + iconSize + 10, cy + cardH / 2);
 
-      // Título de la Canción
-      const titleFont = Math.max(12, Math.min(16, cardH * 0.30));
+      // Título
+      const titleFont = Math.max(12, Math.min(15, cardH * 0.30));
       ctx.font = `900 ${titleFont}px 'Outfit', sans-serif`;
       ctx.textAlign = "left";
       ctx.fillStyle = isSelected ? "#FFFFFF" : "#E2E8F0";
       ctx.fillText(song.title, cardX + iconSize * 2 + 14, cy + cardH * 0.38);
 
       // Subtítulo y BPM
-      const subFont = Math.max(9.5, Math.min(12, cardH * 0.22));
+      const subFont = Math.max(9, Math.min(11.5, cardH * 0.22));
       ctx.font = `600 ${subFont}px 'Outfit', sans-serif`;
       ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
       ctx.fillText(`${song.subtitle} • ${song.bpm} BPM`, cardX + iconSize * 2 + 14, cy + cardH * 0.72);
 
       // Badge de Dificultad
-      const badgeW = Math.max(50, Math.min(66, cardW * 0.15));
-      const badgeH = Math.max(17, Math.min(22, cardH * 0.38));
+      const badgeW = Math.max(54, Math.min(70, cardW * 0.16));
+      const badgeH = Math.max(18, Math.min(22, cardH * 0.38));
       const badgeX = cardX + cardW - badgeW - 10;
       const badgeY = cy + (cardH - badgeH) / 2;
 
@@ -1381,7 +1314,7 @@ export class BellSymphonyGame extends BaseGame {
       ctx.fillText(song.difficultyLabel, badgeX + badgeW / 2, badgeY + badgeH / 2 + 1);
     }
 
-    // 3. Botón Destacado: MODO GRABADOR / EDITOR DE CANCIÓN (Limpio y sin glitches)
+    // Botón Modo Grabador / Editor
     const editorBtnY = startY + count * (cardH + gap) + 6;
     const editorBtnH = Math.min(46, Math.max(38, cardH * 0.85));
 
@@ -1399,9 +1332,6 @@ export class BellSymphonyGame extends BaseGame {
     ctx.strokeStyle = "#FFFFFF";
     ctx.stroke();
 
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = "transparent";
-
     ctx.font = `900 ${Math.max(11, Math.min(14, editorBtnH * 0.34))}px 'Outfit', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -1410,7 +1340,7 @@ export class BellSymphonyGame extends BaseGame {
 
     ctx.font = `700 ${Math.max(9, Math.min(11, editorBtnH * 0.26))}px 'Outfit', sans-serif`;
     ctx.fillStyle = "#041424";
-    ctx.fillText("Toca aquí o pulsa [ E ] para grabar notas en vivo", cx, editorBtnY + editorBtnH * 0.74);
+    ctx.fillText("Graba notas normales y sostenidas • Pulsa [ E ]", cx, editorBtnY + editorBtnH * 0.74);
 
     ctx.restore();
   }
@@ -1422,7 +1352,7 @@ export class BellSymphonyGame extends BaseGame {
     super.endGame({
       isCustomChart: this.isCustomChartPlaying,
       customNotes: this.lastCustomNotes.length > 0 ? this.lastCustomNotes : undefined,
-      songFile: this.isCustomChartPlaying ? this.lastCustomSongFile : (this.songList[this.selectedSongIndex]?.audioFile || "jingle-bells.mp3"),
+      songFile: this.isCustomChartPlaying ? this.lastCustomSongFile : (this.songList[this.selectedSongIndex]?.audioFile || "juego campanas/God Rest Ye Merry Metalmen.mp3"),
       bpm: this.bpm
     });
   }

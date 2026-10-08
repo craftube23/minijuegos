@@ -3,33 +3,33 @@
  * COMPONENTE: EDITOR Y GRABADOR DE NOTAS EN TIEMPO REAL (ChartEditorModal)
  * ==============================================================================
  * 
- * Permite grabar notas musicales en tiempo real simplemente escuchando la canción
- * y presionando las teclas D, F, J, K (o tocando los carriles en pantalla).
+ * Permite grabar notas normales y NOTAS SOSTENIDAS (Sustain) en tiempo real
+ * simplemente escuchando la canción y presionando o manteniendo D, F, J, K.
  * 
  * Características:
- * - Selección de canciones integradas o subida de MP3 propio.
- * - Grabación precisa en segundos (ej. time: 10.35s).
+ * - Selección de las 6 canciones oficiales de la Feria Mágica.
+ * - Grabación de notas normales (tap) y notas sostenidas (mantener presionado).
  * - Scrubber interactivo para retroceder, pausar y avanzar.
  * - Control de velocidad de reproducción (0.5x, 0.75x, 1.0x).
- * - Toggle para notas especiales con Logo / Estrella.
- * - Deshacer última nota (Ctrl+Z).
+ * - Toggle para notas especiales con Logo / Estrella (Star Power x4).
+ * - Deshacer última nota (Ctrl+Z) y edición de duración de sustains.
  * - Copiar código TypeScript listo con 1 solo clic.
  * - Probar de inmediato la partitura grabada en el juego.
  */
 
 import {
   RHYTHM_SONG_LIST,
-  JINGLE_BELLS_CHART,
-  ROCKIN_AROUND_CHART,
-  DANIELA_CHART,
-  BURRITO_METAL_CHART,
-  JOY_TO_THE_WORLD_CHART,
+  GOD_REST_METAL_CHART,
+  JINGLE_BELLS_ROCK_CHART,
+  TWELVE_DAYS_CHART,
+  JOY_TO_WORLD_POWER_CHART,
+  DECK_THE_HALLS_CHART,
+  WE_WISH_YOU_CHART,
   type SongDef,
   type ChartNoteRecord
 } from "../data/songs";
 
 export { type ChartNoteRecord, type SongDef };
-
 
 export class ChartEditorModal {
   private container: HTMLElement;
@@ -38,13 +38,13 @@ export class ChartEditorModal {
   // Estado del editor
   private recordedNotes: ChartNoteRecord[] = [];
   private isNextStar: boolean = false;
-  private selectedSongFile: string = "jingle-bells.mp3";
+  private selectedSongFile: string = "juego campanas/God Rest Ye Merry Metalmen.mp3";
   private playbackSpeed: number = 1.0;
   private updateInterval: number | null = null;
-  private currentSongBpm: number = 119;
+  private currentSongBpm: number = 150;
 
-  // Web Audio para hitsounds en vivo
-  private audioCtx: AudioContext | null = null;
+  // Seguimiento de pulsación para notas sostenidas (Sustain recording)
+  private activeHoldStarts: Map<number, number> = new Map(); // lane -> start time
 
   // Callbacks
   public onPlayCustomChart?: (notes: ChartNoteRecord[], songFile: string, bpm: number) => void;
@@ -63,11 +63,17 @@ export class ChartEditorModal {
     this.container = el;
   }
 
-  public show(defaultSongFile: string = "jingle-bells.mp3", initialNotes: ChartNoteRecord[] = []): void {
+  public show(defaultSongFile: string = "juego campanas/God Rest Ye Merry Metalmen.mp3", initialNotes: ChartNoteRecord[] = []): void {
     this.selectedSongFile = defaultSongFile;
     this.recordedNotes = [...initialNotes];
     this.isNextStar = false;
     this.playbackSpeed = 1.0;
+    this.activeHoldStarts.clear();
+
+    const song = RHYTHM_SONG_LIST.find((s) => s.audioFile === this.selectedSongFile);
+    if (song) {
+      this.currentSongBpm = song.bpm;
+    }
 
     this.render();
     this.container.style.display = "flex";
@@ -93,7 +99,7 @@ export class ChartEditorModal {
     }
 
     try {
-      const audioUrl = `./assets/audio/${encodeURIComponent(this.selectedSongFile)}`;
+      const audioUrl = `./assets/audio/${this.selectedSongFile.split("/").map(encodeURIComponent).join("/")}`;
       this.audioElement = new Audio(audioUrl);
       this.audioElement.playbackRate = this.playbackSpeed;
       this.audioElement.volume = 0.85;
@@ -110,38 +116,8 @@ export class ChartEditorModal {
     }
   }
 
-  private playHitsound(lane: number): void {
-    try {
-      if (!this.audioCtx) {
-        const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-        this.audioCtx = new AudioContextClass();
-      }
-      if (this.audioCtx.state === "suspended") {
-        this.audioCtx.resume();
-      }
-
-      const freqs = [220, 261.63, 293.66, 329.63]; // Tonos cálidos La3, Do4, Re4, Mi4
-      const freq = freqs[lane] || 260;
-      const now = this.audioCtx.currentTime;
-
-      const osc = this.audioCtx.createOscillator();
-      const gain = this.audioCtx.createGain();
-
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(freq, now);
-      osc.frequency.exponentialRampToValueAtTime(freq * 0.95, now + 0.12);
-
-      gain.gain.setValueAtTime(0.35, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-
-      osc.connect(gain);
-      gain.connect(this.audioCtx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.16);
-    } catch {
-      // Ignorar si audio está restringido
-    }
+  private playHitsound(_lane: number): void {
+    // Silenciado: No generar tonos sintetizados para evitar interferencia con la música
   }
 
   private render(): void {
@@ -151,8 +127,8 @@ export class ChartEditorModal {
         <div class="editor-header">
           <div class="editor-title-group">
             <span class="editor-badge">🛠️ MODO GRABADOR / EDITOR</span>
-            <h2 class="editor-title">🎹 Editor de Notas al Ritmo</h2>
-            <p class="editor-subtitle">Reproduce la música y presiona las teclas al compás para grabar las notas en tiempo real.</p>
+            <h2 class="editor-title">🎹 Editor de Notas y Sustains al Ritmo</h2>
+            <p class="editor-subtitle">Toca una vez para nota normal. <strong>Mantén presionado</strong> para crear notas sostenidas (Sustain).</p>
           </div>
           <button id="btn-editor-close" class="btn-editor-icon-close" title="Cerrar Editor">✕</button>
         </div>
@@ -191,8 +167,8 @@ export class ChartEditorModal {
           <!-- BARRA DE TIEMPO / TIMELINE SCRUBBER -->
           <div class="editor-timeline-box">
             <span id="editor-current-time" class="timeline-time">00:00.00</span>
-            <input type="range" id="editor-timeline-slider" class="timeline-slider" min="0" max="129" step="0.01" value="0" />
-            <span id="editor-total-time" class="timeline-time">02:08.50</span>
+            <input type="range" id="editor-timeline-slider" class="timeline-slider" min="0" max="150" step="0.01" value="0" />
+            <span id="editor-total-time" class="timeline-time">02:30.00</span>
           </div>
 
           <!-- CONTROLES DE REPRODUCCIÓN -->
@@ -204,38 +180,37 @@ export class ChartEditorModal {
           </div>
         </div>
 
-
         <!-- 4 BOTONES DE CARRILES INTERACTIVOS (GRABACIÓN TÁCTIL Y TECLADO) -->
         <div class="editor-tap-zone">
           <div class="editor-lane-btn lane-0" data-lane="0">
             <span class="lane-arrow">←</span>
             <span class="lane-key">Tecla [ D ]</span>
-            <span class="lane-name">Rojo (Izq)</span>
+            <span class="lane-name">Rojo (Mantén p/ Sustain)</span>
           </div>
           <div class="editor-lane-btn lane-1" data-lane="1">
             <span class="lane-arrow">↓</span>
             <span class="lane-key">Tecla [ F ]</span>
-            <span class="lane-name">Dorado (Abajo)</span>
+            <span class="lane-name">Dorado (Mantén p/ Sustain)</span>
           </div>
           <div class="editor-lane-btn lane-2" data-lane="2">
             <span class="lane-arrow">↑</span>
             <span class="lane-key">Tecla [ J ]</span>
-            <span class="lane-name">Verde (Arriba)</span>
+            <span class="lane-name">Verde (Mantén p/ Sustain)</span>
           </div>
           <div class="editor-lane-btn lane-3" data-lane="3">
             <span class="lane-arrow">→</span>
             <span class="lane-key">Tecla [ K ]</span>
-            <span class="lane-name">Azul (Der)</span>
+            <span class="lane-name">Azul (Mantén p/ Sustain)</span>
           </div>
         </div>
 
         <!-- VISOR DE NOTAS GRABADAS Y ACCIONES -->
         <div class="editor-notes-summary">
           <div class="notes-header-row">
-            <span class="notes-count-badge">📝 Notas Grabadas: <strong id="editor-notes-count">${this.recordedNotes.length}</strong></span>
+            <span class="notes-count-badge">📝 Notas: <strong id="editor-notes-count">${this.recordedNotes.length}</strong></span>
             <div class="notes-quick-actions">
               <button id="btn-editor-undo" class="btn-editor-small" title="Deshacer última nota (Ctrl+Z)">↩️ Deshacer</button>
-              <button id="btn-editor-load-defaults" class="btn-editor-small" title="Cargar notas predeterminadas de Jingle Bells">📥 Cargar Notas Actuales</button>
+              <button id="btn-editor-load-defaults" class="btn-editor-small" title="Cargar partitura predeterminada">📥 Cargar Predeterminada</button>
               <button id="btn-editor-clear" class="btn-editor-small btn-danger" title="Borrar todas las notas grabadas">🗑️ Limpiar</button>
             </div>
           </div>
@@ -263,16 +238,19 @@ export class ChartEditorModal {
 
   private renderNotesListHtml(): string {
     if (this.recordedNotes.length === 0) {
-      return `<p class="notes-empty">Dale a <strong>▶️ REPRODUCIR</strong> y toca <strong>D, F, J, K</strong> al compás de la música para grabar notas.</p>`;
+      return `<p class="notes-empty">Dale a <strong>▶️ REPRODUCIR</strong> y toca o mantén <strong>D, F, J, K</strong> al compás para grabar notas y sustains.</p>`;
     }
 
     const laneNames = ["🔴 Izq", "🟡 Abajo", "🟢 Arriba", "🔵 Der"];
 
     return this.recordedNotes
       .map((note, index) => {
+        const isSustain = !!(note.duration && note.duration > 0);
+        const icon = isSustain ? "●━━━━━●" : "●";
+        const durText = isSustain && note.duration !== undefined ? ` (Sustain ${note.duration.toFixed(2)}s)` : "";
         return `
-          <span class="note-chip ${note.isStar ? "star-chip" : ""}">
-            #${index + 1}: ${laneNames[note.lane] || "Nota"} @ <strong>${note.time.toFixed(2)}s</strong> ${note.isStar ? "⭐" : ""}
+          <span class="note-chip ${note.isStar ? "star-chip" : ""} ${isSustain ? "sustain-chip" : ""}">
+            #${index + 1}: ${icon} ${laneNames[note.lane] || "Nota"} @ <strong>${note.time.toFixed(2)}s</strong>${durText} ${note.isStar ? "⭐" : ""}
           </span>
         `;
       })
@@ -337,7 +315,6 @@ export class ChartEditorModal {
       this.setupAudio();
     });
 
-    // Control de velocidad
     const speedButtons = this.container.querySelectorAll(".btn-speed");
     speedButtons.forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -369,8 +346,8 @@ export class ChartEditorModal {
     });
 
     btnLoadDefaults?.addEventListener("click", () => {
-      this.loadJingleBellsDefaults();
-      this.showToast("📥 Notas de Jingle Bells cargadas");
+      this.loadSongDefaults();
+      this.showToast("📥 Partitura predeterminada cargada");
     });
 
     btnCopy?.addEventListener("click", () => {
@@ -381,40 +358,48 @@ export class ChartEditorModal {
       this.testChartInGame();
     });
 
-    // Clics táctiles en los 4 carriles
+    // Clics y sostenidos táctiles en los 4 carriles
     const laneButtons = this.container.querySelectorAll(".editor-lane-btn");
     laneButtons.forEach((btn) => {
+      const lane = parseInt((btn as HTMLElement).getAttribute("data-lane") || "0", 10);
+
       btn.addEventListener("pointerdown", (e) => {
         e.preventDefault();
-        const lane = parseInt((btn as HTMLElement).getAttribute("data-lane") || "0", 10);
-        this.recordNote(lane);
         btn.classList.add("pressed");
-        setTimeout(() => btn.classList.remove("pressed"), 120);
+        this.startNoteHold(lane);
+      });
+
+      btn.addEventListener("pointerup", (e) => {
+        e.preventDefault();
+        btn.classList.remove("pressed");
+        this.endNoteHold(lane);
+      });
+
+      btn.addEventListener("pointerleave", () => {
+        btn.classList.remove("pressed");
+        this.endNoteHold(lane);
       });
     });
 
-    // Listeners de teclado globales mientras el editor esté abierto
     window.addEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("keyup", this.handleKeyUp);
   }
 
   private handleKeyDown = (e: KeyboardEvent): void => {
     if (this.container.style.display === "none") return;
 
-    // Deshacer con Ctrl+Z
     if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
       e.preventDefault();
       this.undoLastNote();
       return;
     }
 
-    // Play/Pause con Espacio
     if (e.code === "Space" && e.target === document.body) {
       e.preventDefault();
       this.togglePlay();
       return;
     }
 
-    // Toggle de nota especial con Shift
     if (e.key === "Shift") {
       this.isNextStar = !this.isNextStar;
       const btn = this.container.querySelector("#btn-toggle-star");
@@ -431,29 +416,55 @@ export class ChartEditorModal {
     else if (e.key === "j" || e.key === "J" || e.key === "ArrowUp") lane = 2;
     else if (e.key === "k" || e.key === "K" || e.key === "ArrowRight") lane = 3;
 
-    if (lane !== -1) {
+    if (lane !== -1 && !this.activeHoldStarts.has(lane)) {
       e.preventDefault();
-      this.recordNote(lane);
+      this.startNoteHold(lane);
 
       const laneEl = this.container.querySelector(`.lane-${lane}`);
-      if (laneEl) {
-        laneEl.classList.add("pressed");
-        setTimeout(() => laneEl.classList.remove("pressed"), 120);
-      }
+      if (laneEl) laneEl.classList.add("pressed");
     }
   };
 
-  private recordNote(lane: number): void {
+  private handleKeyUp = (e: KeyboardEvent): void => {
+    if (this.container.style.display === "none") return;
+
+    let lane = -1;
+    if (e.key === "d" || e.key === "D" || e.key === "ArrowLeft") lane = 0;
+    else if (e.key === "f" || e.key === "F" || e.key === "ArrowDown") lane = 1;
+    else if (e.key === "j" || e.key === "J" || e.key === "ArrowUp") lane = 2;
+    else if (e.key === "k" || e.key === "K" || e.key === "ArrowRight") lane = 3;
+
+    if (lane !== -1) {
+      this.endNoteHold(lane);
+
+      const laneEl = this.container.querySelector(`.lane-${lane}`);
+      if (laneEl) laneEl.classList.remove("pressed");
+    }
+  };
+
+  private startNoteHold(lane: number): void {
     const time = this.audioElement ? this.audioElement.currentTime : 0;
     this.playHitsound(lane);
+    this.activeHoldStarts.set(lane, time);
+  }
+
+  private endNoteHold(lane: number): void {
+    const startTime = this.activeHoldStarts.get(lane);
+    if (startTime === undefined) return;
+    this.activeHoldStarts.delete(lane);
+
+    const endTime = this.audioElement ? this.audioElement.currentTime : startTime;
+    const duration = Math.max(0, endTime - startTime);
+    const isSustain = duration >= 0.22;
 
     const newNote: ChartNoteRecord = {
       lane,
-      time: Math.round(time * 100) / 100,
+      time: Math.round(startTime * 100) / 100,
+      duration: isSustain ? Math.round(duration * 100) / 100 : 0,
+      type: isSustain ? "sustain" : "normal",
       isStar: this.isNextStar
     };
 
-    // Si fue estrella, se resetea el toggle a normal automáticamente para el próximo toque
     if (this.isNextStar) {
       this.isNextStar = false;
       const btn = this.container.querySelector("#btn-toggle-star");
@@ -464,7 +475,6 @@ export class ChartEditorModal {
     }
 
     this.recordedNotes.push(newNote);
-    // Mantener orden cronológico
     this.recordedNotes.sort((a, b) => a.time - b.time);
     this.updateNotesView();
   }
@@ -555,10 +565,11 @@ export class ChartEditorModal {
   private copyChartCode(): void {
     const codeLines = this.recordedNotes.map((n) => {
       const starStr = n.isStar ? ", isStar: true" : "";
-      return `  { lane: ${n.lane}, time: ${n.time.toFixed(2)}${starStr} },`;
+      const durStr = n.duration && n.duration > 0 ? `, duration: ${n.duration.toFixed(2)}, type: "sustain"` : "";
+      return `  { lane: ${n.lane}, time: ${n.time.toFixed(2)}${durStr}${starStr} },`;
     });
 
-    const output = `// Partitura generada con el Grabador de Ritmo\nconst vocalChart = [\n${codeLines.join("\n")}\n];`;
+    const output = `// Partitura generada con el Grabador de Ritmo\nconst vocalChart: ChartNoteRecord[] = [\n${codeLines.join("\n")}\n];`;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(output).then(() => {
@@ -597,17 +608,19 @@ export class ChartEditorModal {
     }
   }
 
-  private loadJingleBellsDefaults(): void {
-    if (this.selectedSongFile === "jingle-bells.mp3") {
-      this.recordedNotes = [...JINGLE_BELLS_CHART];
-    } else if (this.selectedSongFile === "Rockin' Around The Christmas Tree.mp3") {
-      this.recordedNotes = [...ROCKIN_AROUND_CHART];
-    } else if (this.selectedSongFile === "DANIELA - Rodolfo Aicardi.mp3") {
-      this.recordedNotes = [...DANIELA_CHART];
-    } else if (this.selectedSongFile.includes("Burrito")) {
-      this.recordedNotes = [...BURRITO_METAL_CHART];
+  private loadSongDefaults(): void {
+    if (this.selectedSongFile.includes("Metalmen")) {
+      this.recordedNotes = [...GOD_REST_METAL_CHART];
+    } else if (this.selectedSongFile.includes("Jingle")) {
+      this.recordedNotes = [...JINGLE_BELLS_ROCK_CHART];
+    } else if (this.selectedSongFile.includes("Twelve")) {
+      this.recordedNotes = [...TWELVE_DAYS_CHART];
     } else if (this.selectedSongFile.includes("Joy")) {
-      this.recordedNotes = [...JOY_TO_THE_WORLD_CHART];
+      this.recordedNotes = [...JOY_TO_WORLD_POWER_CHART];
+    } else if (this.selectedSongFile.includes("Deck")) {
+      this.recordedNotes = [...DECK_THE_HALLS_CHART];
+    } else if (this.selectedSongFile.includes("Wish")) {
+      this.recordedNotes = [...WE_WISH_YOU_CHART];
     }
     this.updateNotesView();
   }

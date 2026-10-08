@@ -26,6 +26,9 @@ export class InputManager {
   public onTap?: (x: number, y: number) => void;
   public onDrag?: (x: number, y: number, dx: number, dy: number) => void;
   public onRelease?: (x: number, y: number) => void;
+  public onPointerDown?: (pointerId: number, x: number, y: number) => void;
+  public onPointerUp?: (pointerId: number, x: number, y: number) => void;
+  public onPointerMove?: (pointerId: number, x: number, y: number) => void;
 
   private lastPosition: { x: number; y: number } | null = null;
   private isPointerDown: boolean = false;
@@ -98,6 +101,10 @@ export class InputManager {
 
     this.lastPosition = { x, y };
 
+    if (this.onPointerDown) {
+      this.onPointerDown(e.pointerId, x, y);
+    }
+
     if (this.onTap) {
       this.onTap(x, y);
     }
@@ -123,6 +130,10 @@ export class InputManager {
 
     this.lastPosition = { x, y };
 
+    if (this.onPointerMove) {
+      this.onPointerMove(e.pointerId, x, y);
+    }
+
     if (this.onDrag) {
       this.onDrag(x, y, dx, dy);
     }
@@ -132,6 +143,9 @@ export class InputManager {
     const touch = this.activeTouches.get(e.pointerId);
     if (touch) {
       this.activeTouches.delete(e.pointerId);
+      if (this.onPointerUp) {
+        this.onPointerUp(e.pointerId, touch.x, touch.y);
+      }
       if (this.onRelease) {
         this.onRelease(touch.x, touch.y);
       }

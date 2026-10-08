@@ -22,6 +22,14 @@ export class AudioManager {
   private isGameActive: boolean = false;
   private bgmAudio: HTMLAudioElement | null = null;
   private bgmVolume: number = 0.45;
+  private playlist: string[] = [
+    "./assets/audio/Rockin' Around The Christmas Tree.mp3",
+    "./assets/audio/jingle-bells.mp3",
+    "./assets/audio/Joy to the world.mp3",
+    "./assets/audio/Mi Burrito Sabanero  Metal (Paulo Cuevas).mp3",
+    "./assets/audio/DANIELA - Rodolfo Aicardi.mp3"
+  ];
+  private lastSongIndex: number = -1;
   private currentBgmPath: string = "./assets/audio/Rockin' Around The Christmas Tree.mp3";
 
   private constructor() {
@@ -50,6 +58,10 @@ export class AudioManager {
     return this.isUnlocked;
   }
 
+  public getCurrentBgmPath(): string {
+    return this.currentBgmPath;
+  }
+
   /**
    * Establece si hay un minijuego activo
    */
@@ -65,27 +77,87 @@ export class AudioManager {
   }
 
   /**
-   * Reproduce la música de fondo ambiental (BGM) en bucle continuo
-   * Solo suena en inicio y menú; NUNCA dentro de un minijuego
+   * Obtiene la siguiente canción al azar de la playlist evitando repetir la anterior
    */
-  public playMenuBGM(src: string = "./assets/audio/Rockin' Around The Christmas Tree.mp3", volume: number = 0.45): void {
+  public getRandomSong(): string {
+    if (this.playlist.length === 0) return "./assets/audio/Rockin' Around The Christmas Tree.mp3";
+    if (this.playlist.length === 1) return this.playlist[0];
+
+    let randomIndex: number;
+    do {
+      randomIndex = Math.floor(Math.random() * this.playlist.length);
+    } while (randomIndex === this.lastSongIndex);
+
+    this.lastSongIndex = randomIndex;
+    return this.playlist[randomIndex];
+  }
+
+  /**
+   * Reproduce una canción aleatoria de la playlist para el Menú / Inicio.
+   * Si 'forceNew' es false y ya está sonando una pista, la mantiene fluida sin cortes.
+   * Si la canción termina, avanza automáticamente a la siguiente pista al azar.
+   */
+  public playRandomMenuBGM(forceNew: boolean = false, volume: number = 0.45): void {
     if (this.isGameActive || this.isMuted) {
       this.stopMenuBGM();
       return;
     }
 
     this.bgmVolume = volume;
-    this.currentBgmPath = src;
 
-    if (!this.bgmAudio) {
-      this.bgmAudio = new Audio(src);
-      this.bgmAudio.loop = true;
+    // Si ya está sonando y no se exige una nueva pista, continuar fluidamente
+    if (!forceNew && this.bgmAudio && !this.bgmAudio.paused) {
+      return;
     }
 
-    this.bgmAudio.volume = this.bgmVolume;
+    const song = this.getRandomSong();
+    this.currentBgmPath = song;
 
-    if (this.bgmAudio.paused) {
-      this.bgmAudio.play().catch(() => {});
+    if (!this.bgmAudio) {
+      this.bgmAudio = new Audio();
+      this.bgmAudio.addEventListener("ended", () => {
+        // Al terminar la pista, pasar automáticamente a la siguiente aleatoria
+        if (!this.isGameActive && !this.isMuted) {
+          this.playRandomMenuBGM(true, this.bgmVolume);
+        }
+      });
+    }
+
+    this.bgmAudio.src = song;
+    this.bgmAudio.volume = this.bgmVolume;
+    this.bgmAudio.play().catch(() => {});
+  }
+
+  /**
+   * Reproduce música de fondo ambiental (BGM)
+   * Solo suena en inicio y menú; NUNCA dentro de un minijuego
+   */
+  public playMenuBGM(src?: string, volume: number = 0.45): void {
+    if (src) {
+      if (this.isGameActive || this.isMuted) {
+        this.stopMenuBGM();
+        return;
+      }
+
+      this.bgmVolume = volume;
+      this.currentBgmPath = src;
+
+      if (!this.bgmAudio) {
+        this.bgmAudio = new Audio();
+        this.bgmAudio.addEventListener("ended", () => {
+          if (!this.isGameActive && !this.isMuted) {
+            this.playRandomMenuBGM(true, this.bgmVolume);
+          }
+        });
+      }
+
+      if (this.bgmAudio.paused || this.bgmAudio.src !== src) {
+        this.bgmAudio.src = src;
+        this.bgmAudio.volume = this.bgmVolume;
+        this.bgmAudio.play().catch(() => {});
+      }
+    } else {
+      this.playRandomMenuBGM(false, volume);
     }
   }
 
@@ -107,11 +179,11 @@ export class AudioManager {
   }
 
   /**
-   * Reanuda la música de fondo de forma fluida
+   * Reanuda la música de fondo de forma fluida (o cambia de pista si se solicita)
    */
-  public resumeMenuBGM(): void {
+  public resumeMenuBGM(forceNew: boolean = false): void {
     this.isGameActive = false;
-    this.playMenuBGM(this.currentBgmPath, this.bgmVolume);
+    this.playRandomMenuBGM(forceNew, this.bgmVolume);
   }
 
   /**
