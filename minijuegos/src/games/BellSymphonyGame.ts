@@ -1449,15 +1449,24 @@ export class BellSymphonyGame extends BaseGame {
   public override endGame(): void {
     this.stopSongAudio();
     const rankInfo = this.calculateRank();
+    const song = this.songList[this.selectedSongIndex];
     super.endGame({
       isCustomChart: this.isCustomChartPlaying,
       customNotes: this.lastCustomNotes.length > 0 ? this.lastCustomNotes : undefined,
-      songFile: this.isCustomChartPlaying ? this.lastCustomSongFile : (this.songList[this.selectedSongIndex]?.audioFile || "juego campanas/God Rest Ye Merry Metalmen.mp3"),
+      songFile: this.isCustomChartPlaying ? this.lastCustomSongFile : (song?.audioFile || "juego campanas/God Rest Ye Merry Metalmen.mp3"),
+      songTitle: this.isCustomChartPlaying ? "Partitura Personalizada" : (song?.title || "Sinfonía de Campanas"),
+      songArtist: this.isCustomChartPlaying ? "Creador de Ritmo" : (song?.artist || "Alexander Nakarada"),
       bpm: this.bpm,
       rank: rankInfo.rank,
       rankLabel: rankInfo.label,
       rankColor: rankInfo.color,
-      accuracy: rankInfo.accuracy
+      accuracy: rankInfo.accuracy,
+      maxCombo: this.maxCombo,
+      perfectCount: this.perfectCount,
+      greatCount: this.greatCount,
+      goodCount: this.goodCount,
+      missCount: this.missCount,
+      totalNotes: this.perfectCount + this.greatCount + this.goodCount + this.missCount
     });
   }
 

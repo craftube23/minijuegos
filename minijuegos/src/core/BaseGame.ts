@@ -28,6 +28,14 @@ export interface GameResult {
   rankLabel?: string;
   rankColor?: string;
   accuracy?: number; // 0 - 100%
+  maxCombo?: number;
+  perfectCount?: number;
+  greatCount?: number;
+  goodCount?: number;
+  missCount?: number;
+  totalNotes?: number;
+  songTitle?: string;
+  songArtist?: string;
   isCustomChart?: boolean;
   customNotes?: any[];
   songFile?: string;

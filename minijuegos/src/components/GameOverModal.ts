@@ -50,29 +50,84 @@ export class GameOverModal {
     const rankColor = result.rankColor || (rank === "S+" || rank === "S" ? "#FFD700" : rank === "A" ? "#00E5FF" : rank === "B" ? "#00E676" : rank === "C" ? "#FF9100" : "#FF5252");
     const rankLabel = result.rankLabel || (rank === "S+" ? "🌟 RANGO LEGENDARIO" : rank === "S" ? "✨ RANGO EXCELENTE" : rank === "A" ? "⭐ RANGO GENIAL" : rank === "B" ? "👍 RANGO BUENO" : rank === "C" ? "🔔 RANGO REGULAR" : "💫 RANGO ASPIRANTE");
 
+    const hasStats = result.perfectCount !== undefined || result.maxCombo !== undefined;
+
     this.container.innerHTML = `
       <div class="modal-card ${isRhythmGame ? "modal-card-rhythm" : ""}">
+        <!-- CABECERA FESTIVA DE ALTO IMPACTO -->
         <div class="modal-header">
-          <div class="modal-trophy">
-            ${isRecord 
-              ? getIconSvg("trophy", { size: 56, color: "var(--color-gold)", fill: "var(--color-gold)" })
-              : getIconSvg("sparkles", { size: 56, color: "var(--color-gold)" })}
+          <div class="modal-trophy-emblem">
+            <div class="emblem-sparkle-halo"></div>
+            <div class="emblem-icon">
+              ${isRecord ? "🏆" : "🌟"}
+            </div>
           </div>
           <h2 class="modal-title">${modalTitle}</h2>
           <p class="modal-game-name">${modalSubtitle}</p>
+          ${isRhythmGame && result.songTitle ? `
+            <div class="modal-song-pill">
+              <span class="song-icon">🎵</span>
+              <span class="song-name">${result.songTitle}</span>
+              ${result.songArtist ? `<span class="song-by">• ${result.songArtist}</span>` : ""}
+            </div>
+          ` : ""}
         </div>
 
-        <!-- SISTEMA DE RANGO CON LETRAS (S+, S, A, B, C, D) -->
-        <div class="modal-rank-badge-wrap">
-          <div class="modal-rank-badge" style="border-color: ${rankColor}; box-shadow: 0 0 25px ${rankColor}44;">
-            <div class="modal-rank-letter" style="color: ${rankColor}; text-shadow: 0 0 18px ${rankColor};">${rank}</div>
-            <div class="modal-rank-details">
-              <span class="modal-rank-label" style="color: ${rankColor};">${rankLabel}</span>
-              ${result.accuracy !== undefined ? `<span class="modal-rank-accuracy">🎯 Precisión: <strong>${result.accuracy}%</strong></span>` : ""}
+        <!-- MEDALLÓN 3D DE RANGO ARCADE (S+, S, A, B, C, D) -->
+        <div class="modal-rank-container">
+          <div class="rank-medallion-badge" style="--rank-theme: ${rankColor};">
+            <div class="rank-medallion-halo"></div>
+            <div class="rank-medallion-inner">
+              <div class="rank-letter-3d">${rank}</div>
+              <div class="rank-info-column">
+                <div class="rank-tier-ribbon">${rankLabel}</div>
+                ${result.accuracy !== undefined ? `
+                  <div class="rank-accuracy-meter">
+                    <div class="accuracy-bar-track">
+                      <div class="accuracy-bar-fill" style="width: ${result.accuracy}%;"></div>
+                    </div>
+                    <span class="accuracy-label">🎯 ${result.accuracy}% Precisión</span>
+                  </div>
+                ` : ""}
+              </div>
             </div>
           </div>
         </div>
 
+        <!-- DESGLOSE DE PARTIDA ARCADE (DETALLES Y MÉTRICAS) -->
+        ${hasStats ? `
+          <div class="modal-breakdown-panel">
+            <div class="breakdown-title">📊 DESGLOSE DE PRECISIÓN</div>
+            <div class="breakdown-grid">
+              <div class="stat-chip chip-perfect">
+                <span class="stat-name">¡PERFECTO!</span>
+                <span class="stat-val">${result.perfectCount || 0}</span>
+              </div>
+              <div class="stat-chip chip-great">
+                <span class="stat-name">¡GENIAL!</span>
+                <span class="stat-val">${result.greatCount || 0}</span>
+              </div>
+              <div class="stat-chip chip-good">
+                <span class="stat-name">¡BIEN!</span>
+                <span class="stat-val">${result.goodCount || 0}</span>
+              </div>
+              <div class="stat-chip chip-miss">
+                <span class="stat-name">MISS</span>
+                <span class="stat-val">${result.missCount || 0}</span>
+              </div>
+              <div class="stat-chip chip-combo">
+                <span class="stat-name">MÁX COMBO</span>
+                <span class="stat-val">🔥 ${result.maxCombo || 0}</span>
+              </div>
+              <div class="stat-chip chip-notes">
+                <span class="stat-name">TOTAL NOTAS</span>
+                <span class="stat-val">🔔 ${result.totalNotes || 0}</span>
+              </div>
+            </div>
+          </div>
+        ` : ""}
+
+        <!-- CAJAS DE PUNTUACIÓN DE ALTA DEFINICIÓN -->
         <div class="modal-scores">
           <div class="score-box main-score">
             <span class="score-label">TU PUNTUACIÓN</span>
@@ -94,7 +149,7 @@ export class GameOverModal {
           }</p>
         </div>
 
-        <!-- ACCIONES / BOTONES -->
+        <!-- ACCIONES / BOTONES ARCADE -->
         <div class="modal-actions ${isRhythmGame ? "modal-actions-rhythm" : ""}">
           <button id="btn-modal-again" class="btn-action btn-again" title="${isRhythmGame ? "Reintentar esta canción" : "Jugar otra vez"}">
             ${getIconSvg("replay", { size: 22, color: "#ffffff" })}
