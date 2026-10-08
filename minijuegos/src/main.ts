@@ -427,11 +427,18 @@ class KioskApp {
 
     const mainContainer = document.getElementById("kiosk-main") || document.body;
 
-    // Ejecutar cuenta regresiva arcade 3-2-1 antes de activar el tiempo del juego
-    ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
-      this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
+    // Si es Sinfonía de Campanas, ingresar directamente a la selección de canciones sin conteo previo.
+    // El conteo 3-2-1 se ejecutará tras elegir la canción.
+    if (gameId === "bell-symphony") {
+      this.currentGame.start(KIOSK_CONFIG.defaultGameDurationSeconds);
       this.isTransitioning = false;
-    });
+    } else {
+      // Ejecutar cuenta regresiva arcade 3-2-1 antes de activar el tiempo del juego
+      ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+        this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
+        this.isTransitioning = false;
+      });
+    }
   }
 
   /**
@@ -461,13 +468,13 @@ class KioskApp {
         this.resetInactivity();
       },
       () => {
-        ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
-          if (game instanceof BellSymphonyGame) {
-            game.replayLastSong();
-          } else {
+        if (game instanceof BellSymphonyGame) {
+          game.replayLastSong();
+        } else {
+          ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
             game.start(KIOSK_CONFIG.defaultGameDurationSeconds);
-          }
-        });
+          });
+        }
       }
     );
   }

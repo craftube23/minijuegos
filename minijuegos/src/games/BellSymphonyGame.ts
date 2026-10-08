@@ -17,6 +17,7 @@ import { BaseGame } from "../core/BaseGame";
 import { AudioManager } from "../core/AudioManager";
 import { InputManager } from "../core/InputManager";
 import { ParticleSystem } from "../core/ParticleSystem";
+import { ScreenTransition } from "../core/ScreenTransition";
 import { ChartEditorModal, type ChartNoteRecord } from "../components/ChartEditorModal";
 import {
   RHYTHM_SONG_LIST,
@@ -76,7 +77,7 @@ export class BellSymphonyGame extends BaseGame {
   public readonly songList: SongDef[] = RHYTHM_SONG_LIST;
 
   private selectedSongIndex: number = 0;
-  private gameState: "song-select" | "playing" = "song-select";
+  private gameState: "song-select" | "countdown" | "playing" = "song-select";
 
   // Configuración de los 4 carriles
   private lanes: LaneConfig[] = [
@@ -388,20 +389,27 @@ export class BellSymphonyGame extends BaseGame {
       this.bgAudioElement.addEventListener("error", (e) => {
         console.error("❌ Error cargando pista de audio:", safeAudioUrl, e);
       });
-      if (!this.audio.getIsMuted()) {
-        this.bgAudioElement.play().catch((err) => {
-          console.warn("⚠️ Autoplay pendiente o bloqueado:", err);
-        });
-      }
+      // Audio precargado listo para reproducirse cuando termine la cuenta regresiva
     } catch (e) {
       console.error("Error al inicializar Audio:", e);
       this.bgAudioElement = null;
     }
 
     this.generateSongChart(song);
-    this.gameState = "playing";
-    this.audio.playGameStart();
-    this.particles.emitConfetti(this.width, 35);
+    this.gameState = "countdown";
+
+    const mainContainer = document.getElementById("kiosk-main") || document.body;
+    ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+      this.gameState = "playing";
+      this.currentTime = 0;
+      if (!this.audio.getIsMuted() && this.bgAudioElement) {
+        this.bgAudioElement.currentTime = 0;
+        this.bgAudioElement.play().catch((err) => {
+          console.warn("⚠️ Autoplay pendiente o bloqueado:", err);
+        });
+      }
+      this.particles.emitConfetti(this.width, 35);
+    });
   }
 
   public replayLastSong(): void {
@@ -482,9 +490,7 @@ export class BellSymphonyGame extends BaseGame {
       this.bgAudioElement.addEventListener("error", (e) => {
         console.error("❌ Error cargando pista de audio personalizada:", safeAudioUrl, e);
       });
-      if (!this.audio.getIsMuted()) {
-        this.bgAudioElement.play().catch(() => {});
-      }
+      // Audio precargado
     } catch {
       this.bgAudioElement = null;
     }
@@ -518,9 +524,17 @@ export class BellSymphonyGame extends BaseGame {
       });
     }
 
-    this.gameState = "playing";
-    this.audio.playGameStart();
-    this.particles.emitConfetti(this.width, 35);
+    this.gameState = "countdown";
+    const mainContainer = document.getElementById("kiosk-main") || document.body;
+    ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+      this.gameState = "playing";
+      this.currentTime = 0;
+      if (!this.audio.getIsMuted() && this.bgAudioElement) {
+        this.bgAudioElement.currentTime = 0;
+        this.bgAudioElement.play().catch(() => {});
+      }
+      this.particles.emitConfetti(this.width, 35);
+    });
   }
 
   private handleSongSelectTouch(x: number, y: number): void {
