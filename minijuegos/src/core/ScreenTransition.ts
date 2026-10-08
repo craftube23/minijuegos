@@ -500,9 +500,8 @@ export class ScreenTransition {
     setTimeout(() => {
       onMidpoint();
 
-      // Pausa ágil (260ms) para sincronizar inmediatamente con el audio
       setTimeout(() => {
-        // 3. Comienza la secuencia de 3 desgarres sincronizados con el audio
+        // 3. Comienza la secuencia de 3 desgarres sincronizados con el audio de FL Studio
         this.audio.playClawTear();
 
         const bounds = container.getBoundingClientRect();
@@ -513,16 +512,16 @@ export class ScreenTransition {
         overlay.classList.remove("is-wrapping");
         overlay.classList.add("is-kid-unboxing");
 
-        // 4. Finalización suave y limpia revelando el juego sincronizado con los 3 rasgados
+        // 4. Finalización suave y limpia revelando el juego tras completarse los 3 rasgados (4.4s)
         setTimeout(() => {
           overlay.classList.add("is-finished");
           setTimeout(() => {
             overlay.remove();
             onComplete();
-          }, 300);
-        }, 1150);
+          }, 350);
+        }, 4400);
 
-      }, 260);
+      }, 100);
 
     }, 600);
   }

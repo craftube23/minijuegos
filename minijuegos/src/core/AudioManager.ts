@@ -409,9 +409,9 @@ export class AudioManager {
   }
 
   /**
-   * Sonido de desgarre de paquete con garras / manos en las transiciones (audio acelerado)
+   * Sonido de desgarre de paquete con garras / manos en las transiciones (3 rasgados sincronizados a 1.0x)
    */
-  public playClawTear(playbackRate: number = 1.35): void {
+  public playClawTear(playbackRate: number = 1.0): void {
     Haptics.impact();
     this.playSoundEffect("./assets/audio/menu/garra_desgarre.mp3", 0.95, playbackRate);
   }
