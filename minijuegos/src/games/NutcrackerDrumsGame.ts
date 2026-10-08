@@ -88,9 +88,7 @@ export class NutcrackerDrumsGame extends BaseGame {
       particles
     );
 
-    this.showLives = true;
-    this.maxLives = 5;
-    this.lives = 5;
+    this.showLives = false;
 
     // Carga de Sprites de fondo
     this.bgRoom = new Image();
@@ -173,7 +171,8 @@ export class NutcrackerDrumsGame extends BaseGame {
     this.currentRound = 1;
     this.comboCount = 0;
     this.maxCombo = 0;
-    this.lives = 5;
+    this.showLives = false;
+    this.timeRemaining = 45;
     this.elfAnimState = "idle";
     this.elfBouncePhase = 0;
     this.prevKeyStates = {};
@@ -279,13 +278,9 @@ export class NutcrackerDrumsGame extends BaseGame {
       }
     } else if (this.turnState === "round_fail") {
       this.stateTimer += dt;
-      if (this.stateTimer >= 1.3) {
-        if (this.lives <= 0) {
-          this.endGame();
-        } else {
-          // Repetir la misma ronda
-          this.startRound(this.currentRound);
-        }
+      if (this.stateTimer >= 1.1) {
+        // Repetir la misma ronda
+        this.startRound(this.currentRound);
       }
     }
   }
@@ -364,18 +359,21 @@ export class NutcrackerDrumsGame extends BaseGame {
         this.audio.playVictory();
         Haptics.celebration();
         
+        // Bonus de tiempo +3 segundos por secuencia completada
+        this.timeRemaining = Math.min(60, this.timeRemaining + 3.0);
+
         const roundBonus = this.currentRound * 500;
         this.addScore(roundBonus);
         
         this.particles.emitBurst(this.width / 2, this.height * 0.45, "#FFD700", 35);
-        this.addFloatingText(`¡RONDA ${this.currentRound} SUPERADA! (+${roundBonus})`, this.width / 2, this.height * 0.52, "#00E5FF", 1.2);
+        this.addFloatingText("+3.0s ⏱️", this.width / 2, this.height * 0.45, "#00E676", 1.45);
+        this.addFloatingText(`¡RONDA ${this.currentRound} SUPERADA! (+${roundBonus})`, this.width / 2, this.height * 0.52, "#00E5FF", 1.25);
       }
     } else {
       // ¡Error en el ritmo!
       this.audio.playDrumMiss();
       this.triggerShake(0.3, 8);
       this.comboCount = 0;
-      this.lives = Math.max(0, this.lives - 1);
       
       this.turnState = "round_fail";
       this.stateTimer = 0;
@@ -848,7 +846,7 @@ export class NutcrackerDrumsGame extends BaseGame {
   }
 
   /**
-   * Barra de estado superior (HUD) con 5 Campanas Doradas de vida
+   * Barra de estado superior (HUD) con Puntos, Tiempo Restante y Ronda
    */
   protected override drawHUD(ctx: CanvasRenderingContext2D): void {
     ctx.save();
@@ -857,12 +855,12 @@ export class NutcrackerDrumsGame extends BaseGame {
     const hudH = Math.max(44, Math.min(68, this.height * 0.075));
     const paddingX = Math.max(12, this.width * 0.035);
 
-    // Barra superior sólida translúcida
-    ctx.fillStyle = "rgba(4, 14, 26, 0.90)";
+    // Barra superior sólida translúcida con borde dorado brillante
+    ctx.fillStyle = "rgba(4, 14, 26, 0.92)";
     ctx.fillRect(0, 0, this.width, hudH);
 
-    ctx.strokeStyle = "rgba(255, 215, 0, 0.4)";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(255, 215, 0, 0.55)";
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.moveTo(0, hudH);
     ctx.lineTo(this.width, hudH);
@@ -870,7 +868,7 @@ export class NutcrackerDrumsGame extends BaseGame {
 
     const fontMain = isNarrow ? Math.max(13, this.width * 0.038) : Math.max(15, Math.min(24, this.width * 0.036));
     const fontSub = isNarrow ? Math.max(10, this.width * 0.028) : Math.max(12, Math.min(18, this.width * 0.028));
-    const textY = hudH * 0.52;
+    const textY = hudH * 0.54;
 
     // 1. PUNTOS & COMBO (Izquierda)
     ctx.textAlign = "left";
@@ -882,42 +880,31 @@ export class NutcrackerDrumsGame extends BaseGame {
     if (this.comboCount >= 2) {
       ctx.font = `800 ${fontSub}px 'Outfit', sans-serif`;
       ctx.fillStyle = "#00E5FF";
-      ctx.fillText(` (${this.comboCount} COMBO!)`, paddingX + ctx.measureText(`${this.score.toLocaleString()} PTS`).width + 4, textY);
+      const ptsWidth = ctx.measureText(`${this.score.toLocaleString()} PTS`).width;
+      ctx.fillText(` (${this.comboCount}x)`, paddingX + ptsWidth + 6, textY);
     }
 
-    // 2. 5 CAMPANAS DE VIDA (Centro)
-    const bellSize = isNarrow ? 15 : 19;
-    const bellGap = isNarrow ? 3 : 6;
-    const totalBellsW = this.maxLives * bellSize + (this.maxLives - 1) * bellGap;
-    const bellsStartX = (this.width / 2) - totalBellsW / 2;
-
-    for (let i = 0; i < this.maxLives; i++) {
-      const bx = bellsStartX + i * (bellSize + bellGap) + bellSize / 2;
-      const by = textY;
-      const isAlive = i < this.lives;
-
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      if (isAlive) {
-        ctx.font = `${bellSize}px sans-serif`;
-        ctx.fillText("🔔", bx, by);
-      } else {
-        ctx.font = `${bellSize * 0.85}px sans-serif`;
-        ctx.globalAlpha = 0.25;
-        ctx.fillText("🔔", bx, by);
-        ctx.globalAlpha = 1.0;
-        ctx.fillStyle = "#FF1744";
-        ctx.font = `900 ${bellSize * 0.7}px 'Outfit', sans-serif`;
-        ctx.fillText("✕", bx, by);
-      }
+    // 2. TIEMPO RESTANTE (Centro - Destacado con reloj)
+    let timeFormatted: string;
+    if (this.timeRemaining >= 60) {
+      const mins = Math.floor(this.timeRemaining / 60);
+      const secs = Math.floor(this.timeRemaining % 60);
+      timeFormatted = `${mins}:${secs.toString().padStart(2, "0")}`;
+    } else {
+      timeFormatted = `${Math.ceil(this.timeRemaining)}s`;
     }
 
-    // 3. RONDA ACTUAL / TIEMPO (Derecha)
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `900 ${fontMain * 1.15}px 'Outfit', sans-serif`;
+    ctx.fillStyle = this.timeRemaining <= 10 ? "#FF3366" : "#FFFFFF";
+    ctx.fillText(`⏱️ ${timeFormatted}`, this.width / 2, textY);
+
+    // 3. RONDA ACTUAL (Derecha)
     ctx.font = `800 ${fontSub}px 'Outfit', sans-serif`;
-    ctx.fillStyle = "#FFFFFF";
+    ctx.fillStyle = "#2ECC71";
     ctx.textAlign = "right";
-    ctx.fillText(`RONDA ${this.currentRound}/${this.maxRounds}`, this.width - paddingX, textY);
+    ctx.fillText(`RONDA ${this.currentRound}`, this.width - paddingX, textY);
 
     ctx.restore();
   }
