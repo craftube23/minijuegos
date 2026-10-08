@@ -97,6 +97,10 @@ export class FlyingElfGame extends BaseGame {
   private isWindActive: boolean = false;
   private windForceY: number = 0;
 
+  // Estado de audio para vuelo
+  private wasThrusting: boolean = false;
+  private flyAudioCooldown: number = 0;
+
   // Desplazamiento del Escenario Unificado
   private bgScrollX: number = 0;
   private groundScrollX: number = 0;
@@ -208,6 +212,8 @@ export class FlyingElfGame extends BaseGame {
     this.spawnObstacleTimer = 1.1;
     this.windTimer = 6.5;
     this.isWindActive = false;
+    this.wasThrusting = false;
+    this.flyAudioCooldown = 0;
 
     // Inicializar decoraciones del suelo y carteles publicitarios de fondo
     this.initGroundProps();
@@ -277,6 +283,7 @@ export class FlyingElfGame extends BaseGame {
         this.isWindActive = true;
         this.windTimer = 3.2;
         this.windForceY = (Math.random() > 0.5 ? 1 : -1) * (240 + Math.random() * 160);
+        this.audio.playWindGust();
       } else {
         this.isWindActive = false;
         this.windTimer = 6.0 + Math.random() * 4.5;
@@ -293,6 +300,21 @@ export class FlyingElfGame extends BaseGame {
       this.input.isKeyDown("ArrowUp");
 
     const thrusting = isTouchThrust || isKeyboardThrust;
+
+    // Reproducir efecto de sonido de aleteo/vuelo aleatorio (elfo_volar1 / elfo_volar2)
+    if (thrusting) {
+      if (!this.wasThrusting) {
+        this.audio.playElfFly();
+        this.flyAudioCooldown = 0.35;
+      } else {
+        this.flyAudioCooldown -= dt;
+        if (this.flyAudioCooldown <= 0) {
+          this.audio.playElfFly();
+          this.flyAudioCooldown = 0.38;
+        }
+      }
+    }
+    this.wasThrusting = thrusting;
 
     // 4. Físicas ágiles pero dóciles del Elfo
     const gravity = 1420; // px/s^2
@@ -621,7 +643,7 @@ export class FlyingElfGame extends BaseGame {
       this.particles.emitBurst(this.elfX, this.elfY, "#FFD700", 25);
       this.addFloatingText("✨ ¡TURBO + IMÁN x2! ✨", this.elfX, this.elfY - 45, "#FFE082", 1.35);
     } else {
-      this.audio.playBellNote(2);
+      this.audio.playElfCollectItem();
       this.particles.emitBurst(this.elfX, this.elfY, "#00E676", 6);
       const comboLabel = comboMultiplier > 1 ? ` (x${comboMultiplier})` : "";
       this.addFloatingText(`+${finalPoints}${comboLabel}`, item.x, item.y, "#76FF03", 1.15);
@@ -727,7 +749,7 @@ export class FlyingElfGame extends BaseGame {
 
     // Feedback de impacto controlado
     this.triggerShake(0.35, 12);
-    this.audio.playError();
+    this.audio.playElfHit();
     this.particles.emitBurst(this.elfX, this.elfY, "#FF1744", 16);
     this.addFloatingText("-2.0s ⚠️", this.elfX, this.elfY - 45, "#FF1744", 1.25);
   }

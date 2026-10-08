@@ -284,6 +284,78 @@ export class AudioManager {
     }
   }
 
+  // Cache / Pool de Audio para efectos de sonido con baja latencia
+  private sfxPool: Map<string, HTMLAudioElement[]> = new Map();
+
+  /**
+   * Reproduce un archivo de efecto de sonido (.mp3 / .wav) con pool reutilizable sin lag
+   */
+  public playSoundEffect(src: string, volume: number = 0.85): void {
+    if (this.isMuted) return;
+
+    try {
+      let pool = this.sfxPool.get(src);
+      if (!pool) {
+        pool = [];
+        this.sfxPool.set(src, pool);
+      }
+
+      // Buscar un reproductor disponible o crear uno nuevo (máx 5 por clip para no saturar memoria)
+      let player = pool.find((audio) => audio.paused || audio.ended);
+      if (!player) {
+        if (pool.length < 5) {
+          player = new Audio(src);
+          pool.push(player);
+        } else {
+          player = pool[0];
+          player.pause();
+        }
+      }
+
+      player.currentTime = 0;
+      player.volume = Math.max(0, Math.min(1, volume));
+      player.muted = this.isMuted;
+      player.play().catch(() => {});
+    } catch (e) {
+      console.warn("Aviso al reproducir SFX:", src, e);
+    }
+  }
+
+  // ==========================================================================
+  // EFECTOS DE SONIDO ESPECÍFICOS: EL VUELO MÁGICO DEL ELFO
+  // ==========================================================================
+
+  /**
+   * Sonido aleatorio al volar / aletear el elfo (alterna entre elfo_volar1 y elfo_volar2)
+   */
+  public playElfFly(): void {
+    const soundFile = Math.random() < 0.5 ? "./assets/audio/elfo/elfo_volar1.mp3" : "./assets/audio/elfo/elfo_volar2.mp3";
+    this.playSoundEffect(soundFile, 0.75);
+  }
+
+  /**
+   * Sonido de impacto al chocar contra casas o estalactitas
+   */
+  public playElfHit(): void {
+    Haptics.impact();
+    this.playSoundEffect("./assets/audio/elfo/elfo_golpe.mp3", 0.90);
+  }
+
+  /**
+   * Sonido unificado para recoger regalos, bastones de caramelo y coleccionables
+   */
+  public playElfCollectItem(): void {
+    Haptics.light();
+    this.playSoundEffect("./assets/audio/elfo/recoger_items.mp3", 0.85);
+  }
+
+  /**
+   * Sonido de ráfaga de viento helado en contra
+   */
+  public playWindGust(): void {
+    this.playSoundEffect("./assets/audio/elfo/viento_fuerte.mp3", 0.70);
+  }
+
   // ==========================================================================
   // EFECTOS DE SONIDO SINTETIZADOS (Navideños, mágicos y arcade)
   // ==========================================================================
