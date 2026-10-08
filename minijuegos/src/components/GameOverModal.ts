@@ -46,6 +46,7 @@ export class GameOverModal {
       ? "¡Has probado tu propia canción grabada con éxito!"
       : "¡Estuviste muy cerca! Vuelve a intentarlo para superar la puntuación.";
 
+    const showRank = result.gameId !== "flying-elf" && (isRhythmGame || result.rank !== undefined);
     const rank = result.rank || (result.score >= Math.max(100, result.highScore) * 0.9 ? "S" : result.score >= Math.max(100, result.highScore) * 0.75 ? "A" : result.score >= Math.max(100, result.highScore) * 0.55 ? "B" : result.score >= Math.max(100, result.highScore) * 0.35 ? "C" : "D");
     const rankColor = result.rankColor || (rank === "S+" || rank === "S" ? "#FFD700" : rank === "A" ? "#00E5FF" : rank === "B" ? "#00E676" : rank === "C" ? "#FF9100" : "#FF5252");
     const rankLabel = result.rankLabel || (rank === "S+" ? "🌟 RANGO LEGENDARIO" : rank === "S" ? "✨ RANGO EXCELENTE" : rank === "A" ? "⭐ RANGO GENIAL" : rank === "B" ? "👍 RANGO BUENO" : rank === "C" ? "🔔 RANGO REGULAR" : "💫 RANGO ASPIRANTE");
@@ -73,30 +74,32 @@ export class GameOverModal {
           ` : ""}
         </div>
 
-        <!-- MEDALLÓN 3D DE RANGO ARCADE ESTILO FANTASY GAME ART (S+, S, A, B, C, D) -->
-        <div class="modal-rank-container">
-          <div class="rank-medallion-badge rank-tier-${rank.toLowerCase().replace('+', 'plus')}" style="--rank-theme: ${rankColor};">
-            <div class="rank-medallion-halo"></div>
-            <div class="rank-medallion-inner">
-              <div class="rank-crest-frame">
-                <div class="rank-frost-crown">❄️</div>
-                <div class="rank-letter-art">${rank}</div>
-                <div class="rank-crest-shine"></div>
-              </div>
-              <div class="rank-info-column">
-                <div class="rank-tier-ribbon">${rankLabel}</div>
-                ${result.accuracy !== undefined ? `
-                  <div class="rank-accuracy-meter">
-                    <div class="accuracy-bar-track">
-                      <div class="accuracy-bar-fill" style="width: ${result.accuracy}%;"></div>
+        ${showRank ? `
+          <!-- MEDALLÓN 3D DE RANGO ARCADE ESTILO FANTASY GAME ART (S+, S, A, B, C, D) -->
+          <div class="modal-rank-container">
+            <div class="rank-medallion-badge rank-tier-${rank.toLowerCase().replace('+', 'plus')}" style="--rank-theme: ${rankColor};">
+              <div class="rank-medallion-halo"></div>
+              <div class="rank-medallion-inner">
+                <div class="rank-crest-frame">
+                  <div class="rank-frost-crown">❄️</div>
+                  <div class="rank-letter-art">${rank}</div>
+                  <div class="rank-crest-shine"></div>
+                </div>
+                <div class="rank-info-column">
+                  <div class="rank-tier-ribbon">${rankLabel}</div>
+                  ${result.accuracy !== undefined ? `
+                    <div class="rank-accuracy-meter">
+                      <div class="accuracy-bar-track">
+                        <div class="accuracy-bar-fill" style="width: ${result.accuracy}%;"></div>
+                      </div>
+                      <span class="accuracy-label">🎯 ${result.accuracy}% Precisión</span>
                     </div>
-                    <span class="accuracy-label">🎯 ${result.accuracy}% Precisión</span>
-                  </div>
-                ` : ""}
+                  ` : ""}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ` : ""}
 
         <!-- DESGLOSE DE PARTIDA ARCADE (DETALLES Y MÉTRICAS) -->
         ${hasStats ? `
