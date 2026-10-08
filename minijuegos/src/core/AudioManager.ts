@@ -396,6 +396,26 @@ export class AudioManager {
   }
 
   // ==========================================================================
+  // EFECTOS DE SONIDO ESPECÍFICOS: MENÚ, CUENTA REGRESIVA Y TRANSICIONES
+  // ==========================================================================
+
+  /**
+   * Pista de audio oficial de cuenta regresiva previa al inicio del juego
+   */
+  public playMenuCountdown(): void {
+    Haptics.medium();
+    this.playSoundEffect("./assets/audio/menu/cuenta_regresiva.mp3", 0.90);
+  }
+
+  /**
+   * Sonido de desgarre de paquete con garras / manos en las transiciones
+   */
+  public playClawTear(): void {
+    Haptics.impact();
+    this.playSoundEffect("./assets/audio/menu/garra_desgarre.mp3", 0.90);
+  }
+
+  // ==========================================================================
   // EFECTOS DE SONIDO SINTETIZADOS (Navideños, mágicos y arcade)
   // ==========================================================================
 

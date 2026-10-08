@@ -134,6 +134,9 @@ export class ScreenTransition {
     overlay.className = "countdown-overlay";
     container.appendChild(overlay);
 
+    // Reproducir pista de audio oficial de cuenta regresiva
+    this.audio.playMenuCountdown();
+
     const steps = [
       { text: "3", subtext: "¡PREPÁRATE!", soundStep: 3, delay: 0 },
       { text: "2", subtext: "¡LISTOS!", soundStep: 2, delay: 850 },
@@ -150,10 +153,8 @@ export class ScreenTransition {
 
         const bounds = container.getBoundingClientRect();
         if (soundStep > 0) {
-          this.audio.playCountdownStep(soundStep);
           particles.emitBurst(bounds.width / 2, bounds.height * 0.45, "#FFD700", 20);
         } else {
-          this.audio.playGameStart();
           particles.emitBurst(bounds.width / 2, bounds.height * 0.45, "#00E5FF", 35);
           particles.emitConfetti(bounds.width, 40);
         }
@@ -330,7 +331,7 @@ export class ScreenTransition {
         overlay.classList.add("is-hands-grabbing");
 
         setTimeout(() => {
-          this.audio.playPaperTear();
+          this.audio.playClawTear();
           setTimeout(() => this.audio.playGiftUnwrap(), 160);
 
           const bounds = container.getBoundingClientRect();
@@ -502,7 +503,7 @@ export class ScreenTransition {
       // Pausa adecuada (700ms) para apreciar el regalo antes de desgarrarlo
       setTimeout(() => {
         // 3. Comienza la secuencia de desgarre capa por capa
-        this.audio.playExcitedKidUnwrap();
+        this.audio.playClawTear();
 
         const bounds = container.getBoundingClientRect();
         particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 40);
