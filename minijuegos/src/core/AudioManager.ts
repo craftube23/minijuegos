@@ -806,9 +806,10 @@ export class AudioManager {
   }
 
   /**
-   * Sonido Whoosh mágico para transiciones cinemáticas
+   * Sonido Whoosh suave / Short soft whoosh sound effect
    */
   public playWhoosh(): void {
+    Haptics.impact();
     if (this.isMuted) return;
     this.unlockAudio();
     if (!this.ctx) return;
@@ -817,19 +818,19 @@ export class AudioManager {
     const gain = this.ctx.createGain();
 
     osc.type = "sine";
-    osc.frequency.setValueAtTime(200, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.15);
-    osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.35);
+    osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(700, this.ctx.currentTime + 0.10);
+    osc.frequency.exponentialRampToValueAtTime(140, this.ctx.currentTime + 0.28);
 
     gain.gain.setValueAtTime(0.01, this.ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 0.15);
-    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+    gain.gain.linearRampToValueAtTime(0.22, this.ctx.currentTime + 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.28);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
     osc.start();
-    osc.stop(this.ctx.currentTime + 0.35);
+    osc.stop(this.ctx.currentTime + 0.28);
   }
 
   // ==========================================================================
