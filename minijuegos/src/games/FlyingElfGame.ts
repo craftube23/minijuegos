@@ -185,12 +185,25 @@ export class FlyingElfGame extends BaseGame {
     this.imgStarLogo = new Image();
     this.imgStarLogo.src = "./assets/images/estrella con logo.png";
 
+    // Configuración del sistema de 5 Vidas con Caritas de Elfo Stylized 2D
+    this.showLives = true;
+    this.maxLives = 5;
+    this.lives = 5;
+
     // Música temática exclusiva para El Vuelo Mágico del Elfo
     this.inGameMusicPath = "./assets/audio/The Builder.mp3";
     this.inGameMusicVolume = 0.50;
   }
 
+  private totalPlayTime: number = 0;
+
   protected override onStart(): void {
+    // Inicializar 5 vidas del Elfo
+    this.showLives = true;
+    this.maxLives = 5;
+    this.lives = 5;
+    this.totalPlayTime = 0;
+
     this.elfX = Math.max(140, this.width * 0.22);
     this.elfY = this.height * 0.45;
     this.elfVy = 0;
@@ -211,7 +224,7 @@ export class FlyingElfGame extends BaseGame {
     this.backgroundSigns = [];
     this.spawnItemTimer = 0.4;
     this.spawnObstacleTimer = 1.1;
-    this.logoSpawnTimer = 6.0; // El primer logo aparece rápido (a los ~6 segundos)
+    this.logoSpawnTimer = 20.0; // Cadencia de 20 segundos para Logos con 10% de probabilidad
     this.windTimer = 6.5;
     this.isWindActive = false;
     this.wasThrusting = false;
@@ -257,17 +270,22 @@ export class FlyingElfGame extends BaseGame {
   }
 
   protected override onUpdate(dt: number): void {
-    // 1. Progresión de Dificultad Dinámica Equilibrada (Suave al inicio, desafiante al final)
-    const timeElapsed = 45 - this.timeRemaining;
-    if (timeElapsed < 12) {
-      this.speedMultiplier = 1.05;
-    } else if (timeElapsed < 25) {
-      this.speedMultiplier = 1.28;
-    } else if (timeElapsed < 38) {
-      this.speedMultiplier = 1.55;
+    this.totalPlayTime += dt;
+
+    // 1. Progresión de Dificultad Dinámica Continua (A más tiempo de juego, mayor velocidad y reto)
+    const timeProgress = this.totalPlayTime;
+    let baseMultiplier = 1.0;
+    if (timeProgress < 10) {
+      baseMultiplier = 1.0 + (timeProgress / 10) * 0.22; // 1.00x -> 1.22x
+    } else if (timeProgress < 22) {
+      baseMultiplier = 1.22 + ((timeProgress - 10) / 12) * 0.38; // 1.22x -> 1.60x
+    } else if (timeProgress < 38) {
+      baseMultiplier = 1.60 + ((timeProgress - 22) / 16) * 0.45; // 1.60x -> 2.05x
     } else {
-      this.speedMultiplier = 1.90; // Clímax dinámico
+      baseMultiplier = Math.min(2.45, 2.05 + ((timeProgress - 38) / 20) * 0.40); // 2.05x -> 2.45x
     }
+
+    this.speedMultiplier = baseMultiplier;
 
     if (this.isLogoPowerUpActive) {
       this.speedMultiplier *= 1.25; // Turbo activo
@@ -278,17 +296,18 @@ export class FlyingElfGame extends BaseGame {
     this.groundScrollX += currentScrollSpeed * 1.0;
     this.gliderSwayTime += dt * 4.6;
 
-    // 2. Sistema de Viento / Turbulencia Mágica Agradable
+    // 2. Sistema de Viento / Turbulencia Mágica Agradable (Más dinámico a medida que avanza la partida)
     this.windTimer -= dt;
     if (this.windTimer <= 0) {
       if (!this.isWindActive) {
         this.isWindActive = true;
-        this.windTimer = 3.2;
-        this.windForceY = (Math.random() > 0.5 ? 1 : -1) * (240 + Math.random() * 160);
+        this.windTimer = 2.8 + Math.random() * 1.0;
+        const windIntensity = (240 + Math.random() * 160) * Math.min(1.4, this.speedMultiplier);
+        this.windForceY = (Math.random() > 0.5 ? 1 : -1) * windIntensity;
         this.audio.playWindGust();
       } else {
         this.isWindActive = false;
-        this.windTimer = 6.0 + Math.random() * 4.5;
+        this.windTimer = Math.max(4.0, (7.0 - (this.totalPlayTime / 15)) + Math.random() * 3.0);
         this.windForceY = 0;
       }
     }
@@ -411,17 +430,19 @@ export class FlyingElfGame extends BaseGame {
       this.spawnItemTimer = Math.max(0.38, 0.95 / this.speedMultiplier);
     }
 
-    // Generación periódica garantizada de Logos de la Feria y Campuslands cada 8-10 segundos
+    // Chequeo de aparición de Logos Oficiales: cada 20 segundos con 10% de probabilidad
     this.logoSpawnTimer -= dt;
     if (this.logoSpawnTimer <= 0) {
-      this.spawnLogoMedallion();
-      this.logoSpawnTimer = 8.0 + Math.random() * 2.5; // Próximo logo en 8.0 a 10.5 segundos
+      this.logoSpawnTimer = 20.0; // Intervalo de 20 segundos
+      if (!this.isLogoPowerUpActive && Math.random() < 0.10) {
+        this.spawnLogoMedallion();
+      }
     }
 
     this.spawnObstacleTimer -= dt;
     if (this.spawnObstacleTimer <= 0) {
       this.spawnObstacle();
-      this.spawnObstacleTimer = Math.max(0.80, 1.55 / this.speedMultiplier);
+      this.spawnObstacleTimer = Math.max(0.70, 1.50 / this.speedMultiplier);
     }
   }
 
@@ -488,7 +509,7 @@ export class FlyingElfGame extends BaseGame {
   }
 
   private spawnCollectiblePattern(): void {
-    const types: ("gift_red" | "gift_green" | "candy" | "teddy" | "logo_feria" | "logo_campus" | "logo_star")[] = [
+    const types: ("gift_red" | "gift_green" | "candy" | "teddy")[] = [
       "gift_red",
       "gift_green",
       "candy",
@@ -496,14 +517,6 @@ export class FlyingElfGame extends BaseGame {
       "candy",
       "teddy"
     ];
-
-    // Oportunidad frecuente de obtener los Logos Mágicos de la Feria y Campuslands (+Tiempo e Imán)
-    if (!this.isLogoPowerUpActive && Math.random() < 0.28) {
-      const brandLogo = Math.random() < 0.5 ? "logo_feria" : "logo_campus";
-      types.push(brandLogo);
-    } else if (!this.isLogoPowerUpActive && Math.random() < 0.15) {
-      types.push("logo_star");
-    }
 
     const chosenType = types[Math.floor(Math.random() * types.length)];
     let points = 100;
@@ -521,12 +534,6 @@ export class FlyingElfGame extends BaseGame {
     } else if (chosenType === "teddy") {
       points = 250;
       size = 74;
-    } else if (chosenType === "logo_feria" || chosenType === "logo_campus") {
-      points = 500;
-      size = 78;
-    } else if (chosenType === "logo_star") {
-      points = 500;
-      size = 80;
     }
 
     const baseSpawnY = 140 + Math.random() * (this.height - 350);
@@ -576,8 +583,7 @@ export class FlyingElfGame extends BaseGame {
 
   private spawnObstacle(): void {
     const isTopObstacle = Math.random() > 0.52;
-    const timeElapsed = 45 - this.timeRemaining;
-    const canOscillate = timeElapsed > 12 && Math.random() < 0.45;
+    const canOscillate = this.totalPlayTime > 8 && Math.random() < Math.min(0.65, 0.35 + (this.totalPlayTime / 45));
 
     if (isTopObstacle) {
       // Estalactita de hielo colgante del cielo
@@ -591,8 +597,8 @@ export class FlyingElfGame extends BaseGame {
         height: oHeight,
         type: "icicle",
         isOscillating: canOscillate,
-        oscillateSpeed: 2.2 + Math.random() * 1.8,
-        oscillateAmp: 30 + Math.random() * 35,
+        oscillateSpeed: (2.2 + Math.random() * 1.8) * Math.min(1.5, this.speedMultiplier),
+        oscillateAmp: (30 + Math.random() * 35) * Math.min(1.4, this.speedMultiplier),
         oscillateTime: Math.random() * Math.PI * 2
       });
     } else {
@@ -798,15 +804,26 @@ export class FlyingElfGame extends BaseGame {
 
     if (this.hitCooldown > 0) return;
 
-    this.hitCooldown = 1.5;
-    this.timeRemaining = Math.max(1, this.timeRemaining - 2.0); // Penalización equilibrada -2.0s
+    this.hitCooldown = 1.4;
+    this.lives--;
     this.comboCount = 0;
 
     // Feedback de impacto controlado
-    this.triggerShake(0.35, 12);
+    this.triggerShake(0.38, 14);
     this.audio.playElfHit();
-    this.particles.emitBurst(this.elfX, this.elfY, "#FF1744", 16);
-    this.addFloatingText("-2.0s ⚠️", this.elfX, this.elfY - 45, "#FF1744", 1.25);
+    this.particles.emitBurst(this.elfX, this.elfY, "#FF1744", 20);
+    this.addFloatingText(`-1 🧝 (${Math.max(0, this.lives)}/5)`, this.elfX, this.elfY - 45, "#FF1744", 1.35);
+
+    if (this.lives <= 0) {
+      this.lives = 0;
+      this.timeRemaining = 0;
+      this.isFinishing = true;
+      this.finishTimer = 1.6;
+      this.audio.stopGameBGM();
+      this.audio.playError();
+      this.particles.emitBurst(this.elfX, this.elfY, "#FF3D00", 35);
+      this.addFloatingText("💔 ¡SIN VIDAS!", this.width / 2, this.height * 0.45, "#FF1744", 1.8);
+    }
   }
 
   protected override onDraw(ctx: CanvasRenderingContext2D): void {

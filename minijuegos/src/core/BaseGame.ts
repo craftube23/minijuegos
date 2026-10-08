@@ -378,35 +378,22 @@ export abstract class BaseGame {
     }
     
     if (this.showLives) {
-      const heartSize = Math.max(9, fontMain * 0.52);
-      const heartsGap = heartSize * 2.1;
-      const totalHeartsW = this.maxLives * heartsGap;
-      const startHeartsX = (this.width / 2) - (totalHeartsW / 2) - (isNarrow ? 15 : 24);
+      const iconSize = Math.max(9, fontMain * 0.58);
+      const iconGap = iconSize * 2.25;
+      const totalIconsW = this.maxLives * iconGap;
+      const startIconsX = (this.width / 2) - (totalIconsW / 2) - (isNarrow ? 16 : 26);
       
       for (let i = 0; i < this.maxLives; i++) {
-        const hx = startHeartsX + i * heartsGap;
-        const hy = textY - fontMain * 0.25;
+        const hx = startIconsX + i * iconGap;
+        const hy = textY - fontMain * 0.24;
         const isFilled = i < this.lives;
-        
-        ctx.save();
-        ctx.beginPath();
-        ctx.translate(hx, hy);
-        ctx.scale(heartSize / 10, heartSize / 10);
-        ctx.moveTo(0, 0);
-        ctx.bezierCurveTo(-5, -5, -10, 0, 0, 10);
-        ctx.bezierCurveTo(10, 0, 5, -5, 0, 0);
-        ctx.fillStyle = isFilled ? "#FF2A55" : "rgba(255, 255, 255, 0.25)";
-        ctx.fill();
-        ctx.strokeStyle = isFilled ? "#FFAEC0" : "rgba(255,255,255,0.4)";
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-        ctx.restore();
+        this.drawLifeIcon(ctx, hx, hy, iconSize, isFilled);
       }
 
       ctx.font = `900 ${fontMain * 0.95}px 'Outfit', sans-serif`;
       ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
       ctx.textAlign = "left";
-      ctx.fillText(timeFormatted, this.width / 2 + (isNarrow ? 8 : 15), textY);
+      ctx.fillText(timeFormatted, startIconsX + totalIconsW + (isNarrow ? 6 : 12), textY);
     } else {
       ctx.font = `900 ${fontMain * 1.05}px 'Outfit', sans-serif`;
       ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
@@ -435,6 +422,213 @@ export abstract class BaseGame {
       const bonusTitle = isCampus ? "¡BONUS CAMPUSLANDS!" : "¡BONUS FERIA MÁGICA!";
       ctx.fillText(`${bonusTitle} (x${this.activeLogo.bonusMultiplier}) - ${Math.ceil(this.logoPowerUpTimer)}s`, this.width / 2, hudH + bannerH * 0.7);
     }
+
+    ctx.restore();
+  }
+
+  /**
+   * Dibuja el ícono de vida correspondiente al minijuego (Corazón o Carita de Elfo Estilizada 2D)
+   */
+  protected drawLifeIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isFilled: boolean): void {
+    if (this.id === "flying-elf") {
+      this.drawStylizedElfLifeIcon(ctx, x, y, size, isFilled);
+    } else {
+      this.drawHeartLifeIcon(ctx, x, y, size, isFilled);
+    }
+  }
+
+  private drawHeartLifeIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isFilled: boolean): void {
+    ctx.save();
+    ctx.beginPath();
+    ctx.translate(x, y);
+    ctx.scale(size / 10, size / 10);
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(-5, -5, -10, 0, 0, 10);
+    ctx.bezierCurveTo(10, 0, 5, -5, 0, 0);
+    ctx.fillStyle = isFilled ? "#FF2A55" : "rgba(255, 255, 255, 0.25)";
+    ctx.fill();
+    ctx.strokeStyle = isFilled ? "#FFAEC0" : "rgba(255, 255, 255, 0.4)";
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /**
+   * Renderiza la Carita de Elfo con estilo Stylized 2D Game Art / Fantasy Game Concept Art
+   */
+  private drawStylizedElfLifeIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isFilled: boolean): void {
+    ctx.save();
+    ctx.translate(x, y);
+    const s = size / 15;
+    ctx.scale(s, s);
+
+    if (!isFilled) {
+      // Estado de vida perdida (Carita atenuada / silueta translúcida)
+      ctx.globalAlpha = 0.25;
+      
+      // Silueta cabeza
+      ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.beginPath();
+      ctx.arc(0, 2, 9, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Orejas elfo
+      ctx.beginPath();
+      ctx.moveTo(-7, 0);
+      ctx.lineTo(-14, -3);
+      ctx.lineTo(-7, 4);
+      ctx.moveTo(7, 0);
+      ctx.lineTo(14, -3);
+      ctx.lineTo(7, 4);
+      ctx.fill();
+
+      // Gorro elfo apagado
+      ctx.beginPath();
+      ctx.moveTo(-8, -1);
+      ctx.bezierCurveTo(-8, -8, 2, -15, 10, -12);
+      ctx.bezierCurveTo(5, -7, 8, -2, 8, -1);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(120, 140, 160, 0.4)";
+      ctx.fill();
+
+      // Ojos derrotados en X
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(-4.5, 0.2); ctx.lineTo(-2, 2.7);
+      ctx.moveTo(-2, 0.2); ctx.lineTo(-4.5, 2.7);
+      ctx.moveTo(2, 0.2); ctx.lineTo(4.5, 2.7);
+      ctx.moveTo(4.5, 0.2); ctx.lineTo(2, 2.7);
+      ctx.stroke();
+
+      ctx.restore();
+      return;
+    }
+
+    // --- ESTADO ACTIVO: Stylized 2D Fantasy Game Art ---
+    
+    // 1. Resplandor / Halo dorado mágico sutil
+    ctx.shadowColor = "#FFD700";
+    ctx.shadowBlur = 5;
+
+    // 2. Orejas puntiagudas de Elfo (Fantasy Elven Ears)
+    ctx.fillStyle = "#FFAA80";
+    ctx.strokeStyle = "#8D3B1B";
+    ctx.lineWidth = 1.2;
+
+    // Oreja izquierda
+    ctx.beginPath();
+    ctx.moveTo(-7, 0);
+    ctx.bezierCurveTo(-15, -4, -16, 1, -7, 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Sombra interna oreja izquierda
+    ctx.fillStyle = "#FF8060";
+    ctx.beginPath();
+    ctx.moveTo(-8, 0.5);
+    ctx.bezierCurveTo(-13, -2.5, -13, 0.5, -8, 3.5);
+    ctx.closePath();
+    ctx.fill();
+
+    // Oreja derecha
+    ctx.fillStyle = "#FFAA80";
+    ctx.beginPath();
+    ctx.moveTo(7, 0);
+    ctx.bezierCurveTo(15, -4, 16, 1, 7, 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Sombra interna oreja derecha
+    ctx.fillStyle = "#FF8060";
+    ctx.beginPath();
+    ctx.moveTo(8, 0.5);
+    ctx.bezierCurveTo(13, -2.5, 13, 0.5, 8, 3.5);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.shadowBlur = 0; // Desactivar sombra para detalles limpios
+
+    // 3. Cabeza redonda y simpática
+    ctx.fillStyle = "#FFD8B3";
+    ctx.beginPath();
+    ctx.arc(0, 2.5, 8.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#7D3210";
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+
+    // 4. Mejillas sonrosadas kawaii / Stylized
+    ctx.fillStyle = "rgba(255, 80, 110, 0.70)";
+    ctx.beginPath();
+    ctx.arc(-4.6, 4.2, 2.2, 0, Math.PI * 2);
+    ctx.arc(4.6, 4.2, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 5. Ojos brillantes expresivos (Stylized Game Art)
+    ctx.fillStyle = "#162842";
+    ctx.beginPath();
+    ctx.arc(-3.2, 1.2, 1.9, 0, Math.PI * 2);
+    ctx.arc(3.2, 1.2, 1.9, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Brillos especulares en los ojos
+    ctx.fillStyle = "#FFFFFF";
+    ctx.beginPath();
+    ctx.arc(-2.6, 0.5, 0.75, 0, Math.PI * 2);
+    ctx.arc(3.8, 0.5, 0.75, 0, Math.PI * 2);
+    ctx.arc(-3.8, 2.0, 0.35, 0, Math.PI * 2);
+    ctx.arc(2.6, 2.0, 0.35, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 6. Sonrisa alegre
+    ctx.strokeStyle = "#802A0A";
+    ctx.lineWidth = 1.3;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-2.2, 5.2);
+    ctx.quadraticCurveTo(0, 7.2, 2.2, 5.2);
+    ctx.stroke();
+
+    // 7. Gorro Navideño Verde Puntiagudo Curvado
+    ctx.fillStyle = "#1E8A38";
+    ctx.beginPath();
+    ctx.moveTo(-8.5, -0.5);
+    ctx.bezierCurveTo(-9, -8, 1, -15, 11, -12);
+    ctx.bezierCurveTo(6, -7, 8, -2, 8.5, -0.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "#0B4A1C";
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+
+    // 8. Ribete / Borde del Gorro (Dorado festivo brillante)
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.roundRect(-9.5, -2.5, 19, 4.5, 2.2);
+    ctx.fill();
+    ctx.strokeStyle = "#B38600";
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+
+    // 9. Cascabel Dorado en la punta del gorro
+    ctx.fillStyle = "#FFE600";
+    ctx.beginPath();
+    ctx.arc(11, -12, 2.8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#996D00";
+    ctx.lineWidth = 1.0;
+    ctx.stroke();
+
+    // Cruz / orificio del cascabel
+    ctx.strokeStyle = "#6B4C00";
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(10.2, -12); ctx.lineTo(11.8, -12);
+    ctx.moveTo(11, -12.8); ctx.lineTo(11, -11.2);
+    ctx.stroke();
 
     ctx.restore();
   }
