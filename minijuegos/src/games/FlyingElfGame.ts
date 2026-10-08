@@ -21,7 +21,7 @@ interface CollectibleItem {
   x: number;
   y: number;
   size: number;
-  type: "gift_red" | "gift_green" | "candy" | "teddy" | "logo_star";
+  type: "gift_red" | "gift_green" | "candy" | "teddy" | "logo_feria" | "logo_campus" | "logo_star";
   points: number;
   bobOffset: number;
   bobSpeed: number;
@@ -479,7 +479,7 @@ export class FlyingElfGame extends BaseGame {
   }
 
   private spawnCollectiblePattern(): void {
-    const types: ("gift_red" | "gift_green" | "candy" | "teddy" | "logo_star")[] = [
+    const types: ("gift_red" | "gift_green" | "candy" | "teddy" | "logo_feria" | "logo_campus" | "logo_star")[] = [
       "gift_red",
       "gift_green",
       "candy",
@@ -488,7 +488,11 @@ export class FlyingElfGame extends BaseGame {
       "teddy"
     ];
 
-    if (Math.random() < 0.14 && !this.isLogoPowerUpActive) {
+    // Oportunidad frecuente de obtener los Logos Mágicos de la Feria y Campuslands (+Tiempo e Imán)
+    if (!this.isLogoPowerUpActive && Math.random() < 0.28) {
+      const brandLogo = Math.random() < 0.5 ? "logo_feria" : "logo_campus";
+      types.push(brandLogo);
+    } else if (!this.isLogoPowerUpActive && Math.random() < 0.15) {
       types.push("logo_star");
     }
 
@@ -508,9 +512,12 @@ export class FlyingElfGame extends BaseGame {
     } else if (chosenType === "teddy") {
       points = 250;
       size = 74;
+    } else if (chosenType === "logo_feria" || chosenType === "logo_campus") {
+      points = 500;
+      size = 78;
     } else if (chosenType === "logo_star") {
       points = 500;
-      size = 82;
+      size = 80;
     }
 
     const baseSpawnY = 140 + Math.random() * (this.height - 350);
@@ -636,12 +643,27 @@ export class FlyingElfGame extends BaseGame {
     }
 
     // Feedback visual y de audio
-    if (item.type === "logo_star") {
+    if (item.type === "logo_feria") {
       this.isLogoPowerUpActive = true;
-      this.logoPowerUpTimer = 5.0;
+      this.logoPowerUpTimer = 7.0;
+      this.timeRemaining = Math.min(45, this.timeRemaining + 6.0); // +6s Tiempo Extra
+      this.audio.playPowerUp();
+      this.particles.emitConfetti(this.width, 35);
+      this.addFloatingText("✨ ¡FERIA MÁGICA! +6s & IMÁN x2 ✨", this.elfX, this.elfY - 45, "#FFD700", 1.4);
+    } else if (item.type === "logo_campus") {
+      this.isLogoPowerUpActive = true;
+      this.logoPowerUpTimer = 7.0;
+      this.timeRemaining = Math.min(45, this.timeRemaining + 6.0); // +6s Tiempo Extra
+      this.audio.playPowerUp();
+      this.particles.emitConfetti(this.width, 35);
+      this.addFloatingText("🚀 ¡CAMPUSLANDS! +6s & IMÁN x2 ✨", this.elfX, this.elfY - 45, "#00E5FF", 1.4);
+    } else if (item.type === "logo_star") {
+      this.isLogoPowerUpActive = true;
+      this.logoPowerUpTimer = 6.0;
+      this.timeRemaining = Math.min(45, this.timeRemaining + 5.0); // +5s Tiempo Extra
       this.audio.playGiftUnwrap();
       this.particles.emitBurst(this.elfX, this.elfY, "#FFD700", 25);
-      this.addFloatingText("✨ ¡TURBO + IMÁN x2! ✨", this.elfX, this.elfY - 45, "#FFE082", 1.35);
+      this.addFloatingText("✨ ¡TURBO + IMÁN +5s! ✨", this.elfX, this.elfY - 45, "#FFE082", 1.35);
     } else {
       this.audio.playElfCollectItem();
       this.particles.emitBurst(this.elfX, this.elfY, "#00E676", 6);
@@ -1171,10 +1193,13 @@ export class FlyingElfGame extends BaseGame {
     for (const item of this.collectibles) {
       const curY = item.y + Math.sin(item.bobOffset) * 10;
 
-      // Halo verde en coleccionables / Dorado en Estrella de la Feria
-      if (item.type === "logo_star") {
-        ctx.shadowColor = "rgba(255, 215, 0, 0.85)";
-        ctx.shadowBlur = 20;
+      // Halo verde en coleccionables / Dorado en Logos de la Feria y Estrella
+      if (item.type === "logo_feria" || item.type === "logo_star") {
+        ctx.shadowColor = "rgba(255, 215, 0, 0.9)";
+        ctx.shadowBlur = 22;
+      } else if (item.type === "logo_campus") {
+        ctx.shadowColor = "rgba(0, 229, 255, 0.9)";
+        ctx.shadowBlur = 22;
       } else {
         ctx.shadowColor = "rgba(0, 230, 118, 0.6)";
         ctx.shadowBlur = 14;
@@ -1191,6 +1216,36 @@ export class FlyingElfGame extends BaseGame {
         ctx.drawImage(this.imgCandy, -item.size / 2, -item.size / 2, item.size, item.size);
       } else if (item.type === "teddy" && this.imgTeddy.complete) {
         ctx.drawImage(this.imgTeddy, -item.size / 2, -item.size / 2, item.size, item.size);
+      } else if (item.type === "logo_feria" && this.logoImage1 && this.logoImage1.complete) {
+        // Medallón Dorado de la Feria Mágica
+        const rot = Math.sin(this.gliderSwayTime * 1.5) * 0.12;
+        ctx.rotate(rot);
+
+        // Placa circular dorada
+        ctx.fillStyle = "rgba(10, 25, 47, 0.92)";
+        ctx.strokeStyle = "#FFD700";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, item.size * 0.48, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.drawImage(this.logoImage1, -item.size * 0.38, -item.size * 0.38, item.size * 0.76, item.size * 0.76);
+      } else if (item.type === "logo_campus" && this.logoImage2 && this.logoImage2.complete) {
+        // Medallón Cian/Dorado de Campuslands
+        const rot = Math.sin(this.gliderSwayTime * 1.5) * 0.12;
+        ctx.rotate(rot);
+
+        // Placa circular cian
+        ctx.fillStyle = "rgba(3, 27, 51, 0.92)";
+        ctx.strokeStyle = "#00E5FF";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, item.size * 0.48, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.drawImage(this.logoImage2, -item.size * 0.38, -item.size * 0.38, item.size * 0.76, item.size * 0.76);
       } else if (item.type === "logo_star" && this.imgStarLogo.complete) {
         ctx.rotate(this.gliderSwayTime * 1.1);
         ctx.drawImage(this.imgStarLogo, -item.size / 2, -item.size / 2, item.size, item.size);

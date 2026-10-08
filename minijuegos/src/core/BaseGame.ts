@@ -83,6 +83,11 @@ export abstract class BaseGame {
   protected shakeTimer: number = 0;
   protected shakeIntensity: number = 0;
 
+  // Estado de Finalización Cinemática (Fin de Partida Suave)
+  protected isFinishing: boolean = false;
+  protected finishTimer: number = 0;
+  protected lastCountdownStepSec: number = -1;
+
   // Sistema de Textos flotantes (Score Popups)
   protected floatingTexts: FloatingText[] = [];
 
@@ -144,6 +149,9 @@ export abstract class BaseGame {
     this.timeRemaining = durationSeconds;
     this.isRunning = true;
     this.isGameOver = false;
+    this.isFinishing = false;
+    this.finishTimer = 0;
+    this.lastCountdownStepSec = -1;
     this.isLogoPowerUpActive = false;
     this.logoPowerUpTimer = 0;
     this.shakeTimer = 0;
@@ -159,11 +167,37 @@ export abstract class BaseGame {
   public update(dt: number): void {
     if (!this.isRunning || this.isGameOver) return;
 
+    // Si está en la animación de celebración final
+    if (this.isFinishing) {
+      this.finishTimer -= dt;
+      if (this.finishTimer <= 0) {
+        this.endGame();
+        return;
+      }
+      this.onUpdate(dt * 0.35); // Ralentización cinemática suave al final
+      return;
+    }
+
     // Actualizar temporizador de partida
     this.timeRemaining -= dt;
+
+    // Alerta sonora en los últimos 5 segundos (5, 4, 3, 2, 1)
+    if (this.timeRemaining <= 5 && this.timeRemaining > 0) {
+      const currentSec = Math.ceil(this.timeRemaining);
+      if (currentSec !== this.lastCountdownStepSec) {
+        this.lastCountdownStepSec = currentSec;
+        this.audio.playCountdownStep(currentSec);
+      }
+    }
+
+    // Cuando el tiempo llega a 0 → Iniciar celebración cinemática suave
     if (this.timeRemaining <= 0) {
       this.timeRemaining = 0;
-      this.endGame();
+      this.isFinishing = true;
+      this.finishTimer = 1.6;
+      this.audio.stopGameBGM();
+      this.audio.playVictory();
+      this.particles.emitConfetti(this.width, 70);
       return;
     }
 
@@ -223,6 +257,9 @@ export abstract class BaseGame {
 
     // 3. Dibujar HUD fijo superior (no afectado por el shake)
     this.drawHUD(this.ctx);
+
+    // 4. Dibujar Banner Cinemático de Fin de Partida si está activo
+    this.drawFinishOverlay(this.ctx);
   }
 
   protected abstract onDraw(ctx: CanvasRenderingContext2D): void;
@@ -458,6 +495,74 @@ export abstract class BaseGame {
 
   public getIsRunning(): boolean {
     return this.isRunning;
+  }
+
+  /**
+   * Renderiza el banner cinemático de finalización cuando se agota el tiempo
+   */
+  protected drawFinishOverlay(ctx: CanvasRenderingContext2D): void {
+    if (!this.isFinishing) return;
+
+    ctx.save();
+    const cx = this.width / 2;
+    const cy = this.height * 0.44;
+
+    // Fondo oscurecido con viñeta festiva
+    const alpha = Math.min(0.78, (1.6 - this.finishTimer) * 2.2);
+    ctx.fillStyle = `rgba(5, 12, 28, ${alpha})`;
+    ctx.fillRect(0, 0, this.width, this.height);
+
+    // Escala de entrada con rebote elástico
+    const progress = Math.min(1.0, (1.6 - this.finishTimer) / 0.45);
+    const scale = 0.55 + Math.sin(progress * Math.PI * 0.5) * 0.48;
+
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+
+    const bannerW = Math.min(540, this.width * 0.88);
+    const bannerH = 145;
+
+    // Placa dorada brillante estilo Fantasy Game Art
+    const goldGrad = ctx.createLinearGradient(0, -bannerH / 2, 0, bannerH / 2);
+    goldGrad.addColorStop(0, "rgba(255, 235, 59, 0.98)");
+    goldGrad.addColorStop(0.5, "rgba(255, 179, 0, 0.98)");
+    goldGrad.addColorStop(1, "rgba(230, 81, 0, 0.98)");
+
+    ctx.shadowColor = "rgba(255, 215, 0, 0.9)";
+    ctx.shadowBlur = 30;
+
+    ctx.fillStyle = "rgba(10, 25, 47, 0.95)";
+    ctx.strokeStyle = goldGrad;
+    ctx.lineWidth = 4.5;
+    ctx.beginPath();
+    ctx.roundRect(-bannerW / 2, -bannerH / 2, bannerW, bannerH, 20);
+    ctx.fill();
+    ctx.stroke();
+
+    // Texto principal 3D: ¡TIEMPO AGOTADO!
+    ctx.shadowBlur = 0;
+    ctx.font = `900 ${Math.max(22, Math.min(38, this.width * 0.068))}px 'Titan One', 'Fredoka', 'Outfit', sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // Sombra gruesa de alto contraste
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.95)";
+    ctx.lineWidth = 6;
+    ctx.strokeText("⏰ ¡TIEMPO AGOTADO!", 0, -20);
+
+    // Relleno dorado
+    ctx.fillStyle = "#FFF59D";
+    ctx.fillText("⏰ ¡TIEMPO AGOTADO!", 0, -20);
+
+    // Subtítulo
+    ctx.font = `800 ${Math.max(14, Math.min(22, this.width * 0.038))}px 'Outfit', sans-serif`;
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.85)";
+    ctx.lineWidth = 4;
+    ctx.strokeText("✨ ¡CALCULANDO PUNTUACIÓN MÁGICA! ✨", 0, 26);
+    ctx.fillStyle = "#FFD700";
+    ctx.fillText("✨ ¡CALCULANDO PUNTUACIÓN MÁGICA! ✨", 0, 26);
+
+    ctx.restore();
   }
 
   public destroy(): void {
