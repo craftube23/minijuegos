@@ -320,6 +320,22 @@ export class BellSymphonyGame extends BaseGame {
     };
   }
 
+  private stopSongAudio(): void {
+    if (this.bgAudioElement) {
+      try {
+        this.bgAudioElement.pause();
+        this.bgAudioElement.currentTime = 0;
+        this.bgAudioElement.onended = null;
+        this.bgAudioElement.onerror = null;
+        this.bgAudioElement.removeAttribute("src");
+        this.bgAudioElement.load();
+      } catch (e) {
+        console.warn("Aviso deteniendo audio de juego:", e);
+      }
+      this.bgAudioElement = null;
+    }
+  }
+
   /**
    * Inicia la canción elegida y activa el intro Guitar Hero
    */
@@ -341,23 +357,32 @@ export class BellSymphonyGame extends BaseGame {
     this.activeJudgements = [];
     this.starPowerTimer = 0;
     this.isStarPowerActive = false;
-    this.songDuration = song.durationSeconds || 129;
+    this.songDuration = song.durationSeconds || 120;
     this.songIntroTimer = this.SONG_INTRO_DURATION;
     this.lanePressed = [false, false, false, false];
     this.activePointerLanes.clear();
 
-    if (this.bgAudioElement) {
-      this.bgAudioElement.pause();
-      this.bgAudioElement = null;
-    }
+    // Detener música del menú y limpiar instancias previas
+    this.audio.stopMenuBGM();
+    this.audio.setGameActive(true);
+    this.stopSongAudio();
 
     try {
       const safeAudioUrl = `./assets/audio/${song.audioFile.split("/").map(encodeURIComponent).join("/")}`;
       this.bgAudioElement = new Audio(safeAudioUrl);
-      this.bgAudioElement.volume = 0.80;
+      this.bgAudioElement.volume = 0.82;
       this.bgAudioElement.addEventListener("loadedmetadata", () => {
         if (this.bgAudioElement && !isNaN(this.bgAudioElement.duration) && this.bgAudioElement.duration > 5) {
-          this.songDuration = this.bgAudioElement.duration;
+          this.songDuration = Math.max(this.songDuration, this.bgAudioElement.duration + 1.2);
+        }
+      });
+      this.bgAudioElement.addEventListener("ended", () => {
+        if (this.gameState === "playing" && !this.isGameOver) {
+          setTimeout(() => {
+            if (this.gameState === "playing" && !this.isGameOver) {
+              this.endGame();
+            }
+          }, 400);
         }
       });
       this.bgAudioElement.addEventListener("error", (e) => {
@@ -380,10 +405,7 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   public replayLastSong(): void {
-    if (this.bgAudioElement) {
-      this.bgAudioElement.pause();
-      this.bgAudioElement = null;
-    }
+    this.stopSongAudio();
     this.score = 0;
     this.isRunning = true;
     this.isGameOver = false;
@@ -398,17 +420,12 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   public goToSongSelect(): void {
-    if (this.bgAudioElement) {
-      this.bgAudioElement.pause();
-      this.bgAudioElement = null;
-    }
+    this.stopSongAudio();
     this.start();
   }
 
   public openChartEditor(defaultSongFile?: string, initialNotes?: ChartNoteRecord[]): void {
-    if (this.bgAudioElement) {
-      this.bgAudioElement.pause();
-    }
+    this.stopSongAudio();
     const song = this.songList[this.selectedSongIndex];
     const file = defaultSongFile || (this.isCustomChartPlaying ? this.lastCustomSongFile : (song ? song.audioFile : "juego campanas/God Rest Ye Merry Metalmen.mp3"));
     const notes = initialNotes || (this.lastCustomNotes.length > 0 ? this.lastCustomNotes : undefined);
@@ -437,21 +454,29 @@ export class BellSymphonyGame extends BaseGame {
     this.lanePressed = [false, false, false, false];
     this.activePointerLanes.clear();
 
-    const lastNoteTime = customNotes.length > 0 ? customNotes[customNotes.length - 1].time + (customNotes[customNotes.length - 1].duration || 0) + 2.5 : 129;
-    this.songDuration = Math.max(129, lastNoteTime);
+    const lastNoteTime = customNotes.length > 0 ? customNotes[customNotes.length - 1].time + (customNotes[customNotes.length - 1].duration || 0) + 3.0 : 120;
+    this.songDuration = Math.max(120, lastNoteTime);
 
-    if (this.bgAudioElement) {
-      this.bgAudioElement.pause();
-      this.bgAudioElement = null;
-    }
+    this.audio.stopMenuBGM();
+    this.audio.setGameActive(true);
+    this.stopSongAudio();
 
     try {
       const safeAudioUrl = `./assets/audio/${songFile.split("/").map(encodeURIComponent).join("/")}`;
       this.bgAudioElement = new Audio(safeAudioUrl);
-      this.bgAudioElement.volume = 0.80;
+      this.bgAudioElement.volume = 0.82;
       this.bgAudioElement.addEventListener("loadedmetadata", () => {
         if (this.bgAudioElement && !isNaN(this.bgAudioElement.duration) && this.bgAudioElement.duration > 5) {
-          this.songDuration = Math.max(this.bgAudioElement.duration, lastNoteTime);
+          this.songDuration = Math.max(this.bgAudioElement.duration + 1.2, lastNoteTime);
+        }
+      });
+      this.bgAudioElement.addEventListener("ended", () => {
+        if (this.gameState === "playing" && !this.isGameOver) {
+          setTimeout(() => {
+            if (this.gameState === "playing" && !this.isGameOver) {
+              this.endGame();
+            }
+          }, 400);
         }
       });
       this.bgAudioElement.addEventListener("error", (e) => {
@@ -632,6 +657,12 @@ export class BellSymphonyGame extends BaseGame {
         logoType: item.isStar ? logoType : undefined
       });
     }
+
+    const lastItem = sourceChart[sourceChart.length - 1];
+    if (lastItem) {
+      const calculatedEnd = lastItem.time + (lastItem.duration || 0) + 3.0;
+      this.songDuration = Math.max(song.durationSeconds || 120, calculatedEnd);
+    }
   }
 
   /**
@@ -645,8 +676,10 @@ export class BellSymphonyGame extends BaseGame {
     let minDiff = 999;
 
     for (const note of this.notes) {
+      // Regla estricta: Una nota ya tocada (!note.hit) o fallada (!note.missed) nunca se puede volver a tomar
       if (note.lane === lane && !note.hit && !note.missed) {
         const diff = Math.abs(note.targetTime - this.currentTime);
+        // Ventana estricta al inicio de la nota (solo inicio/cabeza)
         if (diff < minDiff && diff < 0.24) {
           minDiff = diff;
           closestNote = note;
@@ -657,6 +690,7 @@ export class BellSymphonyGame extends BaseGame {
     const laneCenterX = this.laneStartX + lane * this.laneWidth + this.laneWidth / 2;
 
     if (closestNote) {
+      // Marcar inmediatamente como tocada para que no se pueda volver a tomar jamás
       closestNote.hit = true;
 
       // Juicio según precisión temporal
@@ -686,7 +720,7 @@ export class BellSymphonyGame extends BaseGame {
         this.particles.emitBurst(laneCenterX, this.hitLineY, "#00E676", 6);
       }
 
-      // Si es una NOTA SOSTENIDA: comenzar a registrar el sustain
+      // Si es una NOTA SOSTENIDA: comenzar a registrar el sustain SOLO si se tocó al inicio
       if (closestNote.type === "sustain" && closestNote.duration > 0) {
         closestNote.isHolding = true;
         closestNote.holdStartTime = this.currentTime;
@@ -708,6 +742,20 @@ export class BellSymphonyGame extends BaseGame {
 
       if (this.combo > this.maxCombo) {
         this.maxCombo = this.combo;
+      }
+    } else {
+      // Si no tocó al inicio e intenta presionar durante la mitad del cuerpo de una nota sostenida: se cuenta como MISS
+      for (const note of this.notes) {
+        if (note.lane === lane && !note.hit && !note.sustainCompleted) {
+          if (note.type === "sustain" && this.currentTime > note.targetTime + 0.24 && this.currentTime < note.targetTime + note.duration + 0.15) {
+            note.sustainFailed = true;
+            this.spawnJudgement("¡TARDE / MISS!", "#FF1744", laneCenterX);
+            this.particles.emitBurst(laneCenterX, this.hitLineY, "#FF1744", 8);
+            this.audio.playError();
+            this.triggerShake(0.12, 4);
+            break;
+          }
+        }
       }
     }
   }
@@ -1090,15 +1138,18 @@ export class BellSymphonyGame extends BaseGame {
         }
       }
 
-      // Si la cabeza ya fue tocada, no volver a dibujarla
-      if (note.hit) continue;
-
       // Dibujar Cabeza de la Nota
       const timeDiff = note.targetTime - this.currentTime;
       const noteY = this.hitLineY - timeDiff * this.noteSpeed;
 
-      if (noteY > -80 && noteY < this.height + 40) {
+      if (noteY > -80 && noteY < this.height + 80) {
         ctx.save();
+
+        // Si ya fue tocada, mostrarla translúcida / opaca para indicar que ya fue consumida
+        if (note.hit) {
+          ctx.globalAlpha = 0.32;
+        }
+
         ctx.translate(noteX, noteY);
 
         const isCampus = note.logoType === 2;
@@ -1151,6 +1202,31 @@ export class BellSymphonyGame extends BaseGame {
 
       ctx.restore();
     }
+
+    // Badge de Rango en Vivo (Live Grade Rank)
+    const rankInfo = this.calculateRank();
+    const totalTrackW = this.laneWidth * 4;
+    const rankBadgeX = Math.min(this.laneStartX + totalTrackW - 35, this.width - 55);
+    const rankBadgeY = 72;
+    
+    ctx.save();
+    ctx.translate(rankBadgeX, rankBadgeY);
+    ctx.fillStyle = "rgba(4, 16, 32, 0.88)";
+    ctx.strokeStyle = rankInfo.color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.roundRect(-28, -18, 56, 36, 8);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.font = "900 19px 'Outfit', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = rankInfo.color;
+    ctx.shadowColor = rankInfo.color;
+    ctx.shadowBlur = 10;
+    ctx.fillText(rankInfo.rank, 0, 0);
+    ctx.restore();
 
     // ==========================================================================
     // INTRO DE CRÉDITOS CINEMÁTICA ESTILO GUITAR HERO
@@ -1345,24 +1421,50 @@ export class BellSymphonyGame extends BaseGame {
     ctx.restore();
   }
 
-  public override endGame(): void {
-    if (this.bgAudioElement) {
-      this.bgAudioElement.pause();
+  /**
+   * Calcula el rango (S+, S, A, B, C, D) basado en precisión y fallos
+   */
+  public calculateRank(): { rank: "S+" | "S" | "A" | "B" | "C" | "D"; accuracy: number; label: string; color: string } {
+    const totalNotes = this.perfectCount + this.greatCount + this.goodCount + this.missCount;
+    if (totalNotes === 0) return { rank: "S", accuracy: 100, label: "¡PERFECTO!", color: "#FFD700" };
+
+    const scoreWeighted = (this.perfectCount * 1.0 + this.greatCount * 0.70 + this.goodCount * 0.40);
+    const accuracy = Math.min(100, Math.round((scoreWeighted / totalNotes) * 100));
+
+    if (accuracy >= 95 && this.missCount === 0) {
+      return { rank: "S+", accuracy, label: "🌟 RANGO LEGENDARIO", color: "#FFD700" };
+    } else if (accuracy >= 90) {
+      return { rank: "S", accuracy, label: "✨ RANGO EXCELENTE", color: "#FFD700" };
+    } else if (accuracy >= 78) {
+      return { rank: "A", accuracy, label: "⭐ RANGO GENIAL", color: "#00E5FF" };
+    } else if (accuracy >= 65) {
+      return { rank: "B", accuracy, label: "👍 RANGO BUENO", color: "#00E676" };
+    } else if (accuracy >= 50) {
+      return { rank: "C", accuracy, label: "🔔 RANGO REGULAR", color: "#FF9100" };
+    } else {
+      return { rank: "D", accuracy, label: "💫 RANGO ASPIRANTE", color: "#FF5252" };
     }
+  }
+
+  public override endGame(): void {
+    this.stopSongAudio();
+    const rankInfo = this.calculateRank();
     super.endGame({
       isCustomChart: this.isCustomChartPlaying,
       customNotes: this.lastCustomNotes.length > 0 ? this.lastCustomNotes : undefined,
       songFile: this.isCustomChartPlaying ? this.lastCustomSongFile : (this.songList[this.selectedSongIndex]?.audioFile || "juego campanas/God Rest Ye Merry Metalmen.mp3"),
-      bpm: this.bpm
+      bpm: this.bpm,
+      rank: rankInfo.rank,
+      rankLabel: rankInfo.label,
+      rankColor: rankInfo.color,
+      accuracy: rankInfo.accuracy
     });
   }
 
   public override destroy(): void {
     super.destroy();
     this.chartEditor.hide();
-    if (this.bgAudioElement) {
-      this.bgAudioElement.pause();
-    }
+    this.stopSongAudio();
     if (this.keydownHandler) {
       window.removeEventListener("keydown", this.keydownHandler);
     }

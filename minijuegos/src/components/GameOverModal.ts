@@ -46,6 +46,10 @@ export class GameOverModal {
       ? "¡Has probado tu propia canción grabada con éxito!"
       : "¡Estuviste muy cerca! Vuelve a intentarlo para superar la puntuación.";
 
+    const rank = result.rank || (result.score >= Math.max(100, result.highScore) * 0.9 ? "S" : result.score >= Math.max(100, result.highScore) * 0.75 ? "A" : result.score >= Math.max(100, result.highScore) * 0.55 ? "B" : result.score >= Math.max(100, result.highScore) * 0.35 ? "C" : "D");
+    const rankColor = result.rankColor || (rank === "S+" || rank === "S" ? "#FFD700" : rank === "A" ? "#00E5FF" : rank === "B" ? "#00E676" : rank === "C" ? "#FF9100" : "#FF5252");
+    const rankLabel = result.rankLabel || (rank === "S+" ? "🌟 RANGO LEGENDARIO" : rank === "S" ? "✨ RANGO EXCELENTE" : rank === "A" ? "⭐ RANGO GENIAL" : rank === "B" ? "👍 RANGO BUENO" : rank === "C" ? "🔔 RANGO REGULAR" : "💫 RANGO ASPIRANTE");
+
     this.container.innerHTML = `
       <div class="modal-card ${isRhythmGame ? "modal-card-rhythm" : ""}">
         <div class="modal-header">
@@ -56,6 +60,17 @@ export class GameOverModal {
           </div>
           <h2 class="modal-title">${modalTitle}</h2>
           <p class="modal-game-name">${modalSubtitle}</p>
+        </div>
+
+        <!-- SISTEMA DE RANGO CON LETRAS (S+, S, A, B, C, D) -->
+        <div class="modal-rank-badge-wrap">
+          <div class="modal-rank-badge" style="border-color: ${rankColor}; box-shadow: 0 0 25px ${rankColor}44;">
+            <div class="modal-rank-letter" style="color: ${rankColor}; text-shadow: 0 0 18px ${rankColor};">${rank}</div>
+            <div class="modal-rank-details">
+              <span class="modal-rank-label" style="color: ${rankColor};">${rankLabel}</span>
+              ${result.accuracy !== undefined ? `<span class="modal-rank-accuracy">🎯 Precisión: <strong>${result.accuracy}%</strong></span>` : ""}
+            </div>
+          </div>
         </div>
 
         <div class="modal-scores">

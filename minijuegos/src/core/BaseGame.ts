@@ -24,6 +24,10 @@ export interface GameResult {
   highScore: number;
   isNewRecord: boolean;
   logoUsed: LogoConfig;
+  rank?: string; // "S+", "S", "A", "B", "C", "D"
+  rankLabel?: string;
+  rankColor?: string;
+  accuracy?: number; // 0 - 100%
   isCustomChart?: boolean;
   customNotes?: any[];
   songFile?: string;

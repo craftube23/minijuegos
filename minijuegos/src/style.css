@@ -1042,6 +1042,57 @@ html, body {
   margin-top: 2px;
 }
 
+/* --- SISTEMA DE RANGO CON LETRAS (S+, S, A, B, C, D) --- */
+.modal-rank-badge-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 4px 0 6px 0;
+}
+
+.modal-rank-badge {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(8, 24, 48, 0.95) 0%, rgba(4, 12, 28, 0.95) 100%);
+  border: 2.5px solid var(--color-gold);
+  border-radius: 20px;
+  padding: 10px 22px;
+  max-width: 380px;
+  width: 100%;
+  justify-content: center;
+  animation: floatDecor 3s ease-in-out infinite alternate;
+}
+
+.modal-rank-letter {
+  font-family: 'Cinzel Decorative', 'Outfit', sans-serif;
+  font-size: clamp(2.4rem, 5.5vw, 3.2rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 1px;
+}
+
+.modal-rank-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  text-align: left;
+}
+
+.modal-rank-label {
+  font-family: var(--font-festive);
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.modal-rank-accuracy {
+  font-family: var(--font-main);
+  font-size: clamp(0.8rem, 1.6vw, 0.92rem);
+  color: #CBD5E1;
+}
+
 .modal-scores {
   display: grid;
   grid-template-columns: 1fr 1fr;
