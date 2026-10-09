@@ -103,18 +103,38 @@ export class NutcrackerDrumsGame extends BaseGame {
     this.layoutElements();
   }
 
+  private getSequenceBarLayout(): { x: number; y: number; w: number; h: number; titleY: number; noteY: number; fontSize: number } {
+    const isShort = this.height < 500;
+    const hudH = isShort
+      ? Math.max(36, Math.min(48, this.height * 0.10))
+      : Math.max(44, Math.min(68, this.height * 0.075));
+    
+    const w = Math.min(this.width * 0.92, 480);
+    const h = isShort ? 38 : Math.min(50, this.height * 0.085);
+    const x = (this.width - w) / 2;
+    const y = hudH + (isShort ? 3 : Math.max(6, this.height * 0.012));
+    const titleY = y + (isShort ? 3 : 6);
+    const noteY = y + h * 0.70;
+    const fontSize = isShort ? 11 : 13;
+    return { x, y, w, h, titleY, noteY, fontSize };
+  }
+
   private layoutElements(): void {
     const cx = this.width / 2;
-    
-    // Posición del Elfo en el escenario (tercio superior)
-    this.elfX = cx;
-    this.elfY = Math.max(160, this.height * 0.28);
-    this.elfScale = Math.max(0.85, Math.min(1.3, this.width / 480));
+    const isShort = this.height < 500;
+    const bar = this.getSequenceBarLayout();
 
     // Posición y tamaño de los 3 Tambores Taiko (tercio inferior táctil)
-    const drumY = Math.min(this.height * 0.76, this.height - 130);
-    const drumRadius = Math.max(48, Math.min(78, this.width * 0.145));
-    const drumSpacing = Math.min(this.width * 0.31, drumRadius * 2.35);
+    const drumRadius = Math.max(34, Math.min(74, Math.min(this.width * 0.13, this.height * 0.13)));
+    const drumSpacing = Math.min(this.width * 0.30, drumRadius * 2.35);
+    const drumY = this.height - drumRadius - (isShort ? 10 : Math.max(16, this.height * 0.04));
+
+    // Posición del Elfo: centrado entre la barra de secuencia y los tambores
+    this.elfX = cx;
+    const availableMidH = Math.max(60, drumY - drumRadius - (bar.y + bar.h));
+    this.elfY = (bar.y + bar.h) + availableMidH * 0.52;
+    const scaleBase = Math.min(this.width / 480, Math.max(0.45, availableMidH / 220));
+    this.elfScale = Math.max(0.48, Math.min(1.20, scaleBase));
 
     this.drums = [
       {
@@ -138,8 +158,8 @@ export class NutcrackerDrumsGame extends BaseGame {
         label: "STAR",
         subLabel: "[ 2 ]",
         x: cx,
-        y: drumY - 20, // Tambor dorado ligeramente elevado
-        radius: drumRadius * 1.12,
+        y: drumY - Math.max(8, drumRadius * 0.20), // Tambor dorado ligeramente elevado
+        radius: drumRadius * 1.10,
         primaryColor: "#F1C40F",
         accentColor: "#D4AC0D",
         glowColor: "rgba(241, 196, 15, 0.75)",
@@ -686,15 +706,12 @@ export class NutcrackerDrumsGame extends BaseGame {
    */
   private drawSequenceBar(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    const barW = Math.min(this.width * 0.92, 480);
-    const barH = 50;
-    const barX = (this.width - barW) / 2;
-    const barY = Math.max(76, this.height * 0.12);
+    const { x: barX, y: barY, w: barW, h: barH, titleY, noteY, fontSize } = this.getSequenceBarLayout();
 
     // Fondo translúcido con borde dorado
     ctx.fillStyle = "rgba(7, 17, 30, 0.85)";
     ctx.beginPath();
-    ctx.roundRect(barX, barY, barW, barH, 16);
+    ctx.roundRect(barX, barY, barW, barH, 14);
     ctx.fill();
 
     const isElfTurn = this.turnState === "elf_turn";
@@ -707,17 +724,16 @@ export class NutcrackerDrumsGame extends BaseGame {
       ? "¡MIRA Y ESCUCHA AL ELFO!"
       : "¡TU TURNO! REPITE EL RITMO";
     
-    ctx.font = "900 13px 'Outfit', sans-serif";
+    ctx.font = `900 ${fontSize}px 'Outfit', sans-serif`;
     ctx.fillStyle = isElfTurn ? "#F39C12" : "#2ECC71";
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    ctx.fillText(titleText, this.width / 2, barY + 6);
+    ctx.fillText(titleText, this.width / 2, titleY);
 
     // Notas de la secuencia representadas en la barra
     const totalNotes = this.sequence.length;
-    const noteSpacing = Math.min(34, (barW - 40) / Math.max(1, totalNotes));
+    const noteSpacing = Math.min(32, (barW - 36) / Math.max(1, totalNotes));
     const startX = this.width / 2 - ((totalNotes - 1) * noteSpacing) / 2;
-    const noteY = barY + 33;
 
     for (let i = 0; i < totalNotes; i++) {
       const drumId = this.sequence[i];
@@ -729,12 +745,12 @@ export class NutcrackerDrumsGame extends BaseGame {
       
       ctx.fillStyle = isPast ? color : "rgba(255, 255, 255, 0.25)";
       ctx.beginPath();
-      ctx.arc(nx, noteY, isCurrent ? 8 : 6, 0, Math.PI * 2);
+      ctx.arc(nx, noteY, isCurrent ? 7 : 5, 0, Math.PI * 2);
       ctx.fill();
 
       if (isCurrent) {
         ctx.strokeStyle = "#FFFFFF";
-        ctx.lineWidth = 2.5;
+        ctx.lineWidth = 2.0;
         ctx.stroke();
       }
     }

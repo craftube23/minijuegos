@@ -237,10 +237,26 @@ export class MagicPairsGame extends BaseGame {
     this.layoutCards();
   }
 
+  private getHeaderLayout(): { y: number; h: number; w: number; x: number; fontSize: number } {
+    const isShort = this.height < 500;
+    const hudH = isShort
+      ? Math.max(36, Math.min(48, this.height * 0.10))
+      : Math.max(44, Math.min(68, this.height * 0.075));
+    
+    const h = isShort ? Math.max(24, Math.min(32, this.height * 0.08)) : Math.max(30, Math.min(42, this.height * 0.065));
+    const y = hudH + (isShort ? 3 : Math.max(6, this.height * 0.012));
+    const w = Math.min(this.width * 0.88, 540);
+    const x = (this.width - w) / 2;
+    const fontSize = Math.max(11, Math.min(17, h * 0.46));
+    return { y, h, w, x, fontSize };
+  }
+
   private layoutCards(): void {
     if (this.cards.length === 0) return;
 
-    const isPortrait = this.height > this.width;
+    const aspectRatio = this.width / Math.max(1, this.height);
+    const isPortrait = aspectRatio < 0.95;
+    const isLandscape = aspectRatio > 1.25;
     let cols = 2;
     let rows = 2;
 
@@ -254,17 +270,34 @@ export class MagicPairsGame extends BaseGame {
       cols = isPortrait ? 2 : 4;
       rows = isPortrait ? 4 : 2;
     } else {
-      cols = isPortrait ? 3 : 4;
-      rows = isPortrait ? 4 : 3;
+      // 12 cartas
+      if (aspectRatio > 1.6) {
+        cols = 6;
+        rows = 2;
+      } else if (isLandscape) {
+        cols = 4;
+        rows = 3;
+      } else if (aspectRatio < 0.65) {
+        cols = 2;
+        rows = 6;
+      } else {
+        cols = 3;
+        rows = 4;
+      }
     }
 
-    const startY = this.height * 0.18;
-    const gridH = this.height * 0.74;
-    const gridW = Math.min(this.width * 0.92, cols * 200);
-    const startX = (this.width - gridW) / 2;
+    const header = this.getHeaderLayout();
+    const isShort = this.height < 500;
+    const startY = header.y + header.h + (isShort ? 4 : Math.max(8, this.height * 0.015));
+    const bottomPad = isShort ? 6 : Math.max(10, this.height * 0.02);
+    const gridH = Math.max(100, this.height - startY - bottomPad);
 
-    const gapX = Math.max(8, this.width * 0.024);
-    const gapY = Math.max(8, this.height * 0.018);
+    const gapX = Math.max(6, Math.min(18, this.width * 0.02));
+    const gapY = Math.max(6, Math.min(14, this.height * 0.015));
+
+    const maxCardWByH = ((gridH - gapY * (rows - 1)) / rows) * 1.5;
+    const gridW = Math.min(this.width * 0.94, cols * Math.max(80, Math.min(220, maxCardWByH)));
+    const startX = (this.width - gridW) / 2;
 
     const cardW = (gridW - gapX * (cols - 1)) / cols;
     const cardH = (gridH - gapY * (rows - 1)) / rows;
@@ -422,28 +455,25 @@ export class MagicPairsGame extends BaseGame {
   }
 
   private renderHeader(ctx: CanvasRenderingContext2D): void {
-    const headerH = 44;
-    const headerY = this.height * 0.095;
-    const headerW = this.width * 0.86;
-    const headerX = (this.width - headerW) / 2;
+    const { y, h, w, x, fontSize } = this.getHeaderLayout();
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
     ctx.beginPath();
-    ctx.roundRect(headerX, headerY, headerW, headerH, [14]);
+    ctx.roundRect(x, y, w, h, [12]);
     ctx.fill();
 
     ctx.strokeStyle = "rgba(255, 215, 0, 0.55)";
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    ctx.font = "900 18px 'Outfit', sans-serif";
+    ctx.font = `900 ${fontSize}px 'Outfit', sans-serif`;
     ctx.fillStyle = "#FFD700";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(
       `⭐ NIVEL ${this.level}  •  PAREJAS: ${this.pairsFound}/${this.totalPairs}`,
       this.width / 2,
-      headerY + headerH / 2
+      y + h / 2
     );
   }
 

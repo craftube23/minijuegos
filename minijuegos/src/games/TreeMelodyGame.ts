@@ -114,18 +114,20 @@ export class TreeMelodyGame extends BaseGame {
     const cx = this.width / 2;
 
     // Árbol ancho, frondoso y anclado a la alfombra inferior
-    this.treeH = Math.min(this.height * 0.82, this.width * 0.92);
+    const hudTopH = Math.max(48, Math.min(68, this.height * 0.08));
+    const availableH = this.height - hudTopH;
+    this.treeH = Math.min(availableH * 0.88, this.width * 0.75);
     this.treeW = this.treeH * (439 / 327); // Proporción natural exacta de arbol.png
     this.treeX = cx - this.treeW / 2;
-    this.treeY = this.height - this.treeH + 10;
+    this.treeY = this.height - this.treeH + 8;
 
-    // Estrella ajustada exactamente a la punta/copa del árbol (+35% más grande y majestuosa)
-    this.starSize = Math.max(92, Math.min(142, this.width * 0.23));
+    // Estrella ajustada exactamente a la punta/copa del árbol
+    this.starSize = Math.max(50, Math.min(130, Math.min(this.width * 0.20, this.treeH * 0.25)));
     this.starX = this.treeX + this.treeW * (214 / 439);
-    this.starY = this.treeY - this.starSize * 0.38;
+    this.starY = Math.max(hudTopH + this.starSize * 0.45, this.treeY - this.starSize * 0.32);
 
     // Radio de las esferas táctiles
-    const radius = Math.min(46, Math.max(32, this.width * 0.082));
+    const radius = Math.min(46, Math.max(26, Math.min(this.width * 0.075, this.treeH * 0.11)));
 
     // Nivel superior (Esfera Roja y Amarilla dentro de las ramas verdes superiores)
     const upperY = this.treeY + this.treeH * 0.44;

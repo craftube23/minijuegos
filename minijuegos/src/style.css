@@ -82,7 +82,9 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 clamp(12px, 2.5vw, 26px);
+  padding: env(safe-area-inset-top, 0px) clamp(12px, 2.5vw, 26px) 0 clamp(12px, 2.5vw, 26px);
+  padding-left: max(clamp(12px, 2.5vw, 26px), env(safe-area-inset-left, 0px));
+  padding-right: max(clamp(12px, 2.5vw, 26px), env(safe-area-inset-right, 0px));
   z-index: 50;
   flex-shrink: 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
@@ -1545,6 +1547,9 @@ html, body {
   z-index: 100;
   flex-shrink: 0;
   margin: 0;
+  padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(0px, env(safe-area-inset-left, 0px));
+  padding-right: max(0px, env(safe-area-inset-right, 0px));
   box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.85);
 }
 
@@ -1828,6 +1833,335 @@ html, body {
     padding: 8px 14px;
     font-size: 0.88rem;
     min-height: 40px;
+  }
+}
+
+/* ==========================================================================
+   OPTIMIZACIÓN CRÍTICA PARA MOBILE LANDSCAPE Y PANTALLAS COMPACTAS (<= 540px H)
+   ========================================================================== */
+@media (max-height: 540px) {
+  .kiosk-header {
+    height: 48px;
+    min-height: 48px;
+    padding: env(safe-area-inset-top, 0px) 10px 0 10px;
+    padding-left: max(10px, env(safe-area-inset-left, 0px));
+    padding-right: max(10px, env(safe-area-inset-right, 0px));
+  }
+
+  .header-logo {
+    height: 34px;
+    max-height: 34px;
+    max-width: 140px;
+    transform: none;
+  }
+
+  .kiosk-btn {
+    min-height: 34px;
+    min-width: 34px;
+    padding: 4px 10px;
+    font-size: 0.82rem;
+    border-radius: 8px;
+    gap: 4px;
+  }
+
+  .kiosk-footer-carousel {
+    height: 48px;
+    min-height: 48px;
+  }
+
+  .banner-icon-badge {
+    font-size: 1.35rem;
+  }
+
+  .banner-headline {
+    font-size: 0.82rem;
+  }
+
+  .banner-subline {
+    font-size: 0.7rem;
+  }
+
+  .banner-tag {
+    padding: 3px 8px;
+    font-size: 0.68rem;
+    border-radius: 12px;
+  }
+
+  .carousel-indicators {
+    bottom: 2px;
+  }
+
+  .carousel-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  /* Attract Screen */
+  .attract-layer {
+    padding: 8px 14px;
+  }
+
+  .attract-wrapper {
+    gap: 6px;
+  }
+
+  .attract-logo-box {
+    max-height: 90px;
+    margin: 2px 0;
+  }
+
+  .attract-title {
+    font-size: 1.35rem;
+    letter-spacing: 1px;
+  }
+
+  .attract-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .attract-button-wrapper {
+    margin: 4px 0;
+  }
+
+  .btn-play-big {
+    min-height: 42px;
+    padding: 8px 24px;
+    font-size: 1.05rem;
+  }
+
+  .attract-games-preview {
+    gap: 6px;
+  }
+
+  .preview-badge {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+  }
+
+  /* Game Selection Menu */
+  .menu-layer {
+    padding: 8px 12px;
+  }
+
+  .menu-header {
+    margin-bottom: 6px;
+  }
+
+  .menu-ribbon-top {
+    padding: 2px 10px;
+    margin-bottom: 2px;
+  }
+
+  .ribbon-text {
+    font-size: 0.72rem;
+  }
+
+  .menu-title {
+    font-size: 1.25rem;
+    gap: 6px;
+  }
+
+  .menu-grid {
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .menu-grid .game-card-fantasy {
+    max-width: 280px;
+  }
+
+  .btn-fantasy-back-landing {
+    padding: 6px 14px;
+    font-size: 0.78rem;
+  }
+
+  /* Modals */
+  .modal-card {
+    padding: 8px 12px;
+    gap: 6px;
+    max-height: 96dvh;
+    border-radius: 16px;
+  }
+
+  .modal-title {
+    font-size: 1.2rem;
+  }
+
+  .rank-medallion-badge {
+    padding: 6px 10px;
+    border-radius: 14px;
+  }
+
+  .rank-crest-frame {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 12px;
+  }
+
+  .rank-letter-art {
+    font-size: 1.8rem;
+  }
+
+  .rank-tier-ribbon {
+    font-size: 0.95rem;
+  }
+
+  .modal-scores {
+    gap: 6px;
+  }
+
+  .score-box {
+    padding: 4px 8px;
+    border-radius: 10px;
+  }
+
+  .score-value {
+    font-size: 1.25rem;
+  }
+
+  .score-label {
+    font-size: 0.65rem;
+  }
+
+  .modal-breakdown-panel {
+    padding: 6px 8px;
+    gap: 4px;
+  }
+
+  .stat-chip {
+    padding: 3px 6px;
+  }
+
+  .stat-chip .stat-val {
+    font-size: 0.95rem;
+  }
+
+  .btn-action {
+    min-height: 36px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 18px;
+  }
+
+  /* Instructions Modal */
+  .instructions-card {
+    padding: 10px 14px;
+    gap: 8px;
+    max-height: 96dvh;
+    border-radius: 16px;
+  }
+
+  .instructions-title {
+    font-size: 1.2rem;
+  }
+
+  .instructions-goal {
+    font-size: 0.78rem;
+  }
+
+  .instructions-grid {
+    gap: 6px;
+  }
+
+  .instruction-box {
+    padding: 6px 8px;
+    gap: 4px;
+    border-radius: 10px;
+  }
+
+  .item-chip {
+    padding: 4px 6px;
+    font-size: 0.72rem;
+  }
+
+  .btn-instruction-primary,
+  .btn-instruction-secondary {
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    border-radius: 10px;
+  }
+
+  /* Chart Editor Modal */
+  .chart-editor-card {
+    padding: 10px 12px;
+    gap: 8px;
+    max-height: 96dvh;
+    border-radius: 14px;
+  }
+
+  .editor-lane-btn {
+    padding: 8px 2px;
+  }
+
+  .lane-arrow {
+    font-size: 1.2rem;
+  }
+}
+
+/* ==========================================================================
+   OPTIMIZACIÓN ULTRA COMPACTA (<= 420px H, e.g. 740x360 / 844x390 landscape)
+   ========================================================================== */
+@media (max-height: 420px) {
+  .kiosk-header {
+    height: 42px;
+    min-height: 42px;
+  }
+
+  .header-logo {
+    height: 28px;
+    max-height: 28px;
+    max-width: 120px;
+  }
+
+  .kiosk-btn {
+    min-height: 30px;
+    min-width: 30px;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+  }
+
+  .kiosk-footer-carousel {
+    height: 40px;
+    min-height: 40px;
+  }
+
+  .banner-icon-badge {
+    font-size: 1.15rem;
+  }
+
+  .banner-headline {
+    font-size: 0.75rem;
+  }
+
+  .banner-subline {
+    font-size: 0.65rem;
+  }
+
+  .attract-logo-box {
+    max-height: 65px;
+  }
+
+  .attract-title {
+    font-size: 1.15rem;
+  }
+
+  .attract-subtitle {
+    display: none;
+  }
+
+  .btn-play-big {
+    min-height: 36px;
+    padding: 6px 18px;
+    font-size: 0.95rem;
+  }
+
+  .menu-title {
+    font-size: 1.1rem;
+  }
+
+  .menu-grid .game-card-fantasy {
+    max-width: 220px;
   }
 }
 

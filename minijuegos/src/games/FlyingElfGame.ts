@@ -995,34 +995,60 @@ export class FlyingElfGame extends BaseGame {
    * Obtiene la geometría y coordenadas de las tarjetas interactivas de personaje
    */
   private getCharacterSelectLayout(): {
+    titleY: number;
+    subtitleY: number;
     card1: { x: number; y: number; w: number; h: number };
     card2: { x: number; y: number; w: number; h: number };
     btn: { x: number; y: number; w: number; h: number };
+    hintY: number;
+    isTwoCol: boolean;
   } {
-    const isTwoCol = this.width >= 680;
+    const isLandscape = this.width > this.height;
+    const isTwoCol = (this.width >= 560 && isLandscape) || (this.width >= 720 && this.width / this.height >= 0.88);
+    const isShortHeight = this.height < 520;
+
+    const titleY = isShortHeight ? Math.max(20, this.height * 0.075) : Math.max(36, this.height * 0.095);
+    const subtitleY = titleY + (isShortHeight ? 18 : 26);
+    const cardStartY = subtitleY + (isShortHeight ? 12 : 20);
+
     if (isTwoCol) {
-      const pad = 36;
+      const pad = isShortHeight ? 14 : Math.min(32, this.width * 0.035);
       const cardW = (this.width - pad * 3) / 2;
-      const cardH = Math.min(420, this.height * 0.44);
-      const cardY = this.height * 0.26;
-      const card1 = { x: pad, y: cardY, w: cardW, h: cardH };
-      const card2 = { x: pad * 2 + cardW, y: cardY, w: cardW, h: cardH };
-      const btnW = Math.min(420, this.width * 0.80);
-      const btnH = 74;
-      const btn = { x: (this.width - btnW) / 2, y: cardY + cardH + 42, w: btnW, h: btnH };
-      return { card1, card2, btn };
+      const btnH = isShortHeight ? 40 : Math.min(64, this.height * 0.085);
+      const bottomReserved = btnH + (isShortHeight ? 24 : 44);
+      const maxCardH = isShortHeight ? Math.max(100, this.height - cardStartY - bottomReserved) : 380;
+      const cardH = Math.min(maxCardH, Math.max(100, this.height - cardStartY - bottomReserved));
+
+      const card1 = { x: pad, y: cardStartY, w: cardW, h: cardH };
+      const card2 = { x: pad * 2 + cardW, y: cardStartY, w: cardW, h: cardH };
+
+      const btnW = Math.min(360, Math.max(200, this.width * 0.44));
+      const btnY = cardStartY + cardH + (isShortHeight ? 6 : 14);
+      const btn = { x: (this.width - btnW) / 2, y: btnY, w: btnW, h: btnH };
+      const hintY = btnY + btnH + (isShortHeight ? 12 : 18);
+
+      return { titleY, subtitleY, card1, card2, btn, hintY, isTwoCol };
     } else {
-      const cardW = this.width * 0.88;
-      const cardH = Math.min(195, this.height * 0.22);
-      const card1X = (this.width - cardW) / 2;
-      const card1Y = this.height * 0.23;
-      const card2Y = card1Y + cardH + 18;
-      const card1 = { x: card1X, y: card1Y, w: cardW, h: cardH };
-      const card2 = { x: card1X, y: card2Y, w: cardW, h: cardH };
-      const btnW = Math.min(380, this.width * 0.84);
-      const btnH = 68;
-      const btn = { x: (this.width - btnW) / 2, y: card2Y + cardH + 28, w: btnW, h: btnH };
-      return { card1, card2, btn };
+      // Single column (Mobile portrait, vertical totems, kiosks)
+      const cardW = Math.min(480, this.width * 0.92);
+      const cardX = (this.width - cardW) / 2;
+      const btnH = isShortHeight ? 42 : Math.min(60, Math.max(44, this.height * 0.065));
+      const gap = Math.max(8, Math.min(14, this.height * 0.015));
+      const bottomReserved = btnH + (isShortHeight ? 26 : 46);
+      const availableH = this.height - cardStartY - bottomReserved;
+      const cardH = Math.min(220, Math.max(76, (availableH - gap) / 2));
+
+      const card1Y = cardStartY;
+      const card2Y = card1Y + cardH + gap;
+      const card1 = { x: cardX, y: card1Y, w: cardW, h: cardH };
+      const card2 = { x: cardX, y: card2Y, w: cardW, h: cardH };
+
+      const btnW = Math.min(360, this.width * 0.86);
+      const btnY = card2Y + cardH + Math.max(6, gap);
+      const btn = { x: (this.width - btnW) / 2, y: btnY, w: btnW, h: btnH };
+      const hintY = btnY + btnH + 16;
+
+      return { titleY, subtitleY, card1, card2, btn, hintY, isTwoCol };
     }
   }
 
@@ -1077,6 +1103,8 @@ export class FlyingElfGame extends BaseGame {
    * Renderiza la interfaz de selección de personaje (Stylized 2D Fantasy Art)
    */
   private renderCharacterSelect(ctx: CanvasRenderingContext2D): void {
+    const layout = this.getCharacterSelectLayout();
+
     ctx.save();
 
     // 1. Overlay translúcido de noche mágica
@@ -1100,29 +1128,23 @@ export class FlyingElfGame extends BaseGame {
 
     // 3. Título y Subtítulo Cinemático
     ctx.textAlign = "center";
-    const titleY = Math.max(70, this.height * 0.12);
+    const titleSize = Math.max(16, Math.min(34, this.width * 0.042));
 
     // Sombra 3D dorada
     ctx.shadowColor = "rgba(255, 215, 0, 0.85)";
     ctx.shadowBlur = 18;
     ctx.fillStyle = "#FFD700";
-    ctx.font = "900 36px 'Outfit', sans-serif";
-    if (this.width < 500) {
-      ctx.font = "900 26px 'Outfit', sans-serif";
-    }
-    ctx.fillText("🧝‍♂️ ELIGE A TU ELFO MÁGICO", this.width / 2, titleY);
+    ctx.font = `900 ${titleSize}px 'Outfit', sans-serif`;
+    ctx.fillText("🧝‍♂️ ELIGE A TU ELFO MÁGICO", this.width / 2, layout.titleY);
 
     ctx.shadowBlur = 0;
     ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-    ctx.font = "600 16px 'Outfit', sans-serif";
-    if (this.width < 500) {
-      ctx.font = "600 13px 'Outfit', sans-serif";
-    }
-    ctx.fillText("Selecciona a tu mensajero navideño para volar", this.width / 2, titleY + 34);
+    const subtitleSize = Math.max(10, Math.min(15, titleSize * 0.5));
+    ctx.font = `600 ${subtitleSize}px 'Outfit', sans-serif`;
+    ctx.fillText("Selecciona a tu mensajero navideño para volar", this.width / 2, layout.subtitleY);
 
     // 4. Renderizado de Tarjetas de Personaje
-    const layout = this.getCharacterSelectLayout();
-    const isTwoCol = this.width >= 680;
+    const isTwoCol = layout.isTwoCol;
 
     // === TARJETA 1: ELFO FERIA MÁGICA ===
     const isFeriaSelected = this.selectedElf === "feria";
@@ -1186,17 +1208,20 @@ export class FlyingElfGame extends BaseGame {
 
     ctx.shadowBlur = 0;
     ctx.fillStyle = "#0A192F";
-    ctx.font = "900 24px 'Outfit', sans-serif";
+    const btnFontSize = Math.max(14, Math.min(22, layout.btn.h * 0.42));
+    ctx.font = `900 ${btnFontSize}px 'Outfit', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText("¡A VOLAR! 🚀", 0, 1);
     ctx.restore();
 
-    // Atajos de teclado en la parte inferior
-    ctx.textAlign = "center";
-    ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
-    ctx.font = "500 13px 'Outfit', sans-serif";
-    ctx.fillText("[1] Feria Mágica   [2] Campuslands   [ESPACIO / ENTER] Iniciar", this.width / 2, layout.btn.y + layout.btn.h + 32);
+    // Atajos de teclado en la parte inferior (si hay espacio vertical)
+    if (layout.hintY < this.height - 8) {
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
+      ctx.font = "500 11px 'Outfit', sans-serif";
+      ctx.fillText("[1] Feria Mágica   [2] Campuslands   [ESPACIO / ENTER] Iniciar", this.width / 2, layout.hintY);
+    }
 
     ctx.restore();
   }
@@ -1218,6 +1243,9 @@ export class FlyingElfGame extends BaseGame {
   ): void {
     ctx.save();
 
+    const isHorizontalLayout = !isTwoCol || box.w > box.h * 1.35;
+    const cornerRadius = Math.max(10, Math.min(20, box.h * 0.14));
+
     // 1. Fondo de la tarjeta con efecto Glassmorphism
     ctx.save();
     if (isSelected) {
@@ -1236,53 +1264,55 @@ export class FlyingElfGame extends BaseGame {
 
     ctx.fillStyle = cardGrad;
     ctx.beginPath();
-    ctx.roundRect(box.x, box.y, box.w, box.h, 24);
+    ctx.roundRect(box.x, box.y, box.w, box.h, cornerRadius);
     ctx.fill();
 
     // Borde iluminado
     ctx.strokeStyle = isSelected ? themeColor : "rgba(255, 255, 255, 0.22)";
-    ctx.lineWidth = isSelected ? 3.5 : 1.5;
+    ctx.lineWidth = isSelected ? 3.0 : 1.5;
     ctx.stroke();
     ctx.restore();
 
     // 2. Insignia de Estado (ELEGIDO / SELECCIONAR)
-    const pillW = isSelected ? 120 : 130;
-    const pillH = 30;
-    const pillX = box.x + box.w - pillW - 16;
-    const pillY = box.y + 16;
+    const pillW = Math.max(72, Math.min(115, box.w * 0.28));
+    const pillH = Math.max(18, Math.min(26, box.h * 0.22));
+    const pillX = box.x + box.w - pillW - Math.max(6, box.w * 0.025);
+    const pillY = box.y + Math.max(6, box.h * 0.08);
 
     ctx.save();
     ctx.fillStyle = isSelected ? themeColor : "rgba(255, 255, 255, 0.12)";
     ctx.beginPath();
-    ctx.roundRect(pillX, pillY, pillW, pillH, 15);
+    ctx.roundRect(pillX, pillY, pillW, pillH, 14);
     ctx.fill();
 
     if (isSelected) {
       ctx.strokeStyle = "#FFFFFF";
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 1.2;
       ctx.stroke();
     }
 
     ctx.fillStyle = isSelected ? "#0A192F" : "rgba(255, 255, 255, 0.75)";
-    ctx.font = "800 13px 'Outfit', sans-serif";
+    ctx.font = `800 ${Math.max(8.5, Math.min(11.5, pillH * 0.48))}px 'Outfit', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(isSelected ? "✓ ELEGIDO" : "SELECCIONAR", pillX + pillW / 2, pillY + pillH / 2);
     ctx.restore();
 
     // 3. Preview Ilustrado en Vivo del Elfo flotando
-    const sway = Math.sin(this.charSelectAnimTime * 3.2 + (isSelected ? 0 : 1.5)) * 6;
+    const sway = Math.sin(this.charSelectAnimTime * 3.2 + (isSelected ? 0 : 1.5)) * 4;
     let previewX = 0;
     let previewY = 0;
     let previewSize = 0;
 
-    if (isTwoCol) {
-      previewSize = Math.min(box.w * 0.65, box.h * 0.52);
+    if (!isHorizontalLayout) {
+      // Formato Vertical (Columna con Preview Arriba y Texto Abajo)
+      previewSize = Math.min(box.w * 0.65, box.h * 0.46);
       previewX = box.x + box.w / 2;
-      previewY = box.y + box.h * 0.42 + sway;
+      previewY = box.y + box.h * 0.38 + sway;
     } else {
-      previewSize = Math.min(box.h * 0.85, 140);
-      previewX = box.x + previewSize / 2 + 20;
+      // Formato Horizontal (Preview a la Izquierda y Texto a la Derecha)
+      previewSize = Math.min(box.h * 0.82, box.w * 0.30);
+      previewX = box.x + previewSize / 2 + 14;
       previewY = box.y + box.h / 2 + sway;
     }
 
@@ -1292,13 +1322,13 @@ export class FlyingElfGame extends BaseGame {
     // Resplandor detrás del personaje
     if (isSelected) {
       ctx.shadowColor = glowColor;
-      ctx.shadowBlur = 22;
-      const aura = ctx.createRadialGradient(0, 0, 10, 0, 0, previewSize * 0.6);
+      ctx.shadowBlur = 20;
+      const aura = ctx.createRadialGradient(0, 0, 8, 0, 0, previewSize * 0.58);
       aura.addColorStop(0, glowColor);
       aura.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = aura;
       ctx.beginPath();
-      ctx.arc(0, 0, previewSize * 0.6, 0, Math.PI * 2);
+      ctx.arc(0, 0, previewSize * 0.58, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
     }
@@ -1315,30 +1345,36 @@ export class FlyingElfGame extends BaseGame {
 
     // 4. Textos Descriptivos de la Tarjeta
     ctx.save();
-    if (isTwoCol) {
+    if (!isHorizontalLayout) {
       ctx.textAlign = "center";
       const textCenter = box.x + box.w / 2;
-      const titleTextY = box.y + box.h - 58;
+      const titleFont = Math.max(12, Math.min(18, box.h * 0.08));
+      const titleTextY = box.y + box.h - titleFont * 2.3;
 
       ctx.fillStyle = isSelected ? themeColor : "#FFFFFF";
-      ctx.font = "800 20px 'Outfit', sans-serif";
-      ctx.fillText(title, textCenter, titleTextY);
+      ctx.font = `800 ${titleFont}px 'Outfit', sans-serif`;
+      ctx.fillText(title, textCenter, titleTextY, box.w - 20);
 
+      const descFont = Math.max(9, Math.min(12, titleFont * 0.65));
       ctx.fillStyle = "rgba(255, 255, 255, 0.70)";
-      ctx.font = "500 13px 'Outfit', sans-serif";
-      ctx.fillText(desc, textCenter, titleTextY + 22);
+      ctx.font = `500 ${descFont}px 'Outfit', sans-serif`;
+      ctx.fillText(desc, textCenter, titleTextY + titleFont + 4, box.w - 16);
     } else {
       ctx.textAlign = "left";
-      const textX = box.x + previewSize + 36;
-      const titleTextY = box.y + box.h * 0.44;
+      const textX = box.x + previewSize + Math.max(10, box.w * 0.035);
+      const titleFont = Math.max(11, Math.min(17, box.h * 0.18));
+      const titleTextY = box.y + box.h * 0.42;
 
       ctx.fillStyle = isSelected ? themeColor : "#FFFFFF";
-      ctx.font = "800 18px 'Outfit', sans-serif";
-      ctx.fillText(title, textX, titleTextY);
+      ctx.font = `800 ${titleFont}px 'Outfit', sans-serif`;
+      const maxTextW = box.x + box.w - textX - (box.w < 380 ? 8 : pillW + 10);
+      ctx.fillText(title, textX, titleTextY, Math.max(60, maxTextW));
 
+      const descFont = Math.max(8.5, Math.min(11.5, titleFont * 0.65));
       ctx.fillStyle = "rgba(255, 255, 255, 0.70)";
-      ctx.font = "500 12px 'Outfit', sans-serif";
-      ctx.fillText(desc, textX, titleTextY + 24);
+      ctx.font = `500 ${descFont}px 'Outfit', sans-serif`;
+      const maxDescW = box.x + box.w - textX - 10;
+      ctx.fillText(desc, textX, titleTextY + titleFont + 4, Math.max(80, maxDescW));
     }
     ctx.restore();
 

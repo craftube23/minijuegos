@@ -329,7 +329,10 @@ export abstract class BaseGame {
     ctx.save();
 
     const isNarrow = this.width < 460;
-    const hudH = Math.max(44, Math.min(68, this.height * 0.075));
+    const isShort = this.height < 500;
+    const hudH = isShort
+      ? Math.max(36, Math.min(48, this.height * 0.10))
+      : Math.max(44, Math.min(68, this.height * 0.075));
 
     // Fondo oscuro translúcido con borde dorado brillante
     ctx.fillStyle = "rgba(7, 18, 34, 0.96)";
@@ -341,10 +344,14 @@ export abstract class BaseGame {
     ctx.lineTo(this.width, hudH);
     ctx.stroke();
 
-    const fontMain = isNarrow ? Math.max(13, this.width * 0.038) : Math.max(15, Math.min(24, this.width * 0.036));
-    const fontSub = isNarrow ? Math.max(10, this.width * 0.028) : Math.max(12, Math.min(18, this.width * 0.028));
+    const fontMain = isShort
+      ? (isNarrow ? Math.max(12, this.width * 0.035) : Math.max(13, Math.min(18, this.height * 0.045)))
+      : (isNarrow ? Math.max(13, this.width * 0.038) : Math.max(15, Math.min(24, this.width * 0.036)));
+    const fontSub = isShort
+      ? (isNarrow ? Math.max(9.5, this.width * 0.026) : Math.max(10, Math.min(14, this.height * 0.034)))
+      : (isNarrow ? Math.max(10, this.width * 0.028) : Math.max(12, Math.min(18, this.width * 0.028)));
     const textY = hudH * 0.65;
-    const paddingX = Math.max(10, this.width * 0.025);
+    const paddingX = Math.max(8, this.width * 0.025);
 
     // 1. PUNTUACIÓN (Izquierda con estrella de fantasía 2D Stylized Game Art)
     const starRadius = fontMain * 0.48;
@@ -418,10 +425,10 @@ export abstract class BaseGame {
     }
     
     if (this.showLives) {
-      const iconSize = Math.max(11, Math.min(19, fontMain * 0.70));
+      const iconSize = Math.max(10, Math.min(19, fontMain * 0.70));
       const iconGap = iconSize * 2.2;
       const totalIconsW = this.maxLives * iconGap;
-      const startIconsX = (this.width / 2) - (totalIconsW / 2) - (isNarrow ? 12 : 22);
+      const startIconsX = (this.width / 2) - (totalIconsW / 2) - (isNarrow ? 10 : 20);
       
       for (let i = 0; i < this.maxLives; i++) {
         const hx = startIconsX + i * iconGap;
@@ -433,7 +440,7 @@ export abstract class BaseGame {
       ctx.font = `900 ${fontMain * 0.95}px 'Outfit', sans-serif`;
       ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
       ctx.textAlign = "left";
-      ctx.fillText(timeFormatted, startIconsX + totalIconsW + (isNarrow ? 6 : 12), textY);
+      ctx.fillText(timeFormatted, startIconsX + totalIconsW + (isNarrow ? 4 : 10), textY);
     } else {
       ctx.font = `900 ${fontMain * 1.05}px 'Outfit', sans-serif`;
       ctx.fillStyle = this.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
@@ -450,14 +457,14 @@ export abstract class BaseGame {
 
     // 4. Indicador de Power-Up del Logo Activo (Feria Mágica o Campuslands)
     if (this.isLogoPowerUpActive) {
-      const bannerH = Math.max(24, Math.min(34, hudH * 0.55));
+      const bannerH = Math.max(20, Math.min(34, hudH * 0.55));
       const isCampus = this.activeLogo.id === "logo-2";
       
       // Fondo dinámico: Cian para Campuslands, Dorado para Feria Mágica
       ctx.fillStyle = isCampus ? "rgba(0, 229, 255, 0.96)" : "rgba(255, 215, 0, 0.96)";
       ctx.fillRect(0, hudH, this.width, bannerH);
       ctx.fillStyle = isCampus ? "#031B33" : "#0A2518";
-      ctx.font = `900 ${Math.max(11, Math.min(16, this.width * 0.028))}px 'Outfit', sans-serif`;
+      ctx.font = `900 ${Math.max(10, Math.min(16, isShort ? 12 : this.width * 0.028))}px 'Outfit', sans-serif`;
       ctx.textAlign = "center";
       const bonusTitle = isCampus ? "¡BONUS CAMPUSLANDS!" : "¡BONUS FERIA MÁGICA!";
       ctx.fillText(`${bonusTitle} (x${this.activeLogo.bonusMultiplier}) - ${Math.ceil(this.logoPowerUpTimer)}s`, this.width / 2, hudH + bannerH * 0.7);
@@ -1005,7 +1012,7 @@ export abstract class BaseGame {
     ctx.scale(scale, scale);
 
     const bannerW = Math.min(540, this.width * 0.88);
-    const bannerH = 145;
+    const bannerH = Math.min(145, Math.max(90, this.height * 0.28));
 
     // Placa dorada brillante estilo Fantasy Game Art
     const goldGrad = ctx.createLinearGradient(0, -bannerH / 2, 0, bannerH / 2);
@@ -1024,28 +1031,33 @@ export abstract class BaseGame {
     ctx.fill();
     ctx.stroke();
 
+    const titleSize = Math.max(18, Math.min(36, Math.min(this.width * 0.065, bannerH * 0.28)));
+    const titleY = -bannerH * 0.16;
+    const subSize = Math.max(11, Math.min(20, titleSize * 0.58));
+    const subY = bannerH * 0.20;
+
     // Texto principal 3D: ¡TIEMPO AGOTADO!
     ctx.shadowBlur = 0;
-    ctx.font = `900 ${Math.max(22, Math.min(38, this.width * 0.068))}px 'Titan One', 'Fredoka', 'Outfit', sans-serif`;
+    ctx.font = `900 ${titleSize}px 'Titan One', 'Fredoka', 'Outfit', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
     // Sombra gruesa de alto contraste
     ctx.strokeStyle = "rgba(0, 0, 0, 0.95)";
     ctx.lineWidth = 6;
-    ctx.strokeText("⏰ ¡TIEMPO AGOTADO!", 0, -20);
+    ctx.strokeText("⏰ ¡TIEMPO AGOTADO!", 0, titleY);
 
     // Relleno dorado
     ctx.fillStyle = "#FFF59D";
-    ctx.fillText("¡TIEMPO AGOTADO!", 0, -20);
+    ctx.fillText("¡TIEMPO AGOTADO!", 0, titleY);
 
     // Subtítulo
-    ctx.font = `800 ${Math.max(14, Math.min(22, this.width * 0.038))}px 'Outfit', sans-serif`;
+    ctx.font = `800 ${subSize}px 'Outfit', sans-serif`;
     ctx.strokeStyle = "rgba(0, 0, 0, 0.85)";
     ctx.lineWidth = 4;
-    ctx.strokeText("¡CALCULANDO PUNTUACIÓN MÁGICA!", 0, 26);
+    ctx.strokeText("¡CALCULANDO PUNTUACIÓN MÁGICA!", 0, subY);
     ctx.fillStyle = "#FFD700";
-    ctx.fillText("¡CALCULANDO PUNTUACIÓN MÁGICA!", 0, 26);
+    ctx.fillText("¡CALCULANDO PUNTUACIÓN MÁGICA!", 0, subY);
 
     ctx.restore();
   }

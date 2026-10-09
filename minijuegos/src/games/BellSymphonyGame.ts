@@ -346,8 +346,10 @@ export class BellSymphonyGame extends BaseGame {
     const totalTrackWidth = Math.min(this.width * 0.94, 620);
     this.laneWidth = totalTrackWidth / 4;
     this.laneStartX = (this.width - totalTrackWidth) / 2;
-    // Línea de impacto al 80% de la pantalla
-    this.hitLineY = this.height * 0.80;
+    // Línea de impacto adaptativa: no muy pegada al fondo en pantallas cortas
+    this.hitLineY = this.height < 500
+      ? Math.max(this.height * 0.76, this.height - 75)
+      : this.height * 0.80;
   }
 
   public override start(_durationSeconds: number = 129): void {
@@ -690,27 +692,28 @@ export class BellSymphonyGame extends BaseGame {
   } {
     const cx = this.width / 2;
     const isLandscape = this.width > this.height;
+    const isShort = this.height < 500;
     const cardW = Math.min(this.width * 0.94, isLandscape ? 620 : 520);
     const cardX = (this.width - cardW) / 2;
     const count = this.songList.length;
 
     // Alturas y márgenes adaptativos fluidos
-    const titleY = isLandscape ? Math.max(24, this.height * 0.05) : Math.max(34, this.height * 0.045);
-    const subY = titleY + (isLandscape ? 16 : 22);
+    const titleY = isShort ? Math.max(16, this.height * 0.04) : (isLandscape ? Math.max(22, this.height * 0.05) : Math.max(34, this.height * 0.045));
+    const subY = titleY + (isShort ? 14 : (isLandscape ? 16 : 22));
 
-    const diffBarY = subY + (isLandscape ? 10 : 15);
-    const diffBarH = isLandscape ? 28 : Math.min(36, Math.max(28, this.height * 0.04));
-    const tabGap = 6;
+    const diffBarY = subY + (isShort ? 6 : (isLandscape ? 8 : 14));
+    const diffBarH = isShort ? 24 : (isLandscape ? 28 : Math.min(36, Math.max(28, this.height * 0.04)));
+    const tabGap = isShort ? 4 : 6;
     const tabW = (cardW - 3 * tabGap) / 4;
 
-    const startY = diffBarY + diffBarH + (isLandscape ? 6 : 10);
-    const bottomReserved = isLandscape ? 44 : Math.max(48, Math.min(68, this.height * 0.065));
-    const availableSongArea = Math.max(180, this.height - startY - bottomReserved);
-    const gap = isLandscape ? 3 : Math.max(4, Math.min(6, this.height * 0.007));
-    const cardH = Math.min(50, Math.max(isLandscape ? 30 : 38, (availableSongArea - (count - 1) * gap) / (count + 0.95)));
+    const startY = diffBarY + diffBarH + (isShort ? 4 : (isLandscape ? 6 : 10));
+    const bottomReserved = isShort ? 34 : (isLandscape ? 44 : Math.max(48, Math.min(68, this.height * 0.065)));
+    const availableSongArea = Math.max(160, this.height - startY - bottomReserved);
+    const gap = isShort ? 2 : (isLandscape ? 3 : Math.max(4, Math.min(6, this.height * 0.007)));
+    const cardH = Math.min(50, Math.max(isShort ? 26 : (isLandscape ? 30 : 38), (availableSongArea - (count - 1) * gap) / (count + 0.95)));
 
-    const editorBtnY = startY + count * (cardH + gap) + (isLandscape ? 4 : 8);
-    const editorBtnH = Math.min(40, Math.max(isLandscape ? 26 : 34, cardH * 0.88));
+    const editorBtnY = startY + count * (cardH + gap) + (isShort ? 3 : (isLandscape ? 4 : 8));
+    const editorBtnH = Math.min(40, Math.max(isShort ? 22 : (isLandscape ? 26 : 34), cardH * 0.88));
 
     return {
       cx,

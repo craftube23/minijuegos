@@ -114,9 +114,9 @@ export class ToyCatchGame extends BaseGame {
   }
 
   private updateBasketDimensions(): void {
-    this.basketWidth = Math.max(90, Math.min(220, this.width * 0.28));
+    this.basketWidth = Math.max(80, Math.min(220, Math.min(this.width * 0.28, this.height * 0.35)));
     this.basketHeight = this.basketWidth * 0.52;
-    this.basketY = this.height - this.basketHeight * 0.85 - 12;
+    this.basketY = this.height - this.basketHeight * 0.85 - Math.max(8, this.height * 0.015);
   }
 
   public override resize(width: number, height: number): void {
@@ -211,7 +211,7 @@ export class ToyCatchGame extends BaseGame {
     let type: FallingItem["type"] = "gift_red";
     let points = 100;
 
-    const baseSize = Math.max(48, Math.min(105, this.width * 0.15));
+    const baseSize = Math.max(40, Math.min(95, Math.min(this.width * 0.14, this.height * 0.18)));
     let size = baseSize;
 
     if (roll < 0.06) {
