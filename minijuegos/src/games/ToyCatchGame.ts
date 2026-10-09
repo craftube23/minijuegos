@@ -63,7 +63,7 @@ export class ToyCatchGame extends BaseGame {
   ) {
     super(
       "toy-catch",
-      "🎁 Atrapa-Regalos Mágico",
+      "Atrapa-Regalos Mágico",
       "¡Mueve el saco de Santa para atrapar regalos y esquivar el hielo y las rocas!",
       canvas,
       input,

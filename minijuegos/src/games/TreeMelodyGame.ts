@@ -70,7 +70,7 @@ export class TreeMelodyGame extends BaseGame {
   ) {
     super(
       "tree-melody",
-      "🎄 Enciende el Árbol Mágico",
+      "Enciende el Árbol Mágico",
       "¡Mira la secuencia de luces navideñas y repite la melodía tocando las esferas mágicas!",
       canvas,
       input,

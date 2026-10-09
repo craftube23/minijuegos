@@ -132,7 +132,7 @@ export class FlyingElfGame extends BaseGame {
   ) {
     super(
       "flying-elf",
-      "🧝‍♂️ El Vuelo Mágico del Elfo",
+      "El Vuelo Mágico del Elfo",
       "¡Mantén pulsado para volar y suelta para planear! Recoge regalos y esquiva peligros.",
       canvas,
       input,
@@ -688,21 +688,21 @@ export class FlyingElfGame extends BaseGame {
       this.timeRemaining = Math.min(45, this.timeRemaining + 6.0); // +6s Tiempo Extra
       this.audio.playPowerUp();
       this.particles.emitConfetti(this.width, 35);
-      this.addFloatingText("✨ ¡FERIA MÁGICA! +6s & IMÁN x2 ✨", this.elfX, this.elfY - 45, "#FFD700", 1.4);
+      this.addFloatingText("¡FERIA MÁGICA! +6s & IMÁN x2", this.elfX, this.elfY - 45, "#FFD700", 1.4);
     } else if (item.type === "logo_campus") {
       this.isLogoPowerUpActive = true;
       this.logoPowerUpTimer = 7.0;
       this.timeRemaining = Math.min(45, this.timeRemaining + 6.0); // +6s Tiempo Extra
       this.audio.playPowerUp();
       this.particles.emitConfetti(this.width, 35);
-      this.addFloatingText("🚀 ¡CAMPUSLANDS! +6s & IMÁN x2 ✨", this.elfX, this.elfY - 45, "#00E5FF", 1.4);
+      this.addFloatingText("¡CAMPUSLANDS! +6s & IMÁN x2", this.elfX, this.elfY - 45, "#00E5FF", 1.4);
     } else if (item.type === "logo_star") {
       this.isLogoPowerUpActive = true;
       this.logoPowerUpTimer = 6.0;
       this.timeRemaining = Math.min(45, this.timeRemaining + 5.0); // +5s Tiempo Extra
       this.audio.playGiftUnwrap();
       this.particles.emitBurst(this.elfX, this.elfY, "#FFD700", 25);
-      this.addFloatingText("✨ ¡TURBO + IMÁN +5s! ✨", this.elfX, this.elfY - 45, "#FFE082", 1.35);
+      this.addFloatingText("¡TURBO + IMÁN +5s!", this.elfX, this.elfY - 45, "#FFE082", 1.35);
     } else {
       this.audio.playElfCollectItem();
       this.particles.emitBurst(this.elfX, this.elfY, "#00E676", 6);
@@ -797,7 +797,7 @@ export class FlyingElfGame extends BaseGame {
       this.obstacles.splice(index, 1);
       this.particles.emitBurst(obs.x + obs.width / 2, obs.y + obs.height / 2, "#FFD700", 22);
       this.audio.playTap();
-      this.addFloatingText("💥 ¡DESTRUIDO! +300", obs.x, obs.y, "#FFE082", 1.25);
+      this.addFloatingText("¡DESTRUIDO! +300", obs.x, obs.y, "#FFE082", 1.25);
       this.score += 300;
       return;
     }
@@ -812,7 +812,7 @@ export class FlyingElfGame extends BaseGame {
     this.triggerShake(0.38, 14);
     this.audio.playElfHit();
     this.particles.emitBurst(this.elfX, this.elfY, "#FF1744", 20);
-    this.addFloatingText(`-1 🧝 (${Math.max(0, this.lives)}/5)`, this.elfX, this.elfY - 45, "#FF1744", 1.35);
+    this.addFloatingText(`-1 VIDA (${Math.max(0, this.lives)}/5)`, this.elfX, this.elfY - 45, "#FF1744", 1.35);
 
     if (this.lives <= 0) {
       this.lives = 0;
@@ -822,7 +822,7 @@ export class FlyingElfGame extends BaseGame {
       this.audio.stopGameBGM();
       this.audio.playError();
       this.particles.emitBurst(this.elfX, this.elfY, "#FF3D00", 35);
-      this.addFloatingText("💔 ¡SIN VIDAS!", this.width / 2, this.height * 0.45, "#FF1744", 1.8);
+      this.addFloatingText("¡SIN VIDAS!", this.width / 2, this.height * 0.45, "#FF1744", 1.8);
     }
   }
 
@@ -1387,7 +1387,7 @@ export class FlyingElfGame extends BaseGame {
       ctx.shadowColor = "rgba(255, 215, 0, 0.85)";
       ctx.shadowBlur = 14;
       ctx.font = "900 28px 'Outfit', sans-serif";
-      ctx.fillText(`🔥 COMBO x${comboMult}`, comboX, comboY);
+      ctx.fillText(`COMBO x${comboMult}`, comboX, comboY);
       ctx.shadowBlur = 0;
       ctx.textAlign = "left";
     }
@@ -1416,7 +1416,7 @@ export class FlyingElfGame extends BaseGame {
       ctx.textAlign = "center";
       ctx.fillStyle = "#FFF9C4";
       ctx.font = "bold 13px 'Outfit', sans-serif";
-      ctx.fillText("✨ ¡PODER MÁGICO ACTIVO!", this.width / 2, barY - 5);
+      ctx.fillText("¡PODER MÁGICO ACTIVO!", this.width / 2, barY - 5);
       ctx.textAlign = "left";
     }
 
@@ -1427,8 +1427,8 @@ export class FlyingElfGame extends BaseGame {
       ctx.shadowColor = "rgba(129, 212, 250, 0.8)";
       ctx.shadowBlur = 10;
       ctx.font = "bold 16px 'Outfit', sans-serif";
-      const directionArrow = this.windForceY > 0 ? "⬇️" : "⬆️";
-      ctx.fillText(`💨 VIENTO MÁGICO ${directionArrow}`, this.width / 2, 170);
+      const directionArrow = this.windForceY > 0 ? "↓" : "↑";
+      ctx.fillText(`VIENTO MÁGICO ${directionArrow}`, this.width / 2, 170);
       ctx.shadowBlur = 0;
       ctx.textAlign = "left";
     }
@@ -1440,7 +1440,7 @@ export class FlyingElfGame extends BaseGame {
       ctx.shadowColor = "rgba(255, 23, 68, 0.85)";
       ctx.shadowBlur = 18;
       ctx.font = "900 32px 'Outfit', sans-serif";
-      ctx.fillText("⚠️ ¡ÚLTIMOS SEGUNDOS!", this.width / 2, this.height * 0.28);
+      ctx.fillText("¡ÚLTIMOS SEGUNDOS!", this.width / 2, this.height * 0.28);
       ctx.shadowBlur = 0;
       ctx.textAlign = "left";
     }

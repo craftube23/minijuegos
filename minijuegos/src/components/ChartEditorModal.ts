@@ -17,6 +17,7 @@
  * - Probar de inmediato la partitura grabada en el juego.
  */
 
+import { getIconSvg } from "../utils/icons";
 import {
   RHYTHM_SONG_LIST,
   GOD_REST_METAL_CHART,
@@ -126,8 +127,8 @@ export class ChartEditorModal {
         <!-- CABECERA -->
         <div class="editor-header">
           <div class="editor-title-group">
-            <span class="editor-badge">🛠️ MODO GRABADOR / EDITOR</span>
-            <h2 class="editor-title">🎹 Editor de Notas y Sustains al Ritmo</h2>
+            <span class="editor-badge">${getIconSvg("wrench", { size: 16, color: "var(--color-gold)" })} MODO GRABADOR / EDITOR</span>
+            <h2 class="editor-title">${getIconSvg("music", { size: 24, color: "#00E5FF" })} Editor de Notas y Sustains al Ritmo</h2>
             <p class="editor-subtitle">Toca una vez para nota normal. <strong>Mantén presionado</strong> para crear notas sostenidas (Sustain).</p>
           </div>
           <button id="btn-editor-close" class="btn-editor-icon-close" title="Cerrar Editor">✕</button>
@@ -141,7 +142,7 @@ export class ChartEditorModal {
               <select id="editor-song-select" class="editor-select">
                 ${RHYTHM_SONG_LIST.map((s) => `
                   <option value="${s.audioFile}" ${this.selectedSongFile === s.audioFile ? "selected" : ""}>
-                    ${s.icon} ${s.title} (${s.bpm} BPM)
+                    ${s.title} (${s.bpm} BPM)
                   </option>
                 `).join("")}
               </select>
@@ -159,7 +160,7 @@ export class ChartEditorModal {
             <div class="editor-star-toggle-group">
               <label class="editor-label">Próxima nota:</label>
               <button id="btn-toggle-star" class="btn-star-toggle ${this.isNextStar ? "active" : ""}">
-                ⭐ ${this.isNextStar ? "Nota Logo (x4)" : "Nota Normal"}
+                ${getIconSvg("star", { size: 16, color: "#FFD700", fill: "#FFD700" })} <span>${this.isNextStar ? "Nota Logo (x4)" : "Nota Normal"}</span>
               </button>
             </div>
           </div>
@@ -173,10 +174,19 @@ export class ChartEditorModal {
 
           <!-- CONTROLES DE REPRODUCCIÓN -->
           <div class="editor-playback-actions">
-            <button id="btn-editor-rewind" class="btn-editor-ctrl">⏪ -3s</button>
-            <button id="btn-editor-play" class="btn-editor-ctrl btn-play-main">▶️ REPRODUCIR</button>
-            <button id="btn-editor-forward" class="btn-editor-ctrl">⏩ +3s</button>
-            <button id="btn-editor-restart" class="btn-editor-ctrl">🔄 Reiniciar</button>
+            <button id="btn-editor-rewind" class="btn-editor-ctrl">
+              ${getIconSvg("arrowLeft", { size: 16 })} <span>-3s</span>
+            </button>
+            <button id="btn-editor-play" class="btn-editor-ctrl btn-play-main">
+              ${getIconSvg("play", { size: 18, color: "#ffffff", fill: "#ffffff" })}
+              <span>REPRODUCIR</span>
+            </button>
+            <button id="btn-editor-forward" class="btn-editor-ctrl">
+              <span>+3s</span> ${getIconSvg("arrowRight", { size: 16 })}
+            </button>
+            <button id="btn-editor-restart" class="btn-editor-ctrl">
+              ${getIconSvg("replay", { size: 16 })} <span>Reiniciar</span>
+            </button>
           </div>
         </div>
 
@@ -207,11 +217,17 @@ export class ChartEditorModal {
         <!-- VISOR DE NOTAS GRABADAS Y ACCIONES -->
         <div class="editor-notes-summary">
           <div class="notes-header-row">
-            <span class="notes-count-badge">📝 Notas: <strong id="editor-notes-count">${this.recordedNotes.length}</strong></span>
+            <span class="notes-count-badge">${getIconSvg("clipboard", { size: 16, color: "#00E5FF" })} Notas: <strong id="editor-notes-count">${this.recordedNotes.length}</strong></span>
             <div class="notes-quick-actions">
-              <button id="btn-editor-undo" class="btn-editor-small" title="Deshacer última nota (Ctrl+Z)">↩️ Deshacer</button>
-              <button id="btn-editor-load-defaults" class="btn-editor-small" title="Cargar partitura predeterminada">📥 Cargar Predeterminada</button>
-              <button id="btn-editor-clear" class="btn-editor-small btn-danger" title="Borrar todas las notas grabadas">🗑️ Limpiar</button>
+              <button id="btn-editor-undo" class="btn-editor-small" title="Deshacer última nota (Ctrl+Z)">
+                ${getIconSvg("replay", { size: 14 })} <span>Deshacer</span>
+              </button>
+              <button id="btn-editor-load-defaults" class="btn-editor-small" title="Cargar partitura predeterminada">
+                ${getIconSvg("music", { size: 14 })} <span>Cargar Predeterminada</span>
+              </button>
+              <button id="btn-editor-clear" class="btn-editor-small btn-danger" title="Borrar todas las notas grabadas">
+                ${getIconSvg("trash", { size: 14 })} <span>Limpiar</span>
+              </button>
             </div>
           </div>
           
@@ -223,10 +239,12 @@ export class ChartEditorModal {
         <!-- ACCIONES DE EXPORTACIÓN Y PRUEBA EN VIVO -->
         <div class="editor-footer-actions">
           <button id="btn-editor-copy" class="btn-action-primary btn-copy">
-            📋 COPIAR CÓDIGO TYPESCRIPT
+            ${getIconSvg("clipboard", { size: 20, color: "#ffffff" })}
+            <span>COPIAR CÓDIGO TYPESCRIPT</span>
           </button>
           <button id="btn-editor-test" class="btn-action-primary btn-test">
-            🎮 JUGAR ESTA PARTITURA AHORA
+            ${getIconSvg("gamepad", { size: 20, color: "#ffffff" })}
+            <span>JUGAR ESTA PARTITURA AHORA</span>
           </button>
         </div>
 
@@ -238,19 +256,20 @@ export class ChartEditorModal {
 
   private renderNotesListHtml(): string {
     if (this.recordedNotes.length === 0) {
-      return `<p class="notes-empty">Dale a <strong>▶️ REPRODUCIR</strong> y toca o mantén <strong>D, F, J, K</strong> al compás para grabar notas y sustains.</p>`;
+      return `<p class="notes-empty">Presiona <strong>REPRODUCIR</strong> y toca o mantén <strong>D, F, J, K</strong> al compás para grabar notas y sustains.</p>`;
     }
 
-    const laneNames = ["🔴 Izq", "🟡 Abajo", "🟢 Arriba", "🔵 Der"];
+    const laneNames = ["Carril D", "Carril F", "Carril J", "Carril K"];
 
     return this.recordedNotes
       .map((note, index) => {
         const isSustain = !!(note.duration && note.duration > 0);
         const icon = isSustain ? "●━━━━━●" : "●";
         const durText = isSustain && note.duration !== undefined ? ` (Sustain ${note.duration.toFixed(2)}s)` : "";
+        const starBadge = note.isStar ? ` ${getIconSvg("star", { size: 14, color: "#FFD700" })}` : "";
         return `
           <span class="note-chip ${note.isStar ? "star-chip" : ""} ${isSustain ? "sustain-chip" : ""}">
-            #${index + 1}: ${icon} ${laneNames[note.lane] || "Nota"} @ <strong>${note.time.toFixed(2)}s</strong>${durText} ${note.isStar ? "⭐" : ""}
+            #${index + 1}: ${icon} ${laneNames[note.lane] || "Nota"} @ <strong>${note.time.toFixed(2)}s</strong>${durText}${starBadge}
           </span>
         `;
       })
@@ -341,13 +360,13 @@ export class ChartEditorModal {
       if (confirm("¿Deseas borrar todas las notas grabadas de la lista?")) {
         this.recordedNotes = [];
         this.updateNotesView();
-        this.showToast("🗑️ Lista de notas vaciada");
+        this.showToast("Lista de notas vaciada");
       }
     });
 
     btnLoadDefaults?.addEventListener("click", () => {
       this.loadSongDefaults();
-      this.showToast("📥 Partitura predeterminada cargada");
+      this.showToast("Partitura predeterminada cargada");
     });
 
     btnCopy?.addEventListener("click", () => {
@@ -573,7 +592,7 @@ export class ChartEditorModal {
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(output).then(() => {
-        this.showToast("📋 ¡Código TypeScript copiado al portapapeles con éxito!");
+        this.showToast("¡Código TypeScript copiado al portapapeles con éxito!");
       }).catch(() => {
         this.fallbackCopy(output);
       });
@@ -589,7 +608,7 @@ export class ChartEditorModal {
     textArea.select();
     try {
       document.execCommand("copy");
-      this.showToast("📋 ¡Código copiado al portapapeles!");
+      this.showToast("¡Código copiado al portapapeles!");
     } catch {
       alert("Copia las notas:\n\n" + text);
     }
@@ -598,7 +617,7 @@ export class ChartEditorModal {
 
   private testChartInGame(): void {
     if (this.recordedNotes.length === 0) {
-      this.showToast("⚠️ Primero graba algunas notas antes de probar");
+      this.showToast("Primero graba algunas notas antes de probar");
       return;
     }
 

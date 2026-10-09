@@ -37,7 +37,7 @@ export class GameOverModal {
     const modalTitle = isRecord
       ? "¡INCREÍBLE! ¡NUEVO RÉCORD!"
       : isCustom
-      ? "🎉 ¡PARTITURA COMPLETADA!"
+      ? "¡PARTITURA COMPLETADA!"
       : "¡BUEN INTENTO!";
 
     const modalSubtitle = isRecord
@@ -49,7 +49,7 @@ export class GameOverModal {
     const showRank = result.gameId !== "flying-elf" && (isRhythmGame || result.rank !== undefined);
     const rank = result.rank || (result.score >= Math.max(100, result.highScore) * 0.9 ? "S" : result.score >= Math.max(100, result.highScore) * 0.75 ? "A" : result.score >= Math.max(100, result.highScore) * 0.55 ? "B" : result.score >= Math.max(100, result.highScore) * 0.35 ? "C" : "D");
     const rankColor = result.rankColor || (rank === "S+" || rank === "S" ? "#FFD700" : rank === "A" ? "#00E5FF" : rank === "B" ? "#00E676" : rank === "C" ? "#FF9100" : "#FF5252");
-    const rankLabel = result.rankLabel || (rank === "S+" ? "🌟 RANGO LEGENDARIO" : rank === "S" ? "✨ RANGO EXCELENTE" : rank === "A" ? "⭐ RANGO GENIAL" : rank === "B" ? "👍 RANGO BUENO" : rank === "C" ? "🔔 RANGO REGULAR" : "💫 RANGO ASPIRANTE");
+    const rankLabel = result.rankLabel || (rank === "S+" ? "RANGO LEGENDARIO" : rank === "S" ? "RANGO EXCELENTE" : rank === "A" ? "RANGO GENIAL" : rank === "B" ? "RANGO BUENO" : rank === "C" ? "RANGO REGULAR" : "RANGO ASPIRANTE");
 
     const hasStats = result.perfectCount !== undefined || result.maxCombo !== undefined;
 
@@ -60,14 +60,14 @@ export class GameOverModal {
           <div class="modal-trophy-emblem">
             <div class="emblem-sparkle-halo"></div>
             <div class="emblem-icon">
-              ${isRecord ? "🏆" : "🌟"}
+              ${isRecord ? getIconSvg("trophy", { size: 38, color: "#FFD700", fill: "rgba(255,215,0,0.25)" }) : getIconSvg("sparkles", { size: 38, color: "#FFD700" })}
             </div>
           </div>
           <h2 class="modal-title">${modalTitle}</h2>
           <p class="modal-game-name">${modalSubtitle}</p>
           ${isRhythmGame && result.songTitle ? `
             <div class="modal-song-pill">
-              <span class="song-icon">🎵</span>
+              <span class="song-icon">${getIconSvg("music", { size: 18, color: "var(--color-cyan)" })}</span>
               <span class="song-name">${result.songTitle}</span>
               ${result.songArtist ? `<span class="song-by">• ${result.songArtist}</span>` : ""}
               ${result.difficultyLabel ? `<span class="song-difficulty-badge" style="background:${result.difficultyColor || '#FFD700'}; color:#031524; padding:2px 8px; border-radius:10px; font-weight:800; font-size:0.75rem; margin-left:6px;">${result.difficultyLabel}</span>` : ""}
@@ -82,7 +82,7 @@ export class GameOverModal {
               <div class="rank-medallion-halo"></div>
               <div class="rank-medallion-inner">
                 <div class="rank-crest-frame">
-                  <div class="rank-frost-crown">❄️</div>
+                  <div class="rank-frost-crown">${getIconSvg("crown", { size: 18, color: "#FFD700", fill: "#FFD700" })}</div>
                   <div class="rank-letter-art">${rank}</div>
                   <div class="rank-crest-shine"></div>
                 </div>
@@ -93,7 +93,7 @@ export class GameOverModal {
                       <div class="accuracy-bar-track">
                         <div class="accuracy-bar-fill" style="width: ${result.accuracy}%;"></div>
                       </div>
-                      <span class="accuracy-label">🎯 ${result.accuracy}% Precisión</span>
+                      <span class="accuracy-label">${getIconSvg("target", { size: 15, color: "#FFD700" })} ${result.accuracy}% Precisión</span>
                     </div>
                   ` : ""}
                 </div>
@@ -105,7 +105,7 @@ export class GameOverModal {
         <!-- DESGLOSE DE PARTIDA ARCADE (DETALLES Y MÉTRICAS) -->
         ${hasStats ? `
           <div class="modal-breakdown-panel">
-            <div class="breakdown-title">📊 DESGLOSE DE PRECISIÓN</div>
+            <div class="breakdown-title">${getIconSvg("chart", { size: 16, color: "#00E5FF" })} DESGLOSE DE PRECISIÓN</div>
             <div class="breakdown-grid">
               <div class="stat-chip chip-perfect">
                 <span class="stat-name">¡PERFECTO!</span>
@@ -125,11 +125,11 @@ export class GameOverModal {
               </div>
               <div class="stat-chip chip-combo">
                 <span class="stat-name">MÁX COMBO</span>
-                <span class="stat-val">🔥 ${result.maxCombo || 0}</span>
+                <span class="stat-val">${getIconSvg("flame", { size: 14, color: "#FF9100", fill: "#FF9100" })} ${result.maxCombo || 0}</span>
               </div>
               <div class="stat-chip chip-notes">
                 <span class="stat-name">TOTAL NOTAS</span>
-                <span class="stat-val">🔔 ${result.totalNotes || 0}</span>
+                <span class="stat-val">${getIconSvg("bell", { size: 14, color: "#FFD700", fill: "#FFD700" })} ${result.totalNotes || 0}</span>
               </div>
             </div>
           </div>
@@ -152,7 +152,7 @@ export class GameOverModal {
         <div class="modal-branding">
           <p class="modal-promo-text">${
             isCustom
-              ? "⭐ ¿Deseas seguir ajustando el ritmo o guardar tus notas?"
+              ? "Guarda o sigue ajustando tus notas grabadas."
               : "¡Sigue jugando y diviértete en la Feria Mágica del Juguete!"
           }</p>
         </div>
@@ -166,16 +166,19 @@ export class GameOverModal {
 
           ${isRhythmGame ? `
             <button id="btn-modal-change-song" class="btn-action btn-change-song" title="Elegir otra canción de campanas">
-              <span>🎵 CAMBIAR CANCIÓN</span>
+              ${getIconSvg("music", { size: 20, color: "#ffffff" })}
+              <span>CAMBIAR CANCIÓN</span>
             </button>
             <button id="btn-modal-editor" class="btn-action btn-editor-action" title="Abrir el editor con tus notas">
-              <span>🛠️ ${isCustom ? "SEGUIR EDITANDO / GRABAR" : "MODO GRABADOR"}</span>
+              ${getIconSvg("wrench", { size: 20, color: "#ffffff" })}
+              <span>${isCustom ? "SEGUIR EDITANDO / GRABAR" : "MODO GRABADOR"}</span>
             </button>
           ` : ""}
 
           ${isCustom && result.customNotes && result.customNotes.length > 0 ? `
             <button id="btn-modal-copy" class="btn-action btn-copy-action" title="Copiar código TypeScript al portapapeles">
-              <span>📋 GUARDAR / COPIAR CÓDIGO</span>
+              ${getIconSvg("clipboard", { size: 20, color: "#ffffff" })}
+              <span>GUARDAR / COPIAR CÓDIGO</span>
             </button>
           ` : ""}
 
@@ -239,7 +242,7 @@ export class GameOverModal {
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(output).then(() => {
-          this.showToast("📋 ¡Código TypeScript copiado al portapapeles con éxito!");
+          this.showToast("¡Código TypeScript copiado al portapapeles con éxito!");
         }).catch(() => {
           this.fallbackCopy(output);
         });
@@ -256,7 +259,7 @@ export class GameOverModal {
     textArea.select();
     try {
       document.execCommand("copy");
-      this.showToast("📋 ¡Código copiado al portapapeles!");
+      this.showToast("¡Código copiado al portapapeles!");
     } catch {
       alert("Partitura:\n\n" + text);
     }

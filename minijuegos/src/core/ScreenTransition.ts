@@ -11,6 +11,7 @@
 
 import { AudioManager } from "./AudioManager";
 import { ParticleSystem } from "./ParticleSystem";
+import { getIconSvg } from "../utils/icons";
 
 export class ScreenTransition {
   private static instance: ScreenTransition;
@@ -58,7 +59,7 @@ export class ScreenTransition {
         </div>
 
         <!-- Texto de Estado Dinámico -->
-        <p class="intro-magic-status" id="intro-status-text">✨ Preparando la magia navideña...</p>
+        <p class="intro-magic-status" id="intro-status-text">Preparando la magia navideña...</p>
       </div>
     `;
 
@@ -72,11 +73,11 @@ export class ScreenTransition {
       setTimeout(() => { fillEl.style.width = "40%"; }, 100);
       setTimeout(() => { 
         fillEl.style.width = "75%"; 
-        if (textEl) textEl.textContent = "🎁 Empacando juguetes mágicos...";
+        if (textEl) textEl.textContent = "Empacando juguetes mágicos...";
       }, 700);
       setTimeout(() => { 
         fillEl.style.width = "100%"; 
-        if (textEl) textEl.textContent = "🎄 ¡Feria lista! Abriendo puertas...";
+        if (textEl) textEl.textContent = "¡Feria lista! Abriendo puertas...";
       }, 1350);
     }
 
@@ -277,11 +278,11 @@ export class ScreenTransition {
       <!-- Gran Moño 3D y Emblema de la Feria Mágica -->
       <div class="gift-center-box" style="--seal-theme-color: #FFD700">
         <div class="gift-floating-particles">
-          <span class="g-sparkle s1">✨</span>
-          <span class="g-sparkle s2">⭐</span>
+          <span class="g-sparkle s1">✦</span>
+          <span class="g-sparkle s2">★</span>
           <span class="g-sparkle s3">✦</span>
-          <span class="g-sparkle s4">❄️</span>
-          <span class="g-sparkle s5">✨</span>
+          <span class="g-sparkle s4">◆</span>
+          <span class="g-sparkle s5">✦</span>
           <span class="g-sparkle s6">★</span>
         </div>
 
@@ -307,7 +308,7 @@ export class ScreenTransition {
 
           <div class="gift-icon-container">
             <div class="gift-icon-glow"></div>
-            <span class="gift-game-icon">🎪</span>
+            <span class="gift-game-icon">${getIconSvg("tent", { size: 36, color: "#FFD700" })}</span>
           </div>
           
           <h2 class="gift-game-title">FERIA MÁGICA</h2>
@@ -448,11 +449,11 @@ export class ScreenTransition {
       <!-- Moño 3D y Placa con el Título del Minijuego -->
       <div class="gift-center-box kid-center-box" style="--seal-theme-color: ${gameData.themeColor || '#FFD700'}">
         <div class="gift-floating-particles">
-          <span class="g-sparkle s1">✨</span>
-          <span class="g-sparkle s2">⭐</span>
+          <span class="g-sparkle s1">✦</span>
+          <span class="g-sparkle s2">★</span>
           <span class="g-sparkle s3">✦</span>
-          <span class="g-sparkle s4">❄️</span>
-          <span class="g-sparkle s5">✨</span>
+          <span class="g-sparkle s4">◆</span>
+          <span class="g-sparkle s5">✦</span>
           <span class="g-sparkle s6">★</span>
         </div>
 

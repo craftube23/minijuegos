@@ -33,6 +33,7 @@ import { BellSymphonyGame } from "./games/BellSymphonyGame";
 import { NutcrackerDrumsGame } from "./games/NutcrackerDrumsGame";
 import { FlyingElfGame } from "./games/FlyingElfGame";
 import { MagicPairsGame } from "./games/MagicPairsGame";
+import { getIconSvg } from "./utils/icons";
 
 class KioskApp {
   private canvas: HTMLCanvasElement;
@@ -360,7 +361,7 @@ class KioskApp {
       const mainContainer = document.getElementById("kiosk-main") || document.body;
       const menuInfo = {
         title: "FERIA MÁGICA",
-        icon: "🎪",
+        icon: getIconSvg("tent", { size: 36, color: "#FFD700" }),
         themeColor: "#FFD700",
         subtitle: "¡ELIGE TU JUEGO MÁGICO!"
       };
@@ -404,13 +405,13 @@ class KioskApp {
 
   private getGameTransitionInfo(gameId: string): { title: string; icon: string; themeColor: string } {
     const map: Record<string, { title: string; icon: string; themeColor: string }> = {
-      "toy-catch": { title: "Atrapa-Regalos Mágico", icon: "🎁", themeColor: "#FF2A4D" },
-      "bell-symphony": { title: "Sinfonía de Campanas", icon: "🔔", themeColor: "#00E5FF" },
-      "tree-melody": { title: "Tambores del Cascanueces", icon: "🥁", themeColor: "#FFB300" },
-      "flying-elf": { title: "El Vuelo Mágico del Elfo", icon: "🧝‍♂️", themeColor: "#D500F9" },
-      "magic-pairs": { title: "Parejas de Juguetes", icon: "🃏", themeColor: "#D500F9" }
+      "toy-catch": { title: "Atrapa-Regalos Mágico", icon: getIconSvg("gift", { size: 36, color: "#FF2A4D" }), themeColor: "#FF2A4D" },
+      "bell-symphony": { title: "Sinfonía de Campanas", icon: getIconSvg("bell", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" },
+      "tree-melody": { title: "Tambores del Cascanueces", icon: getIconSvg("drum", { size: 36, color: "#FFB300" }), themeColor: "#FFB300" },
+      "flying-elf": { title: "El Vuelo Mágico del Elfo", icon: getIconSvg("wing", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
+      "magic-pairs": { title: "Parejas de Juguetes", icon: getIconSvg("cards", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" }
     };
-    return map[gameId] || { title: "Minijuego Mágico", icon: "🎄", themeColor: "#FFD700" };
+    return map[gameId] || { title: "Minijuego Mágico", icon: getIconSvg("tree", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" };
   }
 
   /**

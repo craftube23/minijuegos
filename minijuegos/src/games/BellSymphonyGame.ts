@@ -31,6 +31,10 @@ import {
   JOY_TO_WORLD_POWER_CHART,
   DECK_THE_HALLS_CHART,
   WE_WISH_YOU_CHART,
+  WE_WISH_YOU_CHART_EASY,
+  WE_WISH_YOU_CHART_NORMAL,
+  WE_WISH_YOU_CHART_HARD,
+  WE_WISH_YOU_CHART_EXPERT,
   type SongDef
 } from "../data/songs";
 
@@ -60,7 +64,7 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     id: "easy",
     label: "FÁCIL",
     shortLabel: "FÁCIL",
-    icon: "🟢",
+    icon: "",
     color: "#00E676",
     glowColor: "rgba(0, 230, 118, 0.5)",
     speedMultiplier: 0.72,
@@ -76,7 +80,7 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     id: "normal",
     label: "NORMAL",
     shortLabel: "NORMAL",
-    icon: "🟡",
+    icon: "",
     color: "#FFD700",
     glowColor: "rgba(255, 215, 0, 0.5)",
     speedMultiplier: 1.00,
@@ -92,7 +96,7 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     id: "hard",
     label: "DIFÍCIL",
     shortLabel: "DIFÍCIL",
-    icon: "🔴",
+    icon: "",
     color: "#FF3366",
     glowColor: "rgba(255, 51, 102, 0.5)",
     speedMultiplier: 1.28,
@@ -108,7 +112,7 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     id: "expert",
     label: "EXPERTO",
     shortLabel: "EXPERTO",
-    icon: "🟣",
+    icon: "",
     color: "#D500F9",
     glowColor: "rgba(213, 0, 249, 0.5)",
     speedMultiplier: 1.55,
@@ -275,7 +279,7 @@ export class BellSymphonyGame extends BaseGame {
   ) {
     super(
       "bell-symphony",
-      "🔔 Sinfonía de Campanas",
+      "Sinfonía de Campanas",
       "¡Elige tu concierto navideño, toca las flechas y mantén las notas sostenidas al ritmo de la música!",
       canvas,
       input,
@@ -798,7 +802,12 @@ export class BellSymphonyGame extends BaseGame {
         sourceChart = DECK_THE_HALLS_CHART;
         break;
       case "we-wish-you":
-        sourceChart = WE_WISH_YOU_CHART;
+        if (diff === "easy") sourceChart = WE_WISH_YOU_CHART_EASY;
+        else if (diff === "normal") sourceChart = WE_WISH_YOU_CHART_NORMAL;
+        else if (diff === "hard") sourceChart = WE_WISH_YOU_CHART_HARD;
+        else if (diff === "expert") sourceChart = WE_WISH_YOU_CHART_EXPERT;
+        else sourceChart = WE_WISH_YOU_CHART;
+        isHandcrafted = true;
         break;
       default:
         sourceChart = GOD_REST_METAL_CHART;
@@ -976,7 +985,7 @@ export class BellSymphonyGame extends BaseGame {
       if (closestNote.isStar || (this.combo > 0 && this.combo % 15 === 0)) {
         if (this.lives < this.maxLives) {
           this.lives = Math.min(this.maxLives, this.lives + 1);
-          this.addFloatingText("+1 🔔", this.width / 2, this.hitLineY - 95, "#00E676", 1.25);
+          this.addFloatingText("+1 VIDA", this.width / 2, this.hitLineY - 95, "#00E676", 1.25);
         }
       }
 
@@ -1040,7 +1049,7 @@ export class BellSymphonyGame extends BaseGame {
 
     const isCampus = logoType === 2;
     const starColor = isCampus ? "#00E5FF" : "#FFD700";
-    const starText = isCampus ? "⚡ ¡STAR POWER CAMPUS x4! ⚡" : "⚡ ¡STAR POWER FERIA x4! ⚡";
+    const starText = isCampus ? "¡STAR POWER CAMPUS x4!" : "¡STAR POWER FERIA x4!";
 
     this.particles.emitConfetti(this.width, 40);
     this.addFloatingText(starText, x, this.hitLineY - 75, starColor, 1.55);
@@ -1536,7 +1545,7 @@ export class BellSymphonyGame extends BaseGame {
     ctx.font = `800 ${authorFont}px 'Outfit', sans-serif`;
     ctx.strokeStyle = "rgba(0, 0, 0, 0.95)";
     ctx.lineWidth = 4;
-    const authText = `BY ${song.artist.toUpperCase()}  •  [${diffCfg.icon} ${diffCfg.label} ${diffCfg.scoreMultiplier}x]`;
+    const authText = `BY ${song.artist.toUpperCase()}  •  [${diffCfg.label} • ${diffCfg.scoreMultiplier}x]`;
     ctx.strokeText(authText, cardX, authorY);
     ctx.fillStyle = "#E2E8F0";
     ctx.fillText(authText, cardX, authorY);
@@ -1549,6 +1558,106 @@ export class BellSymphonyGame extends BaseGame {
     ctx.strokeText(song.credits, cardX, creditY);
     ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
     ctx.fillText(song.credits, cardX, creditY);
+
+    ctx.restore();
+  }
+
+  /**
+   * Dibuja un icono vectorial temático de alta calidad en el canvas para cada canción
+   */
+  private drawSongBadgeVectorIcon(ctx: CanvasRenderingContext2D, iconName: string, x: number, y: number, size: number, color: string): void {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    const s = size / 24;
+    ctx.scale(s, s);
+
+    ctx.beginPath();
+    switch (iconName) {
+      case "guitar":
+        // Guitarra estilizada
+        ctx.moveTo(0, -9);
+        ctx.lineTo(8, -1);
+        ctx.moveTo(5, -6);
+        ctx.lineTo(-4, 3);
+        ctx.bezierCurveTo(-9, 8, -9, 10, -5, 10);
+        ctx.bezierCurveTo(-1, 10, 2, 7, 0, 0);
+        ctx.stroke();
+        break;
+      case "zap":
+        // Rayo / Trueno
+        ctx.moveTo(2, -10);
+        ctx.lineTo(-8, 2);
+        ctx.lineTo(0, 2);
+        ctx.lineTo(-2, 10);
+        ctx.lineTo(8, -2);
+        ctx.lineTo(0, -2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case "crown":
+        // Corona Real
+        ctx.moveTo(-10, -5);
+        ctx.lineTo(-7, 7);
+        ctx.lineTo(7, 7);
+        ctx.lineTo(10, -5);
+        ctx.lineTo(4, 2);
+        ctx.lineTo(0, -7);
+        ctx.lineTo(-4, 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case "sparkles":
+        // Destello mágico de 4 puntas
+        ctx.moveTo(0, -10);
+        ctx.quadraticCurveTo(0, 0, 10, 0);
+        ctx.quadraticCurveTo(0, 0, 0, 10);
+        ctx.quadraticCurveTo(0, 0, -10, 0);
+        ctx.quadraticCurveTo(0, 0, 0, -10);
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case "bell":
+        // Campana dorada
+        ctx.arc(0, -2, 6, Math.PI, 0, false);
+        ctx.lineTo(9, 6);
+        ctx.lineTo(-9, 6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 8, 2, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      case "tree":
+        // Árbol navideño
+        ctx.moveTo(0, -10);
+        ctx.lineTo(7, 0);
+        ctx.lineTo(3, 0);
+        ctx.lineTo(9, 7);
+        ctx.lineTo(-9, 7);
+        ctx.lineTo(-3, 0);
+        ctx.lineTo(-7, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillRect(-2, 7, 4, 3);
+        break;
+      default:
+        // Nota musical por defecto
+        ctx.arc(-3, 4, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(-1, -8, 2, 12);
+        ctx.fillRect(-1, -8, 8, 3);
+        break;
+    }
 
     ctx.restore();
   }
@@ -1616,7 +1725,7 @@ export class BellSymphonyGame extends BaseGame {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#031524";
-        ctx.fillText(`${cfg.icon} ${cfg.shortLabel}`, tx + tabW / 2, diffBarY + diffBarH * 0.42);
+        ctx.fillText(cfg.shortLabel, tx + tabW / 2, diffBarY + diffBarH * 0.42);
 
         ctx.font = `800 ${Math.max(7.5, Math.min(9.5, diffBarH * 0.26))}px 'Outfit', sans-serif`;
         ctx.fillStyle = "#0A2540";
@@ -1634,7 +1743,7 @@ export class BellSymphonyGame extends BaseGame {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-        ctx.fillText(`${cfg.icon} ${cfg.shortLabel}`, tx + tabW / 2, diffBarY + diffBarH * 0.42);
+        ctx.fillText(cfg.shortLabel, tx + tabW / 2, diffBarY + diffBarH * 0.42);
 
         ctx.font = `600 ${Math.max(7, Math.min(9, diffBarH * 0.24))}px 'Outfit', sans-serif`;
         ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
@@ -1669,12 +1778,11 @@ export class BellSymphonyGame extends BaseGame {
       ctx.strokeStyle = isSelected ? activeDiffCfg.color : "rgba(255, 215, 0, 0.35)";
       ctx.stroke();
 
-      // Icono
-      const iconSize = Math.max(16, Math.min(22, cardH * 0.38));
-      ctx.font = `${iconSize}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(song.icon, cardX + iconSize + 10, cy + cardH / 2);
+      // Icono Vectorial estilizado
+      const iconSize = Math.max(18, Math.min(24, cardH * 0.44));
+      const iconX = cardX + iconSize + 8;
+      const iconY = cy + cardH / 2;
+      this.drawSongBadgeVectorIcon(ctx, song.icon, iconX, iconY, iconSize, isSelected ? activeDiffCfg.color : "#FFD700");
 
       // Título
       const titleFont = Math.max(11.5, Math.min(14.5, cardH * 0.29));
@@ -1729,7 +1837,7 @@ export class BellSymphonyGame extends BaseGame {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#041424";
-    ctx.fillText("🛠️ MODO GRABADOR / EDITOR DE RITMO", cx, editorBtnY + editorBtnH * 0.38);
+    ctx.fillText("MODO GRABADOR / EDITOR DE RITMO", cx, editorBtnY + editorBtnH * 0.38);
 
     ctx.font = `700 ${Math.max(8.5, Math.min(10.5, editorBtnH * 0.25))}px 'Outfit', sans-serif`;
     ctx.fillStyle = "#041424";
@@ -1749,17 +1857,17 @@ export class BellSymphonyGame extends BaseGame {
     const accuracy = Math.min(100, Math.round((scoreWeighted / totalNotes) * 100));
 
     if (accuracy >= 95 && this.missCount === 0) {
-      return { rank: "S+", accuracy, label: "🌟 RANGO LEGENDARIO", color: "#FFD700" };
+      return { rank: "S+", accuracy, label: "RANGO LEGENDARIO", color: "#FFD700" };
     } else if (accuracy >= 90) {
-      return { rank: "S", accuracy, label: "✨ RANGO EXCELENTE", color: "#FFD700" };
+      return { rank: "S", accuracy, label: "RANGO EXCELENTE", color: "#FFD700" };
     } else if (accuracy >= 78) {
-      return { rank: "A", accuracy, label: "⭐ RANGO GENIAL", color: "#00E5FF" };
+      return { rank: "A", accuracy, label: "RANGO GENIAL", color: "#00E5FF" };
     } else if (accuracy >= 65) {
-      return { rank: "B", accuracy, label: "👍 RANGO BUENO", color: "#00E676" };
+      return { rank: "B", accuracy, label: "RANGO BUENO", color: "#00E676" };
     } else if (accuracy >= 50) {
-      return { rank: "C", accuracy, label: "🔔 RANGO REGULAR", color: "#FF9100" };
+      return { rank: "C", accuracy, label: "RANGO REGULAR", color: "#FF9100" };
     } else {
-      return { rank: "D", accuracy, label: "💫 RANGO ASPIRANTE", color: "#FF5252" };
+      return { rank: "D", accuracy, label: "RANGO ASPIRANTE", color: "#FF5252" };
     }
   }
 
@@ -1776,7 +1884,7 @@ export class BellSymphonyGame extends BaseGame {
       songTitle: this.isCustomChartPlaying ? "Partitura Personalizada" : (song?.title || "Sinfonía de Campanas"),
       songArtist: this.isCustomChartPlaying ? "Creador de Ritmo" : (song?.artist || "Alexander Nakarada"),
       difficulty: this.selectedDifficulty,
-      difficultyLabel: `${diffCfg.icon} ${diffCfg.label}`,
+      difficultyLabel: diffCfg.label,
       difficultyColor: diffCfg.color,
       bpm: this.bpm,
       rank: rankInfo.rank,

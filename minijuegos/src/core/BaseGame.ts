@@ -925,15 +925,15 @@ export abstract class BaseGame {
 
     // Relleno dorado
     ctx.fillStyle = "#FFF59D";
-    ctx.fillText("⏰ ¡TIEMPO AGOTADO!", 0, -20);
+    ctx.fillText("¡TIEMPO AGOTADO!", 0, -20);
 
     // Subtítulo
     ctx.font = `800 ${Math.max(14, Math.min(22, this.width * 0.038))}px 'Outfit', sans-serif`;
     ctx.strokeStyle = "rgba(0, 0, 0, 0.85)";
     ctx.lineWidth = 4;
-    ctx.strokeText("✨ ¡CALCULANDO PUNTUACIÓN MÁGICA! ✨", 0, 26);
+    ctx.strokeText("¡CALCULANDO PUNTUACIÓN MÁGICA!", 0, 26);
     ctx.fillStyle = "#FFD700";
-    ctx.fillText("✨ ¡CALCULANDO PUNTUACIÓN MÁGICA! ✨", 0, 26);
+    ctx.fillText("¡CALCULANDO PUNTUACIÓN MÁGICA!", 0, 26);
 
     ctx.restore();
   }

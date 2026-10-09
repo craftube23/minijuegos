@@ -99,7 +99,7 @@ export class GameMenu {
       <div class="menu-header">
         <div class="menu-top-actions">
           <button id="btn-back-to-landing" class="btn-fantasy-back-landing" title="Regresar al inicio de la Feria">
-            <span class="btn-icon">🎪</span>
+            <span class="btn-icon">${getIconSvg("tent", { size: 20, color: "#FFD700" })}</span>
             <span class="btn-text">VOLVER A LA FERIA</span>
           </button>
         </div>
@@ -156,7 +156,7 @@ export class GameMenu {
 
                 <!-- Placa de Madera Rústica para el Récord -->
                 <div class="card-record-plaque">
-                  <span class="plaque-trophy">🏆</span>
+                  <span class="plaque-trophy">${getIconSvg("trophy", { size: 18, color: "#FFD700" })}</span>
                   <span class="plaque-label">Récord: <strong class="plaque-value">${record}</strong> pts</span>
                 </div>
 

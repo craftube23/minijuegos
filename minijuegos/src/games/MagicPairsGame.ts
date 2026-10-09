@@ -330,26 +330,26 @@ export class MagicPairsGame extends BaseGame {
 
     if (isFair) {
       this.triggerLogoPowerUp(1, 6);
-      this.addFloatingText("✨ ¡PAREJA FERIA MÁGICA! +500 ✨", centerX, centerY, "#FFD700", 1.35);
+      this.addFloatingText("¡PAREJA FERIA MÁGICA! +500", centerX, centerY, "#FFD700", 1.35);
       this.particles.emitConfetti(this.width, 35);
     } else if (isCampus) {
       this.triggerLogoPowerUp(2, 6);
-      this.addFloatingText("🚀 ¡PAREJA CAMPUSLANDS! +500 ✨", centerX, centerY, "#00E5FF", 1.35);
+      this.addFloatingText("¡PAREJA CAMPUSLANDS! +500", centerX, centerY, "#00E5FF", 1.35);
       this.particles.emitConfetti(this.width, 35);
     } else if (isStar) {
-      this.addFloatingText("⭐ ¡ESTRELLA MÁGICA! +500", centerX, centerY, "#FFE082", 1.35);
+      this.addFloatingText("¡ESTRELLA MÁGICA! +500", centerX, centerY, "#FFE082", 1.35);
       this.particles.emitBurst(centerX, centerY, "#FFD700", 25);
     } else if (isElf) {
-      this.addFloatingText("🧝‍♂️ ¡ELFO VOLADOR! +300", centerX, centerY, "#76FF03", 1.3);
+      this.addFloatingText("¡ELFO VOLADOR! +300", centerX, centerY, "#76FF03", 1.3);
       this.particles.emitBurst(centerX, centerY, "#00E676", 20);
     } else if (this.firstSelectedCard.pairKey === "candy_cane") {
-      this.addFloatingText("🍬 ¡BASTÓN DULCE! +200", centerX, centerY, "#FF1744", 1.25);
+      this.addFloatingText("¡BASTÓN DULCE! +200", centerX, centerY, "#FF1744", 1.25);
       this.particles.emitBurst(centerX, centerY, "#FF5252", 18);
     } else if (this.firstSelectedCard.pairKey === "drums") {
-      this.addFloatingText("🥁 ¡TAMBORES! +200", centerX, centerY, "#FF9100", 1.25);
+      this.addFloatingText("¡TAMBORES! +200", centerX, centerY, "#FF9100", 1.25);
       this.particles.emitBurst(centerX, centerY, "#FFAB40", 18);
     } else if (this.firstSelectedCard.pairKey === "bells") {
-      this.addFloatingText("🔔 ¡CAMPANAS! +200", centerX, centerY, "#FFD700", 1.25);
+      this.addFloatingText("¡CAMPANAS! +200", centerX, centerY, "#FFD700", 1.25);
       this.particles.emitBurst(centerX, centerY, "#FFE57F", 18);
     } else {
       this.addFloatingText(`+${points} ¡PAREJA!`, centerX, centerY, "#00E676", 1.2);
@@ -383,7 +383,7 @@ export class MagicPairsGame extends BaseGame {
     this.addScore(levelBonus);
     this.timeRemaining = Math.min(60, this.timeRemaining + 6); // +6s bonus de tiempo por nivel superado
     this.audio.playPowerUp();
-    this.addFloatingText(`🎉 ¡NIVEL ${this.level} SUPERADO! +${levelBonus}`, this.width / 2, this.height * 0.35, "#FFD700", 1.5);
+    this.addFloatingText(`¡NIVEL ${this.level} SUPERADO! +${levelBonus}`, this.width / 2, this.height * 0.35, "#FFD700", 1.5);
     this.particles.emitConfetti(this.width, 45);
 
     this.level++;

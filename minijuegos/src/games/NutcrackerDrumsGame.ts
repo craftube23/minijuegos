@@ -80,7 +80,7 @@ export class NutcrackerDrumsGame extends BaseGame {
   ) {
     super(
       "tree-melody",
-      "🥁 Tambores del Cascanueces",
+      "Tambores del Cascanueces",
       "¡Mira al elfo tocar el ritmo y repite exactamente su secuencia en los tambores mágicos!",
       canvas,
       input,
@@ -120,7 +120,7 @@ export class NutcrackerDrumsGame extends BaseGame {
       {
         id: 0,
         name: "DON",
-        label: "🔴 DON",
+        label: "DON",
         subLabel: "[ 1 ]",
         x: cx - drumSpacing,
         y: drumY,
@@ -135,7 +135,7 @@ export class NutcrackerDrumsGame extends BaseGame {
       {
         id: 1,
         name: "STAR",
-        label: "⭐ STAR",
+        label: "STAR",
         subLabel: "[ 2 ]",
         x: cx,
         y: drumY - 20, // Tambor dorado ligeramente elevado
@@ -150,7 +150,7 @@ export class NutcrackerDrumsGame extends BaseGame {
       {
         id: 2,
         name: "KA",
-        label: "🔵 KA",
+        label: "KA",
         subLabel: "[ 3 ]",
         x: cx + drumSpacing,
         y: drumY,
@@ -264,7 +264,7 @@ export class NutcrackerDrumsGame extends BaseGame {
           this.turnState = "player_turn";
           this.playerStep = 0;
           this.elfAnimState = "idle";
-          this.addFloatingText("¡TU TURNO! 🎯", this.width / 2, this.height * 0.58, "#00E676", 1.3);
+          this.addFloatingText("¡TU TURNO!", this.width / 2, this.height * 0.58, "#00E676", 1.3);
         }
       }
     } else if (this.turnState === "round_success") {
@@ -366,7 +366,7 @@ export class NutcrackerDrumsGame extends BaseGame {
         this.addScore(roundBonus);
         
         this.particles.emitBurst(this.width / 2, this.height * 0.45, "#FFD700", 35);
-        this.addFloatingText("+3.0s ⏱️", this.width / 2, this.height * 0.45, "#00E676", 1.45);
+        this.addFloatingText("+3.0s TIEMPO", this.width / 2, this.height * 0.45, "#00E676", 1.45);
         this.addFloatingText(`¡RONDA ${this.currentRound} SUPERADA! (+${roundBonus})`, this.width / 2, this.height * 0.52, "#00E5FF", 1.25);
       }
     } else {
@@ -380,7 +380,7 @@ export class NutcrackerDrumsGame extends BaseGame {
       this.elfAnimState = "confused";
       
       this.particles.emitBurst(drum.x, drum.y, "#FF1744", 20);
-      this.addFloatingText("¡RITMO FALLIDO! ✕", this.width / 2, this.height * 0.52, "#FF1744", 1.2);
+      this.addFloatingText("¡RITMO FALLIDO!", this.width / 2, this.height * 0.52, "#FF1744", 1.2);
     }
   }
 
@@ -704,8 +704,8 @@ export class NutcrackerDrumsGame extends BaseGame {
 
     // Título del Turno actual
     const titleText = isElfTurn
-      ? "🧝 ¡MIRA Y ESCUCHA AL ELFO!"
-      : "🎯 ¡TU TURNO! REPITE EL RITMO";
+      ? "¡MIRA Y ESCUCHA AL ELFO!"
+      : "¡TU TURNO! REPITE EL RITMO";
     
     ctx.font = "900 13px 'Outfit', sans-serif";
     ctx.fillStyle = isElfTurn ? "#F39C12" : "#2ECC71";

@@ -12,15 +12,16 @@
  */
 
 import { AudioManager } from "../core/AudioManager";
+import { getIconSvg } from "../utils/icons";
 
 export interface GameInstructionData {
   id: string;
   title: string;
-  icon: string;
+  iconName: string;
   themeColor: string;
   goal: string;
-  positiveItems: { icon: string; label: string }[];
-  negativeItems: { icon: string; label: string }[];
+  positiveItems: { iconName: string; label: string }[];
+  negativeItems: { iconName: string; label: string }[];
   controls: string;
 }
 
@@ -28,77 +29,77 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
   "toy-catch": {
     id: "toy-catch",
     title: "Atrapa-Regalos Mágico",
-    icon: "🎁",
+    iconName: "gift",
     themeColor: "#FF2A4D",
     goal: "Mueve el saco de Santa para atrapar la mayor cantidad de juguetes.",
     positiveItems: [
-      { icon: "🎁", label: "Regalos (+100 pts)" },
-      { icon: "🧸", label: "Juguetes (+150 pts)" },
-      { icon: "⭐", label: "Logos (¡Poder x2!)" }
+      { iconName: "gift", label: "Regalos (+100 pts)" },
+      { iconName: "sparkles", label: "Juguetes (+150 pts)" },
+      { iconName: "star", label: "Logos (¡Poder x2!)" }
     ],
     negativeItems: [
-      { icon: "🪨", label: "Carbón (Resta puntos)" },
-      { icon: "🧊", label: "Hielo (Te congela)" }
+      { iconName: "flame", label: "Carbón (Resta puntos)" },
+      { iconName: "snowflake", label: "Hielo (Te congela)" }
     ],
     controls: "Arrastra con el dedo o usa Teclas [ A / D ] o [ ◄ / ► ]"
   },
   "bell-symphony": {
     id: "bell-symphony",
     title: "Sinfonía de Campanas",
-    icon: "🔔",
+    iconName: "bell",
     themeColor: "#00E5FF",
     goal: "Toca las flechas justo cuando pasen por la línea inferior.",
     positiveItems: [
-      { icon: "🔔", label: "Notas al compás (+Puntos y Combo)" },
-      { icon: "⭐", label: "Notas Logo (¡Star Power x4!)" }
+      { iconName: "bell", label: "Notas al compás (+Puntos y Combo)" },
+      { iconName: "star", label: "Notas Logo (¡Star Power x4!)" }
     ],
     negativeItems: [
-      { icon: "⚠️", label: "5 Fallos = ¡Fin del Juego! (5 Vidas)" }
+      { iconName: "flame", label: "Fallos = Pérdida de Campanas (Vidas)" }
     ],
     controls: "Toca los 4 carriles o usa las teclas [ D - F - J - K ]"
   },
   "tree-melody": {
     id: "tree-melody",
     title: "Tambores del Cascanueces",
-    icon: "🥁",
+    iconName: "drum",
     themeColor: "#FFB300",
     goal: "Observa al elfo tocar el ritmo y repite exactamente su secuencia en los tambores.",
     positiveItems: [
-      { icon: "🥁", label: "Golpes al compás (+Puntos y Combo x2/x3)" },
-      { icon: "🟡", label: "Tambor Dorado (¡Doble puntuación festiva!)" }
+      { iconName: "drum", label: "Golpes al compás (+Puntos y Combo x2/x3)" },
+      { iconName: "star", label: "Tambor Dorado (¡Doble puntuación festiva!)" }
     ],
     negativeItems: [
-      { icon: "⚠️", label: "5 Fallos = ¡Fin del Concierto! (5 Vidas)" }
+      { iconName: "flame", label: "Fallos = Pérdida de Vidas" }
     ],
-    controls: "Toca los 3 tambores [ 🔴 DON | 🟡 STAR | 🔵 KA ] o teclas [ 1 - 2 - 3 ]"
+    controls: "Toca los 3 tambores [ DON | STAR | KA ] o teclas [ 1 - 2 - 3 ]"
   },
   "flying-elf": {
     id: "flying-elf",
     title: "El Vuelo Mágico del Elfo",
-    icon: "🧝‍♂️",
+    iconName: "sparkles",
     themeColor: "#D500F9",
     goal: "Mantén pulsada la pantalla para ascender y suelta para planear.",
     positiveItems: [
-      { icon: "🎁", label: "Regalos y Dulces (+100 a +250 pts)" },
-      { icon: "⭐", label: "Logo Feria (¡Turbo + Imán x2 de Puntos!)" }
+      { iconName: "gift", label: "Regalos y Dulces (+100 a +250 pts)" },
+      { iconName: "star", label: "Logo Feria (¡Turbo + Imán x2 de Puntos!)" }
     ],
     negativeItems: [
-      { icon: "⚠️", label: "Chimeneas y Hielo (-2.5s de tiempo)" }
+      { iconName: "snowflake", label: "Chimeneas y Hielo (-2.5s de tiempo)" }
     ],
     controls: "Mantén presionado en pantalla táctil o usa [ Espacio / W / ▲ ]"
   },
   "magic-pairs": {
     id: "magic-pairs",
     title: "Parejas de Juguetes",
-    icon: "🃏",
+    iconName: "cards",
     themeColor: "#D500F9",
     goal: "Gira las cartas y encuentra todas las parejas antes de que acabe el tiempo.",
     positiveItems: [
-      { icon: "🃏", label: "Parejas iguales (+Puntos y nuevo nivel)" },
-      { icon: "⭐", label: "Logo Feria (¡Bonus x2 de Puntos!)" }
+      { iconName: "cards", label: "Parejas iguales (+Puntos y nuevo nivel)" },
+      { iconName: "star", label: "Logo Feria (¡Bonus x2 de Puntos!)" }
     ],
     negativeItems: [
-      { icon: "⏳", label: "El tiempo corre sin detenerse" }
+      { iconName: "timer", label: "El tiempo corre sin detenerse" }
     ],
     controls: "Toca cualquier carta para girarla"
   }
@@ -155,40 +156,42 @@ export class GameInstructionsModal {
         <div class="instructions-header">
           <span class="instructions-badge">CÓMO JUGAR</span>
           <h2 class="instructions-title">
-            <span class="instructions-icon">${data.icon}</span>
+            <span class="instructions-icon">${getIconSvg(data.iconName, { size: 28, color: data.themeColor, fill: `${data.themeColor}33` })}</span>
             ${data.title}
           </h2>
-          <p class="instructions-goal">🎯 <strong>Objetivo:</strong> ${data.goal}</p>
+          <p class="instructions-goal">${getIconSvg("target", { size: 18, color: "var(--color-gold)" })} <strong>Objetivo:</strong> ${data.goal}</p>
         </div>
 
-        <!-- CUADRÍCULA VISUAL: 🟢 BUENO vs 🔴 PELIGRO -->
+        <!-- CUADRÍCULA VISUAL: BUENO vs PELIGRO -->
         <div class="instructions-grid">
-          <!-- 🟢 QUÉ RECOGER / BENEFICIOSO -->
+          <!-- QUÉ RECOGER / BENEFICIOSO -->
           <div class="instruction-box box-positive">
             <div class="box-title positive-title">
               <span class="dot-indicator green-dot"></span>
-              🟢 ¡SUMA PUNTOS! (RECOGER)
+              ${getIconSvg("sparkles", { size: 18, color: "#00E676" })}
+              <span>¡SUMA PUNTOS! (RECOGER)</span>
             </div>
             <div class="items-list">
               ${data.positiveItems.map(item => `
                 <div class="item-chip chip-positive">
-                  <span class="chip-icon">${item.icon}</span>
+                  <span class="chip-icon">${getIconSvg(item.iconName, { size: 18, color: "#00E676" })}</span>
                   <span class="chip-text">${item.label}</span>
                 </div>
               `).join("")}
             </div>
           </div>
 
-          <!-- 🔴 QUÉ EVITAR / PELIGRO -->
+          <!-- QUÉ EVITAR / PELIGRO -->
           <div class="instruction-box box-negative">
             <div class="box-title negative-title">
               <span class="dot-indicator red-dot"></span>
-              🔴 ¡CUIDADO! (EVITAR / NO TOCAR)
+              ${getIconSvg("flame", { size: 18, color: "#FF3366" })}
+              <span>¡CUIDADO! (EVITAR)</span>
             </div>
             <div class="items-list">
               ${data.negativeItems.map(item => `
                 <div class="item-chip chip-negative">
-                  <span class="chip-icon">${item.icon}</span>
+                  <span class="chip-icon">${getIconSvg(item.iconName, { size: 18, color: "#FF3366" })}</span>
                   <span class="chip-text">${item.label}</span>
                 </div>
               `).join("")}
@@ -198,17 +201,19 @@ export class GameInstructionsModal {
 
         <!-- CONTROLES -->
         <div class="instructions-controls">
-          <span class="controls-icon">🕹️</span>
+          <span class="controls-icon">${getIconSvg("gamepad", { size: 20, color: "var(--color-cyan)" })}</span>
           <span class="controls-text"><strong>Controles:</strong> ${data.controls}</span>
         </div>
 
         <!-- BOTONES DE ACCIÓN -->
         <div class="instructions-actions">
           <button id="btn-instructions-back" class="btn-instruction-secondary">
-            ⬅️ VOLVER
+            ${getIconSvg("arrowLeft", { size: 20, color: "#ffffff" })}
+            <span>VOLVER</span>
           </button>
           <button id="btn-instructions-play" class="btn-instruction-primary">
-            ¡A JUGAR! ▶
+            <span>¡A JUGAR!</span>
+            ${getIconSvg("play", { size: 20, color: "#ffffff", fill: "#ffffff" })}
           </button>
         </div>
       </div>
