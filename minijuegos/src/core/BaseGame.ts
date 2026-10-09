@@ -36,6 +36,9 @@ export interface GameResult {
   totalNotes?: number;
   songTitle?: string;
   songArtist?: string;
+  difficulty?: string;
+  difficultyLabel?: string;
+  difficultyColor?: string;
   isCustomChart?: boolean;
   customNotes?: any[];
   songFile?: string;

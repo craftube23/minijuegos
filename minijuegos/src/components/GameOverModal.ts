@@ -70,6 +70,7 @@ export class GameOverModal {
               <span class="song-icon">🎵</span>
               <span class="song-name">${result.songTitle}</span>
               ${result.songArtist ? `<span class="song-by">• ${result.songArtist}</span>` : ""}
+              ${result.difficultyLabel ? `<span class="song-difficulty-badge" style="background:${result.difficultyColor || '#FFD700'}; color:#031524; padding:2px 8px; border-radius:10px; font-weight:800; font-size:0.75rem; margin-left:6px;">${result.difficultyLabel}</span>` : ""}
             </div>
           ` : ""}
         </div>

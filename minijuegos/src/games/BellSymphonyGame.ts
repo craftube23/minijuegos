@@ -32,6 +32,92 @@ import {
 
 export { type SongDef };
 
+export type DifficultyLevel = "easy" | "normal" | "hard" | "expert";
+
+export interface DifficultyConfig {
+  id: DifficultyLevel;
+  label: string;
+  shortLabel: string;
+  icon: string;
+  color: string;
+  glowColor: string;
+  speedMultiplier: number;
+  perfectWindow: number;
+  greatWindow: number;
+  goodWindow: number;
+  missWindow: number;
+  scoreMultiplier: number;
+  lives: number;
+  description: string;
+}
+
+export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
+  easy: {
+    id: "easy",
+    label: "FÁCIL",
+    shortLabel: "FÁCIL",
+    icon: "🟢",
+    color: "#00E676",
+    glowColor: "rgba(0, 230, 118, 0.5)",
+    speedMultiplier: 0.72,
+    perfectWindow: 0.10,
+    greatWindow: 0.18,
+    goodWindow: 0.28,
+    missWindow: 0.35,
+    scoreMultiplier: 1.0,
+    lives: 5,
+    description: "Ritmo accesible y amigable"
+  },
+  normal: {
+    id: "normal",
+    label: "NORMAL",
+    shortLabel: "NORMAL",
+    icon: "🟡",
+    color: "#FFD700",
+    glowColor: "rgba(255, 215, 0, 0.5)",
+    speedMultiplier: 1.00,
+    perfectWindow: 0.065,
+    greatWindow: 0.12,
+    goodWindow: 0.22,
+    missWindow: 0.28,
+    scoreMultiplier: 1.25,
+    lives: 5,
+    description: "Equilibrado y divertido"
+  },
+  hard: {
+    id: "hard",
+    label: "DIFÍCIL",
+    shortLabel: "DIFÍCIL",
+    icon: "🔴",
+    color: "#FF3366",
+    glowColor: "rgba(255, 51, 102, 0.5)",
+    speedMultiplier: 1.28,
+    perfectWindow: 0.050,
+    greatWindow: 0.09,
+    goodWindow: 0.16,
+    missWindow: 0.22,
+    scoreMultiplier: 1.60,
+    lives: 4,
+    description: "Rápido y desafiante"
+  },
+  expert: {
+    id: "expert",
+    label: "EXPERTO",
+    shortLabel: "EXPERTO",
+    icon: "🟣",
+    color: "#D500F9",
+    glowColor: "rgba(213, 0, 249, 0.5)",
+    speedMultiplier: 1.55,
+    perfectWindow: 0.038,
+    greatWindow: 0.065,
+    goodWindow: 0.12,
+    missWindow: 0.18,
+    scoreMultiplier: 2.00,
+    lives: 3,
+    description: "Máxima velocidad y notas dobles"
+  }
+};
+
 interface FallingNote {
   id: number;
   lane: number; // 0: Rojo (← / D), 1: Dorado (↓ / F), 2: Verde (↑ / J), 3: Azul (→ / K)
@@ -76,6 +162,7 @@ export class BellSymphonyGame extends BaseGame {
   // Lista de canciones seleccionables
   public readonly songList: SongDef[] = RHYTHM_SONG_LIST;
 
+  public selectedDifficulty: DifficultyLevel = "normal";
   private selectedSongIndex: number = 0;
   private gameState: "song-select" | "countdown" | "playing" = "song-select";
 
@@ -286,6 +373,8 @@ export class BellSymphonyGame extends BaseGame {
     this.greatCount = 0;
     this.goodCount = 0;
     this.missCount = 0;
+    const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
+    this.maxLives = diffCfg.lives;
     this.lives = this.maxLives;
     this.activeJudgements = [];
     this.lanePressed = [false, false, false, false];
@@ -339,15 +428,20 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Inicia la canción elegida y activa el intro Guitar Hero
+   * Inicia la canción elegida y activa el intro Guitar Hero con la dificultad configurada
    */
-  public startSong(index: number): void {
+  public startSong(index: number, difficulty?: DifficultyLevel): void {
+    if (difficulty) {
+      this.selectedDifficulty = difficulty;
+    }
+    const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
+
     this.selectedSongIndex = Math.max(0, Math.min(this.songList.length - 1, index));
     const song = this.songList[this.selectedSongIndex];
 
     this.isCustomChartPlaying = false;
     this.bpm = song.bpm;
-    this.noteSpeed = song.speed;
+    this.noteSpeed = Math.round(song.speed * diffCfg.speedMultiplier);
     this.currentTime = 0;
     this.combo = 0;
     this.maxCombo = 0;
@@ -355,6 +449,7 @@ export class BellSymphonyGame extends BaseGame {
     this.greatCount = 0;
     this.goodCount = 0;
     this.missCount = 0;
+    this.maxLives = diffCfg.lives;
     this.lives = this.maxLives;
     this.activeJudgements = [];
     this.starPowerTimer = 0;
@@ -446,8 +541,9 @@ export class BellSymphonyGame extends BaseGame {
     this.lastCustomNotes = [...customNotes];
     this.lastCustomSongFile = songFile;
 
+    const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
     this.bpm = bpm;
-    this.noteSpeed = 520;
+    this.noteSpeed = Math.round(520 * diffCfg.speedMultiplier);
     this.currentTime = 0;
     this.combo = 0;
     this.maxCombo = 0;
@@ -455,6 +551,7 @@ export class BellSymphonyGame extends BaseGame {
     this.greatCount = 0;
     this.goodCount = 0;
     this.missCount = 0;
+    this.maxLives = diffCfg.lives;
     this.lives = this.maxLives;
     this.activeJudgements = [];
     this.starPowerTimer = 0;
@@ -491,7 +588,6 @@ export class BellSymphonyGame extends BaseGame {
       this.bgAudioElement.addEventListener("error", (e) => {
         console.error("❌ Error cargando pista de audio personalizada:", safeAudioUrl, e);
       });
-      // Audio precargado
     } catch {
       this.bgAudioElement = null;
     }
@@ -539,13 +635,36 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   private handleSongSelectTouch(x: number, y: number): void {
-    const count = this.songList.length;
     const cardW = Math.min(this.width * 0.92, 520);
-    const titleY = Math.max(46, this.height * 0.07);
-    const startY = titleY + 46;
-    const gap = Math.max(5, Math.min(8, this.height * 0.010));
-    const cardH = Math.min(58, Math.max(44, (this.height * 0.60) / count));
     const cardX = (this.width - cardW) / 2;
+    const titleY = Math.max(38, this.height * 0.055);
+    const subY = titleY + 20;
+
+    // Selector de Dificultad (4 Pestañas / Pills)
+    const diffBarY = subY + 14;
+    const diffBarH = Math.min(38, Math.max(30, this.height * 0.045));
+    const tabGap = 6;
+    const tabW = (cardW - 3 * tabGap) / 4;
+    const diffKeys: DifficultyLevel[] = ["easy", "normal", "hard", "expert"];
+
+    if (y >= diffBarY && y <= diffBarY + diffBarH && x >= cardX && x <= cardX + cardW) {
+      for (let d = 0; d < 4; d++) {
+        const tx = cardX + d * (tabW + tabGap);
+        if (x >= tx && x <= tx + tabW) {
+          if (this.selectedDifficulty !== diffKeys[d]) {
+            this.selectedDifficulty = diffKeys[d];
+            this.audio.playTap();
+          }
+          return;
+        }
+      }
+    }
+
+    // Lista de Canciones
+    const count = this.songList.length;
+    const startY = diffBarY + diffBarH + 10;
+    const gap = Math.max(4, Math.min(7, this.height * 0.009));
+    const cardH = Math.min(52, Math.max(40, (this.height * 0.54) / count));
 
     for (let i = 0; i < count; i++) {
       const cy = startY + i * (cardH + gap);
@@ -560,7 +679,7 @@ export class BellSymphonyGame extends BaseGame {
 
     // Botón de Modo Grabador / Editor de Canción
     const editorBtnY = startY + count * (cardH + gap) + 6;
-    const editorBtnH = Math.min(46, Math.max(38, cardH * 0.85));
+    const editorBtnH = Math.min(42, Math.max(34, cardH * 0.85));
     if (x >= cardX && x <= cardX + cardW && y >= editorBtnY && y <= editorBtnY + editorBtnH) {
       this.audio.playTap();
       this.openChartEditor();
@@ -572,13 +691,35 @@ export class BellSymphonyGame extends BaseGame {
       if (!this.isRunning || this.isGameOver) return;
 
       if (this.gameState === "song-select") {
-        if (e.key === "1") this.startSong(0);
+        if (e.key === "q" || e.key === "Q") {
+          this.selectedDifficulty = "easy";
+          this.audio.playTap();
+        } else if (e.key === "w" || e.key === "W") {
+          this.selectedDifficulty = "normal";
+          this.audio.playTap();
+        } else if (e.key === "e" || e.key === "E") {
+          this.selectedDifficulty = "hard";
+          this.audio.playTap();
+        } else if (e.key === "r" || e.key === "R") {
+          this.selectedDifficulty = "expert";
+          this.audio.playTap();
+        } else if (e.key === "ArrowLeft") {
+          const diffs: DifficultyLevel[] = ["easy", "normal", "hard", "expert"];
+          const currIdx = diffs.indexOf(this.selectedDifficulty);
+          this.selectedDifficulty = diffs[Math.max(0, currIdx - 1)];
+          this.audio.playTap();
+        } else if (e.key === "ArrowRight") {
+          const diffs: DifficultyLevel[] = ["easy", "normal", "hard", "expert"];
+          const currIdx = diffs.indexOf(this.selectedDifficulty);
+          this.selectedDifficulty = diffs[Math.min(diffs.length - 1, currIdx + 1)];
+          this.audio.playTap();
+        } else if (e.key === "1") this.startSong(0);
         else if (e.key === "2") this.startSong(1);
         else if (e.key === "3") this.startSong(2);
         else if (e.key === "4") this.startSong(3);
         else if (e.key === "5") this.startSong(4);
         else if (e.key === "6") this.startSong(5);
-        else if (e.key === "e" || e.key === "E") this.openChartEditor();
+        else if (e.key === "x" || e.key === "X") this.openChartEditor();
         else if (e.key === "Enter" || e.key === " ") this.startSong(this.selectedSongIndex);
         return;
       }
@@ -614,7 +755,7 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Genera la partitura de notas para la canción
+   * Genera y adapta la partitura de notas para la canción según la dificultad seleccionada
    */
   private generateSongChart(song: SongDef): void {
     let sourceChart: ChartNoteRecord[] = [];
@@ -643,11 +784,68 @@ export class BellSymphonyGame extends BaseGame {
         break;
     }
 
+    // Adaptación según Dificultad: Fácil, Normal, Difícil, Experto
+    const diff = this.selectedDifficulty;
+    let adaptedChart: ChartNoteRecord[] = [];
+
+    if (diff === "easy") {
+      // Modo Fácil: Simplifica secuencias muy densas manteniendo notas clave y estrellas
+      let lastNoteTime = -1;
+      for (const item of sourceChart) {
+        if (lastNoteTime < 0 || item.time - lastNoteTime >= 0.28 || item.isStar) {
+          adaptedChart.push({
+            ...item,
+            duration: item.duration ? Math.min(item.duration, 1.2) : 0
+          });
+          lastNoteTime = item.time;
+        }
+      }
+    } else if (diff === "normal") {
+      // Modo Normal: Partitura completa estándar
+      adaptedChart = sourceChart.map((n) => ({ ...n }));
+    } else if (diff === "hard") {
+      // Modo Difícil: Partitura completa + notas de contratiempo en descansos
+      adaptedChart = sourceChart.map((n) => ({ ...n }));
+      for (let i = 0; i < sourceChart.length - 1; i++) {
+        const cur = sourceChart[i];
+        const next = sourceChart[i + 1];
+        const gap = next.time - (cur.time + (cur.duration || 0));
+        if (gap > 1.3 && gap < 3.2) {
+          const midTime = Number((cur.time + gap * 0.5).toFixed(2));
+          const newLane = (cur.lane + 2) % 4;
+          adaptedChart.push({
+            lane: newLane,
+            time: midTime,
+            duration: 0,
+            type: "normal"
+          });
+        }
+      }
+      adaptedChart.sort((a, b) => a.time - b.time);
+    } else if (diff === "expert") {
+      // Modo Experto: Notas dobles simultáneas (acordes de campanas) en pulsos clave
+      adaptedChart = sourceChart.map((n) => ({ ...n }));
+      const chords: ChartNoteRecord[] = [];
+      for (let i = 0; i < sourceChart.length; i++) {
+        const cur = sourceChart[i];
+        if (i % 3 === 0 && (!cur.duration || cur.duration === 0)) {
+          const chordLane = (cur.lane + 1) % 4;
+          chords.push({
+            lane: chordLane,
+            time: cur.time,
+            duration: 0,
+            type: "normal"
+          });
+        }
+      }
+      adaptedChart = [...adaptedChart, ...chords].sort((a, b) => a.time - b.time);
+    }
+
     this.notes = [];
     let noteId = 0;
     let starCount = 0;
 
-    for (const item of sourceChart) {
+    for (const item of adaptedChart) {
       let logoType: 1 | 2 = 1;
       if (item.isStar) {
         starCount++;
@@ -675,7 +873,7 @@ export class BellSymphonyGame extends BaseGame {
       });
     }
 
-    const lastItem = sourceChart[sourceChart.length - 1];
+    const lastItem = adaptedChart[adaptedChart.length - 1];
     if (lastItem) {
       const calculatedEnd = lastItem.time + (lastItem.duration || 0) + 3.0;
       this.songDuration = Math.max(song.durationSeconds || 120, calculatedEnd);
@@ -683,11 +881,13 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Presión de un carril: verifica timing de notas normales o inicio de sustain
+   * Presión de un carril: verifica timing según las ventanas de la dificultad activa
    */
   private handleLanePress(lane: number): void {
     this.lanePressed[lane] = true;
     this.playHitsound(lane);
+
+    const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
 
     let closestNote: FallingNote | null = null;
     let minDiff = 999;
@@ -696,8 +896,8 @@ export class BellSymphonyGame extends BaseGame {
       // Regla estricta: Una nota ya tocada (!note.hit) o fallada (!note.missed) nunca se puede volver a tomar
       if (note.lane === lane && !note.hit && !note.missed) {
         const diff = Math.abs(note.targetTime - this.currentTime);
-        // Ventana estricta al inicio de la nota (solo inicio/cabeza)
-        if (diff < minDiff && diff < 0.24) {
+        // Ventana estricta al inicio de la nota según la dificultad
+        if (diff < minDiff && diff < diffCfg.goodWindow + 0.05) {
           minDiff = diff;
           closestNote = note;
         }
@@ -710,17 +910,17 @@ export class BellSymphonyGame extends BaseGame {
       // Marcar inmediatamente como tocada para que no se pueda volver a tomar jamás
       closestNote.hit = true;
 
-      // Juicio según precisión temporal
-      if (minDiff <= 0.06) {
-        const pts = 300 * this.getMultiplier();
+      // Juicio según precisión temporal y multiplicador de dificultad
+      if (minDiff <= diffCfg.perfectWindow) {
+        const pts = Math.round(300 * diffCfg.scoreMultiplier * this.getMultiplier());
         this.addScore(pts);
         this.combo++;
         this.perfectCount++;
         this.spawnJudgement("¡PERFECTO!", "#FFD700", laneCenterX);
         this.addFloatingText(`+${pts}`, laneCenterX, this.hitLineY - 40, "#FFD700", 1.3);
         this.particles.emitBurst(laneCenterX, this.hitLineY, "#FFD700", 16);
-      } else if (minDiff <= 0.12) {
-        const pts = 180 * this.getMultiplier();
+      } else if (minDiff <= diffCfg.greatWindow) {
+        const pts = Math.round(180 * diffCfg.scoreMultiplier * this.getMultiplier());
         this.addScore(pts);
         this.combo++;
         this.greatCount++;
@@ -728,7 +928,7 @@ export class BellSymphonyGame extends BaseGame {
         this.addFloatingText(`+${pts}`, laneCenterX, this.hitLineY - 40, "#00E5FF", 1.15);
         this.particles.emitBurst(laneCenterX, this.hitLineY, "#00E5FF", 10);
       } else {
-        const pts = 80 * this.getMultiplier();
+        const pts = Math.round(80 * diffCfg.scoreMultiplier * this.getMultiplier());
         this.addScore(pts);
         this.combo++;
         this.goodCount++;
@@ -908,7 +1108,8 @@ export class BellSymphonyGame extends BaseGame {
 
       // 2. Manejo de Miss de notas no tocadas
       if (!note.hit && !note.missed) {
-        if (this.currentTime - note.targetTime > 0.28) {
+        const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
+        if (this.currentTime - note.targetTime > diffCfg.missWindow) {
           note.missed = true;
           this.missCount++;
           this.combo = 0;
@@ -1253,7 +1454,7 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Rótulo cinemático de inicio estilo Guitar Hero (Título, Autor y Créditos de Licencia)
+   * Rótulo cinemático de inicio estilo Guitar Hero (Título, Autor, Dificultad y Créditos de Licencia)
    */
   private drawGuitarHeroSongCredits(ctx: CanvasRenderingContext2D): void {
     if (this.songIntroTimer <= 0) return;
@@ -1261,6 +1462,7 @@ export class BellSymphonyGame extends BaseGame {
     const song = this.songList[this.selectedSongIndex];
     if (!song) return;
 
+    const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
     const elapsed = this.SONG_INTRO_DURATION - this.songIntroTimer;
     let alpha = 1.0;
     let slideOffsetX = 0;
@@ -1306,14 +1508,15 @@ export class BellSymphonyGame extends BaseGame {
     ctx.fillStyle = titleGrad;
     ctx.fillText(song.title.toUpperCase(), cardX, cardY);
 
-    // 2. BY [ARTISTA]
+    // 2. BY [ARTISTA] + BADGE DIFICULTAD
     const authorY = cardY + titleFont + 6;
     ctx.font = `800 ${authorFont}px 'Outfit', sans-serif`;
     ctx.strokeStyle = "rgba(0, 0, 0, 0.95)";
     ctx.lineWidth = 4;
-    ctx.strokeText(`BY ${song.artist.toUpperCase()}`, cardX, authorY);
+    const authText = `BY ${song.artist.toUpperCase()}  •  [${diffCfg.icon} ${diffCfg.label} ${diffCfg.scoreMultiplier}x]`;
+    ctx.strokeText(authText, cardX, authorY);
     ctx.fillStyle = "#E2E8F0";
-    ctx.fillText(`BY ${song.artist.toUpperCase()}`, cardX, authorY);
+    ctx.fillText(authText, cardX, authorY);
 
     // 3. NOTA DE LICENCIA / CRÉDITOS
     const creditY = authorY + authorFont + 4;
@@ -1328,32 +1531,104 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Pantalla de Selección de Canción interactiva con las 6 canciones
+   * Pantalla de Selección de Canción interactiva con selector de dificultad y canciones
    */
   private drawSongSelector(ctx: CanvasRenderingContext2D): void {
     const cx = this.width / 2;
 
     ctx.save();
 
-    const titleY = Math.max(46, this.height * 0.07);
-    const subY = titleY + 24;
+    const titleY = Math.max(38, this.height * 0.055);
+    const subY = titleY + 20;
 
-    ctx.font = `900 clamp(1.15rem, 3.6vw, 1.65rem) 'Cinzel Decorative', 'Outfit', sans-serif`;
+    ctx.font = `900 clamp(1.10rem, 3.4vw, 1.55rem) 'Cinzel Decorative', 'Outfit', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#FFD700";
     ctx.fillText("SELECCIONA TU CANCIÓN", cx, titleY);
 
-    ctx.font = `700 clamp(0.70rem, 2.0vw, 0.85rem) 'Outfit', sans-serif`;
+    ctx.font = `700 clamp(0.68rem, 1.9vw, 0.82rem) 'Outfit', sans-serif`;
     ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
     ctx.fillText("Concierto Navideño • Alexander Nakarada", cx, subY);
 
-    const count = this.songList.length;
     const cardW = Math.min(this.width * 0.92, 520);
-    const startY = titleY + 44;
-    const gap = Math.max(5, Math.min(8, this.height * 0.010));
-    const cardH = Math.min(58, Math.max(44, (this.height * 0.60) / count));
     const cardX = (this.width - cardW) / 2;
+
+    // =========================================================================
+    // BARRA SELECTORA DE DIFICULTADES (4 PESTAÑAS / BOTONES PILL)
+    // =========================================================================
+    const diffBarY = subY + 14;
+    const diffBarH = Math.min(38, Math.max(30, this.height * 0.045));
+    const tabGap = 6;
+    const tabW = (cardW - 3 * tabGap) / 4;
+    const diffKeys: DifficultyLevel[] = ["easy", "normal", "hard", "expert"];
+
+    for (let d = 0; d < 4; d++) {
+      const key = diffKeys[d];
+      const cfg = DIFFICULTY_CONFIGS[key];
+      const tx = cardX + d * (tabW + tabGap);
+      const isSelected = this.selectedDifficulty === key;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(tx, diffBarY, tabW, diffBarH, 10);
+
+      if (isSelected) {
+        // Pestaña Activa: Fondo brillante
+        const activeGrad = ctx.createLinearGradient(tx, diffBarY, tx, diffBarY + diffBarH);
+        activeGrad.addColorStop(0, cfg.color);
+        activeGrad.addColorStop(1, "rgba(255, 255, 255, 0.9)");
+        ctx.fillStyle = activeGrad;
+        ctx.fill();
+
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = 2.4;
+        ctx.stroke();
+
+        // Resplandor exterior
+        ctx.shadowColor = cfg.color;
+        ctx.shadowBlur = 12;
+
+        ctx.font = `900 ${Math.max(9, Math.min(12, diffBarH * 0.38))}px 'Outfit', sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#031524";
+        ctx.fillText(`${cfg.icon} ${cfg.shortLabel}`, tx + tabW / 2, diffBarY + diffBarH * 0.42);
+
+        ctx.font = `800 ${Math.max(7.5, Math.min(9.5, diffBarH * 0.26))}px 'Outfit', sans-serif`;
+        ctx.fillStyle = "#0A2540";
+        ctx.fillText(`${cfg.scoreMultiplier}x Pts`, tx + tabW / 2, diffBarY + diffBarH * 0.78);
+      } else {
+        // Pestaña Inactiva
+        ctx.fillStyle = "rgba(8, 22, 44, 0.85)";
+        ctx.fill();
+
+        ctx.strokeStyle = cfg.glowColor;
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+
+        ctx.font = `800 ${Math.max(8.5, Math.min(11, diffBarH * 0.36))}px 'Outfit', sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+        ctx.fillText(`${cfg.icon} ${cfg.shortLabel}`, tx + tabW / 2, diffBarY + diffBarH * 0.42);
+
+        ctx.font = `600 ${Math.max(7, Math.min(9, diffBarH * 0.24))}px 'Outfit', sans-serif`;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
+        ctx.fillText(`${cfg.scoreMultiplier}x`, tx + tabW / 2, diffBarY + diffBarH * 0.78);
+      }
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // LISTA DE CANCIONES (6 Canciones)
+    // =========================================================================
+    const activeDiffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
+    const count = this.songList.length;
+    const startY = diffBarY + diffBarH + 10;
+    const gap = Math.max(4, Math.min(7, this.height * 0.009));
+    const cardH = Math.min(52, Math.max(40, (this.height * 0.54) / count));
 
     for (let i = 0; i < count; i++) {
       const song = this.songList[i];
@@ -1368,49 +1643,50 @@ export class BellSymphonyGame extends BaseGame {
 
       // Borde brillante
       ctx.lineWidth = isSelected ? 2.8 : 1.5;
-      ctx.strokeStyle = isSelected ? song.tagColor : "rgba(255, 215, 0, 0.35)";
+      ctx.strokeStyle = isSelected ? activeDiffCfg.color : "rgba(255, 215, 0, 0.35)";
       ctx.stroke();
 
       // Icono
-      const iconSize = Math.max(17, Math.min(23, cardH * 0.40));
+      const iconSize = Math.max(16, Math.min(22, cardH * 0.38));
       ctx.font = `${iconSize}px sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(song.icon, cardX + iconSize + 10, cy + cardH / 2);
 
       // Título
-      const titleFont = Math.max(12, Math.min(15, cardH * 0.30));
+      const titleFont = Math.max(11.5, Math.min(14.5, cardH * 0.29));
       ctx.font = `900 ${titleFont}px 'Outfit', sans-serif`;
       ctx.textAlign = "left";
       ctx.fillStyle = isSelected ? "#FFFFFF" : "#E2E8F0";
-      ctx.fillText(song.title, cardX + iconSize * 2 + 14, cy + cardH * 0.38);
+      ctx.fillText(song.title, cardX + iconSize * 2 + 14, cy + cardH * 0.36);
 
       // Subtítulo y BPM
-      const subFont = Math.max(9, Math.min(11.5, cardH * 0.22));
+      const subFont = Math.max(8.5, Math.min(11, cardH * 0.22));
       ctx.font = `600 ${subFont}px 'Outfit', sans-serif`;
       ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
       ctx.fillText(`${song.subtitle} • ${song.bpm} BPM`, cardX + iconSize * 2 + 14, cy + cardH * 0.72);
 
-      // Badge de Dificultad
-      const badgeW = Math.max(54, Math.min(70, cardW * 0.16));
-      const badgeH = Math.max(18, Math.min(22, cardH * 0.38));
+      // Badge de Dificultad Dinámica
+      const badgeW = Math.max(58, Math.min(76, cardW * 0.17));
+      const badgeH = Math.max(18, Math.min(22, cardH * 0.40));
       const badgeX = cardX + cardW - badgeW - 10;
       const badgeY = cy + (cardH - badgeH) / 2;
 
-      ctx.fillStyle = song.tagColor;
+      ctx.fillStyle = activeDiffCfg.color;
       ctx.beginPath();
       ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 7);
       ctx.fill();
 
-      ctx.font = `900 ${Math.max(8.5, Math.min(10.5, badgeH * 0.54))}px 'Outfit', sans-serif`;
+      ctx.font = `900 ${Math.max(8.5, Math.min(10.5, badgeH * 0.52))}px 'Outfit', sans-serif`;
       ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
       ctx.fillStyle = "#031524";
-      ctx.fillText(song.difficultyLabel, badgeX + badgeW / 2, badgeY + badgeH / 2 + 1);
+      ctx.fillText(`${activeDiffCfg.shortLabel} ${activeDiffCfg.scoreMultiplier}x`, badgeX + badgeW / 2, badgeY + badgeH / 2);
     }
 
     // Botón Modo Grabador / Editor
     const editorBtnY = startY + count * (cardH + gap) + 6;
-    const editorBtnH = Math.min(46, Math.max(38, cardH * 0.85));
+    const editorBtnH = Math.min(42, Math.max(34, cardH * 0.85));
 
     const btnGrad = ctx.createLinearGradient(cardX, editorBtnY, cardX + cardW, editorBtnY);
     btnGrad.addColorStop(0, "#FF8F00");
@@ -1426,15 +1702,15 @@ export class BellSymphonyGame extends BaseGame {
     ctx.strokeStyle = "#FFFFFF";
     ctx.stroke();
 
-    ctx.font = `900 ${Math.max(11, Math.min(14, editorBtnH * 0.34))}px 'Outfit', sans-serif`;
+    ctx.font = `900 ${Math.max(10.5, Math.min(13.5, editorBtnH * 0.35))}px 'Outfit', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#041424";
     ctx.fillText("🛠️ MODO GRABADOR / EDITOR DE RITMO", cx, editorBtnY + editorBtnH * 0.38);
 
-    ctx.font = `700 ${Math.max(9, Math.min(11, editorBtnH * 0.26))}px 'Outfit', sans-serif`;
+    ctx.font = `700 ${Math.max(8.5, Math.min(10.5, editorBtnH * 0.25))}px 'Outfit', sans-serif`;
     ctx.fillStyle = "#041424";
-    ctx.fillText("Graba notas normales y sostenidas • Pulsa [ E ]", cx, editorBtnY + editorBtnH * 0.74);
+    ctx.fillText("Graba notas normales y sostenidas • Pulsa [ X ]", cx, editorBtnY + editorBtnH * 0.74);
 
     ctx.restore();
   }
@@ -1468,12 +1744,17 @@ export class BellSymphonyGame extends BaseGame {
     this.stopSongAudio();
     const rankInfo = this.calculateRank();
     const song = this.songList[this.selectedSongIndex];
+    const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
+
     super.endGame({
       isCustomChart: this.isCustomChartPlaying,
       customNotes: this.lastCustomNotes.length > 0 ? this.lastCustomNotes : undefined,
       songFile: this.isCustomChartPlaying ? this.lastCustomSongFile : (song?.audioFile || "juego campanas/God Rest Ye Merry Metalmen.mp3"),
       songTitle: this.isCustomChartPlaying ? "Partitura Personalizada" : (song?.title || "Sinfonía de Campanas"),
       songArtist: this.isCustomChartPlaying ? "Creador de Ritmo" : (song?.artist || "Alexander Nakarada"),
+      difficulty: this.selectedDifficulty,
+      difficultyLabel: `${diffCfg.icon} ${diffCfg.label}`,
+      difficultyColor: diffCfg.color,
       bpm: this.bpm,
       rank: rankInfo.rank,
       rankLabel: rankInfo.label,
