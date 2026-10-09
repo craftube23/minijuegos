@@ -246,8 +246,9 @@ export class BellSymphonyGame extends BaseGame {
   public override update(dt: number): void {
     if (!this.isRunning || this.isGameOver) return;
 
-    if (this.gameState === "song-select") {
+    if (this.gameState === "song-select" || this.gameState === "countdown") {
       this.timeRemaining = this.songDuration;
+      this.currentTime = 0;
     } else {
       this.timeRemaining = Math.max(0, this.songDuration - this.currentTime);
     }
@@ -301,7 +302,7 @@ export class BellSymphonyGame extends BaseGame {
 
       if (this.gameState === "song-select") {
         this.handleSongSelectTouch(x, y);
-      } else {
+      } else if (this.gameState === "playing") {
         const lane = Math.floor((x - this.laneStartX) / this.laneWidth);
         if (lane >= 0 && lane < 4) {
           this.activePointerLanes.set(pointerId, lane);
@@ -582,6 +583,8 @@ export class BellSymphonyGame extends BaseGame {
         return;
       }
 
+      if (this.gameState !== "playing") return;
+
       let lane = -1;
       if (e.key === "d" || e.key === "D" || e.key === "ArrowLeft") lane = 0;
       else if (e.key === "f" || e.key === "F" || e.key === "ArrowDown") lane = 1;
@@ -845,8 +848,9 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   protected onUpdate(dt: number): void {
-    if (this.gameState === "song-select") {
+    if (this.gameState === "song-select" || this.gameState === "countdown") {
       this.beatPulse = (Date.now() / 1000 * 2) % 1.0;
+      this.currentTime = 0;
       return;
     }
 
