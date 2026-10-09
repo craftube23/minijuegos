@@ -92,8 +92,8 @@ export class ToyCatchGame extends BaseGame {
     this.imgIce.src = "./assets/images/hielo.png";
 
     this.showLives = true;
-    this.lives = 3;
-    this.maxLives = 3;
+    this.lives = 5;
+    this.maxLives = 5;
 
     // Música temática festiva para Atrapa-Regalos
     this.inGameMusicPath = "./assets/audio/Up on the Housetop.mp3";
@@ -101,7 +101,7 @@ export class ToyCatchGame extends BaseGame {
   }
 
   protected onStart(): void {
-    this.lives = 3;
+    this.lives = 5;
     this.updateBasketDimensions();
     this.basketX = this.width / 2;
     this.targetBasketX = this.basketX;
@@ -287,7 +287,13 @@ export class ToyCatchGame extends BaseGame {
 
       if (this.lives <= 0) {
         this.lives = 0;
-        this.endGame();
+        this.timeRemaining = 0;
+        this.isFinishing = true;
+        this.finishTimer = 1.4;
+        this.audio.stopGameBGM();
+        this.audio.playError();
+        this.particles.emitBurst(this.basketX, this.basketY, "#FF1744", 30);
+        this.addFloatingText("¡SIN VIDAS!", this.width / 2, this.height * 0.45, "#FF1744", 1.8);
       }
     } else if (item.type === "fair_logo_box") {
       // LOGO OFICIAL: FERIA MÁGICA

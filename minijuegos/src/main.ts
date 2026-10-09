@@ -518,7 +518,7 @@ class KioskApp {
   }
 
   /**
-   * Detector de inactividad para reiniciar el tótem automáticamente
+   * Detector de inactividad para reiniciar el tótem automáticamente en menús/salvapantallas
    */
   private setupInactivityWatcher(): void {
     const resetTimer = () => {
@@ -526,9 +526,19 @@ class KioskApp {
     };
 
     window.addEventListener("pointerdown", resetTimer, { passive: true });
+    window.addEventListener("pointermove", resetTimer, { passive: true });
+    window.addEventListener("pointerup", resetTimer, { passive: true });
+    window.addEventListener("touchstart", resetTimer, { passive: true });
+    window.addEventListener("touchmove", resetTimer, { passive: true });
+    window.addEventListener("touchend", resetTimer, { passive: true });
     window.addEventListener("keydown", resetTimer, { passive: true });
 
     window.setInterval(() => {
+      // Si el usuario está jugando activamente una partida, el juego gestiona su propio tiempo
+      if (this.appState === "playing") {
+        return;
+      }
+
       const elapsedSeconds = (Date.now() - this.lastUserInteractionTime) / 1000;
       if (elapsedSeconds >= KIOSK_CONFIG.inactivityTimeoutSeconds) {
         if (this.appState !== "attract" && !this.isTransitioning) {
