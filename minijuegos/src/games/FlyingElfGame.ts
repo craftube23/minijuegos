@@ -16,6 +16,9 @@ import { BaseGame } from "../core/BaseGame";
 import { InputManager } from "../core/InputManager";
 import { AudioManager } from "../core/AudioManager";
 import { ParticleSystem } from "../core/ParticleSystem";
+import { ScreenTransition } from "../core/ScreenTransition";
+
+export type ElfCharacterId = "feria" | "campus";
 
 interface CollectibleItem {
   x: number;
@@ -110,8 +113,17 @@ export class FlyingElfGame extends BaseGame {
   // Partículas de humo de chimenea
   private chimneyPuffs: { x: number; y: number; vx: number; vy: number; radius: number; alpha: number; maxLife: number; life: number }[] = [];
 
+  // Selección de Personaje y Estado del Juego
+  public selectedElf: ElfCharacterId = "feria";
+  private gameState: "character-select" | "countdown" | "playing" = "character-select";
+  private charSelectAnimTime: number = 0;
+
   // Assets Ilustrados Pre-cargados
-  private imgElf: HTMLImageElement;
+  private imgElfFeria: HTMLImageElement;
+  private imgElfCampus: HTMLImageElement;
+  private imgIconFeria: HTMLImageElement;
+  private imgIconCampus: HTMLImageElement;
+  private imgLogoCampus: HTMLImageElement;
   private imgBgPanorama: HTMLImageElement;
   private imgHouseObstacle: HTMLImageElement;
   private imgIcicle: HTMLImageElement;
@@ -141,9 +153,21 @@ export class FlyingElfGame extends BaseGame {
       particles
     );
 
-    // 1. Personaje Elfo con Parapente Limpio y Logo Oficial integrado
-    this.imgElf = new Image();
-    this.imgElf.src = "./assets/images/elfo-volador.png";
+    // 1. Personajes Elfo con Parapente: Feria Mágica y Campuslands
+    this.imgElfFeria = new Image();
+    this.imgElfFeria.src = "./assets/images/elfo-volador.png";
+
+    this.imgElfCampus = new Image();
+    this.imgElfCampus.src = "./assets/images/elfo-volador-campus.png";
+
+    this.imgIconFeria = new Image();
+    this.imgIconFeria.src = "./assets/images/icon-elfo-feria.png";
+
+    this.imgIconCampus = new Image();
+    this.imgIconCampus.src = "./assets/images/icon-elfo-campus.png";
+
+    this.imgLogoCampus = new Image();
+    this.imgLogoCampus.src = "./assets/logos/logo-campus-sin-fondo.png";
 
     // 2. Único Fondo Panorámico Continuo de la Villa Navideña
     this.imgBgPanorama = new Image();
@@ -186,8 +210,8 @@ export class FlyingElfGame extends BaseGame {
     this.imgStarLogo = new Image();
     this.imgStarLogo.src = "./assets/images/estrella con logo.png";
 
-    // Configuración del sistema de 5 Vidas con Caritas de Elfo Stylized 2D
-    this.showLives = true;
+    // Configuración del sistema de 5 Vidas
+    this.showLives = false; // Se mostrará una vez inicie el vuelo activo tras la cuenta regresiva
     this.maxLives = 5;
     this.lives = 5;
 
@@ -199,11 +223,14 @@ export class FlyingElfGame extends BaseGame {
   private totalPlayTime: number = 0;
 
   protected override onStart(): void {
-    // Inicializar 5 vidas del Elfo
-    this.showLives = true;
+    // Iniciar siempre en la pantalla de selección de Personaje
+    this.gameState = "character-select";
+    this.charSelectAnimTime = 0;
+    this.showLives = false;
     this.maxLives = 5;
     this.lives = 5;
     this.totalPlayTime = 0;
+    this.initialGameDuration = this.timeRemaining > 5 ? this.timeRemaining : 45;
 
     this.elfX = Math.max(140, this.width * 0.22);
     this.elfY = this.height * 0.45;
@@ -225,11 +252,19 @@ export class FlyingElfGame extends BaseGame {
     this.backgroundSigns = [];
     this.spawnItemTimer = 0.4;
     this.spawnObstacleTimer = 1.1;
-    this.logoSpawnTimer = 2.0; // Primer logo garantizado a los ~2 segundos
+    this.logoSpawnTimer = 2.0;
     this.windTimer = 6.5;
     this.isWindActive = false;
     this.wasThrusting = false;
     this.flyAudioCooldown = 0;
+
+    // Configuración de listeners táctiles para selección de personaje
+    this.input.onPointerDown = (_pointerId: number, x: number, y: number) => {
+      if (!this.isRunning || this.isGameOver) return;
+      if (this.gameState === "character-select") {
+        this.handleCharacterSelectTouch(x, y);
+      }
+    };
 
     // Inicializar decoraciones del suelo y carteles publicitarios de fondo
     this.initGroundProps();
@@ -271,6 +306,33 @@ export class FlyingElfGame extends BaseGame {
   }
 
   protected override onUpdate(dt: number): void {
+    if (this.gameState === "character-select") {
+      this.timeRemaining = this.initialGameDuration;
+      this.charSelectAnimTime += dt;
+      this.bgScrollX += 35 * dt;
+      this.groundScrollX += 65 * dt;
+      this.gliderSwayTime += dt * 3.5;
+
+      // Navegación por teclado en la pantalla de selección
+      if (this.input.isKeyDown("Digit1") || this.input.isKeyDown("KeyA") || this.input.isKeyDown("ArrowLeft")) {
+        this.selectCharacter("feria");
+      } else if (this.input.isKeyDown("Digit2") || this.input.isKeyDown("KeyD") || this.input.isKeyDown("ArrowRight")) {
+        this.selectCharacter("campus");
+      }
+
+      if (this.input.isKeyDown("Space") || this.input.isKeyDown("Enter")) {
+        this.startGameWithCountdown();
+      }
+
+      return;
+    }
+
+    if (this.gameState === "countdown") {
+      this.timeRemaining = this.initialGameDuration;
+      this.gliderSwayTime += dt * 3.5;
+      return;
+    }
+
     this.totalPlayTime += dt;
 
     // 1. Progresión de Dificultad Dinámica Continua (A más tiempo de juego, mayor velocidad y reto)
@@ -347,14 +409,18 @@ export class FlyingElfGame extends BaseGame {
       if (this.elfVy < -580) this.elfVy = -580;
       this.elfTargetAngle = -0.22;
 
-      // Estela mágica de vuelo
-      if (Math.random() < 0.45) {
+      // Estela mágica de vuelo adaptada al personaje elegido
+      if (Math.random() < 0.48) {
         const exhaustX = this.elfX - this.elfWidth * 0.28;
         const exhaustY = this.elfY + this.elfHeight * 0.12;
+        const isCampus = this.selectedElf === "campus";
+        const trailColor = this.isLogoPowerUpActive
+          ? (isCampus ? "#00E5FF" : "#FFD700")
+          : (isCampus ? "#80D8FF" : "#FFF59D");
         this.particles.emitBurst(
           exhaustX,
           exhaustY,
-          this.isLogoPowerUpActive ? "#FFD700" : "#FFF59D",
+          trailColor,
           1
         );
       }
@@ -859,6 +925,15 @@ export class FlyingElfGame extends BaseGame {
     }
 
     // ========================================================================
+    // PANTALLA DE SELECCIÓN DE PERSONAJE
+    // ========================================================================
+    if (this.gameState === "character-select") {
+      this.renderAtmosphere(ctx);
+      this.renderCharacterSelect(ctx);
+      return;
+    }
+
+    // ========================================================================
     // 4. ELEMENTOS DE GAMEPLAY: Obstáculos y Coleccionables
     // ========================================================================
     this.renderObstacles(ctx);
@@ -870,7 +945,7 @@ export class FlyingElfGame extends BaseGame {
     this.renderGroundDecorations(ctx);
 
     // ========================================================================
-    // 6. PERSONAJE: Elfo Mensajero Limpio con Parapente Oficial
+    // 6. PERSONAJE: Elfo Mensajero con Parapente Oficial Elegido
     // ========================================================================
     this.renderElf(ctx);
 
@@ -879,6 +954,395 @@ export class FlyingElfGame extends BaseGame {
     // ========================================================================
     this.renderAtmosphere(ctx);
     this.renderHUDOverlay(ctx);
+  }
+
+  private initialGameDuration: number = 45;
+
+  /**
+   * Cambia el personaje seleccionado con feedback visual y sonoro
+   */
+  public selectCharacter(character: ElfCharacterId): void {
+    if (this.selectedElf === character) return;
+    this.selectedElf = character;
+    this.audio.playBellNote(character === "feria" ? 0 : 2);
+    this.particles.emitBurst(
+      this.width / 2,
+      this.height * 0.45,
+      character === "campus" ? "#00E5FF" : "#FFD700",
+      16
+    );
+  }
+
+  /**
+   * Inicia el juego con la cinemática de cuenta regresiva oficial 3-2-1
+   */
+  public startGameWithCountdown(): void {
+    if (this.gameState !== "character-select") return;
+    this.gameState = "countdown";
+    this.audio.playCountdownStep(3);
+
+    const mainContainer = document.getElementById("game-container") || document.body;
+    ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+      this.gameState = "playing";
+      this.showLives = true;
+      this.timeRemaining = this.initialGameDuration;
+      this.totalPlayTime = 0;
+      this.audio.playGameBGM(this.inGameMusicPath, this.inGameMusicVolume);
+    });
+  }
+
+  /**
+   * Obtiene la geometría y coordenadas de las tarjetas interactivas de personaje
+   */
+  private getCharacterSelectLayout(): {
+    card1: { x: number; y: number; w: number; h: number };
+    card2: { x: number; y: number; w: number; h: number };
+    btn: { x: number; y: number; w: number; h: number };
+  } {
+    const isTwoCol = this.width >= 680;
+    if (isTwoCol) {
+      const pad = 36;
+      const cardW = (this.width - pad * 3) / 2;
+      const cardH = Math.min(420, this.height * 0.44);
+      const cardY = this.height * 0.26;
+      const card1 = { x: pad, y: cardY, w: cardW, h: cardH };
+      const card2 = { x: pad * 2 + cardW, y: cardY, w: cardW, h: cardH };
+      const btnW = Math.min(420, this.width * 0.80);
+      const btnH = 74;
+      const btn = { x: (this.width - btnW) / 2, y: cardY + cardH + 42, w: btnW, h: btnH };
+      return { card1, card2, btn };
+    } else {
+      const cardW = this.width * 0.88;
+      const cardH = Math.min(195, this.height * 0.22);
+      const card1X = (this.width - cardW) / 2;
+      const card1Y = this.height * 0.23;
+      const card2Y = card1Y + cardH + 18;
+      const card1 = { x: card1X, y: card1Y, w: cardW, h: cardH };
+      const card2 = { x: card1X, y: card2Y, w: cardW, h: cardH };
+      const btnW = Math.min(380, this.width * 0.84);
+      const btnH = 68;
+      const btn = { x: (this.width - btnW) / 2, y: card2Y + cardH + 28, w: btnW, h: btnH };
+      return { card1, card2, btn };
+    }
+  }
+
+  /**
+   * Procesa toques y clics en la pantalla de selección de personaje
+   */
+  private handleCharacterSelectTouch(x: number, y: number): void {
+    const layout = this.getCharacterSelectLayout();
+
+    // Tocar Tarjeta 1 (Feria Mágica)
+    if (
+      x >= layout.card1.x &&
+      x <= layout.card1.x + layout.card1.w &&
+      y >= layout.card1.y &&
+      y <= layout.card1.y + layout.card1.h
+    ) {
+      if (this.selectedElf === "feria") {
+        this.startGameWithCountdown();
+      } else {
+        this.selectCharacter("feria");
+      }
+      return;
+    }
+
+    // Tocar Tarjeta 2 (Campuslands)
+    if (
+      x >= layout.card2.x &&
+      x <= layout.card2.x + layout.card2.w &&
+      y >= layout.card2.y &&
+      y <= layout.card2.y + layout.card2.h
+    ) {
+      if (this.selectedElf === "campus") {
+        this.startGameWithCountdown();
+      } else {
+        this.selectCharacter("campus");
+      }
+      return;
+    }
+
+    // Tocar Botón "¡A VOLAR!"
+    if (
+      x >= layout.btn.x &&
+      x <= layout.btn.x + layout.btn.w &&
+      y >= layout.btn.y &&
+      y <= layout.btn.y + layout.btn.h
+    ) {
+      this.startGameWithCountdown();
+    }
+  }
+
+  /**
+   * Renderiza la interfaz de selección de personaje (Stylized 2D Fantasy Art)
+   */
+  private renderCharacterSelect(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+
+    // 1. Overlay translúcido de noche mágica
+    ctx.fillStyle = "rgba(4, 12, 28, 0.88)";
+    ctx.fillRect(0, 0, this.width, this.height);
+
+    // 2. Resplandor central decorativo
+    const centerGlow = ctx.createRadialGradient(
+      this.width / 2,
+      this.height * 0.45,
+      20,
+      this.width / 2,
+      this.height * 0.45,
+      this.width * 0.7
+    );
+    centerGlow.addColorStop(0, "rgba(255, 215, 0, 0.08)");
+    centerGlow.addColorStop(0.5, "rgba(0, 229, 255, 0.05)");
+    centerGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = centerGlow;
+    ctx.fillRect(0, 0, this.width, this.height);
+
+    // 3. Título y Subtítulo Cinemático
+    ctx.textAlign = "center";
+    const titleY = Math.max(70, this.height * 0.12);
+
+    // Sombra 3D dorada
+    ctx.shadowColor = "rgba(255, 215, 0, 0.85)";
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = "#FFD700";
+    ctx.font = "900 36px 'Outfit', sans-serif";
+    if (this.width < 500) {
+      ctx.font = "900 26px 'Outfit', sans-serif";
+    }
+    ctx.fillText("🧝‍♂️ ELIGE A TU ELFO MÁGICO", this.width / 2, titleY);
+
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+    ctx.font = "600 16px 'Outfit', sans-serif";
+    if (this.width < 500) {
+      ctx.font = "600 13px 'Outfit', sans-serif";
+    }
+    ctx.fillText("Selecciona a tu mensajero navideño para volar", this.width / 2, titleY + 34);
+
+    // 4. Renderizado de Tarjetas de Personaje
+    const layout = this.getCharacterSelectLayout();
+    const isTwoCol = this.width >= 680;
+
+    // === TARJETA 1: ELFO FERIA MÁGICA ===
+    const isFeriaSelected = this.selectedElf === "feria";
+    this.renderElfCard(
+      ctx,
+      layout.card1,
+      "feria",
+      "ELFO FERIA MÁGICA",
+      "Logo Oficial Feria Mágica • Vuelo Festivo",
+      "#FFD700",
+      "rgba(255, 215, 0, 0.4)",
+      this.imgElfFeria,
+      isFeriaSelected,
+      isTwoCol
+    );
+
+    // === TARJETA 2: ELFO CAMPUSLANDS ===
+    const isCampusSelected = this.selectedElf === "campus";
+    this.renderElfCard(
+      ctx,
+      layout.card2,
+      "campus",
+      "ELFO CAMPUSLANDS",
+      "Logo Oficial Campuslands • Vuelo Cósmico",
+      "#00E5FF",
+      "rgba(0, 229, 255, 0.4)",
+      this.imgElfCampus,
+      isCampusSelected,
+      isTwoCol
+    );
+
+    // === BOTÓN DE ACCIÓN: ¡A VOLAR! ===
+    const btnPulse = Math.sin(this.charSelectAnimTime * 4.5) * 0.035;
+    ctx.save();
+    ctx.translate(layout.btn.x + layout.btn.w / 2, layout.btn.y + layout.btn.h / 2);
+    ctx.scale(1.0 + btnPulse, 1.0 + btnPulse);
+
+    // Sombra de botón
+    ctx.shadowColor = isCampusSelected ? "rgba(0, 229, 255, 0.85)" : "rgba(255, 215, 0, 0.85)";
+    ctx.shadowBlur = 24;
+
+    const btnGrad = ctx.createLinearGradient(-layout.btn.w / 2, 0, layout.btn.w / 2, 0);
+    if (isCampusSelected) {
+      btnGrad.addColorStop(0, "#00B0FF");
+      btnGrad.addColorStop(0.5, "#00E5FF");
+      btnGrad.addColorStop(1, "#2979FF");
+    } else {
+      btnGrad.addColorStop(0, "#FF6D00");
+      btnGrad.addColorStop(0.5, "#FFD700");
+      btnGrad.addColorStop(1, "#00E676");
+    }
+
+    ctx.fillStyle = btnGrad;
+    ctx.beginPath();
+    ctx.roundRect(-layout.btn.w / 2, -layout.btn.h / 2, layout.btn.w, layout.btn.h, 38);
+    ctx.fill();
+
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#0A192F";
+    ctx.font = "900 24px 'Outfit', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("¡A VOLAR! 🚀", 0, 1);
+    ctx.restore();
+
+    // Atajos de teclado en la parte inferior
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
+    ctx.font = "500 13px 'Outfit', sans-serif";
+    ctx.fillText("[1] Feria Mágica   [2] Campuslands   [ESPACIO / ENTER] Iniciar", this.width / 2, layout.btn.y + layout.btn.h + 32);
+
+    ctx.restore();
+  }
+
+  /**
+   * Renderiza una tarjeta individual de personaje con preview animado
+   */
+  private renderElfCard(
+    ctx: CanvasRenderingContext2D,
+    box: { x: number; y: number; w: number; h: number },
+    _charId: ElfCharacterId,
+    title: string,
+    desc: string,
+    themeColor: string,
+    glowColor: string,
+    img: HTMLImageElement,
+    isSelected: boolean,
+    isTwoCol: boolean
+  ): void {
+    ctx.save();
+
+    // 1. Fondo de la tarjeta con efecto Glassmorphism
+    ctx.save();
+    if (isSelected) {
+      ctx.shadowColor = glowColor;
+      ctx.shadowBlur = 24;
+    }
+
+    const cardGrad = ctx.createLinearGradient(box.x, box.y, box.x + box.w, box.y + box.h);
+    if (isSelected) {
+      cardGrad.addColorStop(0, "rgba(20, 38, 70, 0.95)");
+      cardGrad.addColorStop(1, "rgba(10, 22, 45, 0.95)");
+    } else {
+      cardGrad.addColorStop(0, "rgba(12, 24, 48, 0.72)");
+      cardGrad.addColorStop(1, "rgba(8, 16, 32, 0.72)");
+    }
+
+    ctx.fillStyle = cardGrad;
+    ctx.beginPath();
+    ctx.roundRect(box.x, box.y, box.w, box.h, 24);
+    ctx.fill();
+
+    // Borde iluminado
+    ctx.strokeStyle = isSelected ? themeColor : "rgba(255, 255, 255, 0.22)";
+    ctx.lineWidth = isSelected ? 3.5 : 1.5;
+    ctx.stroke();
+    ctx.restore();
+
+    // 2. Insignia de Estado (ELEGIDO / SELECCIONAR)
+    const pillW = isSelected ? 120 : 130;
+    const pillH = 30;
+    const pillX = box.x + box.w - pillW - 16;
+    const pillY = box.y + 16;
+
+    ctx.save();
+    ctx.fillStyle = isSelected ? themeColor : "rgba(255, 255, 255, 0.12)";
+    ctx.beginPath();
+    ctx.roundRect(pillX, pillY, pillW, pillH, 15);
+    ctx.fill();
+
+    if (isSelected) {
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = isSelected ? "#0A192F" : "rgba(255, 255, 255, 0.75)";
+    ctx.font = "800 13px 'Outfit', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(isSelected ? "✓ ELEGIDO" : "SELECCIONAR", pillX + pillW / 2, pillY + pillH / 2);
+    ctx.restore();
+
+    // 3. Preview Ilustrado en Vivo del Elfo flotando
+    const sway = Math.sin(this.charSelectAnimTime * 3.2 + (isSelected ? 0 : 1.5)) * 6;
+    let previewX = 0;
+    let previewY = 0;
+    let previewSize = 0;
+
+    if (isTwoCol) {
+      previewSize = Math.min(box.w * 0.65, box.h * 0.52);
+      previewX = box.x + box.w / 2;
+      previewY = box.y + box.h * 0.42 + sway;
+    } else {
+      previewSize = Math.min(box.h * 0.85, 140);
+      previewX = box.x + previewSize / 2 + 20;
+      previewY = box.y + box.h / 2 + sway;
+    }
+
+    ctx.save();
+    ctx.translate(previewX, previewY);
+
+    // Resplandor detrás del personaje
+    if (isSelected) {
+      ctx.shadowColor = glowColor;
+      ctx.shadowBlur = 22;
+      const aura = ctx.createRadialGradient(0, 0, 10, 0, 0, previewSize * 0.6);
+      aura.addColorStop(0, glowColor);
+      aura.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = aura;
+      ctx.beginPath();
+      ctx.arc(0, 0, previewSize * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    if (img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, -previewSize / 2, -previewSize / 2, previewSize, previewSize);
+    } else {
+      ctx.fillStyle = themeColor;
+      ctx.beginPath();
+      ctx.arc(0, 0, previewSize * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // 4. Textos Descriptivos de la Tarjeta
+    ctx.save();
+    if (isTwoCol) {
+      ctx.textAlign = "center";
+      const textCenter = box.x + box.w / 2;
+      const titleTextY = box.y + box.h - 58;
+
+      ctx.fillStyle = isSelected ? themeColor : "#FFFFFF";
+      ctx.font = "800 20px 'Outfit', sans-serif";
+      ctx.fillText(title, textCenter, titleTextY);
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.70)";
+      ctx.font = "500 13px 'Outfit', sans-serif";
+      ctx.fillText(desc, textCenter, titleTextY + 22);
+    } else {
+      ctx.textAlign = "left";
+      const textX = box.x + previewSize + 36;
+      const titleTextY = box.y + box.h * 0.44;
+
+      ctx.fillStyle = isSelected ? themeColor : "#FFFFFF";
+      ctx.font = "800 18px 'Outfit', sans-serif";
+      ctx.fillText(title, textX, titleTextY);
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.70)";
+      ctx.font = "500 12px 'Outfit', sans-serif";
+      ctx.fillText(desc, textX, titleTextY + 24);
+    }
+    ctx.restore();
+
+    ctx.restore();
   }
 
   /**
@@ -1364,37 +1828,45 @@ export class FlyingElfGame extends BaseGame {
 
     // Balanceo suave del parapente
     const sway = Math.sin(this.gliderSwayTime) * 2.5;
+    const isCampus = this.selectedElf === "campus";
+    const elfSprite = isCampus ? this.imgElfCampus : this.imgElfFeria;
 
     // Escudo de Burbuja Mágica durante Turbo/Imán activo
     if (this.isLogoPowerUpActive) {
       ctx.save();
-      ctx.shadowColor = "rgba(255, 215, 0, 0.85)";
+      ctx.shadowColor = isCampus ? "rgba(0, 229, 255, 0.85)" : "rgba(255, 215, 0, 0.85)";
       ctx.shadowBlur = 24;
       const shieldGrad = ctx.createRadialGradient(0, 0, 30, 0, 0, 95);
-      shieldGrad.addColorStop(0, "rgba(255, 215, 0, 0.12)");
-      shieldGrad.addColorStop(0.85, "rgba(255, 235, 59, 0.35)");
-      shieldGrad.addColorStop(1, "rgba(255, 255, 255, 0.85)");
+      if (isCampus) {
+        shieldGrad.addColorStop(0, "rgba(0, 229, 255, 0.15)");
+        shieldGrad.addColorStop(0.85, "rgba(0, 229, 255, 0.40)");
+        shieldGrad.addColorStop(1, "rgba(255, 255, 255, 0.90)");
+      } else {
+        shieldGrad.addColorStop(0, "rgba(255, 215, 0, 0.12)");
+        shieldGrad.addColorStop(0.85, "rgba(255, 235, 59, 0.35)");
+        shieldGrad.addColorStop(1, "rgba(255, 255, 255, 0.85)");
+      }
       ctx.fillStyle = shieldGrad;
       ctx.beginPath();
       ctx.arc(0, 0, 95, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = "#FFF59D";
+      ctx.strokeStyle = isCampus ? "#80D8FF" : "#FFF59D";
       ctx.lineWidth = 2.5;
       ctx.stroke();
       ctx.restore();
     }
 
-    // Dibujar el Sprite Ilustrado del Elfo con su Parapente Limpio
-    if (this.imgElf.complete && this.imgElf.naturalWidth > 0) {
+    // Dibujar el Sprite Ilustrado del Elfo con su Parapente Oficial Elegido
+    if (elfSprite && elfSprite.complete && elfSprite.naturalWidth > 0) {
       ctx.drawImage(
-        this.imgElf,
+        elfSprite,
         -this.elfWidth / 2,
         -this.elfHeight / 2 + sway,
         this.elfWidth,
         this.elfHeight
       );
     } else {
-      ctx.fillStyle = "#4CAF50";
+      ctx.fillStyle = isCampus ? "#00E5FF" : "#4CAF50";
       ctx.beginPath();
       ctx.arc(0, 0, 35, 0, Math.PI * 2);
       ctx.fill();
@@ -1492,4 +1964,15 @@ export class FlyingElfGame extends BaseGame {
 
     ctx.restore();
   }
+
+  /**
+   * En la pantalla de selección de personaje se oculta el HUD de vidas/tiempo para evitar solapamientos
+   */
+  protected override drawHUD(ctx: CanvasRenderingContext2D): void {
+    if (this.gameState === "character-select") {
+      return;
+    }
+    super.drawHUD(ctx);
+  }
 }
+
