@@ -377,16 +377,7 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     // Textos flotantes
-    for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
-      const ft = this.floatingTexts[i];
-      ft.life += dt;
-      ft.y += ft.vy * dt;
-      ft.alpha = Math.max(0, 1 - ft.life / ft.maxLife);
-      ft.scale += dt * 0.4;
-      if (ft.life >= ft.maxLife) {
-        this.floatingTexts.splice(i, 1);
-      }
-    }
+    this.floatingTextSystem.update(dt);
 
     this.onUpdate(dt);
   }
