@@ -156,21 +156,21 @@ export class ToyCatchGame extends BaseGame {
     this.basketSquashX += (1.0 - this.basketSquashX) * 16 * dt;
     this.basketSquashY += (1.0 - this.basketSquashY) * 16 * dt;
 
-    // 2. Generación dinámica de objetos que caen (Spawn ágil y progresivo)
+    // 2. Generación dinámica de objetos que caen (Spawn ágil y equilibrado)
     const progress = Math.max(0, Math.min(1, (45 - this.timeRemaining) / 45));
-    const currentSpawnInterval = Math.max(0.28, 0.44 - progress * 0.16);
+    const currentSpawnInterval = Math.max(0.38, 0.58 - progress * 0.18);
 
     this.spawnTimer += dt;
     if (this.spawnTimer >= currentSpawnInterval) {
       this.spawnTimer = 0;
       this.spawnFallingItem();
-      // En la segunda mitad del juego, 25% de probabilidad de drop doble
-      if (progress > 0.35 && Math.random() < 0.28) {
+      // En la segunda mitad del juego, probabilidad moderada de drop doble
+      if (progress > 0.45 && Math.random() < 0.22) {
         setTimeout(() => {
           if (this.isRunning && !this.isGameOver) {
             this.spawnFallingItem();
           }
-        }, 120);
+        }, 180);
       }
     }
 
@@ -253,8 +253,8 @@ export class ToyCatchGame extends BaseGame {
 
     const margin = Math.max(30, this.width * 0.08);
     const progress = Math.max(0, Math.min(1, (45 - this.timeRemaining) / 45));
-    // Velocidad de caída rápida y dinámica (el doble de rápida que antes)
-    const fallSpeedBase = this.height * (0.62 + Math.random() * 0.28) + (progress * this.height * 0.28);
+    // Velocidad de caída equilibrada y accesible
+    const fallSpeedBase = this.height * (0.42 + Math.random() * 0.18) + (progress * this.height * 0.18);
     this.items.push({
       x: margin + Math.random() * (this.width - margin * 2),
       y: -60,
@@ -263,7 +263,7 @@ export class ToyCatchGame extends BaseGame {
       type,
       points,
       rotation: Math.random() * Math.PI * 2,
-      vRot: (Math.random() - 0.5) * 4.5,
+      vRot: (Math.random() - 0.5) * 3.5,
     });
   }
 
