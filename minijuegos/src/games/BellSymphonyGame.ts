@@ -84,13 +84,13 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     color: "#00E676",
     glowColor: "rgba(0, 230, 118, 0.5)",
     speedMultiplier: 0.72,
-    perfectWindow: 0.10,
-    greatWindow: 0.18,
-    goodWindow: 0.28,
-    missWindow: 0.35,
+    perfectWindow: 0.095,
+    greatWindow: 0.170,
+    goodWindow: 0.270,
+    missWindow: 0.350,
     scoreMultiplier: 1.0,
     lives: 5,
-    description: "Ritmo accesible y amigable"
+    description: "Ideal para niños y principiantes"
   },
   normal: {
     id: "normal",
@@ -99,14 +99,14 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     icon: "",
     color: "#FFD700",
     glowColor: "rgba(255, 215, 0, 0.5)",
-    speedMultiplier: 1.00,
-    perfectWindow: 0.065,
-    greatWindow: 0.12,
-    goodWindow: 0.22,
-    missWindow: 0.28,
+    speedMultiplier: 0.95,
+    perfectWindow: 0.070,
+    greatWindow: 0.130,
+    goodWindow: 0.220,
+    missWindow: 0.280,
     scoreMultiplier: 1.25,
     lives: 5,
-    description: "Equilibrado y divertido"
+    description: "Ritmo fluido y entretenido"
   },
   hard: {
     id: "hard",
@@ -115,14 +115,14 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     icon: "",
     color: "#FF3366",
     glowColor: "rgba(255, 51, 102, 0.5)",
-    speedMultiplier: 1.28,
-    perfectWindow: 0.050,
-    greatWindow: 0.09,
-    goodWindow: 0.16,
-    missWindow: 0.22,
+    speedMultiplier: 1.18,
+    perfectWindow: 0.052,
+    greatWindow: 0.100,
+    goodWindow: 0.170,
+    missWindow: 0.230,
     scoreMultiplier: 1.60,
     lives: 4,
-    description: "Rápido y desafiante"
+    description: "Enérgico con acordes dobles"
   },
   expert: {
     id: "expert",
@@ -131,14 +131,14 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     icon: "",
     color: "#D500F9",
     glowColor: "rgba(213, 0, 249, 0.5)",
-    speedMultiplier: 1.55,
-    perfectWindow: 0.038,
-    greatWindow: 0.065,
-    goodWindow: 0.12,
-    missWindow: 0.18,
+    speedMultiplier: 1.38,
+    perfectWindow: 0.042,
+    greatWindow: 0.078,
+    goodWindow: 0.140,
+    missWindow: 0.190,
     scoreMultiplier: 2.00,
-    lives: 3,
-    description: "Máxima velocidad y notas dobles"
+    lives: 4,
+    description: "Máximo reto para pantalla táctil"
   }
 };
 
