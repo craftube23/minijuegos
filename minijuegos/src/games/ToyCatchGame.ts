@@ -53,6 +53,8 @@ export class ToyCatchGame extends BaseGame {
   private imgRobot: HTMLImageElement;
   private imgCoal: HTMLImageElement;
   private imgIce: HTMLImageElement;
+  private bgImage: HTMLImageElement;
+  private bgSponsorSign: HTMLImageElement;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -90,6 +92,12 @@ export class ToyCatchGame extends BaseGame {
 
     this.imgIce = new Image();
     this.imgIce.src = "./assets/images/hielo.png";
+
+    this.bgImage = new Image();
+    this.bgImage.src = "./assets/images/fondo-nieve.webp";
+
+    this.bgSponsorSign = new Image();
+    this.bgSponsorSign.src = "./assets/images/cartel-sponsor.png";
 
     this.showLives = true;
     this.lives = 3;
@@ -320,7 +328,24 @@ export class ToyCatchGame extends BaseGame {
   }
 
   protected onDraw(ctx: CanvasRenderingContext2D): void {
-    // 1. Dibujar objetos que caen (100% sprites con feedback visual 🟢 y 🔴)
+    // 1. Fondo de Escenario Navideño Cálido y Nevado
+    if (this.bgImage && this.bgImage.complete && this.bgImage.naturalWidth > 0) {
+      ctx.drawImage(this.bgImage, 0, 0, this.width, this.height);
+      // Capa de viñeta suave para contraste y profundidad
+      ctx.fillStyle = "rgba(4, 14, 26, 0.38)";
+      ctx.fillRect(0, 0, this.width, this.height);
+    } else {
+      const grad = ctx.createLinearGradient(0, 0, 0, this.height);
+      grad.addColorStop(0, "#081E38");
+      grad.addColorStop(1, "#030A14");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, this.width, this.height);
+    }
+
+    // 2. Cartel / Marco con los Logos Oficiales en el Fondo
+    this.drawBackgroundLogos(ctx);
+
+    // 3. Dibujar objetos que caen (100% sprites con feedback visual)
     for (const item of this.items) {
       ctx.save();
       ctx.translate(item.x, item.y);
@@ -465,4 +490,152 @@ export class ToyCatchGame extends BaseGame {
 
     ctx.restore();
   }
+
+  /**
+   * Renderiza el cartel / marquesina con los Logos Oficiales en el fondo del escenario
+   */
+  private drawBackgroundLogos(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+
+    const signW = Math.min(640, this.width * 0.90);
+    const signH = Math.max(72, Math.min(104, this.height * 0.095));
+    const signX = (this.width - signW) / 2;
+    const signY = Math.max(72, this.height * 0.075);
+    const centerX = this.width / 2;
+    const centerY = signY + signH / 2;
+
+    // 1. Sombra suave para despegar el cartel del fondo
+    ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 6;
+
+    if (this.bgSponsorSign && this.bgSponsorSign.complete && this.bgSponsorSign.naturalWidth > 0) {
+      // Dibujar imagen de cartel si está disponible
+      ctx.drawImage(this.bgSponsorSign, signX, signY, signW, signH);
+    } else {
+      // Cartel de madera festivo estilizado 2D Game Art
+      // Placa base de madera oscura
+      const woodGrad = ctx.createLinearGradient(signX, signY, signX, signY + signH);
+      woodGrad.addColorStop(0, "rgba(45, 25, 15, 0.88)");
+      woodGrad.addColorStop(0.5, "rgba(28, 14, 8, 0.92)");
+      woodGrad.addColorStop(1, "rgba(18, 8, 4, 0.95)");
+      ctx.fillStyle = woodGrad;
+      ctx.beginPath();
+      ctx.roundRect(signX, signY, signW, signH, 16);
+      ctx.fill();
+
+      // Borde dorado de fantasía
+      ctx.strokeStyle = "rgba(255, 215, 0, 0.75)";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Borde interior fino
+      ctx.strokeStyle = "rgba(255, 240, 180, 0.25)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.roundRect(signX + 4, signY + 4, signW - 8, signH - 8, 12);
+      ctx.stroke();
+
+      // Capa de nieve sobre el marco superior
+      ctx.fillStyle = "rgba(245, 250, 255, 0.95)";
+      ctx.beginPath();
+      ctx.roundRect(signX - 4, signY - 5, signW + 8, 10, [8, 8, 3, 3]);
+      ctx.fill();
+    }
+
+    // Resetear sombra
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Luces de hadas parpadeantes en el borde superior del cartel
+    const time = performance.now() * 0.003;
+    const bulbCount = Math.max(6, Math.floor(signW / 45));
+    for (let i = 0; i <= bulbCount; i++) {
+      const bx = signX + 16 + (i * (signW - 32)) / bulbCount;
+      const by = signY - 2;
+      const bulbColor = i % 3 === 0 ? "#FFD700" : i % 3 === 1 ? "#00E5FF" : "#FF3366";
+      const pulse = 0.5 + Math.sin(time + i * 1.2) * 0.5;
+
+      ctx.save();
+      ctx.fillStyle = bulbColor;
+      ctx.globalAlpha = 0.4 + pulse * 0.6;
+      ctx.beginPath();
+      ctx.arc(bx, by, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Halo de luz
+      ctx.fillStyle = bulbColor;
+      ctx.globalAlpha = 0.25 * pulse;
+      ctx.beginPath();
+      ctx.arc(bx, by, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // 2. Medallón / Logo 1: FERIA MÁGICA DEL JUGUETE (Lado Izquierdo)
+    const logoAreaW = (signW - 40) / 2;
+    const logo1CenterX = signX + 20 + logoAreaW / 2;
+
+    if (this.logoImage1 && this.logoImage1.complete && this.logoImage1.naturalWidth > 0) {
+      const maxLw = logoAreaW * 0.88;
+      const maxLh = signH * 0.76;
+      const aspect = this.logoImage1.naturalWidth / this.logoImage1.naturalHeight;
+      let lw = maxLw;
+      let lh = lw / aspect;
+      if (lh > maxLh) {
+        lh = maxLh;
+        lw = lh * aspect;
+      }
+
+      // Fondo perlado suave de contraste para el logo
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.beginPath();
+      ctx.roundRect(logo1CenterX - lw / 2 - 8, centerY - lh / 2 - 4, lw + 16, lh + 8, 10);
+      ctx.fill();
+
+      // Logo
+      ctx.drawImage(this.logoImage1, logo1CenterX - lw / 2, centerY - lh / 2, lw, lh);
+      ctx.restore();
+    }
+
+    // Divisor central festivo (Estrella o Ramo navideño)
+    ctx.save();
+    ctx.fillStyle = "rgba(255, 215, 0, 0.75)";
+    ctx.font = `900 ${Math.max(10, Math.min(14, signH * 0.20))}px 'Outfit', sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("✦", centerX, centerY);
+    ctx.restore();
+
+    // 3. Medallón / Logo 2: CAMPUSLANDS (Lado Derecho)
+    const logo2CenterX = signX + signW - 20 - logoAreaW / 2;
+
+    if (this.logoImage2 && this.logoImage2.complete && this.logoImage2.naturalWidth > 0) {
+      const maxLw = logoAreaW * 0.88;
+      const maxLh = signH * 0.76;
+      const aspect = this.logoImage2.naturalWidth / this.logoImage2.naturalHeight;
+      let lw = maxLw;
+      let lh = lw / aspect;
+      if (lh > maxLh) {
+        lh = maxLh;
+        lw = lh * aspect;
+      }
+
+      // Fondo perlado suave de contraste para el logo
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.beginPath();
+      ctx.roundRect(logo2CenterX - lw / 2 - 8, centerY - lh / 2 - 4, lw + 16, lh + 8, 10);
+      ctx.fill();
+
+      // Logo
+      ctx.drawImage(this.logoImage2, logo2CenterX - lw / 2, centerY - lh / 2, lw, lh);
+      ctx.restore();
+    }
+
+    ctx.restore();
+  }
 }
+
