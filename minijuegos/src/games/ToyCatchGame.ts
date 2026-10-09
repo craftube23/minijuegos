@@ -41,7 +41,6 @@ export class ToyCatchGame extends BaseGame {
   // Lista de objetos cayendo
   private items: FallingItem[] = [];
   private spawnTimer: number = 0;
-  private spawnInterval: number = 0.70;
 
   // Racha de aciertos (Combo)
   private comboCount: number = 0;
@@ -130,38 +129,49 @@ export class ToyCatchGame extends BaseGame {
   }
 
   protected onUpdate(dt: number): void {
-    // 1. Control del jugador (Suavizado táctil / inercia de nivel profesional)
+    // 1. Control del jugador (Alta responsividad táctil y de teclado)
     const pointer = this.input.getPrimaryPointer();
     if (pointer && pointer.isDown) {
       this.targetBasketX = pointer.x;
     }
 
     if (this.input.isKeyDown("ArrowLeft") || this.input.isKeyDown("KeyA")) {
-      this.targetBasketX -= this.width * 0.9 * dt;
+      this.targetBasketX -= this.width * 1.85 * dt;
     }
     if (this.input.isKeyDown("ArrowRight") || this.input.isKeyDown("KeyD")) {
-      this.targetBasketX += this.width * 0.9 * dt;
+      this.targetBasketX += this.width * 1.85 * dt;
     }
 
     const halfW = this.basketWidth / 2;
     if (this.targetBasketX < halfW) this.targetBasketX = halfW;
     if (this.targetBasketX > this.width - halfW) this.targetBasketX = this.width - halfW;
 
-    // Física de arrastre suave e inclinación
+    // Física de arrastre ultra-reactiva e inclinación dinámica
     const prevX = this.basketX;
-    this.basketX += (this.targetBasketX - this.basketX) * 20 * dt;
+    this.basketX += (this.targetBasketX - this.basketX) * 36 * dt;
     const velocityX = (this.basketX - prevX) / Math.max(dt, 0.001);
-    this.basketTilt = Math.max(-0.25, Math.min(0.25, velocityX * 0.0003));
+    this.basketTilt = Math.max(-0.28, Math.min(0.28, velocityX * 0.00035));
 
     // Recuperación elástica de squash & stretch
-    this.basketSquashX += (1.0 - this.basketSquashX) * 14 * dt;
-    this.basketSquashY += (1.0 - this.basketSquashY) * 14 * dt;
+    this.basketSquashX += (1.0 - this.basketSquashX) * 16 * dt;
+    this.basketSquashY += (1.0 - this.basketSquashY) * 16 * dt;
 
-    // 2. Generación de objetos que caen (Spawn)
+    // 2. Generación dinámica de objetos que caen (Spawn ágil y progresivo)
+    const progress = Math.max(0, Math.min(1, (45 - this.timeRemaining) / 45));
+    const currentSpawnInterval = Math.max(0.28, 0.44 - progress * 0.16);
+
     this.spawnTimer += dt;
-    if (this.spawnTimer >= this.spawnInterval) {
+    if (this.spawnTimer >= currentSpawnInterval) {
       this.spawnTimer = 0;
       this.spawnFallingItem();
+      // En la segunda mitad del juego, 25% de probabilidad de drop doble
+      if (progress > 0.35 && Math.random() < 0.28) {
+        setTimeout(() => {
+          if (this.isRunning && !this.isGameOver) {
+            this.spawnFallingItem();
+          }
+        }, 120);
+      }
     }
 
     // 3. Mover y colisionar objetos
@@ -172,9 +182,9 @@ export class ToyCatchGame extends BaseGame {
 
       // Colisión precisa con la boca del saco
       const isObstacle = item.type === "ice" || item.type === "rock";
-      // Hitbox ajustada: solo un 5% más ancha que el saco para que sea justa y precisa
-      const hitHalfW = (this.basketWidth * 0.48) + (isObstacle ? item.size * 0.15 : item.size * 0.18);
-      const hitHalfH = (this.basketHeight * 0.42) + (item.size * 0.15);
+      // Hitbox adaptada para alta velocidad
+      const hitHalfW = (this.basketWidth * 0.50) + (isObstacle ? item.size * 0.16 : item.size * 0.22);
+      const hitHalfH = (this.basketHeight * 0.50) + (item.size * 0.22);
       const bagCenterY = this.basketY - this.basketHeight * 0.05;
 
       const dx = Math.abs(item.x - this.basketX);
@@ -242,16 +252,18 @@ export class ToyCatchGame extends BaseGame {
     }
 
     const margin = Math.max(30, this.width * 0.08);
-    const fallSpeedBase = this.height * 0.32;
+    const progress = Math.max(0, Math.min(1, (45 - this.timeRemaining) / 45));
+    // Velocidad de caída rápida y dinámica (el doble de rápida que antes)
+    const fallSpeedBase = this.height * (0.62 + Math.random() * 0.28) + (progress * this.height * 0.28);
     this.items.push({
       x: margin + Math.random() * (this.width - margin * 2),
       y: -60,
-      vy: fallSpeedBase + Math.random() * (this.height * 0.18) + (45 - this.timeRemaining) * 3,
+      vy: fallSpeedBase,
       size,
       type,
       points,
       rotation: Math.random() * Math.PI * 2,
-      vRot: (Math.random() - 0.5) * 3,
+      vRot: (Math.random() - 0.5) * 4.5,
     });
   }
 

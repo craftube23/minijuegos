@@ -27,9 +27,25 @@ import {
   GOD_REST_METAL_CHART_HARD,
   GOD_REST_METAL_CHART_EXPERT,
   JINGLE_BELLS_ROCK_CHART,
+  JINGLE_BELLS_ROCK_CHART_EASY,
+  JINGLE_BELLS_ROCK_CHART_NORMAL,
+  JINGLE_BELLS_ROCK_CHART_HARD,
+  JINGLE_BELLS_ROCK_CHART_EXPERT,
   TWELVE_DAYS_CHART,
+  TWELVE_DAYS_CHART_EASY,
+  TWELVE_DAYS_CHART_NORMAL,
+  TWELVE_DAYS_CHART_HARD,
+  TWELVE_DAYS_CHART_EXPERT,
   JOY_TO_WORLD_POWER_CHART,
+  JOY_TO_WORLD_POWER_CHART_EASY,
+  JOY_TO_WORLD_POWER_CHART_NORMAL,
+  JOY_TO_WORLD_POWER_CHART_HARD,
+  JOY_TO_WORLD_POWER_CHART_EXPERT,
   DECK_THE_HALLS_CHART,
+  DECK_THE_HALLS_CHART_EASY,
+  DECK_THE_HALLS_CHART_NORMAL,
+  DECK_THE_HALLS_CHART_HARD,
+  DECK_THE_HALLS_CHART_EXPERT,
   WE_WISH_YOU_CHART,
   WE_WISH_YOU_CHART_EASY,
   WE_WISH_YOU_CHART_NORMAL,
@@ -790,16 +806,36 @@ export class BellSymphonyGame extends BaseGame {
         isHandcrafted = true;
         break;
       case "jingle-bells-rock":
-        sourceChart = JINGLE_BELLS_ROCK_CHART;
+        if (diff === "easy") sourceChart = JINGLE_BELLS_ROCK_CHART_EASY;
+        else if (diff === "normal") sourceChart = JINGLE_BELLS_ROCK_CHART_NORMAL;
+        else if (diff === "hard") sourceChart = JINGLE_BELLS_ROCK_CHART_HARD;
+        else if (diff === "expert") sourceChart = JINGLE_BELLS_ROCK_CHART_EXPERT;
+        else sourceChart = JINGLE_BELLS_ROCK_CHART;
+        isHandcrafted = true;
         break;
       case "twelve-days":
-        sourceChart = TWELVE_DAYS_CHART;
+        if (diff === "easy") sourceChart = TWELVE_DAYS_CHART_EASY;
+        else if (diff === "normal") sourceChart = TWELVE_DAYS_CHART_NORMAL;
+        else if (diff === "hard") sourceChart = TWELVE_DAYS_CHART_HARD;
+        else if (diff === "expert") sourceChart = TWELVE_DAYS_CHART_EXPERT;
+        else sourceChart = TWELVE_DAYS_CHART;
+        isHandcrafted = true;
         break;
       case "joy-to-world":
-        sourceChart = JOY_TO_WORLD_POWER_CHART;
+        if (diff === "easy") sourceChart = JOY_TO_WORLD_POWER_CHART_EASY;
+        else if (diff === "normal") sourceChart = JOY_TO_WORLD_POWER_CHART_NORMAL;
+        else if (diff === "hard") sourceChart = JOY_TO_WORLD_POWER_CHART_HARD;
+        else if (diff === "expert") sourceChart = JOY_TO_WORLD_POWER_CHART_EXPERT;
+        else sourceChart = JOY_TO_WORLD_POWER_CHART;
+        isHandcrafted = true;
         break;
       case "deck-the-halls":
-        sourceChart = DECK_THE_HALLS_CHART;
+        if (diff === "easy") sourceChart = DECK_THE_HALLS_CHART_EASY;
+        else if (diff === "normal") sourceChart = DECK_THE_HALLS_CHART_NORMAL;
+        else if (diff === "hard") sourceChart = DECK_THE_HALLS_CHART_HARD;
+        else if (diff === "expert") sourceChart = DECK_THE_HALLS_CHART_EXPERT;
+        else sourceChart = DECK_THE_HALLS_CHART;
+        isHandcrafted = true;
         break;
       case "we-wish-you":
         if (diff === "easy") sourceChart = WE_WISH_YOU_CHART_EASY;
