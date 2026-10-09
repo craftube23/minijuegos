@@ -1123,7 +1123,14 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     if (this.bgAudioElement && !this.bgAudioElement.paused && this.bgAudioElement.currentTime > 0) {
-      this.currentTime = this.bgAudioElement.currentTime;
+      const audioTime = this.bgAudioElement.currentTime;
+      const diff = audioTime - this.currentTime;
+      // Resincronización suave de alta fidelidad: previene saltos discretos y jitter visual
+      if (Math.abs(diff) > 0.12) {
+        this.currentTime = audioTime;
+      } else {
+        this.currentTime += dt + diff * 0.25;
+      }
     } else {
       this.currentTime += dt;
     }

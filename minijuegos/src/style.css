@@ -3537,37 +3537,37 @@ html, body {
    SECUENCIA DINÁMICA: DESGARRE PAUSADO Y VISIBLE CAPA POR CAPA (.is-kid-unboxing)
    ========================================================================== */
 
-/* 0. Las Cuerdas y Moño Revientan y se Quitan de Inmediato al Iniciar (0s) - SIN AUDIO */
+/* 0. Las Cuerdas y Moño Revientan y se Quitan de Inmediato al Iniciar (0s) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-ribbon.kid-ribbon-h {
   opacity: 0;
   transform: translateY(-110px) scaleX(1.35) rotate(15deg);
-  transition: transform 0.75s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.55s ease-out;
+  transition: transform 0.35s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.25s ease-out;
 }
 
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-ribbon.kid-ribbon-v {
   opacity: 0;
   transform: translateX(110px) scaleY(1.35) rotate(-15deg);
-  transition: transform 0.75s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.55s ease-out;
+  transition: transform 0.35s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.25s ease-out;
 }
 
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-center-box {
   transform: translate(-50%, -95%) scale(1.3) rotate(-4deg);
   opacity: 0;
   filter: blur(8px);
-  transition: transform 0.70s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.55s ease-out;
+  transition: transform 0.35s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.25s ease-out;
 }
 
-/* Manitas que Guían los Desgarres en Tiempo Exacto */
+/* Manitas que Guían los Desgarres Rápidos en Tiempo Exacto con el Audio */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .hand-left-rip {
   animation: 
-    kidHandRipLeft 0.70s cubic-bezier(0.15, 1, 0.3, 1) 0.85s forwards,
-    kidHandSplitLeft 0.70s cubic-bezier(0.15, 1, 0.3, 1) 3.65s forwards;
+    kidHandRipLeft 0.32s cubic-bezier(0.15, 1, 0.3, 1) 0.05s forwards,
+    kidHandSplitLeft 0.35s cubic-bezier(0.15, 1, 0.3, 1) 0.55s forwards;
 }
 
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .hand-right-rip {
   animation: 
-    kidHandRipRight 0.70s cubic-bezier(0.15, 1, 0.3, 1) 2.20s forwards,
-    kidHandSplitRight 0.70s cubic-bezier(0.15, 1, 0.3, 1) 3.65s forwards;
+    kidHandRipRight 0.32s cubic-bezier(0.15, 1, 0.3, 1) 0.30s forwards,
+    kidHandSplitRight 0.35s cubic-bezier(0.15, 1, 0.3, 1) 0.55s forwards;
 }
 
 @keyframes kidHandRipLeft {
@@ -3594,45 +3594,45 @@ html, body {
   100% { transform: translate(240%, -60%) scaleX(-1) rotate(55deg); opacity: 0; }
 }
 
-/* 1. Paso 1: Rasgado Izquierdo (0.91s delay exacto FL Studio - 1er Sonido de Rasgado) */
+/* 1. Paso 1: Rasgado Izquierdo Rápido (0.06s delay - 1er Golpe de Audio) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-left {
   transform: translate3d(-140%, 0, 130px) rotateY(-80deg) rotateZ(-18deg);
   opacity: 0;
-  transition: transform 0.65s cubic-bezier(0.15, 1, 0.25, 1) 0.91s, opacity 0.50s ease-out 0.91s;
+  transition: transform 0.32s cubic-bezier(0.15, 1, 0.25, 1) 0.06s, opacity 0.25s ease-out 0.06s;
 }
 
-/* 2. Paso 2: Rasgado Derecho (2.28s delay exacto FL Studio - 2do Sonido de Rasgado) */
+/* 2. Paso 2: Rasgado Derecho Rápido (0.30s delay - 2do Golpe de Audio) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-right {
   transform: translate3d(140%, 0, 130px) rotateY(80deg) rotateZ(18deg);
   opacity: 0;
-  transition: transform 0.65s cubic-bezier(0.15, 1, 0.25, 1) 2.28s, opacity 0.50s ease-out 2.28s;
+  transition: transform 0.32s cubic-bezier(0.15, 1, 0.25, 1) 0.30s, opacity 0.25s ease-out 0.30s;
 }
 
-/* 3. Paso 3: Se Abre por la Mitad con las 2 Manos (3.72s delay exacto FL Studio - 3er y Último Sonido) */
+/* 3. Paso 3: Se Abre por la Mitad con las 2 Manos (0.55s delay - 3er Golpe de Audio) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-center-strip {
   transform: translate3d(0, -145%, 170px) rotateX(85deg) scale(1.1);
   opacity: 0;
-  transition: transform 0.65s cubic-bezier(0.15, 1, 0.25, 1) 3.72s, opacity 0.50s ease-out 3.72s;
+  transition: transform 0.35s cubic-bezier(0.15, 1, 0.25, 1) 0.55s, opacity 0.28s ease-out 0.55s;
 }
 
-/* 4. Fondo Inferior Cae Abriéndose Completamente (4.05s delay) */
+/* 4. Fondo Inferior Cae Abriéndose Completamente (0.65s delay) */
 .gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-bottom {
   transform: translate3d(0, 135%, 80px) rotateX(-75deg);
   opacity: 0;
-  transition: transform 0.55s cubic-bezier(0.15, 1, 0.25, 1) 4.05s, opacity 0.45s ease-out 4.05s;
+  transition: transform 0.35s cubic-bezier(0.15, 1, 0.25, 1) 0.65s, opacity 0.28s ease-out 0.65s;
 }
 
 /* Retazos de Papel Sincronizados con Cada Desgarre */
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-1 { animation: kidShredFly1 0.75s cubic-bezier(0.1, 1, 0.3, 1) 0.92s forwards; }
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-2 { animation: kidShredFly2 0.75s cubic-bezier(0.1, 1, 0.3, 1) 1.05s forwards; }
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-3 { animation: kidShredFly3 0.75s cubic-bezier(0.1, 1, 0.3, 1) 1.18s forwards; }
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-4 { animation: kidShredFly4 0.75s cubic-bezier(0.1, 1, 0.3, 1) 2.30s forwards; }
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-5 { animation: kidShredFly5 0.75s cubic-bezier(0.1, 1, 0.3, 1) 2.45s forwards; }
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-6 { animation: kidShredFly6 0.75s cubic-bezier(0.1, 1, 0.3, 1) 2.58s forwards; }
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-7 { animation: kidShredFly7 0.75s cubic-bezier(0.1, 1, 0.3, 1) 3.75s forwards; }
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-8 { animation: kidShredFly8 0.75s cubic-bezier(0.1, 1, 0.3, 1) 3.88s forwards; }
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-9 { animation: kidShredFly9 0.75s cubic-bezier(0.1, 1, 0.3, 1) 4.00s forwards; }
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-10 { animation: kidShredFly10 0.75s cubic-bezier(0.1, 1, 0.3, 1) 4.12s forwards; }
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-1 { animation: kidShredFly1 0.45s cubic-bezier(0.1, 1, 0.3, 1) 0.08s forwards; }
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-2 { animation: kidShredFly2 0.45s cubic-bezier(0.1, 1, 0.3, 1) 0.12s forwards; }
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-3 { animation: kidShredFly3 0.45s cubic-bezier(0.1, 1, 0.3, 1) 0.16s forwards; }
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-4 { animation: kidShredFly4 0.45s cubic-bezier(0.1, 1, 0.3, 1) 0.32s forwards; }
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-5 { animation: kidShredFly5 0.45s cubic-bezier(0.1, 1, 0.3, 1) 0.36s forwards; }
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-6 { animation: kidShredFly6 0.45s cubic-bezier(0.1, 1, 0.3, 1) 0.40s forwards; }
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-7 { animation: kidShredFly7 0.45s cubic-bezier(0.1, 1, 0.3, 1) 0.58s forwards; }
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-8 { animation: kidShredFly8 0.45s cubic-bezier(0.1, 1, 0.3, 1) 0.62s forwards; }
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-9 { animation: kidShredFly9 0.45s cubic-bezier(0.1, 1, 0.3, 1) 0.66s forwards; }
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .shred-10 { animation: kidShredFly10 0.45s cubic-bezier(0.1, 1, 0.3, 1) 0.70s forwards; }
 
 @keyframes kidShredFly1 {
   0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }

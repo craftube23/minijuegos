@@ -336,8 +336,8 @@ export class ScreenTransition {
         overlay.classList.add("is-hands-grabbing");
 
         setTimeout(() => {
-          this.audio.playPaperTear();
-          setTimeout(() => this.audio.playGiftUnwrap(), 160);
+          this.audio.playClawTear();
+          setTimeout(() => this.audio.playGiftUnwrap(), 120);
 
           const bounds = container.getBoundingClientRect();
           particles.emitBurst(bounds.width / 2, bounds.height * 0.45, "#FFD700", 45);
@@ -513,18 +513,18 @@ export class ScreenTransition {
         particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 40);
         particles.emitConfetti(bounds.width, 60);
 
-        // Desencadenar la animación progresiva capa por capa
+        // Desencadenar la animación progresiva capa por capa sincronizada con los 3 desgarres rápidos
         overlay.classList.remove("is-wrapping");
         overlay.classList.add("is-kid-unboxing");
 
-        // 4. Finalización suave y limpia revelando el juego tras completarse los 3 rasgados (4.4s)
+        // 4. Finalización suave y limpia revelando el juego tras completarse los 3 rasgados rápidos (1.05s)
         setTimeout(() => {
           overlay.classList.add("is-finished");
           setTimeout(() => {
             overlay.remove();
             onComplete();
-          }, 350);
-        }, 4400);
+          }, 280);
+        }, 1050);
 
       }, 100);
 
