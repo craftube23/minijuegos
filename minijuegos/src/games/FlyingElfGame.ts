@@ -224,7 +224,7 @@ export class FlyingElfGame extends BaseGame {
     this.backgroundSigns = [];
     this.spawnItemTimer = 0.4;
     this.spawnObstacleTimer = 1.1;
-    this.logoSpawnTimer = 5.0; // Cadencia de 5 segundos para Logos con 10% de probabilidad
+    this.logoSpawnTimer = 2.0; // Primer logo garantizado a los ~2 segundos
     this.windTimer = 6.5;
     this.isWindActive = false;
     this.wasThrusting = false;
@@ -430,11 +430,11 @@ export class FlyingElfGame extends BaseGame {
       this.spawnItemTimer = Math.max(0.38, 0.95 / this.speedMultiplier);
     }
 
-    // Chequeo de aparición de Logos Oficiales: cada 5 segundos con 10% de probabilidad
+    // Chequeo de aparición de Logos Oficiales: Alta frecuencia garantizada (cada 4 a 6 segundos)
     this.logoSpawnTimer -= dt;
     if (this.logoSpawnTimer <= 0) {
-      this.logoSpawnTimer = 5.0; // Intervalo de 5 segundos
-      if (!this.isLogoPowerUpActive && Math.random() < 0.10) {
+      this.logoSpawnTimer = 4.0 + Math.random() * 2.0;
+      if (!this.isLogoPowerUpActive) {
         this.spawnLogoMedallion();
       }
     }
@@ -509,6 +509,12 @@ export class FlyingElfGame extends BaseGame {
   }
 
   private spawnCollectiblePattern(): void {
+    // 15% de probabilidad de generar un logo directamente si no hay power-up activo
+    if (!this.isLogoPowerUpActive && Math.random() < 0.15) {
+      this.spawnLogoMedallion();
+      return;
+    }
+
     const types: ("gift_red" | "gift_green" | "candy" | "teddy")[] = [
       "gift_red",
       "gift_green",
@@ -570,7 +576,7 @@ export class FlyingElfGame extends BaseGame {
     this.collectibles.push({
       x: this.width + 90,
       y: clampedY,
-      size: 82,
+      size: 94,
       type: brandLogo,
       points: 500,
       bobOffset: Math.random() * Math.PI * 2,
@@ -578,7 +584,7 @@ export class FlyingElfGame extends BaseGame {
     });
 
     // Destello de anticipación mágica
-    this.particles.emitBurst(this.width + 80, clampedY, "#FFD700", 12);
+    this.particles.emitBurst(this.width + 80, clampedY, "#FFD700", 16);
   }
 
   private spawnObstacle(): void {
@@ -1267,35 +1273,45 @@ export class FlyingElfGame extends BaseGame {
       } else if (item.type === "teddy" && this.imgTeddy.complete) {
         ctx.drawImage(this.imgTeddy, -item.size / 2, -item.size / 2, item.size, item.size);
       } else if (item.type === "logo_feria" && this.logoImage1 && this.logoImage1.complete) {
-        // Medallón Dorado de la Feria Mágica
+        // Medallón Dorado de la Feria Mágica (Alta visibilidad y brillo)
         const rot = Math.sin(this.gliderSwayTime * 1.5) * 0.12;
         ctx.rotate(rot);
 
-        // Placa circular dorada
-        ctx.fillStyle = "rgba(10, 25, 47, 0.92)";
+        const radius = item.size * 0.48;
+        const bgGrad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
+        bgGrad.addColorStop(0, "rgba(255, 255, 255, 1.0)");
+        bgGrad.addColorStop(0.82, "rgba(255, 248, 220, 0.96)");
+        bgGrad.addColorStop(1, "rgba(255, 215, 0, 0.92)");
+        ctx.fillStyle = bgGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.strokeStyle = "#FFD700";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(0, 0, item.size * 0.48, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.lineWidth = 3.5;
         ctx.stroke();
 
-        ctx.drawImage(this.logoImage1, -item.size * 0.38, -item.size * 0.38, item.size * 0.76, item.size * 0.76);
+        ctx.drawImage(this.logoImage1, -item.size * 0.40, -item.size * 0.40, item.size * 0.80, item.size * 0.80);
       } else if (item.type === "logo_campus" && this.logoImage2 && this.logoImage2.complete) {
-        // Medallón Cian/Dorado de Campuslands
+        // Medallón Cian/Dorado de Campuslands (Base blanca luminosa)
         const rot = Math.sin(this.gliderSwayTime * 1.5) * 0.12;
         ctx.rotate(rot);
 
-        // Placa circular cian
-        ctx.fillStyle = "rgba(3, 27, 51, 0.92)";
-        ctx.strokeStyle = "#00E5FF";
-        ctx.lineWidth = 3;
+        const radius = item.size * 0.48;
+        const bgGrad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
+        bgGrad.addColorStop(0, "rgba(255, 255, 255, 1.0)");
+        bgGrad.addColorStop(0.82, "rgba(240, 250, 255, 0.96)");
+        bgGrad.addColorStop(1, "rgba(0, 229, 255, 0.92)");
+        ctx.fillStyle = bgGrad;
         ctx.beginPath();
-        ctx.arc(0, 0, item.size * 0.48, 0, Math.PI * 2);
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
         ctx.fill();
+
+        ctx.strokeStyle = "#00E5FF";
+        ctx.lineWidth = 3.5;
         ctx.stroke();
 
-        ctx.drawImage(this.logoImage2, -item.size * 0.38, -item.size * 0.38, item.size * 0.76, item.size * 0.76);
+        ctx.drawImage(this.logoImage2, -item.size * 0.40, -item.size * 0.40, item.size * 0.80, item.size * 0.80);
       } else if (item.type === "logo_star" && this.imgStarLogo.complete) {
         ctx.rotate(this.gliderSwayTime * 1.1);
         ctx.drawImage(this.imgStarLogo, -item.size / 2, -item.size / 2, item.size, item.size);
