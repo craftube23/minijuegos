@@ -346,29 +346,66 @@ export abstract class BaseGame {
     const textY = hudH * 0.65;
     const paddingX = Math.max(10, this.width * 0.025);
 
-    // 1. PUNTUACIÓN (Izquierda con estrella vectorial)
-    const starRadius = fontMain * 0.44;
+    // 1. PUNTUACIÓN (Izquierda con estrella de fantasía 2D Stylized Game Art)
+    const starRadius = fontMain * 0.48;
     const starX = paddingX + starRadius;
     const starY = textY - fontMain * 0.3;
     
-    // Dibujar estrella dorada
-    ctx.fillStyle = "#FFD700";
+    ctx.save();
+    ctx.translate(starX, starY);
+
+    // Resplandor áurico dorado
+    ctx.shadowColor = "rgba(255, 215, 0, 0.75)";
+    ctx.shadowBlur = 8;
+
+    // Cuerpo base de la estrella con degradado dorado volumétrico
+    const starGrad = ctx.createLinearGradient(-starRadius, -starRadius, starRadius, starRadius);
+    starGrad.addColorStop(0, "#FFF9C4");
+    starGrad.addColorStop(0.35, "#FFD700");
+    starGrad.addColorStop(0.75, "#FF9100");
+    starGrad.addColorStop(1, "#DD2C00");
+
+    ctx.fillStyle = starGrad;
     ctx.beginPath();
     for (let i = 0; i < 5; i++) {
       const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-      const r = i % 2 === 0 ? starRadius : starRadius * 0.48;
-      const px = starX + Math.cos(angle) * r;
-      const py = starY + Math.sin(angle) * r;
+      const r = i % 2 === 0 ? starRadius : starRadius * 0.44;
+      const px = Math.cos(angle) * r;
+      const py = Math.sin(angle) * r;
       if (i === 0) ctx.moveTo(px, py);
       else ctx.lineTo(px, py);
     }
     ctx.closePath();
     ctx.fill();
 
+    // Borde dorado nítido de fantasía
+    ctx.strokeStyle = "#4A2600";
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+
+    // Faceta central en relieve (Líneas de diamante)
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+    ctx.lineWidth = 1.0;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, -starRadius + 1);
+    ctx.moveTo(0, 0);
+    ctx.lineTo(-starRadius * 0.8, -starRadius * 0.25);
+    ctx.stroke();
+
+    // Destello blanco en la punta superior
+    ctx.fillStyle = "#FFFFFF";
+    ctx.beginPath();
+    ctx.arc(0, -starRadius * 0.7, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+
     ctx.font = `900 ${fontMain}px 'Outfit', sans-serif`;
     ctx.fillStyle = "#FFD700";
     ctx.textAlign = "left";
-    ctx.fillText(`${this.score}`, starX + starRadius + 5, textY);
+    ctx.fillText(`${this.score}`, starX + starRadius + 6, textY);
 
     // 2. VIDAS Y TIEMPO RESTANTE (Centro)
     let timeFormatted: string;
@@ -616,19 +653,94 @@ export abstract class BaseGame {
     ctx.restore();
   }
 
+  /**
+   * Renderiza el Corazón de Vida con estilo Stylized 2D Game Art / Fantasy RPG Gem Heart
+   */
   private drawHeartLifeIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isFilled: boolean): void {
     ctx.save();
-    ctx.beginPath();
     ctx.translate(x, y);
-    ctx.scale(size / 10, size / 10);
-    ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(-5, -5, -10, 0, 0, 10);
-    ctx.bezierCurveTo(10, 0, 5, -5, 0, 0);
-    ctx.fillStyle = isFilled ? "#FF2A55" : "rgba(255, 255, 255, 0.25)";
+    const s = size / 12;
+    ctx.scale(s, s);
+
+    if (!isFilled) {
+      // Estado de vida perdida: Silueta de cristal translúcido con marcas de grieta
+      ctx.globalAlpha = 0.28;
+      ctx.fillStyle = "rgba(140, 160, 190, 0.45)";
+      ctx.beginPath();
+      ctx.moveTo(0, 3);
+      ctx.bezierCurveTo(-5, -4, -12, 1, 0, 12);
+      ctx.bezierCurveTo(12, 1, 5, -4, 0, 3);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(255, 80, 80, 0.85)";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(-3, 1);
+      ctx.lineTo(2, 6);
+      ctx.lineTo(-1, 9);
+      ctx.stroke();
+
+      ctx.restore();
+      return;
+    }
+
+    // --- ESTADO ACTIVO: GEMA DE RUBÍ FESTIVA 3D STYLIZED ---
+    // 1. Resplandor exterior magenta / rubí
+    ctx.shadowColor = "rgba(255, 23, 68, 0.85)";
+    ctx.shadowBlur = 8;
+
+    // 2. Bisel / Montura dorada exterior
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.moveTo(0, 2.5);
+    ctx.bezierCurveTo(-5.5, -4.8, -13.5, 0.5, 0, 13);
+    ctx.bezierCurveTo(13.5, 0.5, 5.5, -4.8, 0, 2.5);
+    ctx.closePath();
     ctx.fill();
-    ctx.strokeStyle = isFilled ? "#FFAEC0" : "rgba(255, 255, 255, 0.4)";
-    ctx.lineWidth = 1.2;
+
+    // Contorno oscuro nítido
+    ctx.strokeStyle = "#4A2600";
+    ctx.lineWidth = 1.3;
     ctx.stroke();
+
+    ctx.shadowBlur = 0; // Quitar sombra para capas interiores
+
+    // 3. Faceta interna de Rubí (Degradado 3D multicapa)
+    const rubyGrad = ctx.createRadialGradient(-2, 2, 1, 0, 4, 10);
+    rubyGrad.addColorStop(0, "#FF80AB");
+    rubyGrad.addColorStop(0.35, "#FF1744");
+    rubyGrad.addColorStop(0.75, "#D50000");
+    rubyGrad.addColorStop(1, "#6A0014");
+
+    ctx.fillStyle = rubyGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, 3.2);
+    ctx.bezierCurveTo(-4.6, -3.8, -11.5, 1.2, 0, 11.6);
+    ctx.bezierCurveTo(11.5, 1.2, 4.6, -3.8, 0, 3.2);
+    ctx.closePath();
+    ctx.fill();
+
+    // 4. Brillo especular curvo de cristal (Lóbulo superior izquierdo)
+    ctx.fillStyle = "rgba(255, 255, 255, 0.88)";
+    ctx.beginPath();
+    ctx.ellipse(-4.2, 1.2, 3.2, 1.6, -Math.PI / 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 5. Destello de diamante estelar en la esquina
+    ctx.fillStyle = "#FFFFFF";
+    ctx.beginPath();
+    ctx.moveTo(-5.5, -1.5);
+    ctx.lineTo(-4.5, -0.2);
+    ctx.lineTo(-3.2, 0.5);
+    ctx.lineTo(-4.5, 1.2);
+    ctx.lineTo(-5.5, 2.5);
+    ctx.lineTo(-6.5, 1.2);
+    ctx.lineTo(-7.8, 0.5);
+    ctx.lineTo(-6.5, -0.2);
+    ctx.closePath();
+    ctx.fill();
+
     ctx.restore();
   }
 

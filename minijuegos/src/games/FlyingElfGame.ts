@@ -34,6 +34,7 @@ interface ObstacleItem {
   baseY: number;
   width: number;
   height: number;
+  baseHeight?: number;
   type: "house" | "icicle";
   isOscillating?: boolean;
   oscillateSpeed?: number;
@@ -592,19 +593,20 @@ export class FlyingElfGame extends BaseGame {
     const canOscillate = this.totalPlayTime > 8 && Math.random() < Math.min(0.65, 0.35 + (this.totalPlayTime / 45));
 
     if (isTopObstacle) {
-      // Estalactita de hielo colgante del cielo
+      // Estalactita de hielo colgante firmemente anclada al borde superior del cielo
       const oWidth = 105 + Math.random() * 30;
       const oHeight = 170 + Math.random() * 120;
       this.obstacles.push({
         x: this.width + 100,
-        y: 0,
-        baseY: 0,
+        y: -10,
+        baseY: -10,
         width: oWidth,
         height: oHeight,
+        baseHeight: oHeight,
         type: "icicle",
         isOscillating: canOscillate,
         oscillateSpeed: (2.2 + Math.random() * 1.8) * Math.min(1.5, this.speedMultiplier),
-        oscillateAmp: (30 + Math.random() * 35) * Math.min(1.4, this.speedMultiplier),
+        oscillateAmp: (25 + Math.random() * 30) * Math.min(1.4, this.speedMultiplier),
         oscillateTime: Math.random() * Math.PI * 2
       });
     } else {
@@ -722,10 +724,15 @@ export class FlyingElfGame extends BaseGame {
       const obs = this.obstacles[i];
       obs.x -= scrollSpeed;
 
-      // Movimiento oscilante dinámico para estalactitas desafiantes
+      // Movimiento oscilante dinámico: las casas no oscilan en Y; las estalactitas crecen/disminuyen su longitud sin separarse del techo
       if (obs.isOscillating && obs.oscillateSpeed && obs.oscillateAmp !== undefined) {
         obs.oscillateTime = (obs.oscillateTime || 0) + dt * obs.oscillateSpeed;
-        obs.y = obs.baseY + Math.sin(obs.oscillateTime) * obs.oscillateAmp;
+        if (obs.type === "icicle" && obs.baseHeight) {
+          obs.y = -10; // Siempre firmemente anclada al borde superior (sin cortes flotantes)
+          obs.height = obs.baseHeight + Math.sin(obs.oscillateTime) * obs.oscillateAmp;
+        } else {
+          obs.y = obs.baseY + Math.sin(obs.oscillateTime) * obs.oscillateAmp;
+        }
       }
 
       // Emisión de humo y chispas cálidas desde la chimenea de la casa
@@ -1233,12 +1240,34 @@ export class FlyingElfGame extends BaseGame {
           ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
         }
       } else if (obs.type === "icicle") {
+        ctx.save();
+        // Aura fría de peligro sutil
+        ctx.shadowColor = "rgba(0, 229, 255, 0.75)";
+        ctx.shadowBlur = 18;
+
         if (this.imgIcicle.complete && this.imgIcicle.naturalWidth > 0) {
-          ctx.drawImage(this.imgIcicle, obs.x, obs.y, obs.width, obs.height);
+          // Dibujar con holgura superior para que quede perfectamente sumergida en el techo
+          ctx.drawImage(this.imgIcicle, obs.x, -25, obs.width, obs.height + 25);
         } else {
           ctx.fillStyle = "#B3E5FC";
-          ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+          ctx.fillRect(obs.x, 0, obs.width, obs.height);
         }
+
+        // Borde superior de escarcha y nieve estilizada (Stylized 2D Game Art) para fusión perfecta con el cielo
+        const ledgeGrad = ctx.createLinearGradient(obs.x - 10, 0, obs.x + obs.width + 10, 16);
+        ledgeGrad.addColorStop(0, "rgba(220, 245, 255, 0.95)");
+        ledgeGrad.addColorStop(0.5, "rgba(255, 255, 255, 1.0)");
+        ledgeGrad.addColorStop(1, "rgba(180, 230, 255, 0.95)");
+        ctx.fillStyle = ledgeGrad;
+        ctx.beginPath();
+        ctx.roundRect(obs.x - 8, 0, obs.width + 16, 12, [0, 0, 8, 8]);
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        ctx.restore();
       }
     }
     ctx.restore();
