@@ -532,6 +532,13 @@ export class BellSymphonyGame extends BaseGame {
 
   public goToSongSelect(): void {
     this.stopSongAudio();
+    this.gameState = "song-select";
+    this.score = 0;
+    this.isRunning = true;
+    this.isGameOver = false;
+    this.isFinishing = false;
+    this.particles.clear();
+    this.recalculateLayout();
     this.start();
   }
 

@@ -260,17 +260,22 @@ class KioskApp {
     this.gameOverModal.onChangeSong = () => {
       const bellGame = this.games.get("bell-symphony") as BellSymphonyGame | undefined;
       if (bellGame) {
-        if (this.currentGame !== bellGame) {
-          if (this.currentGame) this.currentGame.destroy();
-          this.currentGame = bellGame;
-          this.appState = "playing";
-          this.attractScreen.hide();
-          this.gameMenu.hide();
-          this.gameOverModal.hide();
-        } else {
-          this.gameOverModal.hide();
+        if (this.currentGame && this.currentGame !== bellGame) {
+          this.currentGame.destroy();
         }
+        this.currentGame = bellGame;
+        this.appState = "playing";
+        this.isTransitioning = false;
+        this.attractScreen.hide();
+        this.gameMenu.hide();
+        this.gameOverModal.hide();
+        this.instructionsModal.hide();
+        this.audio.stopMenuBGM();
+        this.audio.setGameActive(true);
+        this.resetInactivity();
         bellGame.goToSongSelect();
+      } else {
+        this.goToMenu();
       }
     };
 
@@ -282,18 +287,23 @@ class KioskApp {
     this.gameOverModal.onEditAgain = (songFile?: string, customNotes?: any[]) => {
       const bellGame = this.games.get("bell-symphony") as BellSymphonyGame | undefined;
       if (bellGame) {
-        if (this.currentGame !== bellGame) {
-          if (this.currentGame) this.currentGame.destroy();
-          this.currentGame = bellGame;
-          this.appState = "playing";
-          this.attractScreen.hide();
-          this.gameMenu.hide();
-          this.gameOverModal.hide();
-          bellGame.start();
-        } else {
-          this.gameOverModal.hide();
+        if (this.currentGame && this.currentGame !== bellGame) {
+          this.currentGame.destroy();
         }
+        this.currentGame = bellGame;
+        this.appState = "playing";
+        this.isTransitioning = false;
+        this.attractScreen.hide();
+        this.gameMenu.hide();
+        this.gameOverModal.hide();
+        this.instructionsModal.hide();
+        this.audio.stopMenuBGM();
+        this.audio.setGameActive(true);
+        this.resetInactivity();
+        bellGame.start();
         bellGame.openChartEditor(songFile, customNotes);
+      } else {
+        this.goToMenu();
       }
     };
   }
