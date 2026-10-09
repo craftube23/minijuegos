@@ -381,10 +381,10 @@ export abstract class BaseGame {
     }
     
     if (this.showLives) {
-      const iconSize = Math.max(9, fontMain * 0.58);
-      const iconGap = iconSize * 2.25;
+      const iconSize = Math.max(11, Math.min(19, fontMain * 0.70));
+      const iconGap = iconSize * 2.2;
       const totalIconsW = this.maxLives * iconGap;
-      const startIconsX = (this.width / 2) - (totalIconsW / 2) - (isNarrow ? 16 : 26);
+      const startIconsX = (this.width / 2) - (totalIconsW / 2) - (isNarrow ? 12 : 22);
       
       for (let i = 0; i < this.maxLives; i++) {
         const hx = startIconsX + i * iconGap;
@@ -430,14 +430,190 @@ export abstract class BaseGame {
   }
 
   /**
-   * Dibuja el ícono de vida correspondiente al minijuego (Corazón o Carita de Elfo Estilizada 2D)
+   * Dibuja el ícono de vida correspondiente al minijuego (Campana Dorada, Carita de Elfo o Corazón)
    */
   protected drawLifeIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isFilled: boolean): void {
     if (this.id === "flying-elf") {
       this.drawStylizedElfLifeIcon(ctx, x, y, size, isFilled);
+    } else if (this.id === "bell-symphony") {
+      this.drawStylizedBellLifeIcon(ctx, x, y, size, isFilled);
     } else {
       this.drawHeartLifeIcon(ctx, x, y, size, isFilled);
     }
+  }
+
+  /**
+   * Renderiza la Campana Dorada Mágica con estilo Stylized 2D Game Art / Fantasy Game Concept Art
+   */
+  private drawStylizedBellLifeIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isFilled: boolean): void {
+    ctx.save();
+    ctx.translate(x, y);
+    const s = size / 14;
+    ctx.scale(s, s);
+
+    if (!isFilled) {
+      // Estado de vida perdida (Campana atenuada / silueta translúcida con marca de fallo)
+      ctx.globalAlpha = 0.26;
+
+      // Silueta campana
+      ctx.fillStyle = "rgba(140, 160, 190, 0.4)";
+      ctx.beginPath();
+      ctx.moveTo(-3, -7);
+      ctx.bezierCurveTo(-5, -6, -8, 2, -10, 6);
+      ctx.lineTo(10, 6);
+      ctx.bezierCurveTo(8, 2, 5, -6, 3, -7);
+      ctx.closePath();
+      ctx.fill();
+
+      // Reborde inferior
+      ctx.beginPath();
+      ctx.roundRect(-11, 5.5, 22, 3, 1.5);
+      ctx.fill();
+
+      // Badajo apagado
+      ctx.beginPath();
+      ctx.arc(0, 8.5, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Marca de fallo estilizada (Cruz / Grieta de cristal)
+      ctx.strokeStyle = "rgba(255, 80, 80, 0.85)";
+      ctx.lineWidth = 1.6;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-4, -1); ctx.lineTo(4, 4);
+      ctx.moveTo(4, -1); ctx.lineTo(-4, 4);
+      ctx.stroke();
+
+      ctx.restore();
+      return;
+    }
+
+    // --- ESTADO ACTIVO: Stylized 2D Fantasy Game Concept Art (Campana Dorada Navideña) ---
+    
+    // 1. Resplandor dorado mágico sutil
+    ctx.shadowColor = "#FFD700";
+    ctx.shadowBlur = 7;
+
+    // 2. Anillo / Argolla superior de suspensión
+    ctx.strokeStyle = "#FF8F00";
+    ctx.lineWidth = 2.0;
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.arc(0, -7.5, 3.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#FFFFFF";
+    ctx.beginPath();
+    ctx.arc(-1, -8.5, 0.9, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 3. Badajo de campana (Clapper esférico con brillo)
+    const clapperGrad = ctx.createRadialGradient(-0.8, 7.5, 0.5, 0, 8.5, 3.2);
+    clapperGrad.addColorStop(0, "#FFF3B0");
+    clapperGrad.addColorStop(0.4, "#FFD700");
+    clapperGrad.addColorStop(1, "#8A4E00");
+    ctx.fillStyle = clapperGrad;
+    ctx.beginPath();
+    ctx.arc(0, 8.5, 2.8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#422200";
+    ctx.lineWidth = 1.0;
+    ctx.stroke();
+
+    // 4. Cuerpo de la Campana (Cúpula estilizada con degradado 3D dorado)
+    const bellGrad = ctx.createLinearGradient(-8, -6, 8, 6);
+    bellGrad.addColorStop(0, "#FFF9C4");
+    bellGrad.addColorStop(0.25, "#FFEB3B");
+    bellGrad.addColorStop(0.65, "#FFB300");
+    bellGrad.addColorStop(1, "#E65100");
+
+    ctx.fillStyle = bellGrad;
+    ctx.beginPath();
+    ctx.moveTo(-3.5, -6.5);
+    ctx.bezierCurveTo(-6, -4, -8.5, 1.5, -10.5, 6);
+    ctx.lineTo(10.5, 6);
+    ctx.bezierCurveTo(8.5, 1.5, 6, -4, 3.5, -6.5);
+    ctx.closePath();
+    ctx.fill();
+
+    // Contorno oscuro nítido (Stylized outline)
+    ctx.strokeStyle = "#4A2600";
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+
+    // 5. Brillo de luz especular curvo en el hombro izquierdo
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+    ctx.lineWidth = 1.5;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-2.5, -5);
+    ctx.bezierCurveTo(-4.5, -2.5, -6.5, 1, -8, 4.5);
+    ctx.stroke();
+
+    // 6. Reborde Inferior Grueso (Embossed Rim)
+    const rimGrad = ctx.createLinearGradient(-11, 5, 11, 8.5);
+    rimGrad.addColorStop(0, "#FFE082");
+    rimGrad.addColorStop(0.5, "#FFD54F");
+    rimGrad.addColorStop(1, "#FF8F00");
+    ctx.fillStyle = rimGrad;
+    ctx.beginPath();
+    ctx.roundRect(-11.5, 5, 23, 3.6, 1.8);
+    ctx.fill();
+    ctx.strokeStyle = "#4A2600";
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // Línea de brillo en el reborde
+    ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+    ctx.beginPath();
+    ctx.roundRect(-9, 5.5, 8, 1.2, 0.6);
+    ctx.fill();
+
+    // 7. Lazo / Moño Navideño Rojo Fantasía en la corona
+    ctx.shadowBlur = 0; // Desactivar sombra para el lazo
+    ctx.fillStyle = "#FF1744";
+    ctx.strokeStyle = "#700010";
+    ctx.lineWidth = 1.0;
+
+    // Cinta izquierda
+    ctx.beginPath();
+    ctx.moveTo(0, -5);
+    ctx.bezierCurveTo(-4, -7.5, -5, -4, 0, -4);
+    ctx.fill();
+    ctx.stroke();
+
+    // Cinta derecha
+    ctx.beginPath();
+    ctx.moveTo(0, -5);
+    ctx.bezierCurveTo(4, -7.5, 5, -4, 0, -4);
+    ctx.fill();
+    ctx.stroke();
+
+    // Nudo central del lazo (Gema dorada/roja)
+    ctx.fillStyle = "#00E676"; // Toque verde esmeralda festivo
+    ctx.beginPath();
+    ctx.arc(0, -4.6, 1.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#004D20";
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+
+    // 8. Destello / Chispita estelar mágica en el hombro
+    ctx.fillStyle = "#FFFFFF";
+    ctx.beginPath();
+    ctx.moveTo(4.5, -2);
+    ctx.lineTo(5.5, -0.5);
+    ctx.lineTo(7, 0.5);
+    ctx.lineTo(5.5, 1.5);
+    ctx.lineTo(4.5, 3);
+    ctx.lineTo(3.5, 1.5);
+    ctx.lineTo(2, 0.5);
+    ctx.lineTo(3.5, -0.5);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
   }
 
   private drawHeartLifeIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isFilled: boolean): void {

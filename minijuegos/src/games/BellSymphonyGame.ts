@@ -22,6 +22,10 @@ import { ChartEditorModal, type ChartNoteRecord } from "../components/ChartEdito
 import {
   RHYTHM_SONG_LIST,
   GOD_REST_METAL_CHART,
+  GOD_REST_METAL_CHART_EASY,
+  GOD_REST_METAL_CHART_NORMAL,
+  GOD_REST_METAL_CHART_HARD,
+  GOD_REST_METAL_CHART_EXPERT,
   JINGLE_BELLS_ROCK_CHART,
   TWELVE_DAYS_CHART,
   JOY_TO_WORLD_POWER_CHART,
@@ -239,6 +243,7 @@ export class BellSymphonyGame extends BaseGame {
   private missCount: number = 0;
   protected override lives: number = 5;
   protected override maxLives: number = 5;
+  protected override showLives: boolean = true;
 
   // MODO ESTRELLA / STAR POWER (Guitar Hero Style x4 Multiplier)
   private starPowerTimer: number = 0;
@@ -373,6 +378,7 @@ export class BellSymphonyGame extends BaseGame {
     this.greatCount = 0;
     this.goodCount = 0;
     this.missCount = 0;
+    this.showLives = true;
     const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
     this.maxLives = diffCfg.lives;
     this.lives = this.maxLives;
@@ -439,6 +445,7 @@ export class BellSymphonyGame extends BaseGame {
     this.selectedSongIndex = Math.max(0, Math.min(this.songList.length - 1, index));
     const song = this.songList[this.selectedSongIndex];
 
+    this.showLives = true;
     this.isCustomChartPlaying = false;
     this.bpm = song.bpm;
     this.noteSpeed = Math.round(song.speed * diffCfg.speedMultiplier);
@@ -759,10 +766,17 @@ export class BellSymphonyGame extends BaseGame {
    */
   private generateSongChart(song: SongDef): void {
     let sourceChart: ChartNoteRecord[] = [];
+    const diff = this.selectedDifficulty;
+    let isHandcrafted = false;
 
     switch (song.id) {
       case "god-rest-metal":
-        sourceChart = GOD_REST_METAL_CHART;
+        if (diff === "easy") sourceChart = GOD_REST_METAL_CHART_EASY;
+        else if (diff === "normal") sourceChart = GOD_REST_METAL_CHART_NORMAL;
+        else if (diff === "hard") sourceChart = GOD_REST_METAL_CHART_HARD;
+        else if (diff === "expert") sourceChart = GOD_REST_METAL_CHART_EXPERT;
+        else sourceChart = GOD_REST_METAL_CHART;
+        isHandcrafted = true;
         break;
       case "jingle-bells-rock":
         sourceChart = JINGLE_BELLS_ROCK_CHART;
@@ -785,10 +799,12 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     // Adaptación según Dificultad: Fácil, Normal, Difícil, Experto
-    const diff = this.selectedDifficulty;
     let adaptedChart: ChartNoteRecord[] = [];
 
-    if (diff === "easy") {
+    if (isHandcrafted) {
+      // Usar partitura artesanal exacta sin alteraciones automáticas
+      adaptedChart = sourceChart.map((n) => ({ ...n }));
+    } else if (diff === "easy") {
       // Modo Fácil: Simplifica secuencias muy densas manteniendo notas clave y estrellas
       let lastNoteTime = -1;
       for (const item of sourceChart) {
