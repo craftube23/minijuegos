@@ -668,23 +668,78 @@ export class BellSymphonyGame extends BaseGame {
     });
   }
 
-  private handleSongSelectTouch(x: number, y: number): void {
-    const cardW = Math.min(this.width * 0.92, 520);
+  /**
+   * Cálculo responsive unificado para la pantalla de selección de canciones
+   */
+  private getSongSelectLayout(): {
+    cx: number;
+    titleY: number;
+    subY: number;
+    cardW: number;
+    cardX: number;
+    diffBarY: number;
+    diffBarH: number;
+    tabW: number;
+    tabGap: number;
+    startY: number;
+    gap: number;
+    cardH: number;
+    editorBtnY: number;
+    editorBtnH: number;
+    count: number;
+  } {
+    const cx = this.width / 2;
+    const isLandscape = this.width > this.height;
+    const cardW = Math.min(this.width * 0.94, isLandscape ? 620 : 520);
     const cardX = (this.width - cardW) / 2;
-    const titleY = Math.max(38, this.height * 0.055);
-    const subY = titleY + 20;
+    const count = this.songList.length;
 
-    // Selector de Dificultad (4 Pestañas / Pills)
-    const diffBarY = subY + 14;
-    const diffBarH = Math.min(38, Math.max(30, this.height * 0.045));
+    // Alturas y márgenes adaptativos fluidos
+    const titleY = isLandscape ? Math.max(24, this.height * 0.05) : Math.max(34, this.height * 0.045);
+    const subY = titleY + (isLandscape ? 16 : 22);
+
+    const diffBarY = subY + (isLandscape ? 10 : 15);
+    const diffBarH = isLandscape ? 28 : Math.min(36, Math.max(28, this.height * 0.04));
     const tabGap = 6;
     const tabW = (cardW - 3 * tabGap) / 4;
+
+    const startY = diffBarY + diffBarH + (isLandscape ? 6 : 10);
+    const bottomReserved = isLandscape ? 44 : Math.max(48, Math.min(68, this.height * 0.065));
+    const availableSongArea = Math.max(180, this.height - startY - bottomReserved);
+    const gap = isLandscape ? 3 : Math.max(4, Math.min(6, this.height * 0.007));
+    const cardH = Math.min(50, Math.max(isLandscape ? 30 : 38, (availableSongArea - (count - 1) * gap) / (count + 0.95)));
+
+    const editorBtnY = startY + count * (cardH + gap) + (isLandscape ? 4 : 8);
+    const editorBtnH = Math.min(40, Math.max(isLandscape ? 26 : 34, cardH * 0.88));
+
+    return {
+      cx,
+      titleY,
+      subY,
+      cardW,
+      cardX,
+      diffBarY,
+      diffBarH,
+      tabW,
+      tabGap,
+      startY,
+      gap,
+      cardH,
+      editorBtnY,
+      editorBtnH,
+      count
+    };
+  }
+
+  private handleSongSelectTouch(x: number, y: number): void {
+    const layout = this.getSongSelectLayout();
     const diffKeys: DifficultyLevel[] = ["easy", "normal", "hard", "expert"];
 
-    if (y >= diffBarY && y <= diffBarY + diffBarH && x >= cardX && x <= cardX + cardW) {
+    // Pestañas de Dificultad
+    if (y >= layout.diffBarY && y <= layout.diffBarY + layout.diffBarH && x >= layout.cardX && x <= layout.cardX + layout.cardW) {
       for (let d = 0; d < 4; d++) {
-        const tx = cardX + d * (tabW + tabGap);
-        if (x >= tx && x <= tx + tabW) {
+        const tx = layout.cardX + d * (layout.tabW + layout.tabGap);
+        if (x >= tx && x <= tx + layout.tabW) {
           if (this.selectedDifficulty !== diffKeys[d]) {
             this.selectedDifficulty = diffKeys[d];
             this.audio.playTap();
@@ -695,15 +750,10 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     // Lista de Canciones
-    const count = this.songList.length;
-    const startY = diffBarY + diffBarH + 10;
-    const gap = Math.max(4, Math.min(7, this.height * 0.009));
-    const cardH = Math.min(52, Math.max(40, (this.height * 0.54) / count));
+    for (let i = 0; i < layout.count; i++) {
+      const cy = layout.startY + i * (layout.cardH + layout.gap);
 
-    for (let i = 0; i < count; i++) {
-      const cy = startY + i * (cardH + gap);
-
-      if (x >= cardX && x <= cardX + cardW && y >= cy && y <= cy + cardH) {
+      if (x >= layout.cardX && x <= layout.cardX + layout.cardW && y >= cy && y <= cy + layout.cardH) {
         this.selectedSongIndex = i;
         this.audio.playTap();
         this.startSong(i);
@@ -712,9 +762,7 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     // Botón de Modo Grabador / Editor de Canción
-    const editorBtnY = startY + count * (cardH + gap) + 6;
-    const editorBtnH = Math.min(42, Math.max(34, cardH * 0.85));
-    if (x >= cardX && x <= cardX + cardW && y >= editorBtnY && y <= editorBtnY + editorBtnH) {
+    if (x >= layout.cardX && x <= layout.cardX + layout.cardW && y >= layout.editorBtnY && y <= layout.editorBtnY + layout.editorBtnH) {
       this.audio.playTap();
       this.openChartEditor();
     }
@@ -1706,51 +1754,59 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
+   * En la pantalla de selección de canciones se oculta el HUD de vidas/tiempo para evitar solapamientos
+   */
+  protected override drawHUD(ctx: CanvasRenderingContext2D): void {
+    if (this.gameState === "song-select") {
+      return;
+    }
+    super.drawHUD(ctx);
+  }
+
+  /**
    * Pantalla de Selección de Canción interactiva con selector de dificultad y canciones
    */
   private drawSongSelector(ctx: CanvasRenderingContext2D): void {
-    const cx = this.width / 2;
+    const layout = this.getSongSelectLayout();
+    const cx = layout.cx;
 
     ctx.save();
 
-    const titleY = Math.max(38, this.height * 0.055);
-    const subY = titleY + 20;
+    // Fondo / Viñeta suave para enfocar el selector
+    ctx.fillStyle = "rgba(4, 12, 26, 0.45)";
+    ctx.fillRect(0, 0, this.width, this.height);
 
-    ctx.font = `900 clamp(1.10rem, 3.4vw, 1.55rem) 'Cinzel Decorative', 'Outfit', sans-serif`;
+    ctx.font = `900 clamp(1.05rem, 3.2vw, 1.45rem) 'Cinzel Decorative', 'Outfit', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#FFD700";
-    ctx.fillText("SELECCIONA TU CANCIÓN", cx, titleY);
+    ctx.fillText("SELECCIONA TU CANCIÓN", cx, layout.titleY);
 
-    ctx.font = `700 clamp(0.68rem, 1.9vw, 0.82rem) 'Outfit', sans-serif`;
+    ctx.font = `700 clamp(0.65rem, 1.8vw, 0.80rem) 'Outfit', sans-serif`;
     ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-    ctx.fillText("Concierto Navideño • Alexander Nakarada", cx, subY);
+    ctx.fillText("Concierto Navideño • Alexander Nakarada", cx, layout.subY);
 
-    const cardW = Math.min(this.width * 0.92, 520);
-    const cardX = (this.width - cardW) / 2;
+    const cardW = layout.cardW;
+    const cardX = layout.cardX;
 
     // =========================================================================
     // BARRA SELECTORA DE DIFICULTADES (4 PESTAÑAS / BOTONES PILL)
     // =========================================================================
-    const diffBarY = subY + 14;
-    const diffBarH = Math.min(38, Math.max(30, this.height * 0.045));
-    const tabGap = 6;
-    const tabW = (cardW - 3 * tabGap) / 4;
     const diffKeys: DifficultyLevel[] = ["easy", "normal", "hard", "expert"];
 
     for (let d = 0; d < 4; d++) {
       const key = diffKeys[d];
       const cfg = DIFFICULTY_CONFIGS[key];
-      const tx = cardX + d * (tabW + tabGap);
+      const tx = cardX + d * (layout.tabW + layout.tabGap);
       const isSelected = this.selectedDifficulty === key;
 
       ctx.save();
       ctx.beginPath();
-      ctx.roundRect(tx, diffBarY, tabW, diffBarH, 10);
+      ctx.roundRect(tx, layout.diffBarY, layout.tabW, layout.diffBarH, 10);
 
       if (isSelected) {
         // Pestaña Activa: Fondo brillante
-        const activeGrad = ctx.createLinearGradient(tx, diffBarY, tx, diffBarY + diffBarH);
+        const activeGrad = ctx.createLinearGradient(tx, layout.diffBarY, tx, layout.diffBarY + layout.diffBarH);
         activeGrad.addColorStop(0, cfg.color);
         activeGrad.addColorStop(1, "rgba(255, 255, 255, 0.9)");
         ctx.fillStyle = activeGrad;
@@ -1764,15 +1820,15 @@ export class BellSymphonyGame extends BaseGame {
         ctx.shadowColor = cfg.color;
         ctx.shadowBlur = 12;
 
-        ctx.font = `900 ${Math.max(9, Math.min(12, diffBarH * 0.38))}px 'Outfit', sans-serif`;
+        ctx.font = `900 ${Math.max(9, Math.min(12, layout.diffBarH * 0.38))}px 'Outfit', sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#031524";
-        ctx.fillText(cfg.shortLabel, tx + tabW / 2, diffBarY + diffBarH * 0.42);
+        ctx.fillText(cfg.shortLabel, tx + layout.tabW / 2, layout.diffBarY + layout.diffBarH * 0.42);
 
-        ctx.font = `800 ${Math.max(7.5, Math.min(9.5, diffBarH * 0.26))}px 'Outfit', sans-serif`;
+        ctx.font = `800 ${Math.max(7.5, Math.min(9.5, layout.diffBarH * 0.26))}px 'Outfit', sans-serif`;
         ctx.fillStyle = "#0A2540";
-        ctx.fillText(`${cfg.scoreMultiplier}x Pts`, tx + tabW / 2, diffBarY + diffBarH * 0.78);
+        ctx.fillText(`${cfg.scoreMultiplier}x Pts`, tx + layout.tabW / 2, layout.diffBarY + layout.diffBarH * 0.78);
       } else {
         // Pestaña Inactiva
         ctx.fillStyle = "rgba(8, 22, 44, 0.85)";
@@ -1782,15 +1838,15 @@ export class BellSymphonyGame extends BaseGame {
         ctx.lineWidth = 1.4;
         ctx.stroke();
 
-        ctx.font = `800 ${Math.max(8.5, Math.min(11, diffBarH * 0.36))}px 'Outfit', sans-serif`;
+        ctx.font = `800 ${Math.max(8.5, Math.min(11, layout.diffBarH * 0.36))}px 'Outfit', sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-        ctx.fillText(cfg.shortLabel, tx + tabW / 2, diffBarY + diffBarH * 0.42);
+        ctx.fillText(cfg.shortLabel, tx + layout.tabW / 2, layout.diffBarY + layout.diffBarH * 0.42);
 
-        ctx.font = `600 ${Math.max(7, Math.min(9, diffBarH * 0.24))}px 'Outfit', sans-serif`;
+        ctx.font = `600 ${Math.max(7, Math.min(9, layout.diffBarH * 0.24))}px 'Outfit', sans-serif`;
         ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
-        ctx.fillText(`${cfg.scoreMultiplier}x`, tx + tabW / 2, diffBarY + diffBarH * 0.78);
+        ctx.fillText(`${cfg.scoreMultiplier}x`, tx + layout.tabW / 2, layout.diffBarY + layout.diffBarH * 0.78);
       }
 
       ctx.restore();
@@ -1800,14 +1856,12 @@ export class BellSymphonyGame extends BaseGame {
     // LISTA DE CANCIONES (6 Canciones)
     // =========================================================================
     const activeDiffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
-    const count = this.songList.length;
-    const startY = diffBarY + diffBarH + 10;
-    const gap = Math.max(4, Math.min(7, this.height * 0.009));
-    const cardH = Math.min(52, Math.max(40, (this.height * 0.54) / count));
+    const count = layout.count;
+    const cardH = layout.cardH;
 
     for (let i = 0; i < count; i++) {
       const song = this.songList[i];
-      const cy = startY + i * (cardH + gap);
+      const cy = layout.startY + i * (cardH + layout.gap);
       const isSelected = i === this.selectedSongIndex;
 
       // Fondo
@@ -1822,27 +1876,27 @@ export class BellSymphonyGame extends BaseGame {
       ctx.stroke();
 
       // Icono Vectorial estilizado
-      const iconSize = Math.max(18, Math.min(24, cardH * 0.44));
+      const iconSize = Math.max(16, Math.min(24, cardH * 0.44));
       const iconX = cardX + iconSize + 8;
       const iconY = cy + cardH / 2;
       this.drawSongBadgeVectorIcon(ctx, song.icon, iconX, iconY, iconSize, isSelected ? activeDiffCfg.color : "#FFD700");
 
       // Título
-      const titleFont = Math.max(11.5, Math.min(14.5, cardH * 0.29));
+      const titleFont = Math.max(10.5, Math.min(14, cardH * 0.29));
       ctx.font = `900 ${titleFont}px 'Outfit', sans-serif`;
       ctx.textAlign = "left";
       ctx.fillStyle = isSelected ? "#FFFFFF" : "#E2E8F0";
-      ctx.fillText(song.title, cardX + iconSize * 2 + 14, cy + cardH * 0.36);
+      ctx.fillText(song.title, cardX + iconSize * 2 + 12, cy + cardH * 0.36);
 
       // Subtítulo y BPM
-      const subFont = Math.max(8.5, Math.min(11, cardH * 0.22));
+      const subFont = Math.max(8, Math.min(10.5, cardH * 0.22));
       ctx.font = `600 ${subFont}px 'Outfit', sans-serif`;
       ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
-      ctx.fillText(`${song.subtitle} • ${song.bpm} BPM`, cardX + iconSize * 2 + 14, cy + cardH * 0.72);
+      ctx.fillText(`${song.subtitle} • ${song.bpm} BPM`, cardX + iconSize * 2 + 12, cy + cardH * 0.72);
 
       // Badge de Dificultad Dinámica
-      const badgeW = Math.max(58, Math.min(76, cardW * 0.17));
-      const badgeH = Math.max(18, Math.min(22, cardH * 0.40));
+      const badgeW = Math.max(54, Math.min(76, cardW * 0.17));
+      const badgeH = Math.max(17, Math.min(22, cardH * 0.40));
       const badgeX = cardX + cardW - badgeW - 10;
       const badgeY = cy + (cardH - badgeH) / 2;
 
@@ -1851,7 +1905,7 @@ export class BellSymphonyGame extends BaseGame {
       ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 7);
       ctx.fill();
 
-      ctx.font = `900 ${Math.max(8.5, Math.min(10.5, badgeH * 0.52))}px 'Outfit', sans-serif`;
+      ctx.font = `900 ${Math.max(8, Math.min(10.5, badgeH * 0.52))}px 'Outfit', sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = "#031524";
@@ -1859,8 +1913,8 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     // Botón Modo Grabador / Editor
-    const editorBtnY = startY + count * (cardH + gap) + 6;
-    const editorBtnH = Math.min(42, Math.max(34, cardH * 0.85));
+    const editorBtnY = layout.editorBtnY;
+    const editorBtnH = layout.editorBtnH;
 
     const btnGrad = ctx.createLinearGradient(cardX, editorBtnY, cardX + cardW, editorBtnY);
     btnGrad.addColorStop(0, "#FF8F00");
@@ -1876,13 +1930,13 @@ export class BellSymphonyGame extends BaseGame {
     ctx.strokeStyle = "#FFFFFF";
     ctx.stroke();
 
-    ctx.font = `900 ${Math.max(10.5, Math.min(13.5, editorBtnH * 0.35))}px 'Outfit', sans-serif`;
+    ctx.font = `900 ${Math.max(10, Math.min(13, editorBtnH * 0.35))}px 'Outfit', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#041424";
     ctx.fillText("MODO GRABADOR / EDITOR DE RITMO", cx, editorBtnY + editorBtnH * 0.38);
 
-    ctx.font = `700 ${Math.max(8.5, Math.min(10.5, editorBtnH * 0.25))}px 'Outfit', sans-serif`;
+    ctx.font = `700 ${Math.max(8, Math.min(10, editorBtnH * 0.25))}px 'Outfit', sans-serif`;
     ctx.fillStyle = "#041424";
     ctx.fillText("Graba notas normales y sostenidas • Pulsa [ X ]", cx, editorBtnY + editorBtnH * 0.74);
 
