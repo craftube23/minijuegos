@@ -1774,8 +1774,8 @@ html, body {
    ========================================================================== */
 .kiosk-footer-carousel {
   width: 100%;
-  height: clamp(92px, 12vh, 118px);
-  min-height: 90px;
+  height: clamp(88px, 11.5vh, 114px);
+  min-height: 86px;
   background: linear-gradient(180deg, #0E2344 0%, #071326 60%, #040B17 100%);
   border-top: 3px solid var(--color-gold);
   position: relative;
@@ -1801,53 +1801,84 @@ html, body {
   pointer-events: none;
 }
 
-.carousel-track {
+/* Swiper Kiosk Wrapper */
+.kiosk-swiper {
   width: 100%;
   height: 100%;
   position: relative;
+  overflow: hidden;
 }
 
-.carousel-slide {
-  position: absolute;
-  top: 0;
-  left: 0;
+.kiosk-swiper .swiper-wrapper {
+  position: relative;
   width: 100%;
   height: 100%;
-  opacity: 0;
-  transform: translateY(10px) scale(0.99);
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+  display: flex !important;
+  transition-property: transform;
+  box-sizing: content-box;
+}
+
+.kiosk-swiper .swiper-slide.banner-slide {
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  position: relative;
+  transition-property: transform, opacity;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px clamp(10px, 2.2vw, 28px) 12px clamp(10px, 2.2vw, 28px);
-  pointer-events: none;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 4px clamp(12px, 2.4vw, 32px);
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-.carousel-slide.active {
-  opacity: 1;
-  transform: translateY(0) scale(1);
+.kiosk-swiper.swiper-fade .swiper-slide {
+  pointer-events: none;
+  transition-property: opacity;
+}
+
+.kiosk-swiper.swiper-fade .swiper-slide-active {
   pointer-events: auto;
 }
 
 /* ==========================================================================
-   PLACAS INDIVIDUALES MARFIL-ORO DE ALTA VISIBILIDAD (.sponsor-plaque-card)
+   PLACAS CORPORATIVAS DE PATROCINADOR (.banner-logo-card)
+   Soporte marfil-dorado no destructivo para proteger contraste y legibilidad
    ========================================================================== */
-.sponsor-plaque-card {
+.banner-logo-card {
   position: relative;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FDF8EE 68%, #F3E5C3 100%);
+  background: linear-gradient(180deg, #FFFFFF 0%, #FDFBF7 60%, #F5EEDC 100%);
   border: 2.2px solid #D4AF37;
-  border-radius: 14px;
-  height: clamp(60px, 8.4vh, 80px);
-  padding: 5px clamp(8px, 1.3vw, 15px);
+  border-radius: 13px;
+  height: clamp(62px, 8.4vh, 78px);
+  width: clamp(140px, 18vw, 195px);
+  padding: 4px clamp(8px, 1.2vw, 14px);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow:
-    0 5px 14px rgba(0, 0, 0, 0.6),
-    0 0 12px rgba(255, 215, 0, 0.2),
+    0 4px 14px rgba(0, 0, 0, 0.65),
+    0 0 10px rgba(255, 215, 0, 0.2),
     inset 0 1px 2px #FFFFFF;
+  flex-shrink: 0;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.banner-logo-card.plaque-duo {
+  width: clamp(110px, 13vw, 148px);
+  height: clamp(58px, 7.8vh, 72px);
+  padding: 4px clamp(6px, 1vw, 10px);
+}
+
+.banner-duo-logos {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1.2vw, 14px);
+  flex-shrink: 0;
 }
 
 .plaque-inner-shine {
@@ -1858,9 +1889,10 @@ html, body {
   height: 42%;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 100%);
   pointer-events: none;
+  border-radius: 10px 10px 0 0;
 }
 
-.plaque-logo-img {
+.banner-logo-img {
   position: relative;
   z-index: 1;
   width: 100%;
@@ -1868,169 +1900,88 @@ html, body {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
 }
 
 /* ==========================================================================
-   MODO 1: VITRINA DE 4 GRANDES PLACAS (SHOWCASE GRID)
+   TIPOGRAFÍAS Y GRUPOS DE TEXTO
+   Sin truncamiento (Zero Ellipsis) para marcas y slogans
    ========================================================================== */
-.banner-grid-layout {
+.banner-hero-container,
+.banner-duo-container,
+.banner-event-container {
   width: 100%;
-  max-width: 1060px;
+  max-width: 1120px;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(8px, 1.4vw, 16px);
+  gap: clamp(12px, 2vw, 24px);
+  box-sizing: border-box;
 }
 
-.banner-royal-seal {
-  background: linear-gradient(160deg, #9B1131 0%, #63081E 60%, #3E0412 100%);
-  border: 2px solid #FFD700;
-  border-radius: 13px;
-  padding: 5px clamp(10px, 1.4vw, 16px);
-  height: clamp(60px, 8.4vh, 80px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.35);
-}
-
-.seal-stars {
-  color: #FFD700;
-  font-size: clamp(0.55rem, 0.9vw, 0.7rem);
-  letter-spacing: 2px;
-  line-height: 1;
-  margin-bottom: 2px;
-}
-
-.seal-main {
-  font-family: var(--font-display);
-  font-size: clamp(0.76rem, 1.35vw, 0.96rem);
-  font-weight: 900;
-  color: #FFF9C4;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
-  line-height: 1.1;
-}
-
-.seal-sub {
-  font-family: var(--font-main);
-  font-size: clamp(0.62rem, 1vw, 0.74rem);
-  font-weight: 700;
-  color: #FFD700;
-  line-height: 1.1;
-  margin-top: 2px;
-}
-
-.banner-plaques-row {
+.banner-text-content {
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: clamp(6px, 1.2vw, 14px);
-  align-items: center;
-  height: 100%;
-}
-
-/* ==========================================================================
-   MODO 2: DESTACADO GIGANTE EN PAREJA (DUO SPOTLIGHT)
-   ========================================================================== */
-.banner-duo-layout {
-  width: 100%;
-  max-width: 1060px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: clamp(10px, 1.8vw, 20px);
-}
-
-.banner-duo-plaques {
-  display: flex;
-  align-items: center;
-  gap: clamp(8px, 1.2vw, 14px);
-  flex-shrink: 0;
-}
-
-.sponsor-plaque-card.plaque-duo-large {
-  width: clamp(135px, 21vw, 215px);
-  height: clamp(60px, 8.4vh, 80px);
-  padding: 6px clamp(10px, 1.5vw, 18px);
-}
-
-.banner-text-group {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   min-width: 0;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
 }
 
 .banner-headline {
-  font-family: var(--font-display);
-  font-size: clamp(0.92rem, 2vw, 1.3rem);
-  color: #FFF385;
-  letter-spacing: 0.8px;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 14px rgba(255, 215, 0, 0.35);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
+  font-family: var(--font-display, 'Titan One', 'Fredoka', cursive, sans-serif);
+  font-size: clamp(0.92rem, 1.8vw, 1.28rem);
   font-weight: 900;
+  color: #FFF9C4;
+  letter-spacing: 0.6px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 0 14px rgba(255, 215, 0, 0.35);
+  line-height: 1.2;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .banner-subline {
-  font-size: clamp(0.76rem, 1.5vw, 0.98rem);
-  color: #F1F5F9;
+  font-family: var(--font-main, 'Outfit', 'Fredoka', sans-serif);
+  font-size: clamp(0.76rem, 1.3vw, 0.95rem);
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.95);
-  margin-top: 3px;
+  color: #F1F5F9;
+  line-height: 1.25;
+  text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.95);
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
-.banner-tag-container {
+.banner-badge-wrapper {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
-.banner-tag {
+.banner-badge-pill {
   background: linear-gradient(180deg, #FFF9C4 0%, #FDE047 35%, #EAB308 70%, #CA8A04 100%);
-  border: 1.5px solid #FEF08A;
+  border: 1.8px solid #FFD700;
   border-bottom: 3.5px solid #713F12;
   color: #422006;
-  font-family: 'Titan One', 'Fredoka', cursive, sans-serif;
-  font-size: clamp(0.7rem, 1.35vw, 0.88rem);
+  font-family: var(--font-display, 'Titan One', cursive, sans-serif);
+  font-size: clamp(0.68rem, 1.15vw, 0.85rem);
   font-weight: 900;
-  padding: clamp(5px, 0.8vh, 8px) clamp(10px, 1.6vw, 16px);
+  padding: clamp(4px, 0.8vh, 7px) clamp(10px, 1.4vw, 16px);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.7);
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
   white-space: nowrap;
   display: inline-block;
 }
 
 /* ==========================================================================
-   MODO 3: CARTEL OFICIAL DEL EVENTO (FECHAS Y UBICACIÓN)
+   CARTEL OFICIAL DEL EVENTO (FERIA MÁGICA DEL JUGUETE)
    ========================================================================== */
-.banner-event-layout {
-  width: 100%;
-  max-width: 1060px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: clamp(10px, 2vw, 22px);
-}
-
 .event-logo-emblem {
-  height: clamp(64px, 9vh, 86px);
-  width: clamp(85px, 12vw, 125px);
+  height: clamp(62px, 8.5vh, 80px);
+  width: clamp(80px, 10vw, 115px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2038,61 +1989,60 @@ html, body {
   filter: drop-shadow(0 0 14px rgba(255, 215, 0, 0.65)) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.85));
 }
 
-.event-logo-emblem img {
+.event-logo-img {
+  width: 100%;
+  height: 100%;
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
 }
 
-.event-info-pills {
+.event-info-block {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-  min-width: 0;
 }
 
 .event-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 253, 245, 0.95);
+  background: rgba(255, 253, 245, 0.96);
   border: 1.8px solid #D4AF37;
   border-radius: 10px;
-  padding: 3px 12px;
+  padding: 3px 10px;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
   width: fit-content;
   max-width: 100%;
 }
 
 .event-pill-icon {
-  font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+  font-size: clamp(0.85rem, 1.4vw, 1.05rem);
   flex-shrink: 0;
+  line-height: 1;
 }
 
 .event-pill-date .event-pill-text {
-  font-family: var(--font-main);
+  font-family: var(--font-main, sans-serif);
   font-weight: 900;
-  font-size: clamp(0.78rem, 1.5vw, 0.96rem);
+  font-size: clamp(0.78rem, 1.4vw, 0.95rem);
   color: #0D3B26;
-  letter-spacing: 0.4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
 }
 
 .event-pill-place .event-pill-text {
-  font-family: var(--font-main);
+  font-family: var(--font-main, sans-serif);
   font-weight: 800;
-  font-size: clamp(0.72rem, 1.35vw, 0.88rem);
+  font-size: clamp(0.72rem, 1.25vw, 0.88rem);
   color: #1E293B;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
-.event-cta-box {
+.event-cta-block {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2100,50 +2050,21 @@ html, body {
   flex-shrink: 0;
 }
 
-.event-tag-crimson {
-  background: linear-gradient(180deg, #FF416C 0%, #C0392B 55%, #8B1A2B 100%);
-  border-color: #FFD700;
-  border-bottom-color: #4A0813;
-  color: #FFFFFF;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.85);
+.banner-badge-pill.event-badge-crimson {
+  background: linear-gradient(180deg, #FF416C 0%, #C0392B 55%, #8B1A2B 100%) !important;
+  border: 1.8px solid #FFD700 !important;
+  border-bottom: 3.5px solid #4A0813 !important;
+  color: #FFFFFF !important;
+  text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.85) !important;
 }
 
-.event-social-handle {
-  font-family: var(--font-main);
-  font-size: clamp(0.68rem, 1.15vw, 0.8rem);
+.event-social-tag {
+  font-family: var(--font-main, sans-serif);
+  font-size: clamp(0.68rem, 1.1vw, 0.8rem);
   font-weight: 800;
   color: #FFF385;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
-}
-
-.carousel-indicators {
-  position: absolute;
-  bottom: max(3px, env(safe-area-inset-bottom, 3px));
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 7px;
-  z-index: 10;
-}
-
-.carousel-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.45);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
-  transition: background-color 0.3s, transform 0.3s, width 0.3s;
-}
-
-.carousel-dot.active {
-  width: 20px;
-  border-radius: 6px;
-  background: var(--color-gold);
-  box-shadow: 0 0 8px var(--color-gold);
+  letter-spacing: 0.4px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
 }
 
 /* ==========================================================================
@@ -2189,52 +2110,77 @@ html, body {
   }
 
   .kiosk-footer-carousel {
-    height: 82px;
-    min-height: 82px;
-    padding-bottom: 0;
+    height: 84px;
+    min-height: 84px;
+    padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
   }
 
-  .carousel-indicators {
-    bottom: 2px;
+  .swiper-slide.banner-slide {
+    padding: 3px 8px;
   }
 
-  .carousel-slide {
-    padding: 3px 8px 10px 8px;
+  .banner-hero-container,
+  .banner-duo-container,
+  .banner-event-container {
+    gap: 8px;
   }
 
-  .banner-royal-seal {
-    display: none;
+  .banner-logo-card {
+    height: 58px;
+    width: 82px;
+    padding: 2px 4px;
+    border-radius: 9px;
+    border-width: 1.8px;
   }
 
-  .banner-plaques-row {
+  .banner-logo-card.plaque-duo {
+    width: 52px;
+    height: 52px;
+    padding: 2px 3px;
+    border-radius: 8px;
+  }
+
+  .banner-duo-logos {
     gap: 5px;
   }
 
-  .sponsor-plaque-card {
-    height: 58px;
-    padding: 4px 6px;
-    border-radius: 10px;
-  }
-
-  .sponsor-plaque-card.plaque-duo-large {
-    width: 112px;
-    height: 58px;
-    padding: 4px 6px;
-  }
-
-  .banner-tag-container {
-    display: none;
-  }
-
   .banner-headline {
-    font-size: 0.82rem;
+    font-size: clamp(0.78rem, 3.5vw, 0.88rem);
+    line-height: 1.15;
   }
 
   .banner-subline {
-    font-size: 0.68rem;
+    font-size: clamp(0.64rem, 2.8vw, 0.72rem);
+    line-height: 1.15;
   }
 
-  .event-cta-box {
+  .banner-badge-wrapper {
+    display: none;
+  }
+
+  .event-logo-emblem {
+    width: 60px;
+    height: 56px;
+  }
+
+  .event-pill {
+    padding: 2px 7px;
+    gap: 4px;
+  }
+
+  .event-pill-icon {
+    font-size: 0.8rem;
+  }
+
+  .event-pill-date .event-pill-text {
+    font-size: 0.72rem;
+  }
+
+  .event-pill-place .event-pill-text {
+    font-size: 0.66rem;
+  }
+
+  .event-cta-block {
     display: none;
   }
 
@@ -2376,31 +2322,70 @@ html, body {
     min-height: 48px;
   }
 
-  .banner-icon-badge {
-    font-size: 1.35rem;
+  .swiper-slide.banner-slide {
+    padding: 2px 10px;
+  }
+
+  .banner-hero-container,
+  .banner-duo-container,
+  .banner-event-container {
+    gap: 8px;
+  }
+
+  .banner-logo-card {
+    height: 38px;
+    width: 78px;
+    padding: 2px 4px;
+    border-radius: 8px;
+  }
+
+  .banner-logo-card.plaque-duo {
+    height: 36px;
+    width: 52px;
+    padding: 2px 3px;
+  }
+
+  .banner-duo-logos {
+    gap: 5px;
+  }
+
+  .event-logo-emblem {
+    height: 38px;
+    width: 55px;
   }
 
   .banner-headline {
-    font-size: 0.82rem;
+    font-size: 0.78rem;
+    line-height: 1.1;
   }
 
   .banner-subline {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+    line-height: 1.1;
   }
 
-  .banner-tag {
-    padding: 3px 8px;
+  .banner-badge-pill {
+    padding: 2px 8px;
+    font-size: 0.65rem;
+    border-bottom-width: 2px;
+  }
+
+  .event-pill {
+    padding: 1px 6px;
+    gap: 4px;
+    border-width: 1.2px;
+  }
+
+  .event-pill-icon {
+    font-size: 0.72rem;
+  }
+
+  .event-pill-date .event-pill-text {
     font-size: 0.68rem;
-    border-radius: 12px;
   }
 
-  .carousel-indicators {
-    bottom: 2px;
-  }
-
-  .carousel-dot {
-    width: 6px;
-    height: 6px;
+  .event-pill-place .event-pill-text {
+    font-size: 0.62rem;
   }
 
   /* Attract Screen */
@@ -2633,16 +2618,40 @@ html, body {
     min-height: 40px;
   }
 
-  .banner-icon-badge {
-    font-size: 1.15rem;
+  .banner-logo-card {
+    height: 32px;
+    width: 64px;
+    padding: 1px 3px;
+    border-radius: 6px;
+  }
+
+  .banner-logo-card.plaque-duo {
+    height: 30px;
+    width: 44px;
+    padding: 1px 2px;
+  }
+
+  .event-logo-emblem {
+    height: 32px;
+    width: 46px;
   }
 
   .banner-headline {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
+    line-height: 1.05;
   }
 
   .banner-subline {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
+    line-height: 1.05;
+  }
+
+  .banner-badge-wrapper {
+    display: none;
+  }
+
+  .event-cta-block {
+    display: none;
   }
 
   .attract-logo-box {

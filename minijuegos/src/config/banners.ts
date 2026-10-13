@@ -1,82 +1,230 @@
 /**
  * ==============================================================================
- * CONFIGURACIÓN DEL CARRUSEL PUBLICITARIO INFERIOR (PATROCINADORES Y FERIA)
+ * CONFIGURACIÓN DE LA CAMPAÑA PUBLICITARIA (BANNERS INFERIORES)
  * ==============================================================================
  * 
- * Diseño de alta visibilidad para Tótem Publicitario Vertical (9:16) y Móvil:
- * - Estética Azul Noche Real + Oro Metálico + Carmesí Navideño (100% acorde a la app).
- * - Placas individuales Marfil-Oro de gran formato para que ningún logo se pierda.
- * - Logos procesados y recortados al milímetro en formato horizontal de alto impacto.
+ * Campaña comercial oficial de la Feria Mágica del Juguete:
+ * - 8 Hero Billboards (Patrocinador individual de gala).
+ * - 2 Duo Spotlights (Alianzas de prestigio).
+ * - 1 Cartel Oficial del Evento (Feria Mágica del Juguete).
+ * 
+ * Todos los logos provienen exclusivamente de los archivos oficiales verificados
+ * en public/assets/logos/ y se presentan con object-fit: contain en tarjetas de soporte.
  */
+
+export type BannerType = "hero-billboard" | "duo-spotlight" | "official-event";
 
 export interface SponsorLogo {
   src: string;
   alt: string;
   name: string;
-  scale?: number;
 }
 
 export interface BannerSlide {
   id: string;
-  type: "showcase-grid" | "duo-spotlight" | "official-event";
-  ribbonTop?: string;
-  ribbonSub?: string;
-  title?: string;
-  subtitle?: string;
+  type: BannerType;
+  title: string;
+  subtitle: string;
   badgeText?: string;
   accentColor: string;
   bgGradient: string;
   logos: SponsorLogo[];
+  statusNote?: "VERIFICADO" | "PROPUESTA" | "PENDIENTE";
 }
 
 export const BANNER_CONFIG = {
-  // Tiempo de rotación entre carteles (6 segundos)
-  rotationIntervalMs: 6000,
+  // Rotación automática aproximada de 5.5 segundos por cartel
+  rotationIntervalMs: 5500,
 
   slides: [
-    // 1. VITRINA DE GALA (BLOQUE 1 DE 4 GRANDES PLACAS)
+    // 1. HERO BILLBOARD: IMEBU & ALCALDÍA DE BUCARAMANGA
     {
-      id: "showcase-patrocinan-1",
-      type: "showcase-grid",
-      ribbonTop: "PATROCINAN",
-      ribbonSub: "Feria Mágica",
-      accentColor: "#FFD700",
-      bgGradient: "linear-gradient(90deg, #071428 0%, #102A52 50%, #071428 100%)",
+      id: "hero-imebu",
+      type: "hero-billboard",
+      title: "ALCALDÍA DE BUCARAMANGA & IMEBU",
+      subtitle: "Impulsando el empleo, el emprendimiento y el fomento empresarial",
+      badgeText: "★ APOYO INSTITUCIONAL",
+      accentColor: "#00E676",
+      bgGradient: "linear-gradient(90deg, #041B12 0%, #0A3D27 50%, #041B12 100%)",
       logos: [
         {
-          src: "./assets/logos/horiz-fundalas.png",
-          alt: "Fundalas",
-          name: "FUNDALAS"
-        },
+          src: "./assets/logos/clean-imebu.png",
+          alt: "Alcaldía de Bucaramanga e IMEBU",
+          name: "IMEBU"
+        }
+      ],
+      statusNote: "PROPUESTA"
+    },
+
+    // 2. HERO BILLBOARD: CAJASAN
+    {
+      id: "hero-cajasan",
+      type: "hero-billboard",
+      title: "CAJASAN",
+      subtitle: "Bienestar integral, recreación y sonrisas para las familias santandereanas",
+      badgeText: "★ BIENESTAR FAMILIAR",
+      accentColor: "#FFA000",
+      bgGradient: "linear-gradient(90deg, #051833 0%, #0C2E5E 50%, #051833 100%)",
+      logos: [
         {
-          src: "./assets/logos/horiz-factor-humano.png",
+          src: "./assets/logos/clean-cajasan.png",
+          alt: "Cajasan",
+          name: "CAJASAN"
+        }
+      ],
+      statusNote: "PROPUESTA"
+    },
+
+    // 3. HERO BILLBOARD: CAMPUSLANDS
+    {
+      id: "hero-campuslands",
+      type: "hero-billboard",
+      title: "CAMPUSLANDS",
+      subtitle: "Formando la próxima generación de talento tecnológico para el mundo",
+      badgeText: "★ TALENTO TECH & INNOVACIÓN",
+      accentColor: "#00E5FF",
+      bgGradient: "linear-gradient(90deg, #041224 0%, #08284D 50%, #041224 100%)",
+      logos: [
+        {
+          src: "./assets/logos/clean-campuslands.png",
+          alt: "Campuslands",
+          name: "CAMPUSLANDS"
+        }
+      ],
+      statusNote: "PROPUESTA"
+    },
+
+    // 4. HERO BILLBOARD: PRACTI AREPA
+    {
+      id: "hero-practi-arepa",
+      type: "hero-billboard",
+      title: "PRACTI AREPA",
+      subtitle: "El auténtico sabor tradicional de nuestra tierra en cada bocado",
+      badgeText: "★ SABOR SANTANDEREANO",
+      accentColor: "#FFB300",
+      bgGradient: "linear-gradient(90deg, #240C05 0%, #4D1A0A 50%, #240C05 100%)",
+      logos: [
+        {
+          src: "./assets/logos/clean-practi-arepa.png",
+          alt: "Practi Arepa",
+          name: "PRACTI AREPA"
+        }
+      ],
+      statusNote: "PROPUESTA"
+    },
+
+    // 5. HERO BILLBOARD: DULCES MARIPOSA
+    {
+      id: "hero-mariposa",
+      type: "hero-billboard",
+      title: "DULCES MARIPOSA",
+      subtitle: "Tradición artesanal y dulce magia que alegra los hogares en Navidad",
+      badgeText: "★ TRADICIÓN DULCE",
+      accentColor: "#FFD500",
+      bgGradient: "linear-gradient(90deg, #26060E 0%, #4D1020 50%, #26060E 100%)",
+      logos: [
+        {
+          src: "./assets/logos/clean-mariposa.png",
+          alt: "Dulces Mariposa",
+          name: "MARIPOSA"
+        }
+      ],
+      statusNote: "PROPUESTA"
+    },
+
+    // 6. HERO BILLBOARD: ÁNGELUS SEGURIDAD
+    {
+      id: "hero-angelus",
+      type: "hero-billboard",
+      title: "ÁNGELUS SEGURIDAD",
+      subtitle: "Protección, confianza y tecnología avanzada para cuidar lo que más amas",
+      badgeText: "★ SEGURIDAD INTEGRAL",
+      accentColor: "#E2E8F0",
+      bgGradient: "linear-gradient(90deg, #061326 0%, #0E294D 50%, #061326 100%)",
+      logos: [
+        {
+          src: "./assets/logos/clean-angelus.png",
+          alt: "Ángelus Seguridad",
+          name: "ÁNGELUS"
+        }
+      ],
+      statusNote: "PROPUESTA"
+    },
+
+    // 7. HERO BILLBOARD: FACTOR HUMANO
+    {
+      id: "hero-factor-humano",
+      type: "hero-billboard",
+      title: "FACTOR HUMANO",
+      subtitle: "Conectando el talento con las grandes oportunidades empresariales del país",
+      badgeText: "★ TALENTO HUMANO",
+      accentColor: "#FF5252",
+      bgGradient: "linear-gradient(90deg, #1F070E 0%, #420F1E 50%, #1F070E 100%)",
+      logos: [
+        {
+          src: "./assets/logos/clean-factor-humano.png",
           alt: "Factor Humano",
           name: "FACTOR HUMANO"
-        },
+        }
+      ],
+      statusNote: "PROPUESTA"
+    },
+
+    // 8. HERO BILLBOARD: FUNDALAS
+    {
+      id: "hero-fundalas",
+      type: "hero-billboard",
+      title: "FUNDALAS",
+      subtitle: "Sembrando sonrisas, esperanza y momentos mágicos en los niños de Santander",
+      badgeText: "★ COMPROMISO SOCIAL",
+      accentColor: "#38BDF8",
+      bgGradient: "linear-gradient(90deg, #031B2E 0%, #083B5E 50%, #031B2E 100%)",
+      logos: [
         {
-          src: "./assets/logos/horiz-campuslands.png",
+          src: "./assets/logos/clean-fundalas.png",
+          alt: "Fundalas",
+          name: "FUNDALAS"
+        }
+      ],
+      statusNote: "PROPUESTA"
+    },
+
+    // 9. DUO SPOTLIGHT: CAMPUSLANDS + CAJASAN
+    {
+      id: "duo-campus-cajasan",
+      type: "duo-spotlight",
+      title: "CAMPUSLANDS & CAJASAN",
+      subtitle: "Alianza por el talento, la formación tecnológica y el bienestar familiar",
+      badgeText: "★ PATROCINADORES OFICIALES",
+      accentColor: "#00E5FF",
+      bgGradient: "linear-gradient(90deg, #051428 0%, #0C2E52 50%, #051428 100%)",
+      logos: [
+        {
+          src: "./assets/logos/clean-campuslands.png",
           alt: "Campuslands",
           name: "CAMPUSLANDS"
         },
         {
-          src: "./assets/logos/horiz-angelus.png",
-          alt: "Angelus Seguridad",
-          name: "ANGELUS"
+          src: "./assets/logos/clean-cajasan.png",
+          alt: "Cajasan",
+          name: "CAJASAN"
         }
-      ]
+      ],
+      statusNote: "PROPUESTA"
     },
 
-    // 2. VITRINA DE GALA (BLOQUE 2 DE 4 GRANDES PLACAS)
+    // 10. DUO SPOTLIGHT: PRACTI AREPA + DULCES MARIPOSA
     {
-      id: "showcase-patrocinan-2",
-      type: "showcase-grid",
-      ribbonTop: "PATROCINAN",
-      ribbonSub: "Aliados Oficiales",
-      accentColor: "#FFD700",
-      bgGradient: "linear-gradient(90deg, #071428 0%, #122E59 50%, #071428 100%)",
+      id: "duo-arepa-mariposa",
+      type: "duo-spotlight",
+      title: "PRACTI AREPA & DULCES MARIPOSA",
+      subtitle: "El auténtico sabor de nuestras tradiciones y la más dulce magia navideña",
+      badgeText: "★ SABOR Y TRADICIÓN",
+      accentColor: "#FFB300",
+      bgGradient: "linear-gradient(90deg, #2B1503 0%, #542A07 50%, #2B1503 100%)",
       logos: [
         {
-          src: "./assets/logos/horiz-practi-arepa.png",
+          src: "./assets/logos/clean-practi-arepa.png",
           alt: "Practi Arepa",
           name: "PRACTI AREPA"
         },
@@ -84,118 +232,17 @@ export const BANNER_CONFIG = {
           src: "./assets/logos/clean-mariposa.png",
           alt: "Dulces Mariposa",
           name: "MARIPOSA"
-        },
-        {
-          src: "./assets/logos/clean-cajasan.png",
-          alt: "Cajasan",
-          name: "CAJASAN"
-        },
-        {
-          src: "./assets/logos/clean-imebu.png",
-          alt: "Alcaldía de Bucaramanga e IMEBU",
-          name: "IMEBU • ALCALDÍA"
         }
-      ]
+      ],
+      statusNote: "PROPUESTA"
     },
 
-    // 3. DESTACADO GIGANTE DUO: CAMPUSLANDS & CAJASAN
-    {
-      id: "spotlight-campus-cajasan",
-      type: "duo-spotlight",
-      title: "TALENTO, TECNOLOGÍA Y BIENESTAR FAMILIAR",
-      subtitle: "Campuslands y Cajasan impulsando la magia de nuestra Navidad",
-      badgeText: "★ PATROCINADORES",
-      accentColor: "#00E5FF",
-      bgGradient: "linear-gradient(90deg, #06152B 0%, #0E3466 55%, #071830 100%)",
-      logos: [
-        {
-          src: "./assets/logos/horiz-campuslands.png",
-          alt: "Campuslands",
-          name: "CAMPUSLANDS"
-        },
-        {
-          src: "./assets/logos/clean-cajasan.png",
-          alt: "Cajasan",
-          name: "CAJASAN"
-        }
-      ]
-    },
-
-    // 4. DESTACADO GIGANTE DUO: ALCALDÍA / IMEBU & FACTOR HUMANO
-    {
-      id: "spotlight-imebu-factor",
-      type: "duo-spotlight",
-      title: "IMPULSO EMPRESARIAL Y TALENTO HUMANO",
-      subtitle: "Alcaldía de Bucaramanga, IMEBU y Factor Humano presentes en la Feria",
-      badgeText: "★ APOYO OFICIAL",
-      accentColor: "#FFD700",
-      bgGradient: "linear-gradient(90deg, #071B2E 0%, #0D3B5E 55%, #071B2E 100%)",
-      logos: [
-        {
-          src: "./assets/logos/clean-imebu.png",
-          alt: "IMEBU Alcaldía de Bucaramanga",
-          name: "IMEBU"
-        },
-        {
-          src: "./assets/logos/horiz-factor-humano.png",
-          alt: "Factor Humano",
-          name: "FACTOR HUMANO"
-        }
-      ]
-    },
-
-    // 5. DESTACADO GIGANTE DUO: PRACTI AREPA & MARIPOSA
-    {
-      id: "spotlight-arepa-mariposa",
-      type: "duo-spotlight",
-      title: "EL SABOR Y LA DULZURA DE LA NAVIDAD",
-      subtitle: "Disfruta la tradición de Practi Arepa y Mariposa en la Feria Mágica",
-      badgeText: "★ SABOR Y TRADICIÓN",
-      accentColor: "#FFB300",
-      bgGradient: "linear-gradient(90deg, #1E0D06 0%, #4A1F0D 55%, #1E0D06 100%)",
-      logos: [
-        {
-          src: "./assets/logos/horiz-practi-arepa.png",
-          alt: "Practi Arepa",
-          name: "PRACTI AREPA"
-        },
-        {
-          src: "./assets/logos/clean-mariposa.png",
-          alt: "Mariposa",
-          name: "MARIPOSA"
-        }
-      ]
-    },
-
-    // 6. DESTACADO GIGANTE DUO: FUNDALAS & ÁNGELUS SEGURIDAD
-    {
-      id: "spotlight-fundalas-angelus",
-      type: "duo-spotlight",
-      title: "CORAZÓN, SONRISAS Y SEGURIDAD",
-      subtitle: "Fundalas y Ángelus Seguridad unidos por las familias en esta Navidad",
-      badgeText: "★ ALIADOS OFICIALES",
-      accentColor: "#FFD700",
-      bgGradient: "linear-gradient(90deg, #1A0818 0%, #441338 55%, #1A0818 100%)",
-      logos: [
-        {
-          src: "./assets/logos/horiz-fundalas.png",
-          alt: "Fundalas",
-          name: "FUNDALAS"
-        },
-        {
-          src: "./assets/logos/horiz-angelus.png",
-          alt: "Angelus Seguridad",
-          name: "ANGELUS"
-        }
-      ]
-    },
-
-    // 7. CARTEL OFICIAL DEL EVENTO (FECHAS Y LUGAR DEL AFICHE REAL)
+    // 11. CARTEL OFICIAL DEL EVENTO: FERIA MÁGICA DEL JUGUETE
     {
       id: "official-event-info",
       type: "official-event",
       title: "DEL 1 AL 24 DE DICIEMBRE",
-      subtitle: "Centro Cultural del Oriente (Frente al Parque Centenario)",
+      subtitle: "Centro Cultural del Oriente (Frente al Parque Centenario) • Entrada Libre",
       badgeText: "¡NOS VEMOS EN LA FERIA!",
       accentColor: "#FF2A4D",
       bgGradient: "linear-gradient(90deg, #2A0712 0%, #5E1127 50%, #2A0712 100%)",
@@ -205,7 +252,8 @@ export const BANNER_CONFIG = {
           alt: "Feria Mágica del Juguete",
           name: "FERIA MÁGICA"
         }
-      ]
+      ],
+      statusNote: "PENDIENTE"
     }
   ] as BannerSlide[]
 };
