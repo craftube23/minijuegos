@@ -3,15 +3,14 @@
  * COMPONENTE: CARRUSEL PUBLICITARIO INFERIOR (PATROCINADORES Y FERIA)
  * ==============================================================================
  * 
- * Cumple con los requerimientos de diseño publicitario profesional para el Tótem:
- * - Soporte para vitrina general de los 8 patrocinadores oficiales (tal como el afiche).
- * - Banners dobles e individuales de alto impacto con cápsulas de contraste blanco/marfil.
- * - Tipografía festiva y nítida visible desde varios metros de distancia.
- * - Rotación automática fluida sin bloquear el juego ni causar caídas de frames.
+ * Diseño de alta visibilidad acorde con la interfaz nocturna navideña de la Feria:
+ * - Marco Azul Noche Real + Oro Metálico 3D que armoniza con KioskHeader y GameMenu.
+ * - Placas individuales Marfil-Oro (.sponsor-plaque-card) de gran tamaño para que
+ *   ningún logo se pierda ni se mezcle con el fondo.
+ * - Interactividad táctil para cambiar de cartel al tocar los puntos o el banner.
  */
 
 import { BANNER_CONFIG, type BannerSlide } from "../config/banners";
-import { getIconSvg } from "../utils/icons";
 
 export class GameBannerCarousel {
   private container: HTMLElement;
@@ -24,21 +23,21 @@ export class GameBannerCarousel {
     if (!el) throw new Error(`No se encontró el contenedor de banners: #${containerId}`);
     this.container = el;
     this.render();
+    this.setupEvents();
     this.startAutoRotation();
   }
 
   private render(): void {
     this.container.innerHTML = `
+      <div class="carousel-gold-trim-top"></div>
       <div class="carousel-track" id="carousel-track">
-        ${this.slides
-          .map((slide, idx) => this.renderSlide(slide, idx))
-          .join("")}
+        ${this.slides.map((slide, idx) => this.renderSlide(slide, idx)).join("")}
       </div>
       <div class="carousel-indicators">
         ${this.slides
           .map(
             (_, idx) => `
-          <div class="carousel-dot ${idx === 0 ? "active" : ""}" data-dot="${idx}"></div>
+          <button type="button" class="carousel-dot ${idx === 0 ? "active" : ""}" data-dot="${idx}" aria-label="Banner ${idx + 1}"></button>
         `
           )
           .join("")}
@@ -49,76 +48,115 @@ export class GameBannerCarousel {
   private renderSlide(slide: BannerSlide, idx: number): string {
     const isActive = idx === 0 ? "active" : "";
 
-    // 1. MODO SHOWCASE GENERAL (La vitrina completa de gala de los 8 patrocinadores)
-    if (slide.type === "showcase") {
+    // 1. MODO VITRINA DE 4 GRANDES PLACAS MARFIL-ORO (Máxima visibilidad de marca)
+    if (slide.type === "showcase-grid") {
       return `
-        <div class="carousel-slide carousel-slide-showcase ${isActive}" data-index="${idx}" style="background: ${slide.bgGradient};">
-          <div class="banner-showcase-panel">
-            <div class="showcase-header-badge">
-              <span class="showcase-sparkle">★</span>
-              <span class="showcase-title">${slide.title}</span>
-              <span class="showcase-sparkle">★</span>
+        <div class="carousel-slide carousel-slide-grid ${isActive}" data-index="${idx}" style="background: ${slide.bgGradient};">
+          <div class="banner-grid-layout">
+            <div class="banner-royal-seal">
+              <div class="seal-stars">★ ★ ★</div>
+              <div class="seal-main">${slide.ribbonTop || "PATROCINAN"}</div>
+              <div class="seal-sub">${slide.ribbonSub || "Feria Mágica"}</div>
             </div>
-            <div class="showcase-logos-row">
-              ${(slide.logos || [])
+
+            <div class="banner-plaques-row">
+              ${slide.logos
                 .map(
                   (logo) => `
-                <div class="showcase-logo-item" title="${logo.name}">
-                  <img src="${logo.src}" alt="${logo.alt}" style="max-height: ${logo.maxHeight || "34px"};" />
+                <div class="sponsor-plaque-card" title="${logo.name}">
+                  <div class="plaque-inner-shine"></div>
+                  <img src="${logo.src}" alt="${logo.alt}" class="plaque-logo-img" />
                 </div>
               `
                 )
                 .join("")}
-            </div>
-            <div class="showcase-social-tag">
-              <span class="social-icon">📱</span>
-              <span class="social-handle">@FeriaMagicaJuguete</span>
             </div>
           </div>
         </div>
       `;
     }
 
-    // 2. MODO SPOTLIGHT / EVENTO (Destacado de marcas con logos en cápsula blanca)
+    // 2. MODO DUO SPOTLIGHT (2 Placas Gigantes + Mensaje Festivo + Insignia Dorada)
+    if (slide.type === "duo-spotlight") {
+      return `
+        <div class="carousel-slide carousel-slide-duo ${isActive}" data-index="${idx}" style="background: ${slide.bgGradient};">
+          <div class="banner-duo-layout">
+            <div class="banner-duo-plaques">
+              ${slide.logos
+                .map(
+                  (logo) => `
+                <div class="sponsor-plaque-card plaque-duo-large" title="${logo.name}">
+                  <div class="plaque-inner-shine"></div>
+                  <img src="${logo.src}" alt="${logo.alt}" class="plaque-logo-img" />
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+
+            <div class="banner-text-group">
+              <div class="banner-headline">${slide.title || ""}</div>
+              <div class="banner-subline">${slide.subtitle || ""}</div>
+            </div>
+
+            <div class="banner-tag-container">
+              <span class="banner-tag">
+                ${slide.badgeText || "★ OFICIAL"}
+              </span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 3. MODO CARTEL OFICIAL DEL EVENTO (Fechas, Ubicación y Redes como el Afiche)
+    const mainLogo = slide.logos[0];
     return `
-      <div class="carousel-slide ${isActive}" data-index="${idx}" style="background: ${slide.bgGradient};">
-        <div class="banner-flex-card">
-          <div class="banner-logos-capsule">
-            ${
-              slide.logos && slide.logos.length > 0
-                ? slide.logos
-                    .map(
-                      (logo) => `
-                  <div class="banner-logo-wrapper" title="${logo.name}">
-                    <img src="${logo.src}" alt="${logo.alt}" style="max-height: ${logo.maxHeight || "42px"};" />
-                  </div>
-                `
-                    )
-                    .join("")
-                : slide.image
-                ? `<div class="banner-logo-wrapper"><img src="${slide.image}" alt="${slide.title}" style="max-height: 40px;" /></div>`
-                : `<div class="banner-icon-badge">${getIconSvg(slide.iconName || "sparkles", { size: 30, color: "#ffffff", fill: "rgba(255,255,255,0.3)" })}</div>`
-            }
+      <div class="carousel-slide carousel-slide-event ${isActive}" data-index="${idx}" style="background: ${slide.bgGradient};">
+        <div class="banner-event-layout">
+          <div class="event-logo-emblem">
+            <img src="${mainLogo?.src || "./assets/logos/clean-feria-magica.png"}" alt="Feria Mágica del Juguete" />
           </div>
 
-          <div class="banner-text-group">
-            <div class="banner-headline">${slide.title}</div>
-            <div class="banner-subline">${slide.subtitle}</div>
+          <div class="event-info-pills">
+            <div class="event-pill event-pill-date">
+              <span class="event-pill-icon">📅</span>
+              <span class="event-pill-text">${slide.title || "DEL 1 AL 24 DE DICIEMBRE"}</span>
+            </div>
+            <div class="event-pill event-pill-place">
+              <span class="event-pill-icon">📍</span>
+              <span class="event-pill-text">${slide.subtitle || "Centro Cultural del Oriente (Frente al Parque Centenario)"}</span>
+            </div>
           </div>
 
-          <div class="banner-tag-container">
-            <span class="banner-tag" style="border-color: ${slide.badgeColor}; color: #331A00;">
-              ${slide.badgeText}
-            </span>
+          <div class="event-cta-box">
+            <div class="banner-tag event-tag-crimson">${slide.badgeText || "¡NOS VEMOS EN LA FERIA!"}</div>
+            <div class="event-social-handle">@FeriaMagicaJuguete</div>
           </div>
         </div>
       </div>
     `;
   }
 
-  /**
-   * Inicia la rotación automática de diapositivas
-   */
+  private setupEvents(): void {
+    // Permitir tocar cualquier punto indicador para ir a ese cartel
+    const dots = this.container.querySelectorAll<HTMLElement>(".carousel-dot");
+    dots.forEach((dot) => {
+      dot.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const idx = Number(dot.getAttribute("data-dot") || "0");
+        this.goToSlide(idx);
+        this.startAutoRotation();
+      });
+    });
+
+    // Permitir tocar el banner para avanzar manualmente al siguiente cartel
+    this.container.addEventListener("click", () => {
+      this.nextSlide();
+      this.startAutoRotation();
+    });
+  }
+
   public startAutoRotation(): void {
     if (this.timer) clearInterval(this.timer);
     this.timer = window.setInterval(() => {

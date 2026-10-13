@@ -3,178 +3,208 @@
  * CONFIGURACIÓN DEL CARRUSEL PUBLICITARIO INFERIOR (PATROCINADORES Y FERIA)
  * ==============================================================================
  * 
- * Banners 100% profesionales y responsivos diseñados para el Tótem Publicitario.
- * Incorpora los 8 patrocinadores oficiales de la Feria Mágica del Juguete:
- * 1. FUNDALAS
- * 2. Actor Humano
- * 3. Campuslands
- * 4. Angelus
- * 5. Practi Arepa
- * 6. Dulces Mariposa
- * 7. Cajasan
- * 8. IMEBU / Alcaldía de Bucaramanga
+ * Diseño de alta visibilidad para Tótem Publicitario Vertical (9:16) y Móvil:
+ * - Estética Azul Noche Real + Oro Metálico + Carmesí Navideño (100% acorde a la app).
+ * - Placas individuales Marfil-Oro de gran formato para que ningún logo se pierda.
+ * - Logos procesados y recortados al milímetro en formato horizontal de alto impacto.
  */
 
 export interface SponsorLogo {
   src: string;
   alt: string;
   name: string;
-  maxHeight?: string;
+  scale?: number;
 }
 
 export interface BannerSlide {
   id: string;
-  type: "showcase" | "spotlight" | "event";
-  title: string;
-  subtitle: string;
-  badgeText: string;
-  badgeColor: string;
+  type: "showcase-grid" | "duo-spotlight" | "official-event";
+  ribbonTop?: string;
+  ribbonSub?: string;
+  title?: string;
+  subtitle?: string;
+  badgeText?: string;
+  accentColor: string;
   bgGradient: string;
-  iconName?: string;
-  image?: string;
-  logos?: SponsorLogo[];
-  highlightText?: string;
+  logos: SponsorLogo[];
 }
 
-export const OFFICIAL_SPONSORS: SponsorLogo[] = [
-  {
-    src: "./assets/logos/Logo-Fundalas-sin-fondo.png",
-    alt: "Fundalas",
-    name: "Fundalas",
-    maxHeight: "36px"
-  },
-  {
-    src: "./assets/logos/logo-actor-humano-sin-fondo.png",
-    alt: "Actor Humano",
-    name: "Actor Humano",
-    maxHeight: "42px"
-  },
-  {
-    src: "./assets/logos/logo-campus-sin-fondo.png",
-    alt: "Campuslands",
-    name: "Campuslands",
-    maxHeight: "38px"
-  },
-  {
-    src: "./assets/logos/logo-Angelus-sin-fondo.png",
-    alt: "Angelus",
-    name: "Angelus",
-    maxHeight: "40px"
-  },
-  {
-    src: "./assets/logos/logo-preza-arepa-sin-fondo.png",
-    alt: "Practi Arepa",
-    name: "Practi Arepa",
-    maxHeight: "38px"
-  },
-  {
-    src: "./assets/logos/logo-mariposa-clean-sin-fondo.png",
-    alt: "Dulces Mariposa",
-    name: "Mariposa",
-    maxHeight: "32px"
-  },
-  {
-    src: "./assets/logos/logo-cajasan-sin-fondo.png",
-    alt: "Cajasan",
-    name: "Cajasan",
-    maxHeight: "36px"
-  },
-  {
-    src: "./assets/logos/logo-imebu-sin-fondo.png",
-    alt: "IMEBU - Alcaldía de Bucaramanga",
-    name: "IMEBU",
-    maxHeight: "40px"
-  }
-];
-
 export const BANNER_CONFIG = {
-  // Rotación suave cada 6.5 segundos para dar tiempo de lectura y lucimiento a cada marca
-  rotationIntervalMs: 6500,
+  // Tiempo de rotación entre carteles (6 segundos)
+  rotationIntervalMs: 6000,
 
   slides: [
-    // 1. EL GRAN PANEL DE PATROCINADORES (Fiel al cartel publicitario oficial)
+    // 1. VITRINA DE GALA (BLOQUE 1 DE 4 GRANDES PLACAS)
     {
-      id: "banner-patrocinadores-showcase",
-      type: "showcase",
-      title: "PATROCINADORES OFICIALES",
-      subtitle: "La Feria Mágica del Juguete es una realidad gracias a su gran apoyo",
-      badgeText: "DONDE VIVE LA MAGIA",
-      badgeColor: "#FFD700",
-      bgGradient: "linear-gradient(90deg, #100408 0%, #2D0913 25%, #3D0C1A 50%, #2D0913 75%, #100408 100%)",
-      logos: OFFICIAL_SPONSORS
-    },
-
-    // 2. DUO: CAMPUSLANDS & CAJASAN (Tecnología y Bienestar)
-    {
-      id: "banner-campus-cajasan",
-      type: "spotlight",
-      title: "CAMPUSLANDS & CAJASAN",
-      subtitle: "Innovación, formación tecnológica y bienestar familiar en esta Navidad.",
-      badgeText: "PATROCINADORES OFICIALES",
-      badgeColor: "#00E5FF",
-      bgGradient: "linear-gradient(90deg, #051424 0%, #0C2E52 50%, #051424 100%)",
+      id: "showcase-patrocinan-1",
+      type: "showcase-grid",
+      ribbonTop: "PATROCINAN",
+      ribbonSub: "Feria Mágica",
+      accentColor: "#FFD700",
+      bgGradient: "linear-gradient(90deg, #071428 0%, #102A52 50%, #071428 100%)",
       logos: [
-        { src: "./assets/logos/logo-campus-sin-fondo.png", alt: "Campuslands", name: "Campuslands", maxHeight: "42px" },
-        { src: "./assets/logos/logo-cajasan-sin-fondo.png", alt: "Cajasan", name: "Cajasan", maxHeight: "38px" }
+        {
+          src: "./assets/logos/horiz-fundalas.png",
+          alt: "Fundalas",
+          name: "FUNDALAS"
+        },
+        {
+          src: "./assets/logos/horiz-factor-humano.png",
+          alt: "Factor Humano",
+          name: "FACTOR HUMANO"
+        },
+        {
+          src: "./assets/logos/horiz-campuslands.png",
+          alt: "Campuslands",
+          name: "CAMPUSLANDS"
+        },
+        {
+          src: "./assets/logos/horiz-angelus.png",
+          alt: "Angelus Seguridad",
+          name: "ANGELUS"
+        }
       ]
     },
 
-    // 3. INSTITUCIONAL: ALCALDÍA DE BUCARAMANGA & IMEBU
+    // 2. VITRINA DE GALA (BLOQUE 2 DE 4 GRANDES PLACAS)
     {
-      id: "banner-alcaldia-imebu",
-      type: "spotlight",
-      title: "ALCALDÍA DE BUCARAMANGA & IMEBU",
-      subtitle: "Instituto de Empleo y Fomento Empresarial • Respaldando la alegría de nuestra ciudad.",
-      badgeText: "APOYO INSTITUCIONAL",
-      badgeColor: "#00E676",
-      bgGradient: "linear-gradient(90deg, #041F14 0%, #0A432B 50%, #041F14 100%)",
+      id: "showcase-patrocinan-2",
+      type: "showcase-grid",
+      ribbonTop: "PATROCINAN",
+      ribbonSub: "Aliados Oficiales",
+      accentColor: "#FFD700",
+      bgGradient: "linear-gradient(90deg, #071428 0%, #122E59 50%, #071428 100%)",
       logos: [
-        { src: "./assets/logos/logo-imebu-sin-fondo.png", alt: "Alcaldía e IMEBU", name: "IMEBU", maxHeight: "45px" }
+        {
+          src: "./assets/logos/horiz-practi-arepa.png",
+          alt: "Practi Arepa",
+          name: "PRACTI AREPA"
+        },
+        {
+          src: "./assets/logos/clean-mariposa.png",
+          alt: "Dulces Mariposa",
+          name: "MARIPOSA"
+        },
+        {
+          src: "./assets/logos/clean-cajasan.png",
+          alt: "Cajasan",
+          name: "CAJASAN"
+        },
+        {
+          src: "./assets/logos/clean-imebu.png",
+          alt: "Alcaldía de Bucaramanga e IMEBU",
+          name: "IMEBU • ALCALDÍA"
+        }
       ]
     },
 
-    // 4. SOLIDARIDAD: FUNDALAS & ÁNGELUS
+    // 3. DESTACADO GIGANTE DUO: CAMPUSLANDS & CAJASAN
     {
-      id: "banner-fundalas-angelus",
-      type: "spotlight",
-      title: "FUNDALAS & ÁNGELUS",
-      subtitle: "Sembrando sonrisas, esperanza y momentos inolvidables para los niños.",
-      badgeText: "CORAZÓN Y SOLIDARIDAD",
-      badgeColor: "#FFD700",
-      bgGradient: "linear-gradient(90deg, #2A0914 0%, #521327 50%, #2A0914 100%)",
+      id: "spotlight-campus-cajasan",
+      type: "duo-spotlight",
+      title: "TALENTO, TECNOLOGÍA Y BIENESTAR FAMILIAR",
+      subtitle: "Campuslands y Cajasan impulsando la magia de nuestra Navidad",
+      badgeText: "★ PATROCINADORES",
+      accentColor: "#00E5FF",
+      bgGradient: "linear-gradient(90deg, #06152B 0%, #0E3466 55%, #071830 100%)",
       logos: [
-        { src: "./assets/logos/Logo-Fundalas-sin-fondo.png", alt: "Fundalas", name: "Fundalas", maxHeight: "36px" },
-        { src: "./assets/logos/logo-Angelus-sin-fondo.png", alt: "Angelus", name: "Angelus", maxHeight: "44px" }
+        {
+          src: "./assets/logos/horiz-campuslands.png",
+          alt: "Campuslands",
+          name: "CAMPUSLANDS"
+        },
+        {
+          src: "./assets/logos/clean-cajasan.png",
+          alt: "Cajasan",
+          name: "CAJASAN"
+        }
       ]
     },
 
-    // 5. GASTRONOMÍA & TRADICIÓN: PRACTI AREPA & DULCES MARIPOSA
+    // 4. DESTACADO GIGANTE DUO: ALCALDÍA / IMEBU & FACTOR HUMANO
     {
-      id: "banner-arepa-mariposa",
-      type: "spotlight",
-      title: "PRACTI AREPA & CONFITERÍA MARIPOSA",
-      subtitle: "El sabor inconfundible de nuestras tradiciones y la más dulce magia navideña.",
-      badgeText: "SABOR Y TRADICIÓN",
-      badgeColor: "#FF9100",
-      bgGradient: "linear-gradient(90deg, #2B1503 0%, #542A07 50%, #2B1503 100%)",
+      id: "spotlight-imebu-factor",
+      type: "duo-spotlight",
+      title: "IMPULSO EMPRESARIAL Y TALENTO HUMANO",
+      subtitle: "Alcaldía de Bucaramanga, IMEBU y Factor Humano presentes en la Feria",
+      badgeText: "★ APOYO OFICIAL",
+      accentColor: "#FFD700",
+      bgGradient: "linear-gradient(90deg, #071B2E 0%, #0D3B5E 55%, #071B2E 100%)",
       logos: [
-        { src: "./assets/logos/logo-preza-arepa-sin-fondo.png", alt: "Practi Arepa", name: "Practi Arepa", maxHeight: "42px" },
-        { src: "./assets/logos/logo-mariposa-clean-sin-fondo.png", alt: "Dulces Mariposa", name: "Mariposa", maxHeight: "36px" }
+        {
+          src: "./assets/logos/clean-imebu.png",
+          alt: "IMEBU Alcaldía de Bucaramanga",
+          name: "IMEBU"
+        },
+        {
+          src: "./assets/logos/horiz-factor-humano.png",
+          alt: "Factor Humano",
+          name: "FACTOR HUMANO"
+        }
       ]
     },
 
-    // 6. EVENTO OFICIAL & FACTOR HUMANO: FECHAS Y UBICACIÓN
+    // 5. DESTACADO GIGANTE DUO: PRACTI AREPA & MARIPOSA
     {
-      id: "banner-feria-evento",
-      type: "event",
-      title: "DEL 1 AL 24 DE DICIEMBRE • CENTRO CULTURAL DEL ORIENTE",
-      subtitle: "Frente al Parque Centenario • Síguenos en @FeriaMagicaJuguete • ¡Nos vemos en la Feria!",
+      id: "spotlight-arepa-mariposa",
+      type: "duo-spotlight",
+      title: "EL SABOR Y LA DULZURA DE LA NAVIDAD",
+      subtitle: "Disfruta la tradición de Practi Arepa y Mariposa en la Feria Mágica",
+      badgeText: "★ SABOR Y TRADICIÓN",
+      accentColor: "#FFB300",
+      bgGradient: "linear-gradient(90deg, #1E0D06 0%, #4A1F0D 55%, #1E0D06 100%)",
+      logos: [
+        {
+          src: "./assets/logos/horiz-practi-arepa.png",
+          alt: "Practi Arepa",
+          name: "PRACTI AREPA"
+        },
+        {
+          src: "./assets/logos/clean-mariposa.png",
+          alt: "Mariposa",
+          name: "MARIPOSA"
+        }
+      ]
+    },
+
+    // 6. DESTACADO GIGANTE DUO: FUNDALAS & ÁNGELUS SEGURIDAD
+    {
+      id: "spotlight-fundalas-angelus",
+      type: "duo-spotlight",
+      title: "CORAZÓN, SONRISAS Y SEGURIDAD",
+      subtitle: "Fundalas y Ángelus Seguridad unidos por las familias en esta Navidad",
+      badgeText: "★ ALIADOS OFICIALES",
+      accentColor: "#FFD700",
+      bgGradient: "linear-gradient(90deg, #1A0818 0%, #441338 55%, #1A0818 100%)",
+      logos: [
+        {
+          src: "./assets/logos/horiz-fundalas.png",
+          alt: "Fundalas",
+          name: "FUNDALAS"
+        },
+        {
+          src: "./assets/logos/horiz-angelus.png",
+          alt: "Angelus Seguridad",
+          name: "ANGELUS"
+        }
+      ]
+    },
+
+    // 7. CARTEL OFICIAL DEL EVENTO (FECHAS Y LUGAR DEL AFICHE REAL)
+    {
+      id: "official-event-info",
+      type: "official-event",
+      title: "DEL 1 AL 24 DE DICIEMBRE",
+      subtitle: "Centro Cultural del Oriente (Frente al Parque Centenario)",
       badgeText: "¡NOS VEMOS EN LA FERIA!",
-      badgeColor: "#FF3366",
-      bgGradient: "linear-gradient(90deg, #3A0B16 0%, #6E152A 50%, #3A0B16 100%)",
+      accentColor: "#FF2A4D",
+      bgGradient: "linear-gradient(90deg, #2A0712 0%, #5E1127 50%, #2A0712 100%)",
       logos: [
-        { src: "./assets/logos/logo-actor-humano-sin-fondo.png", alt: "Actor Humano", name: "Actor Humano", maxHeight: "45px" },
-        { src: "./assets/logos/Feria-magica-del-jugete-sin-fondo.png", alt: "Feria Mágica", name: "Feria Mágica", maxHeight: "48px" }
+        {
+          src: "./assets/logos/clean-feria-magica.png",
+          alt: "Feria Mágica del Juguete",
+          name: "FERIA MÁGICA"
+        }
       ]
     }
   ] as BannerSlide[]

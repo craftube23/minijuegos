@@ -1774,10 +1774,10 @@ html, body {
    ========================================================================== */
 .kiosk-footer-carousel {
   width: 100%;
-  height: clamp(80px, 11vh, 105px);
-  min-height: 80px;
-  background: #061120;
-  border-top: 3.5px solid var(--color-gold);
+  height: clamp(92px, 12vh, 118px);
+  min-height: 90px;
+  background: linear-gradient(180deg, #0E2344 0%, #071326 60%, #040B17 100%);
+  border-top: 3px solid var(--color-gold);
   position: relative;
   overflow: hidden;
   z-index: 100;
@@ -1786,7 +1786,19 @@ html, body {
   padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
   padding-left: max(0px, env(safe-area-inset-left, 0px));
   padding-right: max(0px, env(safe-area-inset-right, 0px));
-  box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 -6px 26px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 243, 150, 0.5);
+  cursor: pointer;
+}
+
+.carousel-gold-trim-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #FFF385 25%, #FFD700 50%, #FFF385 75%, transparent 100%);
+  z-index: 5;
+  pointer-events: none;
 }
 
 .carousel-track {
@@ -1802,147 +1814,151 @@ html, body {
   width: 100%;
   height: 100%;
   opacity: 0;
-  transform: translateX(20px);
-  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  transform: translateY(10px) scale(0.99);
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 clamp(14px, 3vw, 36px);
+  padding: 4px clamp(10px, 2.2vw, 28px) 12px clamp(10px, 2.2vw, 28px);
   pointer-events: none;
 }
 
 .carousel-slide.active {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(0) scale(1);
   pointer-events: auto;
 }
 
-.carousel-slide-showcase {
-  padding: 4px clamp(8px, 1.6vw, 20px);
+/* ==========================================================================
+   PLACAS INDIVIDUALES MARFIL-ORO DE ALTA VISIBILIDAD (.sponsor-plaque-card)
+   ========================================================================== */
+.sponsor-plaque-card {
+  position: relative;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FDF8EE 68%, #F3E5C3 100%);
+  border: 2.2px solid #D4AF37;
+  border-radius: 14px;
+  height: clamp(60px, 8.4vh, 80px);
+  padding: 5px clamp(8px, 1.3vw, 15px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 5px 14px rgba(0, 0, 0, 0.6),
+    0 0 12px rgba(255, 215, 0, 0.2),
+    inset 0 1px 2px #FFFFFF;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.banner-showcase-panel {
+.plaque-inner-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 42%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+}
+
+.plaque-logo-img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12));
+}
+
+/* ==========================================================================
+   MODO 1: VITRINA DE 4 GRANDES PLACAS (SHOWCASE GRID)
+   ========================================================================== */
+.banner-grid-layout {
   width: 100%;
   max-width: 1060px;
-  height: 88%;
-  background: linear-gradient(180deg, #FFFDF8 0%, #F5EEDA 100%);
-  border: 1.8px solid #D4AF37;
-  border-radius: 12px;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(6px, 1.2vw, 16px);
-  padding: 4px clamp(8px, 1.5vw, 16px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 1px 1px #FFFFFF;
+  gap: clamp(8px, 1.4vw, 16px);
 }
 
-.showcase-header-badge {
+.banner-royal-seal {
+  background: linear-gradient(160deg, #9B1131 0%, #63081E 60%, #3E0412 100%);
+  border: 2px solid #FFD700;
+  border-radius: 13px;
+  padding: 5px clamp(10px, 1.4vw, 16px);
+  height: clamp(60px, 8.4vh, 80px);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 5px;
-  background: #681525;
-  color: #FFF9C4;
-  padding: 4px 10px;
-  border-radius: 8px;
-  border: 1px solid #D4AF37;
-  font-family: 'Cinzel', serif;
-  font-size: clamp(0.68rem, 1.2vw, 0.85rem);
-  font-weight: 800;
-  letter-spacing: 0.6px;
-  white-space: nowrap;
+  justify-content: center;
+  text-align: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.35);
 }
 
-.showcase-sparkle {
+.seal-stars {
   color: #FFD700;
-  font-size: 0.75rem;
+  font-size: clamp(0.55rem, 0.9vw, 0.7rem);
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 2px;
 }
 
-.showcase-logos-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
+.seal-main {
+  font-family: var(--font-display);
+  font-size: clamp(0.76rem, 1.35vw, 0.96rem);
+  font-weight: 900;
+  color: #FFF9C4;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+  line-height: 1.1;
+}
+
+.seal-sub {
+  font-family: var(--font-main);
+  font-size: clamp(0.62rem, 1vw, 0.74rem);
+  font-weight: 700;
+  color: #FFD700;
+  line-height: 1.1;
+  margin-top: 2px;
+}
+
+.banner-plaques-row {
   flex: 1;
-  gap: clamp(6px, 1.4vw, 18px);
-  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(6px, 1.2vw, 14px);
+  align-items: center;
   height: 100%;
 }
 
-.showcase-logo-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 1;
-  transition: transform 0.25s ease;
-}
-
-.showcase-logo-item img {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
-}
-
-.showcase-social-tag {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(104, 21, 37, 0.08);
-  border: 1px dashed rgba(104, 21, 37, 0.3);
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-family: var(--font-main);
-  font-size: clamp(0.65rem, 1vw, 0.78rem);
-  font-weight: 800;
-  color: #681525;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.banner-flex-card {
+/* ==========================================================================
+   MODO 2: DESTACADO GIGANTE EN PAREJA (DUO SPOTLIGHT)
+   ========================================================================== */
+.banner-duo-layout {
   width: 100%;
-  max-width: 1040px;
+  max-width: 1060px;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(10px, 2.2vw, 20px);
-  padding: 4px 0;
+  gap: clamp(10px, 1.8vw, 20px);
 }
 
-.banner-logos-capsule {
+.banner-duo-plaques {
   display: flex;
   align-items: center;
-  gap: clamp(6px, 1vw, 12px);
-  background: linear-gradient(180deg, #FFFFFF 0%, #F5F7FA 100%);
-  border: 2px solid rgba(255, 215, 0, 0.75);
-  border-radius: 12px;
-  padding: 4px clamp(8px, 1.2vw, 14px);
-  height: clamp(48px, 6.5vh, 62px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), inset 0 1px 2px #FFFFFF;
+  gap: clamp(8px, 1.2vw, 14px);
   flex-shrink: 0;
 }
 
-.banner-logo-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.banner-logo-wrapper img {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
-}
-
-.banner-icon-badge {
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  flex-shrink: 0;
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.7));
-  animation: floatDecor 3s ease-in-out infinite alternate;
+.sponsor-plaque-card.plaque-duo-large {
+  width: clamp(135px, 21vw, 215px);
+  height: clamp(60px, 8.4vh, 80px);
+  padding: 6px clamp(10px, 1.5vw, 18px);
 }
 
 .banner-text-group {
@@ -1956,10 +1972,10 @@ html, body {
 
 .banner-headline {
   font-family: var(--font-display);
-  font-size: clamp(1rem, 2.5vw, 1.45rem);
-  color: #FFF9C4;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 12px rgba(0, 0, 0, 0.85);
+  font-size: clamp(0.92rem, 2vw, 1.3rem);
+  color: #FFF385;
+  letter-spacing: 0.8px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 14px rgba(255, 215, 0, 0.35);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1968,8 +1984,8 @@ html, body {
 }
 
 .banner-subline {
-  font-size: clamp(0.82rem, 1.8vw, 1.05rem);
-  color: #FFFFFF;
+  font-size: clamp(0.76rem, 1.5vw, 0.98rem);
+  color: #F1F5F9;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -1988,24 +2004,126 @@ html, body {
   border-bottom: 3.5px solid #713F12;
   color: #422006;
   font-family: 'Titan One', 'Fredoka', cursive, sans-serif;
-  font-size: clamp(0.72rem, 1.5vw, 0.90rem);
+  font-size: clamp(0.7rem, 1.35vw, 0.88rem);
   font-weight: 900;
-  padding: clamp(5px, 0.8vh, 8px) clamp(12px, 2vw, 18px);
+  padding: clamp(5px, 0.8vh, 8px) clamp(10px, 1.6vw, 16px);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.7);
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
   white-space: nowrap;
   display: inline-block;
 }
 
+/* ==========================================================================
+   MODO 3: CARTEL OFICIAL DEL EVENTO (FECHAS Y UBICACIÓN)
+   ========================================================================== */
+.banner-event-layout {
+  width: 100%;
+  max-width: 1060px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(10px, 2vw, 22px);
+}
+
+.event-logo-emblem {
+  height: clamp(64px, 9vh, 86px);
+  width: clamp(85px, 12vw, 125px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 14px rgba(255, 215, 0, 0.65)) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.85));
+}
+
+.event-logo-emblem img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.event-info-pills {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.event-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 253, 245, 0.95);
+  border: 1.8px solid #D4AF37;
+  border-radius: 10px;
+  padding: 3px 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.event-pill-icon {
+  font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+  flex-shrink: 0;
+}
+
+.event-pill-date .event-pill-text {
+  font-family: var(--font-main);
+  font-weight: 900;
+  font-size: clamp(0.78rem, 1.5vw, 0.96rem);
+  color: #0D3B26;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-pill-place .event-pill-text {
+  font-family: var(--font-main);
+  font-weight: 800;
+  font-size: clamp(0.72rem, 1.35vw, 0.88rem);
+  color: #1E293B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-cta-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.event-tag-crimson {
+  background: linear-gradient(180deg, #FF416C 0%, #C0392B 55%, #8B1A2B 100%);
+  border-color: #FFD700;
+  border-bottom-color: #4A0813;
+  color: #FFFFFF;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.85);
+}
+
+.event-social-handle {
+  font-family: var(--font-main);
+  font-size: clamp(0.68rem, 1.15vw, 0.8rem);
+  font-weight: 800;
+  color: #FFF385;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
+}
+
 .carousel-indicators {
   position: absolute;
-  bottom: max(6px, env(safe-area-inset-bottom, 6px));
+  bottom: max(3px, env(safe-area-inset-bottom, 3px));
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 6px;
+  gap: 7px;
   z-index: 10;
 }
 
@@ -2013,14 +2131,18 @@ html, body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.45);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
-  transition: background-color 0.3s, transform 0.3s;
+  transition: background-color 0.3s, transform 0.3s, width 0.3s;
 }
 
 .carousel-dot.active {
+  width: 20px;
+  border-radius: 6px;
   background: var(--color-gold);
-  transform: scale(1.35);
   box-shadow: 0 0 8px var(--color-gold);
 }
 
@@ -2067,8 +2189,8 @@ html, body {
   }
 
   .kiosk-footer-carousel {
-    height: 72px;
-    min-height: 72px;
+    height: 82px;
+    min-height: 82px;
     padding-bottom: 0;
   }
 
@@ -2077,52 +2199,43 @@ html, body {
   }
 
   .carousel-slide {
-    padding: 2px 6px;
+    padding: 3px 8px 10px 8px;
   }
 
-  .banner-showcase-panel {
-    gap: 6px;
-    padding: 2px 6px;
-  }
-
-  .showcase-header-badge {
-    padding: 2px 6px;
-    font-size: 0.62rem;
-  }
-
-  .showcase-social-tag {
+  .banner-royal-seal {
     display: none;
   }
 
-  .showcase-logos-row {
-    gap: 6px;
+  .banner-plaques-row {
+    gap: 5px;
   }
 
-  .showcase-logo-item img {
-    max-height: 24px !important;
+  .sponsor-plaque-card {
+    height: 58px;
+    padding: 4px 6px;
+    border-radius: 10px;
   }
 
-  .banner-logos-capsule {
-    height: 44px;
-    padding: 2px 6px;
-    gap: 4px;
+  .sponsor-plaque-card.plaque-duo-large {
+    width: 112px;
+    height: 58px;
+    padding: 4px 6px;
   }
 
-  .banner-logo-wrapper img {
-    max-height: 28px !important;
+  .banner-tag-container {
+    display: none;
   }
 
   .banner-headline {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
   }
 
   .banner-subline {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
   }
 
-  .banner-tag {
-    font-size: 0.65rem;
-    padding: 3px 6px;
+  .event-cta-box {
+    display: none;
   }
 
   .menu-grid {
