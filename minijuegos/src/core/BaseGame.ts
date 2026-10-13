@@ -164,9 +164,11 @@ export abstract class BaseGame {
       }
     }
 
-    // Cuando el tiempo llega a 0 → Iniciar celebración cinemática suave
+    // Cuando el tiempo llega a 0 → Iniciar celebración cinemática suave y apagar efectos
     if (this.timeRemaining <= 0) {
       this.timeRemaining = 0;
+      this.isLogoPowerUpActive = false;
+      this.logoPowerUpTimer = 0;
       this.isFinishing = true;
       this.finishTimer = 1.6;
       this.audio.stopGameBGM();
@@ -297,6 +299,8 @@ export abstract class BaseGame {
     if (this.isGameOver) return;
     this.isRunning = false;
     this.isGameOver = true;
+    this.isLogoPowerUpActive = false;
+    this.logoPowerUpTimer = 0;
 
     if (this.inGameMusicPath) {
       this.audio.stopGameBGM();

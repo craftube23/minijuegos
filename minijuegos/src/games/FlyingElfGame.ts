@@ -252,7 +252,7 @@ export class FlyingElfGame extends BaseGame {
     this.backgroundSigns = [];
     this.spawnItemTimer = 0.4;
     this.spawnObstacleTimer = 1.1;
-    this.logoSpawnTimer = 2.0;
+    this.logoSpawnTimer = 4.5;
     this.windTimer = 6.5;
     this.isWindActive = false;
     this.wasThrusting = false;
@@ -470,16 +470,22 @@ export class FlyingElfGame extends BaseGame {
 
     // Power-up de Logo activo (Turbo + Imán)
     if (this.isLogoPowerUpActive) {
-      this.logoPowerUpTimer -= dt;
-      if (this.logoPowerUpTimer <= 0) {
+      if (this.timeRemaining <= 0) {
         this.isLogoPowerUpActive = false;
-      } else if (Math.random() < 0.3) {
-        this.particles.emitBurst(
-          this.elfX + (Math.random() - 0.5) * 50,
-          this.elfY + (Math.random() - 0.5) * 50,
-          "#FFD700",
-          1
-        );
+        this.logoPowerUpTimer = 0;
+      } else {
+        this.logoPowerUpTimer -= dt;
+        if (this.logoPowerUpTimer <= 0) {
+          this.isLogoPowerUpActive = false;
+          this.logoPowerUpTimer = 0;
+        } else if (Math.random() < 0.3) {
+          this.particles.emitBurst(
+            this.elfX + (Math.random() - 0.5) * 50,
+            this.elfY + (Math.random() - 0.5) * 50,
+            "#FFD700",
+            1
+          );
+        }
       }
     }
 
@@ -497,10 +503,10 @@ export class FlyingElfGame extends BaseGame {
       this.spawnItemTimer = Math.max(0.38, 0.95 / this.speedMultiplier);
     }
 
-    // Chequeo de aparición de Logos Oficiales: Alta frecuencia garantizada (cada 4 a 6 segundos)
+    // Chequeo de aparición de Logos Oficiales: Frecuencia equilibrada (cada 6 a 8.5 segundos)
     this.logoSpawnTimer -= dt;
     if (this.logoSpawnTimer <= 0) {
-      this.logoSpawnTimer = 4.0 + Math.random() * 2.0;
+      this.logoSpawnTimer = 6.0 + Math.random() * 2.5;
       if (!this.isLogoPowerUpActive) {
         this.spawnLogoMedallion();
       }
@@ -576,8 +582,8 @@ export class FlyingElfGame extends BaseGame {
   }
 
   private spawnCollectiblePattern(): void {
-    // 15% de probabilidad de generar un logo directamente si no hay power-up activo
-    if (!this.isLogoPowerUpActive && Math.random() < 0.15) {
+    // 8% de probabilidad de generar un logo directamente si no hay power-up activo
+    if (!this.isLogoPowerUpActive && Math.random() < 0.08) {
       this.spawnLogoMedallion();
       return;
     }
@@ -758,25 +764,25 @@ export class FlyingElfGame extends BaseGame {
     // Feedback visual y de audio
     if (item.type === "logo_feria") {
       this.isLogoPowerUpActive = true;
-      this.logoPowerUpTimer = 7.0;
-      this.timeRemaining = Math.min(45, this.timeRemaining + 6.0); // +6s Tiempo Extra
+      this.logoPowerUpTimer = 6.0;
+      this.timeRemaining = Math.min(45, this.timeRemaining + 3.0); // +3s Tiempo Extra
       this.audio.playPowerUp();
       this.particles.emitConfetti(this.width, 35);
-      this.addFloatingText("¡FERIA MÁGICA! +6s & IMÁN x2", this.elfX, this.elfY - 45, "#FFD700", 1.4);
+      this.addFloatingText("¡FERIA MÁGICA! +3s & IMÁN x2", this.elfX, this.elfY - 45, "#FFD700", 1.4);
     } else if (item.type === "logo_campus") {
       this.isLogoPowerUpActive = true;
-      this.logoPowerUpTimer = 7.0;
-      this.timeRemaining = Math.min(45, this.timeRemaining + 6.0); // +6s Tiempo Extra
+      this.logoPowerUpTimer = 6.0;
+      this.timeRemaining = Math.min(45, this.timeRemaining + 3.0); // +3s Tiempo Extra
       this.audio.playPowerUp();
       this.particles.emitConfetti(this.width, 35);
-      this.addFloatingText("¡CAMPUSLANDS! +6s & IMÁN x2", this.elfX, this.elfY - 45, "#00E5FF", 1.4);
+      this.addFloatingText("¡CAMPUSLANDS! +3s & IMÁN x2", this.elfX, this.elfY - 45, "#00E5FF", 1.4);
     } else if (item.type === "logo_star") {
       this.isLogoPowerUpActive = true;
-      this.logoPowerUpTimer = 6.0;
-      this.timeRemaining = Math.min(45, this.timeRemaining + 5.0); // +5s Tiempo Extra
+      this.logoPowerUpTimer = 5.0;
+      this.timeRemaining = Math.min(45, this.timeRemaining + 3.0); // +3s Tiempo Extra
       this.audio.playGiftUnwrap();
       this.particles.emitBurst(this.elfX, this.elfY, "#FFD700", 25);
-      this.addFloatingText("¡TURBO + IMÁN +5s!", this.elfX, this.elfY - 45, "#FFE082", 1.35);
+      this.addFloatingText("¡TURBO + IMÁN +3s!", this.elfX, this.elfY - 45, "#FFE082", 1.35);
     } else {
       this.audio.playElfCollectItem();
       this.particles.emitBurst(this.elfX, this.elfY, "#00E676", 6);
@@ -870,14 +876,17 @@ export class FlyingElfGame extends BaseGame {
     }
   }
 
-  private hitObstacle(obs: ObstacleItem, index: number): void {
-    // Si el escudo de turbo está activo, destruye el obstáculo
+  private hitObstacle(_obs: ObstacleItem, index: number): void {
+    // Si el power-up está activo, chocar con un obstáculo hace perder los efectos inmediatamente
     if (this.isLogoPowerUpActive) {
+      this.isLogoPowerUpActive = false;
+      this.logoPowerUpTimer = 0;
+      this.hitCooldown = 1.2;
       this.obstacles.splice(index, 1);
-      this.particles.emitBurst(obs.x + obs.width / 2, obs.y + obs.height / 2, "#FFD700", 22);
-      this.audio.playTap();
-      this.addFloatingText("¡DESTRUIDO! +300", obs.x, obs.y, "#FFE082", 1.25);
-      this.score += 300;
+      this.triggerShake(0.32, 12);
+      this.audio.playElfHit();
+      this.particles.emitBurst(this.elfX, this.elfY, "#FF1744", 25);
+      this.addFloatingText("¡EFECTO PERDIDO!", this.elfX, this.elfY - 45, "#FF1744", 1.4);
       return;
     }
 
@@ -1177,50 +1186,68 @@ export class FlyingElfGame extends BaseGame {
     );
 
     // === BOTÓN DE ACCIÓN: ¡A VOLAR! ===
-    const btnPulse = Math.sin(this.charSelectAnimTime * 4.5) * 0.035;
+    const btnPulse = Math.sin(this.charSelectAnimTime * 4.5) * 0.03;
     ctx.save();
     ctx.translate(layout.btn.x + layout.btn.w / 2, layout.btn.y + layout.btn.h / 2);
     ctx.scale(1.0 + btnPulse, 1.0 + btnPulse);
 
-    // Sombra de botón
-    ctx.shadowColor = isCampusSelected ? "rgba(0, 229, 255, 0.85)" : "rgba(255, 215, 0, 0.85)";
-    ctx.shadowBlur = 24;
+    const btnW = layout.btn.w;
+    const btnH = layout.btn.h;
 
-    const btnGrad = ctx.createLinearGradient(-layout.btn.w / 2, 0, layout.btn.w / 2, 0);
+    // Sombra profunda 3D
+    ctx.shadowColor = "rgba(0, 0, 0, 0.75)";
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 6;
+
+    // Bisel inferior 3D
+    ctx.fillStyle = isCampusSelected ? "#064E3B" : "#7F1D1D";
+    ctx.beginPath();
+    ctx.roundRect(-btnW / 2, -btnH / 2 + 5, btnW, btnH, 18);
+    ctx.fill();
+
+    // Cuerpo del botón con degradado festivo esmeralda / dorado
+    const btnGrad = ctx.createLinearGradient(0, -btnH / 2, 0, btnH / 2);
     if (isCampusSelected) {
-      btnGrad.addColorStop(0, "#00B0FF");
-      btnGrad.addColorStop(0.5, "#00E5FF");
-      btnGrad.addColorStop(1, "#2979FF");
+      btnGrad.addColorStop(0, "#34D399");
+      btnGrad.addColorStop(0.35, "#10B981");
+      btnGrad.addColorStop(0.7, "#059669");
+      btnGrad.addColorStop(1, "#047857");
     } else {
-      btnGrad.addColorStop(0, "#FF6D00");
-      btnGrad.addColorStop(0.5, "#FFD700");
-      btnGrad.addColorStop(1, "#00E676");
+      btnGrad.addColorStop(0, "#FBBF24");
+      btnGrad.addColorStop(0.35, "#F59E0B");
+      btnGrad.addColorStop(0.7, "#D97706");
+      btnGrad.addColorStop(1, "#B45309");
     }
 
     ctx.fillStyle = btnGrad;
     ctx.beginPath();
-    ctx.roundRect(-layout.btn.w / 2, -layout.btn.h / 2, layout.btn.w, layout.btn.h, 38);
+    ctx.roundRect(-btnW / 2, -btnH / 2, btnW, btnH, 18);
     ctx.fill();
 
-    ctx.strokeStyle = "#FFFFFF";
+    // Borde doble dorado
+    ctx.shadowColor = "rgba(255, 215, 0, 0.6)";
+    ctx.shadowBlur = 10;
+    ctx.strokeStyle = "#FFFBEB";
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
+    // Texto del botón
     ctx.shadowBlur = 0;
-    ctx.fillStyle = "#0A192F";
-    const btnFontSize = Math.max(14, Math.min(22, layout.btn.h * 0.42));
-    ctx.font = `900 ${btnFontSize}px 'Outfit', sans-serif`;
+    ctx.shadowOffsetY = 0;
+    ctx.fillStyle = isCampusSelected ? "#FFFFFF" : "#3B1B04";
+    const btnFontSize = Math.max(14, Math.min(24, btnH * 0.44));
+    ctx.font = `900 ${btnFontSize}px 'Titan One', 'Fredoka', cursive, sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("¡A VOLAR! 🚀", 0, 1);
+    ctx.fillText("¡A VOLAR! ▶", 0, 1);
     ctx.restore();
 
     // Atajos de teclado en la parte inferior (si hay espacio vertical)
     if (layout.hintY < this.height - 8) {
       ctx.textAlign = "center";
-      ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
-      ctx.font = "500 11px 'Outfit', sans-serif";
-      ctx.fillText("[1] Feria Mágica   [2] Campuslands   [ESPACIO / ENTER] Iniciar", this.width / 2, layout.hintY);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
+      ctx.font = "600 12px 'Outfit', sans-serif";
+      ctx.fillText("[1] Elfo Feria   [2] Elfo Campuslands   [ESPACIO / ENTER] Iniciar", this.width / 2, layout.hintY);
     }
 
     ctx.restore();
@@ -1232,7 +1259,7 @@ export class FlyingElfGame extends BaseGame {
   private renderElfCard(
     ctx: CanvasRenderingContext2D,
     box: { x: number; y: number; w: number; h: number },
-    _charId: ElfCharacterId,
+    charId: ElfCharacterId,
     title: string,
     desc: string,
     themeColor: string,
@@ -1244,22 +1271,23 @@ export class FlyingElfGame extends BaseGame {
     ctx.save();
 
     const isHorizontalLayout = !isTwoCol || box.w > box.h * 1.35;
-    const cornerRadius = Math.max(10, Math.min(20, box.h * 0.14));
+    const cornerRadius = 18;
 
-    // 1. Fondo de la tarjeta con efecto Glassmorphism
-    ctx.save();
+    // 1. Resplandor exterior si está seleccionado
     if (isSelected) {
       ctx.shadowColor = glowColor;
       ctx.shadowBlur = 24;
     }
 
-    const cardGrad = ctx.createLinearGradient(box.x, box.y, box.x + box.w, box.y + box.h);
+    // 2. Fondo de la tarjeta con estilo madera noble / metal pulido
+    const cardGrad = ctx.createLinearGradient(box.x, box.y, box.x, box.y + box.h);
     if (isSelected) {
-      cardGrad.addColorStop(0, "rgba(20, 38, 70, 0.95)");
-      cardGrad.addColorStop(1, "rgba(10, 22, 45, 0.95)");
+      cardGrad.addColorStop(0, "rgba(18, 38, 68, 0.96)");
+      cardGrad.addColorStop(0.5, "rgba(10, 24, 46, 0.98)");
+      cardGrad.addColorStop(1, "rgba(5, 12, 25, 0.98)");
     } else {
-      cardGrad.addColorStop(0, "rgba(12, 24, 48, 0.72)");
-      cardGrad.addColorStop(1, "rgba(8, 16, 32, 0.72)");
+      cardGrad.addColorStop(0, "rgba(14, 26, 46, 0.78)");
+      cardGrad.addColorStop(1, "rgba(7, 14, 26, 0.82)");
     }
 
     ctx.fillStyle = cardGrad;
@@ -1267,68 +1295,115 @@ export class FlyingElfGame extends BaseGame {
     ctx.roundRect(box.x, box.y, box.w, box.h, cornerRadius);
     ctx.fill();
 
-    // Borde iluminado
-    ctx.strokeStyle = isSelected ? themeColor : "rgba(255, 255, 255, 0.22)";
+    // 3. Bisel y Borde dorado / cian
+    ctx.strokeStyle = isSelected ? themeColor : "rgba(255, 255, 255, 0.25)";
     ctx.lineWidth = isSelected ? 3.0 : 1.5;
     ctx.stroke();
-    ctx.restore();
 
-    // 2. Insignia de Estado (ELEGIDO / SELECCIONAR)
-    const pillW = Math.max(72, Math.min(115, box.w * 0.28));
-    const pillH = Math.max(18, Math.min(26, box.h * 0.22));
-    const pillX = box.x + box.w - pillW - Math.max(6, box.w * 0.025);
-    const pillY = box.y + Math.max(6, box.h * 0.08);
-
-    ctx.save();
-    ctx.fillStyle = isSelected ? themeColor : "rgba(255, 255, 255, 0.12)";
+    // Adornos de esquina dorados (estilo fantasía)
+    const ornSize = 10;
+    ctx.fillStyle = isSelected ? themeColor : "rgba(255, 255, 255, 0.35)";
+    // TL
     ctx.beginPath();
-    ctx.roundRect(pillX, pillY, pillW, pillH, 14);
+    ctx.moveTo(box.x + 4, box.y + 4);
+    ctx.lineTo(box.x + 4 + ornSize, box.y + 4);
+    ctx.lineTo(box.x + 4, box.y + 4 + ornSize);
+    ctx.fill();
+    // TR
+    ctx.beginPath();
+    ctx.moveTo(box.x + box.w - 4, box.y + 4);
+    ctx.lineTo(box.x + box.w - 4 - ornSize, box.y + 4);
+    ctx.lineTo(box.x + box.w - 4, box.y + 4 + ornSize);
+    ctx.fill();
+    // BL
+    ctx.beginPath();
+    ctx.moveTo(box.x + 4, box.y + box.h - 4);
+    ctx.lineTo(box.x + 4 + ornSize, box.y + box.h - 4);
+    ctx.lineTo(box.x + 4, box.y + box.h - 4 - ornSize);
+    ctx.fill();
+    // BR
+    ctx.beginPath();
+    ctx.moveTo(box.x + box.w - 4, box.y + box.h - 4);
+    ctx.lineTo(box.x + box.w - 4 - ornSize, box.y + box.h - 4);
+    ctx.lineTo(box.x + box.w - 4, box.y + box.h - 4 - ornSize);
     ctx.fill();
 
-    if (isSelected) {
-      ctx.strokeStyle = "#FFFFFF";
-      ctx.lineWidth = 1.2;
-      ctx.stroke();
-    }
+    ctx.shadowBlur = 0; // Reset sombra
 
-    ctx.fillStyle = isSelected ? "#0A192F" : "rgba(255, 255, 255, 0.75)";
-    ctx.font = `800 ${Math.max(8.5, Math.min(11.5, pillH * 0.48))}px 'Outfit', sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(isSelected ? "✓ ELEGIDO" : "SELECCIONAR", pillX + pillW / 2, pillY + pillH / 2);
+    // 4. Insignia de Estado (ELEGIDO / SELECCIONAR) en la esquina superior derecha
+    const pillW = Math.max(85, Math.min(115, box.w * 0.24));
+    const pillH = Math.max(20, Math.min(26, box.h * 0.11));
+    const pillX = box.x + box.w - pillW - 12;
+    const pillY = box.y + 10;
+
+    ctx.save();
+    if (isSelected) {
+      ctx.fillStyle = themeColor;
+      ctx.beginPath();
+      ctx.roundRect(pillX, pillY, pillW, pillH, 12);
+      ctx.fill();
+      ctx.fillStyle = "#0A192F";
+      ctx.font = `900 ${Math.max(9, pillH * 0.46)}px 'Outfit', sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("✓ ELEGIDO", pillX + pillW / 2, pillY + pillH / 2);
+    } else {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+      ctx.beginPath();
+      ctx.roundRect(pillX, pillY, pillW, pillH, 12);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+      ctx.font = `700 ${Math.max(8.5, pillH * 0.44)}px 'Outfit', sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("SELECCIONAR", pillX + pillW / 2, pillY + pillH / 2);
+    }
     ctx.restore();
 
-    // 3. Preview Ilustrado en Vivo del Elfo flotando
-    const sway = Math.sin(this.charSelectAnimTime * 3.2 + (isSelected ? 0 : 1.5)) * 4;
+    // 5. Preview Ilustrado en Vivo del Elfo + Pedestal de Nieve Flotante
+    const sway = Math.sin(this.charSelectAnimTime * 3.2 + (isSelected ? 0 : 1.5)) * 5;
     let previewX = 0;
     let previewY = 0;
     let previewSize = 0;
 
     if (!isHorizontalLayout) {
-      // Formato Vertical (Columna con Preview Arriba y Texto Abajo)
-      previewSize = Math.min(box.w * 0.65, box.h * 0.46);
+      previewSize = Math.min(box.w * 0.60, box.h * 0.44);
       previewX = box.x + box.w / 2;
-      previewY = box.y + box.h * 0.38 + sway;
+      previewY = box.y + box.h * 0.34 + sway;
     } else {
-      // Formato Horizontal (Preview a la Izquierda y Texto a la Derecha)
-      previewSize = Math.min(box.h * 0.82, box.w * 0.30);
-      previewX = box.x + previewSize / 2 + 14;
+      previewSize = Math.min(box.h * 0.72, box.w * 0.36);
+      previewX = box.x + previewSize / 2 + 16;
       previewY = box.y + box.h / 2 + sway;
     }
 
+    // Pedestal de energía / nieve
+    ctx.save();
+    ctx.translate(previewX, previewY + previewSize * 0.42);
+    const pedGrad = ctx.createRadialGradient(0, 0, 4, 0, 0, previewSize * 0.42);
+    pedGrad.addColorStop(0, isSelected ? themeColor : "rgba(255, 255, 255, 0.3)");
+    pedGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = pedGrad;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, previewSize * 0.44, previewSize * 0.14, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Dibujar el Elfo flotante
     ctx.save();
     ctx.translate(previewX, previewY);
 
-    // Resplandor detrás del personaje
     if (isSelected) {
       ctx.shadowColor = glowColor;
-      ctx.shadowBlur = 20;
-      const aura = ctx.createRadialGradient(0, 0, 8, 0, 0, previewSize * 0.58);
+      ctx.shadowBlur = 22;
+      const aura = ctx.createRadialGradient(0, 0, 6, 0, 0, previewSize * 0.55);
       aura.addColorStop(0, glowColor);
       aura.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = aura;
       ctx.beginPath();
-      ctx.arc(0, 0, previewSize * 0.58, 0, Math.PI * 2);
+      ctx.arc(0, 0, previewSize * 0.55, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
     }
@@ -1343,7 +1418,7 @@ export class FlyingElfGame extends BaseGame {
     }
     ctx.restore();
 
-    // 4. Textos Descriptivos de la Tarjeta
+    // 6. Columna de Información, Habilidades y Estadísticas Arcade
     ctx.save();
     if (!isHorizontalLayout) {
       ctx.textAlign = "center";
@@ -1360,21 +1435,90 @@ export class FlyingElfGame extends BaseGame {
       ctx.font = `500 ${descFont}px 'Outfit', sans-serif`;
       ctx.fillText(desc, textCenter, titleTextY + titleFont + 4, box.w - 16);
     } else {
+      // Disposición Horizontal con Ficha de Personaje Completa
+      const contentX = box.x + previewSize + 26;
+      const titleAvailW = pillX - contentX - 10;
+      const fullAvailW = box.x + box.w - contentX - 14;
+      let curY = box.y + 18;
+
+      // Tag de categoría / rol
       ctx.textAlign = "left";
-      const textX = box.x + previewSize + Math.max(10, box.w * 0.035);
-      const titleFont = Math.max(11, Math.min(17, box.h * 0.18));
-      const titleTextY = box.y + box.h * 0.42;
+      ctx.fillStyle = isSelected ? themeColor : "#94A3B8";
+      ctx.font = "800 10.5px 'Outfit', sans-serif";
+      const roleText = charId === "feria" ? "👑 MENSAJERO DE LA FERIA" : "🚀 PILOTO CÓSMICO";
+      ctx.fillText(roleText, contentX, curY);
+      curY += 20;
 
-      ctx.fillStyle = isSelected ? themeColor : "#FFFFFF";
-      ctx.font = `800 ${titleFont}px 'Outfit', sans-serif`;
-      const maxTextW = box.x + box.w - textX - (box.w < 380 ? 8 : pillW + 10);
-      ctx.fillText(title, textX, titleTextY, Math.max(60, maxTextW));
+      // Nombre del Personaje
+      const nameFont = Math.max(15, Math.min(21, box.h * 0.095));
+      ctx.fillStyle = isSelected ? "#FFFFFF" : "#E2E8F0";
+      ctx.font = `900 ${nameFont}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+      ctx.shadowColor = isSelected ? glowColor : "rgba(0,0,0,0.8)";
+      ctx.shadowBlur = isSelected ? 8 : 4;
+      ctx.fillText(title, contentX, curY, titleAvailW);
+      ctx.shadowBlur = 0;
+      curY += 18;
 
-      const descFont = Math.max(8.5, Math.min(11.5, titleFont * 0.65));
-      ctx.fillStyle = "rgba(255, 255, 255, 0.70)";
-      ctx.font = `500 ${descFont}px 'Outfit', sans-serif`;
-      const maxDescW = box.x + box.w - textX - 10;
-      ctx.fillText(desc, textX, titleTextY + titleFont + 4, Math.max(80, maxDescW));
+      // Subtítulo / Descripción
+      ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+      ctx.font = "500 11.5px 'Outfit', sans-serif";
+      ctx.fillText(desc, contentX, curY, fullAvailW);
+      curY += 22;
+
+      // Habilidad Especial (Tarjeta pequeña)
+      const abilityH = Math.max(28, Math.min(36, box.h * 0.14));
+      ctx.fillStyle = isSelected ? "rgba(255, 215, 0, 0.12)" : "rgba(255, 255, 255, 0.06)";
+      ctx.beginPath();
+      ctx.roundRect(contentX, curY, Math.min(fullAvailW, 300), abilityH, 8);
+      ctx.fill();
+      ctx.strokeStyle = isSelected ? "rgba(255, 215, 0, 0.35)" : "rgba(255, 255, 255, 0.15)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      const abilityTitle = charId === "feria" ? "🎁 DON NAVIDEÑO:" : "⚡ IMPULSO CÓSMICO:";
+      const abilityDesc = charId === "feria" ? "Mayor radio de imán y puntos x2" : "Planeo ligero y mayor velocidad";
+      ctx.fillStyle = isSelected ? "#FDE68A" : "#E2E8F0";
+      ctx.font = "800 11px 'Outfit', sans-serif";
+      ctx.fillText(abilityTitle, contentX + 8, curY + 14);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.font = "500 10.5px 'Outfit', sans-serif";
+      ctx.fillText(abilityDesc, contentX + 8, curY + abilityH - 7);
+      curY += abilityH + 16;
+
+      // Barras de Estadísticas Arcade (Velocidad, Planeo, Maniobra)
+      const stats = charId === "feria" 
+        ? [{ label: "Velocidad", val: 4 }, { label: "Planeo Mágico", val: 5 }, { label: "Imán Regalos", val: 5 }]
+        : [{ label: "Velocidad", val: 5 }, { label: "Planeo Mágico", val: 4 }, { label: "Turbo Cósmico", val: 5 }];
+
+      const barW = Math.min(fullAvailW * 0.85, 220);
+      stats.forEach((st) => {
+        if (curY > box.y + box.h - 18) return; // Evitar desbordar
+        ctx.fillStyle = "#94A3B8";
+        ctx.font = "700 10px 'Outfit', sans-serif";
+        ctx.fillText(st.label, contentX, curY + 8);
+
+        const meterX = contentX + 88;
+        const meterW = Math.max(70, barW - 88);
+        const meterH = 7;
+
+        // Fondo del medidor
+        ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+        ctx.beginPath();
+        ctx.roundRect(meterX, curY + 2, meterW, meterH, 4);
+        ctx.fill();
+
+        // Relleno del medidor con degradado
+        const fillW = (meterW * st.val) / 5;
+        const fillGrad = ctx.createLinearGradient(meterX, 0, meterX + fillW, 0);
+        fillGrad.addColorStop(0, themeColor);
+        fillGrad.addColorStop(1, isSelected ? "#FFFFFF" : themeColor);
+        ctx.fillStyle = fillGrad;
+        ctx.beginPath();
+        ctx.roundRect(meterX, curY + 2, fillW, meterH, 4);
+        ctx.fill();
+
+        curY += 16;
+      });
     }
     ctx.restore();
 
@@ -2009,6 +2153,12 @@ export class FlyingElfGame extends BaseGame {
       return;
     }
     super.drawHUD(ctx);
+  }
+
+  public override endGame(extraData?: any): void {
+    this.isLogoPowerUpActive = false;
+    this.logoPowerUpTimer = 0;
+    super.endGame(extraData);
   }
 }
 

@@ -61,6 +61,8 @@ export class MagicPairsGame extends BaseGame {
   private spriteStarLogo: HTMLImageElement;
   private spriteLogo1: HTMLImageElement;
   private spriteLogo2: HTMLImageElement;
+  private spriteMedallion: HTMLImageElement;
+  private bgImage: HTMLImageElement;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -92,6 +94,8 @@ export class MagicPairsGame extends BaseGame {
     this.spriteStarLogo = this.createImage("./assets/images/estrella con logo.png");
     this.spriteLogo1 = this.createImage(BRANDING.getLogoPath(1));
     this.spriteLogo2 = this.createImage(BRANDING.getLogoPath(2));
+    this.spriteMedallion = this.createImage("./assets/images/medallon-feria.png");
+    this.bgImage = this.createImage("./assets/images/fondo-habitacion.webp");
 
     // Música temática para el juego de memoria
     this.inGameMusicPath = "./assets/audio/We Wish You a Merry Christmas.mp3";
@@ -446,35 +450,74 @@ export class MagicPairsGame extends BaseGame {
   }
 
   private renderBackground(ctx: CanvasRenderingContext2D): void {
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, this.height);
-    bgGrad.addColorStop(0, "#120826");
-    bgGrad.addColorStop(0.5, "#200E3B");
-    bgGrad.addColorStop(1, "#0A0414");
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, this.width, this.height);
+    if (this.bgImage && this.bgImage.complete && this.bgImage.naturalWidth > 0) {
+      // Dibujar fondo de habitación navideña acogedora
+      ctx.drawImage(this.bgImage, 0, 0, this.width, this.height);
+      // Viñeta festiva para enfocar la atención en el tablero de cartas
+      const vignette = ctx.createRadialGradient(
+        this.width / 2, this.height * 0.5, 50,
+        this.width / 2, this.height * 0.5, Math.max(this.width, this.height) * 0.65
+      );
+      vignette.addColorStop(0, "rgba(8, 16, 32, 0.65)");
+      vignette.addColorStop(1, "rgba(4, 8, 18, 0.92)");
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, this.width, this.height);
+    } else {
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, this.height);
+      bgGrad.addColorStop(0, "#120826");
+      bgGrad.addColorStop(0.5, "#200E3B");
+      bgGrad.addColorStop(1, "#0A0414");
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, this.width, this.height);
+    }
   }
 
   private renderHeader(ctx: CanvasRenderingContext2D): void {
     const { y, h, w, x, fontSize } = this.getHeaderLayout();
 
-    ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+    // Placa de madera tallada para el nivel y progreso
+    ctx.save();
+    ctx.shadowColor = "rgba(0, 0, 0, 0.75)";
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 4;
+
+    const plaqueGrad = ctx.createLinearGradient(x, y, x, y + h);
+    plaqueGrad.addColorStop(0, "#2D1810");
+    plaqueGrad.addColorStop(0.5, "#1B0E09");
+    plaqueGrad.addColorStop(1, "#0F0704");
+    ctx.fillStyle = plaqueGrad;
     ctx.beginPath();
-    ctx.roundRect(x, y, w, h, [12]);
+    ctx.roundRect(x, y, w, h, [14]);
     ctx.fill();
 
-    ctx.strokeStyle = "rgba(255, 215, 0, 0.55)";
-    ctx.lineWidth = 1.5;
+    // Borde noble dorado
+    ctx.strokeStyle = "#F1C40F";
+    ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    ctx.font = `900 ${fontSize}px 'Outfit', sans-serif`;
-    ctx.fillStyle = "#FFD700";
+    // Ribete interior fino
+    ctx.strokeStyle = "rgba(255, 215, 0, 0.35)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(x + 3, y + 3, w - 6, h - 6, [11]);
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Texto con tipografía festiva
+    ctx.font = `900 ${fontSize}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+    ctx.fillStyle = "#FFFFFF";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    ctx.shadowColor = "#B78103";
+    ctx.shadowBlur = 8;
     ctx.fillText(
-      `⭐ NIVEL ${this.level}  •  PAREJAS: ${this.pairsFound}/${this.totalPairs}`,
+      `⭐ NIVEL ${this.level}   •   🎁 PAREJAS: ${this.pairsFound} / ${this.totalPairs}`,
       this.width / 2,
-      y + h / 2
+      y + h / 2 + 1
     );
+    ctx.restore();
   }
 
   private renderCard(ctx: CanvasRenderingContext2D, card: MemoryCard): void {
@@ -493,7 +536,7 @@ export class MagicPairsGame extends BaseGame {
     const isMismatch = this.isCheckingMatch && isCardSelected;
 
     if (card.isMatched) {
-      ctx.globalAlpha = 0.65;
+      ctx.globalAlpha = 0.55;
     }
 
     const halfW = card.w / 2;
@@ -515,38 +558,95 @@ export class MagicPairsGame extends BaseGame {
     w: number,
     h: number
   ): void {
+    // Sombra 3D profunda
+    ctx.save();
+    ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 6;
+
+    // Fondo estilo terciopelo real azul medianoche
     const backGrad = ctx.createLinearGradient(-halfW, -halfH, halfW, halfH);
-    backGrad.addColorStop(0, "#7B1FA2");
-    backGrad.addColorStop(1, "#4A148C");
+    backGrad.addColorStop(0, "#1E293B");
+    backGrad.addColorStop(0.5, "#0F172A");
+    backGrad.addColorStop(1, "#030712");
     ctx.fillStyle = backGrad;
     ctx.beginPath();
     ctx.roundRect(-halfW, -halfH, w, h, [16]);
     ctx.fill();
 
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 3.5;
+    // Borde doble dorado biselado
+    ctx.strokeStyle = "#F1C40F";
+    ctx.lineWidth = 3;
     ctx.stroke();
 
-    // Patrón ornamental en el dorso
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Marco interior dorado
     ctx.strokeStyle = "rgba(255, 215, 0, 0.4)";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.arc(0, 0, Math.min(halfW, halfH) * 0.45, 0, Math.PI * 2);
+    ctx.roundRect(-halfW + 6, -halfH + 6, w - 12, h - 12, [10]);
     ctx.stroke();
 
-    // Estrella de la feria en el dorso
-    const starR = Math.min(halfW, halfH) * 0.25;
+    // Adornos de esquina tallados
+    const orn = Math.min(12, halfW * 0.25);
     ctx.fillStyle = "#FFD700";
+    // TL
     ctx.beginPath();
-    for (let i = 0; i < 5; i++) {
-      const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-      const px = Math.cos(angle) * starR;
-      const py = Math.sin(angle) * starR;
-      if (i === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
-    ctx.closePath();
+    ctx.moveTo(-halfW + 8, -halfH + 8);
+    ctx.lineTo(-halfW + 8 + orn, -halfH + 8);
+    ctx.lineTo(-halfW + 8, -halfH + 8 + orn);
     ctx.fill();
+    // TR
+    ctx.beginPath();
+    ctx.moveTo(halfW - 8, -halfH + 8);
+    ctx.lineTo(halfW - 8 - orn, -halfH + 8);
+    ctx.lineTo(halfW - 8, -halfH + 8 + orn);
+    ctx.fill();
+    // BL
+    ctx.beginPath();
+    ctx.moveTo(-halfW + 8, halfH - 8);
+    ctx.lineTo(-halfW + 8 + orn, halfH - 8);
+    ctx.lineTo(-halfW + 8, halfH - 8 - orn);
+    ctx.fill();
+    // BR
+    ctx.beginPath();
+    ctx.moveTo(halfW - 8, halfH - 8);
+    ctx.lineTo(halfW - 8 - orn, halfH - 8);
+    ctx.lineTo(halfW - 8, halfH - 8 - orn);
+    ctx.fill();
+
+    // Medallón oficial de la Feria Mágica en el centro del dorso
+    const medalSize = Math.min(w, h) * 0.52;
+    if (this.spriteMedallion && this.spriteMedallion.complete && this.spriteMedallion.naturalWidth > 0) {
+      // Resplandor dorado detrás del sello
+      const aura = ctx.createRadialGradient(0, 0, 4, 0, 0, medalSize * 0.5);
+      aura.addColorStop(0, "rgba(255, 215, 0, 0.35)");
+      aura.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = aura;
+      ctx.beginPath();
+      ctx.arc(0, 0, medalSize * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.drawImage(this.spriteMedallion, -medalSize / 2, -medalSize / 2, medalSize, medalSize);
+    } else {
+      // Respaldo ornamental
+      const starR = Math.min(halfW, halfH) * 0.28;
+      ctx.fillStyle = "#FFD700";
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+        const px = Math.cos(angle) * starR;
+        const py = Math.sin(angle) * starR;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.restore();
   }
 
   private renderCardFront(
@@ -560,63 +660,98 @@ export class MagicPairsGame extends BaseGame {
     const isCampus = card.pairKey === "campus_logo";
     const isStar = card.pairKey === "star_logo";
 
+    ctx.save();
+
+    // Sombra si está seleccionada o resplandor de acierto
     if (card.isMatched) {
-      ctx.fillStyle = "#E8F5E9"; // Fondo suave verde al acertar
+      ctx.shadowColor = "#10B981";
+      ctx.shadowBlur = 22;
     } else if (isMismatch) {
-      ctx.fillStyle = "#FFEBEE"; // Fondo suave rojo al fallar
-    } else if (isFair || isStar) {
-      ctx.fillStyle = "#FFF9C4";
-    } else if (isCampus) {
-      ctx.fillStyle = "#E0F7FA";
+      ctx.shadowColor = "#EF4444";
+      ctx.shadowBlur = 22;
     } else {
-      ctx.fillStyle = "#FFFFFF";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+      ctx.shadowBlur = 14;
+      ctx.shadowOffsetY = 4;
     }
 
+    // Fondo estilo pergamino marfil noble
+    const frontGrad = ctx.createLinearGradient(-halfW, -halfH, halfW, halfH);
+    if (card.isMatched) {
+      frontGrad.addColorStop(0, "#D1FAE5");
+      frontGrad.addColorStop(1, "#A7F3D0");
+    } else if (isMismatch) {
+      frontGrad.addColorStop(0, "#FEE2E2");
+      frontGrad.addColorStop(1, "#FECACA");
+    } else if (isFair || isStar) {
+      frontGrad.addColorStop(0, "#FFFBEB");
+      frontGrad.addColorStop(1, "#FEF3C7");
+    } else if (isCampus) {
+      frontGrad.addColorStop(0, "#F0FDFA");
+      frontGrad.addColorStop(1, "#CCFBF1");
+    } else {
+      frontGrad.addColorStop(0, "#FFFFFF");
+      frontGrad.addColorStop(1, "#F8FAFC");
+    }
+
+    ctx.fillStyle = frontGrad;
     ctx.beginPath();
     ctx.roundRect(-halfW, -halfH, card.w, card.h, [16]);
     ctx.fill();
 
-    let strokeColor = isFair || isStar ? "#FFD700" : (isCampus ? "#00E5FF" : "#E0E0E0");
-    if (card.isMatched) strokeColor = "#00E676";
-    if (isMismatch) strokeColor = "#FF1744";
+    // Borde exterior
+    let strokeColor = isFair || isStar ? "#F59E0B" : (isCampus ? "#06B6D4" : "#D4AF37");
+    if (card.isMatched) strokeColor = "#10B981";
+    if (isMismatch) strokeColor = "#EF4444";
 
     ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = card.isMatched || isMismatch ? 5 : (card.isSpecialLogo ? 4.5 : 3);
+    ctx.lineWidth = card.isMatched || isMismatch ? 4.5 : (card.isSpecialLogo ? 4 : 2.8);
     ctx.stroke();
 
-    // Obtener sprite correspondiente
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Sprite HD del Juguete o Logo
     const imgToDraw = this.getSpriteForCard(card.pairKey);
     const iconSize = Math.min(card.w, card.h) * 0.68;
 
     if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth > 0) {
-      ctx.drawImage(imgToDraw, -iconSize / 2, -iconSize / 2, iconSize, iconSize);
+      // Sombra propia suave debajo del juguete
+      ctx.save();
+      ctx.shadowColor = "rgba(0, 0, 0, 0.35)";
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 4;
+      ctx.drawImage(imgToDraw, -iconSize / 2, -iconSize / 2 - 4, iconSize, iconSize);
+      ctx.restore();
     } else {
       ctx.fillStyle = strokeColor;
       ctx.beginPath();
-      ctx.arc(0, 0, iconSize * 0.4, 0, Math.PI * 2);
+      ctx.arc(0, -4, iconSize * 0.38, 0, Math.PI * 2);
       ctx.fill();
     }
 
     // Etiquetas especiales
     if (isFair) {
-      ctx.fillStyle = "#E65100";
-      ctx.font = "800 12px 'Outfit', sans-serif";
+      ctx.fillStyle = "#B45309";
+      ctx.font = "900 11px 'Titan One', cursive, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("FERIA x2", 0, halfH - 14);
+      ctx.fillText("FERIA x2", 0, halfH - 12);
     } else if (isCampus) {
-      ctx.fillStyle = "#006064";
-      ctx.font = "800 12px 'Outfit', sans-serif";
+      ctx.fillStyle = "#0F766E";
+      ctx.font = "900 11px 'Titan One', cursive, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("CAMPUS x2", 0, halfH - 14);
+      ctx.fillText("CAMPUS x2", 0, halfH - 12);
     } else if (isStar) {
-      ctx.fillStyle = "#B78103";
-      ctx.font = "800 12px 'Outfit', sans-serif";
+      ctx.fillStyle = "#B45309";
+      ctx.font = "900 11px 'Titan One', cursive, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("ESTRELLA", 0, halfH - 14);
+      ctx.fillText("ESTRELLA", 0, halfH - 12);
     }
+
+    ctx.restore();
   }
 
   private getSpriteForCard(pairKey: string): HTMLImageElement | null {

@@ -151,15 +151,35 @@ export class GameInstructionsModal {
 
   private render(data: GameInstructionData): void {
     this.container.innerHTML = `
-      <div class="instructions-card fantasy-border" style="--accent-color: ${data.themeColor}">
-        <!-- CABECERA -->
-        <div class="instructions-header">
-          <span class="instructions-badge">CÓMO JUGAR</span>
-          <h2 class="instructions-title">
-            <span class="instructions-icon">${getIconSvg(data.iconName, { size: 28, color: data.themeColor, fill: `${data.themeColor}33` })}</span>
-            ${data.title}
-          </h2>
-          <p class="instructions-goal">${getIconSvg("target", { size: 18, color: "var(--color-gold)" })} <strong>Objetivo:</strong> ${data.goal}</p>
+      <div class="instructions-card fantasy-modal-card">
+        <!-- ADORNOS DE ESQUINA TALLADOS ESTILO FANTASÍA 2D -->
+        <div class="card-ornament ornament-tl"></div>
+        <div class="card-ornament ornament-tr"></div>
+        <div class="card-ornament ornament-bl"></div>
+        <div class="card-ornament ornament-br"></div>
+
+        <!-- MEDALLÓN HEROICO SUPERIOR DE LA FERIA MÁGICA -->
+        <div class="instructions-emblem-header">
+          <div class="instructions-emblem-aura"></div>
+          <div class="instructions-medallion-box">
+            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="instructions-feria-seal" />
+          </div>
+        </div>
+
+        <!-- CINTA / LISTÓN FESTIVO DEL TÍTULO -->
+        <div class="instructions-ribbon-wrapper">
+          <div class="ribbon-tail ribbon-tail-left"></div>
+          <div class="ribbon-banner-body">
+            <div class="instructions-ribbon-tag">CÓMO JUGAR</div>
+            <h2 class="instructions-title">${data.title}</h2>
+          </div>
+          <div class="ribbon-tail ribbon-tail-right"></div>
+        </div>
+
+        <!-- OBJETIVO DE LA MISIÓN -->
+        <div class="instructions-goal-box">
+          <div class="goal-tag">${getIconSvg("target", { size: 15, color: "#FFD700" })} <span>OBJETIVO</span></div>
+          <p class="goal-text">${data.goal}</p>
         </div>
 
         <!-- CUADRÍCULA VISUAL: BUENO vs PELIGRO -->
@@ -168,13 +188,13 @@ export class GameInstructionsModal {
           <div class="instruction-box box-positive">
             <div class="box-title positive-title">
               <span class="dot-indicator green-dot"></span>
-              ${getIconSvg("sparkles", { size: 18, color: "#00E676" })}
-              <span>¡SUMA PUNTOS! (RECOGER)</span>
+              ${getIconSvg("sparkles", { size: 16, color: "#2ECC71", fill: "#2ECC71" })}
+              <span>¡SUMA PUNTOS!</span>
             </div>
             <div class="items-list">
               ${data.positiveItems.map(item => `
                 <div class="item-chip chip-positive">
-                  <span class="chip-icon">${getIconSvg(item.iconName, { size: 18, color: "#00E676" })}</span>
+                  <span class="chip-icon">${getIconSvg(item.iconName, { size: 18, color: "#2ECC71" })}</span>
                   <span class="chip-text">${item.label}</span>
                 </div>
               `).join("")}
@@ -185,13 +205,13 @@ export class GameInstructionsModal {
           <div class="instruction-box box-negative">
             <div class="box-title negative-title">
               <span class="dot-indicator red-dot"></span>
-              ${getIconSvg("flame", { size: 18, color: "#FF3366" })}
-              <span>¡CUIDADO! (EVITAR)</span>
+              ${getIconSvg("flame", { size: 16, color: "#EF4444", fill: "#EF4444" })}
+              <span>¡CUIDADO!</span>
             </div>
             <div class="items-list">
               ${data.negativeItems.map(item => `
                 <div class="item-chip chip-negative">
-                  <span class="chip-icon">${getIconSvg(item.iconName, { size: 18, color: "#FF3366" })}</span>
+                  <span class="chip-icon">${getIconSvg(item.iconName, { size: 18, color: "#EF4444" })}</span>
                   <span class="chip-text">${item.label}</span>
                 </div>
               `).join("")}
@@ -201,19 +221,19 @@ export class GameInstructionsModal {
 
         <!-- CONTROLES -->
         <div class="instructions-controls">
-          <span class="controls-icon">${getIconSvg("gamepad", { size: 20, color: "var(--color-cyan)" })}</span>
+          <span class="controls-icon">${getIconSvg("gamepad", { size: 20, color: "#FFD700" })}</span>
           <span class="controls-text"><strong>Controles:</strong> ${data.controls}</span>
         </div>
 
-        <!-- BOTONES DE ACCIÓN -->
+        <!-- BOTONES DE ACCIÓN 3D ARCADE -->
         <div class="instructions-actions">
-          <button id="btn-instructions-back" class="btn-instruction-secondary">
-            ${getIconSvg("arrowLeft", { size: 20, color: "#ffffff" })}
+          <button id="btn-instructions-back" class="btn-instruction-secondary btn-action-wood">
+            ${getIconSvg("arrowLeft", { size: 18, color: "#FFFFFF" })}
             <span>VOLVER</span>
           </button>
-          <button id="btn-instructions-play" class="btn-instruction-primary">
+          <button id="btn-instructions-play" class="btn-instruction-primary btn-action-play">
             <span>¡A JUGAR!</span>
-            ${getIconSvg("play", { size: 20, color: "#ffffff", fill: "#ffffff" })}
+            ${getIconSvg("play", { size: 20, color: "#FFFFFF", fill: "#FFFFFF" })}
           </button>
         </div>
       </div>

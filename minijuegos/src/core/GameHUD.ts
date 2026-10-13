@@ -36,41 +36,76 @@ export class GameHUD {
     const isNarrow = state.width < 460;
     const isShort = state.height < 500;
     const hudH = isShort
-      ? Math.max(36, Math.min(48, state.height * 0.10))
-      : Math.max(44, Math.min(68, state.height * 0.075));
+      ? Math.max(40, Math.min(52, state.height * 0.11))
+      : Math.max(48, Math.min(68, state.height * 0.082));
 
-    // Fondo oscuro translúcido con borde dorado brillante
-    ctx.fillStyle = "rgba(7, 18, 34, 0.96)";
+    // 1. BARRA BASE SUPERIOR: Madera noble pulida y ribete dorado
+    const hudGrad = ctx.createLinearGradient(0, 0, 0, hudH);
+    hudGrad.addColorStop(0, "rgba(19, 36, 56, 0.98)");
+    hudGrad.addColorStop(0.7, "rgba(10, 20, 34, 0.98)");
+    hudGrad.addColorStop(1, "rgba(5, 11, 19, 0.99)");
+    ctx.fillStyle = hudGrad;
     ctx.fillRect(0, 0, state.width, hudH);
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(0, hudH);
-    ctx.lineTo(state.width, hudH);
-    ctx.stroke();
+
+    // Ribete de madera caoba + filete de oro noble
+    ctx.fillStyle = "#3D1C06";
+    ctx.fillRect(0, hudH - 3, state.width, 3);
+    ctx.fillStyle = "#F1C40F";
+    ctx.fillRect(0, hudH - 1.5, state.width, 1.5);
 
     const fontMain = isShort
       ? (isNarrow ? Math.max(12, state.width * 0.035) : Math.max(13, Math.min(18, state.height * 0.045)))
-      : (isNarrow ? Math.max(13, state.width * 0.038) : Math.max(15, Math.min(24, state.width * 0.036)));
+      : (isNarrow ? Math.max(13, state.width * 0.038) : Math.max(15, Math.min(22, state.width * 0.034)));
     const fontSub = isShort
-      ? (isNarrow ? Math.max(9.5, state.width * 0.026) : Math.max(10, Math.min(14, state.height * 0.034)))
-      : (isNarrow ? Math.max(10, state.width * 0.028) : Math.max(12, Math.min(18, state.width * 0.028)));
-    const textY = hudH * 0.65;
+      ? (isNarrow ? Math.max(9.5, state.width * 0.026) : Math.max(10, Math.min(13, state.height * 0.034)))
+      : (isNarrow ? Math.max(10, state.width * 0.028) : Math.max(11, Math.min(15, state.width * 0.026)));
+
     const paddingX = Math.max(8, state.width * 0.025);
+    const plaqueY = Math.max(4, (hudH - (isShort ? 30 : 38)) / 2);
+    const plaqueH = isShort ? 30 : 38;
 
-    // 1. PUNTUACIÓN (Izquierda con estrella de fantasía 2D)
-    const starRadius = fontMain * 0.48;
-    const starX = paddingX + starRadius;
-    const starY = textY - fontMain * 0.3;
+    // 2. PLACA DE PUNTUACIÓN (Izquierda - Estilo Medallón Arcade)
+    const scoreStr = `${state.score}`;
+    ctx.font = `900 ${fontMain}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+    const scoreTextW = ctx.measureText(scoreStr).width;
+    const scorePlaqueW = Math.max(85, scoreTextW + (isNarrow ? 40 : 54));
 
+    // Fondo de placa de puntuación
+    ctx.save();
+    ctx.shadowColor = "rgba(0, 0, 0, 0.65)";
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 2;
+
+    const scorePlaqueGrad = ctx.createLinearGradient(paddingX, plaqueY, paddingX, plaqueY + plaqueH);
+    scorePlaqueGrad.addColorStop(0, "rgba(30, 41, 59, 0.85)");
+    scorePlaqueGrad.addColorStop(1, "rgba(15, 23, 42, 0.95)");
+    ctx.fillStyle = scorePlaqueGrad;
+    ctx.beginPath();
+    ctx.roundRect(paddingX, plaqueY, scorePlaqueW, plaqueH, 10);
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(255, 215, 0, 0.55)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
+
+    // Estrella de la puntuación
+    const starRadius = Math.min(plaqueH * 0.35, 14);
+    const starX = paddingX + starRadius + 7;
+    const starY = plaqueY + plaqueH / 2;
     this.drawStar(ctx, starX, starY, starRadius);
 
-    ctx.font = `900 ${fontMain}px 'Outfit', sans-serif`;
-    ctx.fillStyle = "#FFD700";
+    // Texto de puntuación con sombra dorada
+    ctx.font = `900 ${fontMain}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+    ctx.fillStyle = "#FFFFFF";
     ctx.textAlign = "left";
-    ctx.fillText(`${state.score}`, starX + starRadius + 6, textY);
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "#FFD700";
+    ctx.shadowBlur = 6;
+    ctx.fillText(scoreStr, starX + starRadius + 6, plaqueY + plaqueH / 2 + 1);
+    ctx.shadowBlur = 0;
 
-    // 2. VIDAS Y TIEMPO RESTANTE (Centro)
+    // 3. CENTRO: VIDAS Y CRONÓMETRO DE PARTIDA
     let timeFormatted: string;
     if (state.timeRemaining >= 60) {
       const mins = Math.floor(state.timeRemaining / 60);
@@ -80,38 +115,99 @@ export class GameHUD {
       timeFormatted = `${Math.ceil(state.timeRemaining)}s`;
     }
 
-    if (state.showLives) {
-      const iconSize = Math.max(10, Math.min(19, fontMain * 0.70));
-      const iconGap = iconSize * 2.2;
-      const totalIconsW = state.maxLives * iconGap;
-      const startIconsX = (state.width / 2) - (totalIconsW / 2) - (isNarrow ? 10 : 20);
+    const isUrgent = state.timeRemaining < 10;
 
+    if (state.showLives) {
+      const iconSize = Math.max(9, Math.min(16, plaqueH * 0.40));
+      const iconGap = iconSize * 2.1;
+      const totalIconsW = state.maxLives * iconGap;
+      const centerTrayW = totalIconsW + (isNarrow ? 50 : 75);
+      const centerTrayX = (state.width - centerTrayW) / 2;
+
+      // Bandeja de vidas y tiempo
+      ctx.save();
+      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      ctx.beginPath();
+      ctx.roundRect(centerTrayX, plaqueY, centerTrayW, plaqueH, 10);
+      ctx.fill();
+      ctx.strokeStyle = isUrgent ? "rgba(239, 68, 68, 0.6)" : "rgba(255, 255, 255, 0.15)";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.restore();
+
+      // Iconos de vidas
+      const startIconsX = centerTrayX + 10;
       for (let i = 0; i < state.maxLives; i++) {
-        const hx = startIconsX + i * iconGap;
-        const hy = textY - fontMain * 0.24;
+        const hx = startIconsX + i * iconGap + iconSize / 2;
+        const hy = plaqueY + plaqueH / 2;
         const isFilled = i < state.lives;
         this.drawLifeIcon(ctx, state.gameId, hx, hy, iconSize, isFilled);
       }
 
-      ctx.font = `900 ${fontMain * 0.95}px 'Outfit', sans-serif`;
-      ctx.fillStyle = state.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
+      // Tiempo con reloj
+      const timeX = startIconsX + totalIconsW + (isNarrow ? 4 : 8);
+      ctx.font = `900 ${fontMain * 0.95}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+      ctx.fillStyle = isUrgent ? "#FF4D4D" : "#FFFFFF";
       ctx.textAlign = "left";
-      ctx.fillText(timeFormatted, startIconsX + totalIconsW + (isNarrow ? 4 : 10), textY);
+      ctx.textBaseline = "middle";
+      if (isUrgent) {
+        ctx.shadowColor = "#EF4444";
+        ctx.shadowBlur = 8;
+      }
+      ctx.fillText(`⏱️ ${timeFormatted}`, timeX, plaqueY + plaqueH / 2 + 1);
+      ctx.shadowBlur = 0;
     } else {
-      ctx.font = `900 ${fontMain * 1.05}px 'Outfit', sans-serif`;
-      ctx.fillStyle = state.timeRemaining < 10 ? "#FF416C" : "#FFFFFF";
+      // Solo cronómetro centrado en placa
+      const clockW = Math.max(80, isNarrow ? 70 : 100);
+      const clockX = (state.width - clockW) / 2;
+
+      ctx.save();
+      ctx.fillStyle = isUrgent ? "rgba(127, 29, 29, 0.65)" : "rgba(0, 0, 0, 0.45)";
+      ctx.beginPath();
+      ctx.roundRect(clockX, plaqueY, clockW, plaqueH, 10);
+      ctx.fill();
+      ctx.strokeStyle = isUrgent ? "#EF4444" : "rgba(255, 215, 0, 0.35)";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.font = `900 ${fontMain * 1.05}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+      ctx.fillStyle = isUrgent ? "#FF4D4D" : "#FFFFFF";
       ctx.textAlign = "center";
-      ctx.fillText(timeFormatted, state.width / 2, textY);
+      ctx.textBaseline = "middle";
+      if (isUrgent) {
+        ctx.shadowColor = "#EF4444";
+        ctx.shadowBlur = 8;
+      }
+      ctx.fillText(`⏱️ ${timeFormatted}`, state.width / 2, plaqueY + plaqueH / 2 + 1);
+      ctx.shadowBlur = 0;
     }
 
-    // 3. RÉCORD / TOP (Derecha)
+    // 4. RÉCORD / TOP (Derecha - Placa de Honor)
+    const recordVal = Math.max(state.score, state.highScore);
+    const recordLabel = isNarrow ? `TOP: ${recordVal}` : `🏆 RÉCORD: ${recordVal}`;
     ctx.font = `800 ${fontSub}px 'Outfit', sans-serif`;
-    ctx.fillStyle = "#2ECC71";
-    ctx.textAlign = "right";
-    const recordLabel = isNarrow ? `TOP: ${Math.max(state.score, state.highScore)}` : `RÉCORD: ${Math.max(state.score, state.highScore)}`;
-    ctx.fillText(recordLabel, state.width - paddingX, textY);
+    const recordTextW = ctx.measureText(recordLabel).width;
+    const recordPlaqueW = recordTextW + 18;
+    const recordPlaqueX = state.width - paddingX - recordPlaqueW;
 
-    // 4. Indicador de Power-Up del Logo Activo
+    ctx.save();
+    ctx.fillStyle = "rgba(6, 78, 59, 0.55)";
+    ctx.beginPath();
+    ctx.roundRect(recordPlaqueX, plaqueY, recordPlaqueW, plaqueH, 10);
+    ctx.fill();
+    ctx.strokeStyle = "#10B981";
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    ctx.font = `800 ${fontSub}px 'Outfit', sans-serif`;
+    ctx.fillStyle = "#A7F3D0";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(recordLabel, recordPlaqueX + recordPlaqueW / 2, plaqueY + plaqueH / 2);
+    ctx.restore();
+
+    // 5. Indicador de Power-Up del Logo Activo
     if (state.isLogoPowerUpActive) {
       const bannerH = Math.max(20, Math.min(34, hudH * 0.55));
       const isCampus = state.activeLogo.id === "logo-2";

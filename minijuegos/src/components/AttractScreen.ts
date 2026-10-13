@@ -42,10 +42,10 @@ export class AttractScreen {
         </div>
 
         <div class="attract-games-preview">
-          <div class="preview-badge">${getIconSvg("gift", { size: 18, color: "var(--color-gold)" })} 4 Juegos Disponibles</div>
+          <div class="preview-badge">${getIconSvg("gift", { size: 18, color: "var(--color-gold)" })} 5 Minijuegos Mágicos</div>
           <div class="preview-badge">${getIconSvg("trophy", { size: 18, color: "var(--color-gold)" })} Guarda tus Récords</div>
           <div class="preview-badge">${getIconSvg("sparkles", { size: 18, color: "var(--color-gold)" })} Gana Premios de la Feria</div>
-      </div>
+        </div>
     `;
   }
 
