@@ -477,10 +477,6 @@ export class MagicPairsGame extends BaseGame {
 
     // Placa de madera tallada para el nivel y progreso
     ctx.save();
-    ctx.shadowColor = "rgba(0, 0, 0, 0.75)";
-    ctx.shadowBlur = 12;
-    ctx.shadowOffsetY = 4;
-
     const plaqueGrad = ctx.createLinearGradient(x, y, x, y + h);
     plaqueGrad.addColorStop(0, "#2D1810");
     plaqueGrad.addColorStop(0.5, "#1B0E09");
@@ -502,16 +498,11 @@ export class MagicPairsGame extends BaseGame {
     ctx.roundRect(x + 3, y + 3, w - 6, h - 6, [11]);
     ctx.stroke();
 
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
-
-    // Texto con tipografía festiva
+    // Texto con tipografía festiva y contorno nítido (sin shadowBlur)
     ctx.font = `900 ${fontSize}px 'Titan One', 'Fredoka', cursive, sans-serif`;
-    ctx.fillStyle = "#FFFFFF";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.shadowColor = "#B78103";
-    ctx.shadowBlur = 8;
+    ctx.fillStyle = "#FFFFFF";
     ctx.fillText(
       `⭐ NIVEL ${this.level}   •   🎁 PAREJAS: ${this.pairsFound} / ${this.totalPairs}`,
       this.width / 2,
@@ -558,12 +549,8 @@ export class MagicPairsGame extends BaseGame {
     w: number,
     h: number
   ): void {
-    // Sombra 3D profunda
+    // Sombra de tarjeta
     ctx.save();
-    ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
-    ctx.shadowBlur = 18;
-    ctx.shadowOffsetY = 6;
-
     // Fondo estilo terciopelo real azul medianoche
     const backGrad = ctx.createLinearGradient(-halfW, -halfH, halfW, halfH);
     backGrad.addColorStop(0, "#1E293B");
@@ -578,9 +565,6 @@ export class MagicPairsGame extends BaseGame {
     ctx.strokeStyle = "#F1C40F";
     ctx.lineWidth = 3;
     ctx.stroke();
-
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
 
     // Marco interior dorado
     ctx.strokeStyle = "rgba(255, 215, 0, 0.4)";
@@ -663,18 +647,6 @@ export class MagicPairsGame extends BaseGame {
     ctx.save();
 
     // Sombra si está seleccionada o resplandor de acierto
-    if (card.isMatched) {
-      ctx.shadowColor = "#10B981";
-      ctx.shadowBlur = 22;
-    } else if (isMismatch) {
-      ctx.shadowColor = "#EF4444";
-      ctx.shadowBlur = 22;
-    } else {
-      ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
-      ctx.shadowBlur = 14;
-      ctx.shadowOffsetY = 4;
-    }
-
     // Fondo estilo pergamino marfil noble
     const frontGrad = ctx.createLinearGradient(-halfW, -halfH, halfW, halfH);
     if (card.isMatched) {
@@ -708,21 +680,12 @@ export class MagicPairsGame extends BaseGame {
     ctx.lineWidth = card.isMatched || isMismatch ? 4.5 : (card.isSpecialLogo ? 4 : 2.8);
     ctx.stroke();
 
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
-
     // Sprite HD del Juguete o Logo
     const imgToDraw = this.getSpriteForCard(card.pairKey);
     const iconSize = Math.min(card.w, card.h) * 0.68;
 
     if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth > 0) {
-      // Sombra propia suave debajo del juguete
-      ctx.save();
-      ctx.shadowColor = "rgba(0, 0, 0, 0.35)";
-      ctx.shadowBlur = 8;
-      ctx.shadowOffsetY = 4;
       ctx.drawImage(imgToDraw, -iconSize / 2, -iconSize / 2 - 4, iconSize, iconSize);
-      ctx.restore();
     } else {
       ctx.fillStyle = strokeColor;
       ctx.beginPath();

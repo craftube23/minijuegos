@@ -1228,15 +1228,15 @@ export class NutcrackerDrumsGame extends BaseGame {
 
     const isNarrow = this.width < 460;
     const isShort = this.height < 500;
-    const hudH = isShort
+    const hudH = Math.round(isShort
       ? Math.max(40, Math.min(52, this.height * 0.11))
-      : Math.max(48, Math.min(68, this.height * 0.082));
+      : Math.max(48, Math.min(62, this.height * 0.080)));
 
-    // 1. BARRA BASE SUPERIOR: Madera noble pulida y ribete dorado
+    // 1. BARRA BASE SUPERIOR: Opaca al 100%
     const hudGrad = ctx.createLinearGradient(0, 0, 0, hudH);
-    hudGrad.addColorStop(0, "rgba(19, 36, 56, 0.98)");
-    hudGrad.addColorStop(0.7, "rgba(10, 20, 34, 0.98)");
-    hudGrad.addColorStop(1, "rgba(5, 11, 19, 0.99)");
+    hudGrad.addColorStop(0, "#132438");
+    hudGrad.addColorStop(0.7, "#0A1422");
+    hudGrad.addColorStop(1, "#050B13");
     ctx.fillStyle = hudGrad;
     ctx.fillRect(0, 0, this.width, hudH);
 
@@ -1246,16 +1246,16 @@ export class NutcrackerDrumsGame extends BaseGame {
     ctx.fillStyle = "#F1C40F";
     ctx.fillRect(0, hudH - 1.5, this.width, 1.5);
 
-    const fontMain = isShort
-      ? (isNarrow ? Math.max(12, this.width * 0.035) : Math.max(13, Math.min(18, this.height * 0.045)))
-      : (isNarrow ? Math.max(13, this.width * 0.038) : Math.max(15, Math.min(22, this.width * 0.034)));
-    const fontSub = isShort
-      ? (isNarrow ? Math.max(9.5, this.width * 0.026) : Math.max(10, Math.min(13, this.height * 0.034)))
-      : (isNarrow ? Math.max(10, this.width * 0.028) : Math.max(11, Math.min(15, this.width * 0.026)));
+    const fontMain = Math.round(isShort
+      ? (isNarrow ? Math.max(11, this.width * 0.033) : Math.max(13, Math.min(18, this.height * 0.045)))
+      : (isNarrow ? Math.max(12, this.width * 0.034) : Math.max(14, Math.min(20, this.width * 0.030))));
+    const fontSub = Math.round(isShort
+      ? (isNarrow ? Math.max(8.5, this.width * 0.024) : Math.max(9.5, Math.min(13, this.height * 0.034)))
+      : (isNarrow ? Math.max(9, this.width * 0.025) : Math.max(10, Math.min(13, this.width * 0.024))));
 
-    const paddingX = Math.max(8, this.width * 0.025);
-    const plaqueY = Math.max(4, (hudH - (isShort ? 30 : 38)) / 2);
-    const plaqueH = isShort ? 30 : 38;
+    const paddingX = Math.round(Math.max(6, this.width * 0.02));
+    const plaqueH = Math.round(isShort ? 28 : 34);
+    const plaqueY = Math.round((hudH - plaqueH) / 2);
 
     // 2. PLACA DE PUNTUACIÓN & COMBO (Izquierda)
     const scoreStr = `${this.score.toLocaleString()} PTS`;
@@ -1263,30 +1263,26 @@ export class NutcrackerDrumsGame extends BaseGame {
     const scoreTextW = ctx.measureText(scoreStr).width;
     const comboStr = this.comboCount >= 2 ? ` ${this.comboCount}x` : "";
     const comboTextW = comboStr ? ctx.measureText(comboStr).width + 6 : 0;
-    const scorePlaqueW = Math.max(95, scoreTextW + comboTextW + (isNarrow ? 40 : 54));
+    const scorePlaqueW = Math.round(scoreTextW + comboTextW + (isNarrow ? 32 : 46));
+    const scorePlaqueX = paddingX;
 
     // Fondo de placa de puntuación
     ctx.save();
-    ctx.shadowColor = "rgba(0, 0, 0, 0.65)";
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetY = 2;
-
-    const scorePlaqueGrad = ctx.createLinearGradient(paddingX, plaqueY, paddingX, plaqueY + plaqueH);
-    scorePlaqueGrad.addColorStop(0, "rgba(30, 41, 59, 0.85)");
-    scorePlaqueGrad.addColorStop(1, "rgba(15, 23, 42, 0.95)");
+    const scorePlaqueGrad = ctx.createLinearGradient(scorePlaqueX, plaqueY, scorePlaqueX, plaqueY + plaqueH);
+    scorePlaqueGrad.addColorStop(0, "rgba(30, 41, 59, 0.95)");
+    scorePlaqueGrad.addColorStop(1, "rgba(15, 23, 42, 0.98)");
     ctx.fillStyle = scorePlaqueGrad;
     ctx.beginPath();
-    ctx.roundRect(paddingX, plaqueY, scorePlaqueW, plaqueH, 10);
+    ctx.roundRect(scorePlaqueX, plaqueY, scorePlaqueW, plaqueH, 8);
     ctx.fill();
 
-    ctx.strokeStyle = "rgba(255, 215, 0, 0.55)";
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(255, 215, 0, 0.65)";
+    ctx.lineWidth = 1.2;
     ctx.stroke();
-    ctx.restore();
 
     // Estrella / Medallón
-    const starRadius = Math.min(plaqueH * 0.35, 14);
-    const starX = paddingX + starRadius + 7;
+    const starRadius = Math.round(Math.min(plaqueH * 0.34, 12));
+    const starX = scorePlaqueX + starRadius + 6;
     const starY = plaqueY + plaqueH / 2;
     
     // Dibujo de estrella
@@ -1306,21 +1302,21 @@ export class NutcrackerDrumsGame extends BaseGame {
     ctx.fill();
     ctx.restore();
 
-    // Texto de puntuación
+    // Texto de puntuación con sombra nítida
     ctx.font = `900 ${fontMain}px 'Titan One', 'Fredoka', cursive, sans-serif`;
-    ctx.fillStyle = "#FFFFFF";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.shadowColor = "#FFD700";
-    ctx.shadowBlur = 6;
-    ctx.fillText(scoreStr, starX + starRadius + 6, plaqueY + plaqueH / 2 + 1);
-    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.fillText(scoreStr, starX + starRadius + 4 + 1, plaqueY + plaqueH / 2 + 1);
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(scoreStr, starX + starRadius + 4, plaqueY + plaqueH / 2);
 
     if (this.comboCount >= 2) {
       ctx.fillStyle = this.comboCount >= 5 ? "#F43F5E" : "#38BDF8";
       ctx.font = `900 ${fontSub * 1.1}px 'Titan One', cursive, sans-serif`;
-      ctx.fillText(comboStr, starX + starRadius + 6 + scoreTextW + 4, plaqueY + plaqueH / 2 + 1);
+      ctx.fillText(comboStr, starX + starRadius + 4 + scoreTextW + 4, plaqueY + plaqueH / 2);
     }
+    ctx.restore();
 
     // 3. TIEMPO RESTANTE (Centro)
     let timeFormatted: string;
@@ -1333,51 +1329,69 @@ export class NutcrackerDrumsGame extends BaseGame {
     }
 
     const isUrgent = this.timeRemaining < 10;
-    const clockW = Math.max(85, isNarrow ? 75 : 105);
-    const clockX = (this.width - clockW) / 2;
+    const clockIconR = Math.round(Math.min(plaqueH * 0.28, 10));
+    ctx.font = `900 ${fontMain * 0.95}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+    const timeTextW = ctx.measureText(timeFormatted).width;
+    const clockW = Math.round(timeTextW + clockIconR * 2 + (isNarrow ? 14 : 18));
+    const clockX = Math.round((this.width - clockW) / 2);
 
     ctx.save();
-    ctx.fillStyle = isUrgent ? "rgba(127, 29, 29, 0.65)" : "rgba(0, 0, 0, 0.45)";
+    ctx.fillStyle = isUrgent ? "rgba(127, 29, 29, 0.70)" : "rgba(0, 0, 0, 0.45)";
     ctx.beginPath();
-    ctx.roundRect(clockX, plaqueY, clockW, plaqueH, 10);
+    ctx.roundRect(clockX, plaqueY, clockW, plaqueH, 8);
     ctx.fill();
     ctx.strokeStyle = isUrgent ? "#EF4444" : "rgba(255, 215, 0, 0.35)";
+    ctx.lineWidth = 1.0;
+    ctx.stroke();
+
+    // Icono de reloj vectorial
+    const clockIconX = clockX + clockIconR + 5;
+    const clockIconY = plaqueY + plaqueH / 2;
+    ctx.fillStyle = isUrgent ? "#7F1D1D" : "#1E293B";
+    ctx.beginPath();
+    ctx.arc(clockIconX, clockIconY, clockIconR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = isUrgent ? "#EF4444" : "#CBD5E1";
     ctx.lineWidth = 1.2;
     ctx.stroke();
-    ctx.restore();
+    ctx.strokeStyle = isUrgent ? "#FCA5A5" : "#FFFFFF";
+    ctx.beginPath();
+    ctx.moveTo(clockIconX, clockIconY);
+    ctx.lineTo(clockIconX, clockIconY - clockIconR * 0.55);
+    ctx.moveTo(clockIconX, clockIconY);
+    ctx.lineTo(clockIconX + clockIconR * 0.4, clockIconY);
+    ctx.stroke();
 
-    ctx.font = `900 ${fontMain * 1.05}px 'Titan One', 'Fredoka', cursive, sans-serif`;
-    ctx.fillStyle = isUrgent ? "#FF4D4D" : "#FFFFFF";
-    ctx.textAlign = "center";
+    ctx.font = `900 ${fontMain * 0.95}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+    ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    if (isUrgent) {
-      ctx.shadowColor = "#EF4444";
-      ctx.shadowBlur = 8;
-    }
-    ctx.fillText(`⏱️ ${timeFormatted}`, this.width / 2, plaqueY + plaqueH / 2 + 1);
-    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.fillText(timeFormatted, clockIconX + clockIconR + 4 + 1, plaqueY + plaqueH / 2 + 1);
+    ctx.fillStyle = isUrgent ? "#FF4D4D" : "#FFFFFF";
+    ctx.fillText(timeFormatted, clockIconX + clockIconR + 4, plaqueY + plaqueH / 2);
+    ctx.restore();
 
     // 4. RONDA ACTUAL (Derecha - Placa Esmeralda)
     const roundLabel = `RONDA ${this.currentRound}`;
     ctx.font = `800 ${fontSub}px 'Outfit', sans-serif`;
     const roundTextW = ctx.measureText(roundLabel).width;
-    const roundPlaqueW = roundTextW + 22;
-    const roundPlaqueX = this.width - paddingX - roundPlaqueW;
+    const roundPlaqueW = Math.round(roundTextW + (isNarrow ? 14 : 20));
+    const roundPlaqueX = Math.round(this.width - paddingX - roundPlaqueW);
 
     ctx.save();
-    ctx.fillStyle = "rgba(6, 78, 59, 0.6)";
+    ctx.fillStyle = "rgba(6, 78, 59, 0.65)";
     ctx.beginPath();
-    ctx.roundRect(roundPlaqueX, plaqueY, roundPlaqueW, plaqueH, 10);
+    ctx.roundRect(roundPlaqueX, plaqueY, roundPlaqueW, plaqueH, 8);
     ctx.fill();
     ctx.strokeStyle = "#10B981";
-    ctx.lineWidth = 1.2;
+    ctx.lineWidth = 1.0;
     ctx.stroke();
 
-    ctx.font = `900 ${fontSub * 1.08}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+    ctx.font = `900 ${fontSub * 1.05}px 'Titan One', 'Fredoka', cursive, sans-serif`;
     ctx.fillStyle = "#A7F3D0";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(roundLabel, roundPlaqueX + roundPlaqueW / 2, plaqueY + plaqueH / 2 + 1);
+    ctx.fillText(roundLabel, roundPlaqueX + roundPlaqueW / 2, plaqueY + plaqueH / 2);
     ctx.restore();
 
     ctx.restore();

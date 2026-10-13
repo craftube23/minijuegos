@@ -30,20 +30,52 @@ export interface HUDState {
 }
 
 export class GameHUD {
+  private static drawClockIcon(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, isUrgent: boolean): void {
+    ctx.save();
+    ctx.translate(Math.round(x), Math.round(y));
+
+    // Botón superior del cronómetro
+    ctx.fillStyle = isUrgent ? "#FF4D4D" : "#E2E8F0";
+    ctx.fillRect(-1.5, -radius - 2.5, 3, 2.5);
+
+    // Esfera del reloj
+    ctx.fillStyle = isUrgent ? "#7F1D1D" : "#1E293B";
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = isUrgent ? "#EF4444" : "#94A3B8";
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+
+    // Manecillas del reloj
+    ctx.strokeStyle = isUrgent ? "#FCA5A5" : "#FFFFFF";
+    ctx.lineWidth = 1.2;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, -radius * 0.58);
+    ctx.moveTo(0, 0);
+    ctx.lineTo(radius * 0.42, 0);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
   public static draw(ctx: CanvasRenderingContext2D, state: HUDState): void {
     ctx.save();
 
-    const isNarrow = state.width < 460;
+    const isNarrow = state.width < 520;
     const isShort = state.height < 500;
-    const hudH = isShort
+    const hudH = Math.round(isShort
       ? Math.max(40, Math.min(52, state.height * 0.11))
-      : Math.max(48, Math.min(68, state.height * 0.082));
+      : Math.max(48, Math.min(62, state.height * 0.080)));
 
-    // 1. BARRA BASE SUPERIOR: Madera noble pulida y ribete dorado
+    // 1. BARRA BASE SUPERIOR: Totalmente opaca (#0A1422) para que ningún elemento inferior traspase
     const hudGrad = ctx.createLinearGradient(0, 0, 0, hudH);
-    hudGrad.addColorStop(0, "rgba(19, 36, 56, 0.98)");
-    hudGrad.addColorStop(0.7, "rgba(10, 20, 34, 0.98)");
-    hudGrad.addColorStop(1, "rgba(5, 11, 19, 0.99)");
+    hudGrad.addColorStop(0, "#132438");
+    hudGrad.addColorStop(0.7, "#0A1422");
+    hudGrad.addColorStop(1, "#050B13");
     ctx.fillStyle = hudGrad;
     ctx.fillRect(0, 0, state.width, hudH);
 
@@ -53,59 +85,55 @@ export class GameHUD {
     ctx.fillStyle = "#F1C40F";
     ctx.fillRect(0, hudH - 1.5, state.width, 1.5);
 
-    const fontMain = isShort
-      ? (isNarrow ? Math.max(12, state.width * 0.035) : Math.max(13, Math.min(18, state.height * 0.045)))
-      : (isNarrow ? Math.max(13, state.width * 0.038) : Math.max(15, Math.min(22, state.width * 0.034)));
-    const fontSub = isShort
-      ? (isNarrow ? Math.max(9.5, state.width * 0.026) : Math.max(10, Math.min(13, state.height * 0.034)))
-      : (isNarrow ? Math.max(10, state.width * 0.028) : Math.max(11, Math.min(15, state.width * 0.026)));
+    const fontMain = Math.round(isShort
+      ? (isNarrow ? Math.max(11, state.width * 0.033) : Math.max(13, Math.min(18, state.height * 0.045)))
+      : (isNarrow ? Math.max(12, state.width * 0.034) : Math.max(14, Math.min(20, state.width * 0.030))));
+    const fontSub = Math.round(isShort
+      ? (isNarrow ? Math.max(8.5, state.width * 0.024) : Math.max(9.5, Math.min(13, state.height * 0.034)))
+      : (isNarrow ? Math.max(9, state.width * 0.025) : Math.max(10, Math.min(13, state.width * 0.024))));
 
-    const paddingX = Math.max(8, state.width * 0.025);
-    const plaqueY = Math.max(4, (hudH - (isShort ? 30 : 38)) / 2);
-    const plaqueH = isShort ? 30 : 38;
+    const paddingX = Math.round(Math.max(6, state.width * 0.02));
+    const plaqueH = Math.round(isShort ? 28 : 34);
+    const plaqueY = Math.round((hudH - plaqueH) / 2);
 
     // 2. PLACA DE PUNTUACIÓN (Izquierda - Estilo Medallón Arcade)
     const scoreStr = `${state.score}`;
     ctx.font = `900 ${fontMain}px 'Titan One', 'Fredoka', cursive, sans-serif`;
     const scoreTextW = ctx.measureText(scoreStr).width;
-    const scorePlaqueW = Math.max(85, scoreTextW + (isNarrow ? 40 : 54));
+    const starRadius = Math.round(Math.min(plaqueH * 0.34, 12));
+    const scorePlaqueW = Math.round(scoreTextW + starRadius * 2 + (isNarrow ? 16 : 24));
+    const scorePlaqueX = paddingX;
 
-    // Fondo de placa de puntuación
+    // Fondo de placa de puntuación con borde nítido
     ctx.save();
-    ctx.shadowColor = "rgba(0, 0, 0, 0.65)";
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetY = 2;
-
-    const scorePlaqueGrad = ctx.createLinearGradient(paddingX, plaqueY, paddingX, plaqueY + plaqueH);
-    scorePlaqueGrad.addColorStop(0, "rgba(30, 41, 59, 0.85)");
-    scorePlaqueGrad.addColorStop(1, "rgba(15, 23, 42, 0.95)");
+    const scorePlaqueGrad = ctx.createLinearGradient(scorePlaqueX, plaqueY, scorePlaqueX, plaqueY + plaqueH);
+    scorePlaqueGrad.addColorStop(0, "rgba(30, 41, 59, 0.95)");
+    scorePlaqueGrad.addColorStop(1, "rgba(15, 23, 42, 0.98)");
     ctx.fillStyle = scorePlaqueGrad;
     ctx.beginPath();
-    ctx.roundRect(paddingX, plaqueY, scorePlaqueW, plaqueH, 10);
+    ctx.roundRect(scorePlaqueX, plaqueY, scorePlaqueW, plaqueH, 8);
     ctx.fill();
 
-    ctx.strokeStyle = "rgba(255, 215, 0, 0.55)";
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(255, 215, 0, 0.65)";
+    ctx.lineWidth = 1.2;
     ctx.stroke();
-    ctx.restore();
 
     // Estrella de la puntuación
-    const starRadius = Math.min(plaqueH * 0.35, 14);
-    const starX = paddingX + starRadius + 7;
+    const starX = scorePlaqueX + starRadius + 5;
     const starY = plaqueY + plaqueH / 2;
     this.drawStar(ctx, starX, starY, starRadius);
 
-    // Texto de puntuación con sombra dorada
+    // Texto de puntuación con sombra nítida (sin blur para evitar Skia GPU glitches)
     ctx.font = `900 ${fontMain}px 'Titan One', 'Fredoka', cursive, sans-serif`;
-    ctx.fillStyle = "#FFFFFF";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.shadowColor = "#FFD700";
-    ctx.shadowBlur = 6;
-    ctx.fillText(scoreStr, starX + starRadius + 6, plaqueY + plaqueH / 2 + 1);
-    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.fillText(scoreStr, starX + starRadius + 4 + 1, plaqueY + plaqueH / 2 + 1);
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(scoreStr, starX + starRadius + 4, plaqueY + plaqueH / 2);
+    ctx.restore();
 
-    // 3. CENTRO: VIDAS Y CRONÓMETRO DE PARTIDA
+    // Preparación del tiempo y récord
     let timeFormatted: string;
     if (state.timeRemaining >= 60) {
       const mins = Math.floor(state.timeRemaining / 60);
@@ -114,108 +142,155 @@ export class GameHUD {
     } else {
       timeFormatted = `${Math.ceil(state.timeRemaining)}s`;
     }
-
     const isUrgent = state.timeRemaining < 10;
 
-    if (state.showLives) {
-      const iconSize = Math.max(9, Math.min(16, plaqueH * 0.40));
-      const iconGap = iconSize * 2.1;
-      const totalIconsW = state.maxLives * iconGap;
-      const centerTrayW = totalIconsW + (isNarrow ? 50 : 75);
-      const centerTrayX = (state.width - centerTrayW) / 2;
+    const recordVal = Math.max(state.score, state.highScore);
+    const recordLabel = isNarrow ? `TOP: ${recordVal}` : `🏆 TOP: ${recordVal}`;
+    ctx.font = `800 ${fontSub}px 'Outfit', sans-serif`;
+    const recordTextW = ctx.measureText(recordLabel).width;
+    const recordPlaqueW = Math.round(recordTextW + (isNarrow ? 12 : 16));
 
-      // Bandeja de vidas y tiempo
+    const clockIconR = Math.round(Math.min(plaqueH * 0.28, 10));
+    ctx.font = `900 ${fontMain * 0.95}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+    const timeTextW = ctx.measureText(timeFormatted).width;
+    const clockPlaqueW = Math.round(timeTextW + clockIconR * 2 + (isNarrow ? 14 : 18));
+
+    // 3. CENTRO: VIDAS (o Cronómetro si no hay vidas)
+    if (state.showLives) {
+      const iconSize = Math.round(Math.max(8, Math.min(13, plaqueH * 0.36)));
+      const iconGap = Math.round(iconSize * 2.0);
+      const totalIconsW = state.maxLives * iconGap;
+      const centerTrayW = Math.round(totalIconsW + 12);
+
+      // Calculamos posiciones de forma garantizada sin colisiones:
+      // Record en extremo derecho
+      const recordPlaqueX = Math.round(state.width - paddingX - recordPlaqueW);
+      // Clock a la izquierda de Record
+      const clockPlaqueX = Math.round(recordPlaqueX - 6 - clockPlaqueW);
+
+      // El centro de vidas se ubica centrado en el espacio restante entre Score y Clock
+      const spaceBetween = clockPlaqueX - (scorePlaqueX + scorePlaqueW);
+      let centerTrayX = Math.round((state.width - centerTrayW) / 2);
+      // Si la pantalla es muy estrecha y centrar en pantalla colisiona, lo centramos en el hueco
+      if (centerTrayX + centerTrayW > clockPlaqueX - 4) {
+        centerTrayX = Math.round(scorePlaqueX + scorePlaqueW + (spaceBetween - centerTrayW) / 2);
+      }
+      if (centerTrayX < scorePlaqueX + scorePlaqueW + 4) {
+        centerTrayX = scorePlaqueX + scorePlaqueW + 4;
+      }
+
+      // Bandeja de vidas
       ctx.save();
       ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
       ctx.beginPath();
-      ctx.roundRect(centerTrayX, plaqueY, centerTrayW, plaqueH, 10);
+      ctx.roundRect(centerTrayX, plaqueY, centerTrayW, plaqueH, 8);
       ctx.fill();
-      ctx.strokeStyle = isUrgent ? "rgba(239, 68, 68, 0.6)" : "rgba(255, 255, 255, 0.15)";
-      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.18)";
+      ctx.lineWidth = 1.0;
       ctx.stroke();
       ctx.restore();
 
       // Iconos de vidas
-      const startIconsX = centerTrayX + 10;
+      const startIconsX = centerTrayX + 6 + iconSize / 2;
       for (let i = 0; i < state.maxLives; i++) {
-        const hx = startIconsX + i * iconGap + iconSize / 2;
-        const hy = plaqueY + plaqueH / 2;
+        const hx = Math.round(startIconsX + i * iconGap);
+        const hy = Math.round(plaqueY + plaqueH / 2);
         const isFilled = i < state.lives;
         this.drawLifeIcon(ctx, state.gameId, hx, hy, iconSize, isFilled);
       }
 
-      // Tiempo con reloj
-      const timeX = startIconsX + totalIconsW + (isNarrow ? 4 : 8);
-      ctx.font = `900 ${fontMain * 0.95}px 'Titan One', 'Fredoka', cursive, sans-serif`;
-      ctx.fillStyle = isUrgent ? "#FF4D4D" : "#FFFFFF";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "middle";
-      if (isUrgent) {
-        ctx.shadowColor = "#EF4444";
-        ctx.shadowBlur = 8;
-      }
-      ctx.fillText(`⏱️ ${timeFormatted}`, timeX, plaqueY + plaqueH / 2 + 1);
-      ctx.shadowBlur = 0;
-    } else {
-      // Solo cronómetro centrado en placa
-      const clockW = Math.max(80, isNarrow ? 70 : 100);
-      const clockX = (state.width - clockW) / 2;
-
+      // 4. CRONÓMETRO CON ICONO VECTORIAL (Sin emojis para evitar Skia GPU atlas fallback)
       ctx.save();
-      ctx.fillStyle = isUrgent ? "rgba(127, 29, 29, 0.65)" : "rgba(0, 0, 0, 0.45)";
+      ctx.fillStyle = isUrgent ? "rgba(127, 29, 29, 0.70)" : "rgba(0, 0, 0, 0.45)";
       ctx.beginPath();
-      ctx.roundRect(clockX, plaqueY, clockW, plaqueH, 10);
+      ctx.roundRect(clockPlaqueX, plaqueY, clockPlaqueW, plaqueH, 8);
       ctx.fill();
       ctx.strokeStyle = isUrgent ? "#EF4444" : "rgba(255, 215, 0, 0.35)";
-      ctx.lineWidth = 1.2;
+      ctx.lineWidth = 1.0;
       ctx.stroke();
+
+      const clockIconX = clockPlaqueX + clockIconR + 5;
+      const clockIconY = plaqueY + plaqueH / 2;
+      this.drawClockIcon(ctx, clockIconX, clockIconY, clockIconR, isUrgent);
+
+      ctx.font = `900 ${fontMain * 0.95}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+      ctx.fillText(timeFormatted, clockIconX + clockIconR + 4 + 1, plaqueY + plaqueH / 2 + 1);
+      ctx.fillStyle = isUrgent ? "#FF4D4D" : "#FFFFFF";
+      ctx.fillText(timeFormatted, clockIconX + clockIconR + 4, plaqueY + plaqueH / 2);
       ctx.restore();
 
-      ctx.font = `900 ${fontMain * 1.05}px 'Titan One', 'Fredoka', cursive, sans-serif`;
-      ctx.fillStyle = isUrgent ? "#FF4D4D" : "#FFFFFF";
+      // 5. RÉCORD / TOP (Derecha - Placa de Honor Esmeralda)
+      ctx.save();
+      ctx.fillStyle = "rgba(6, 78, 59, 0.65)";
+      ctx.beginPath();
+      ctx.roundRect(recordPlaqueX, plaqueY, recordPlaqueW, plaqueH, 8);
+      ctx.fill();
+      ctx.strokeStyle = "#10B981";
+      ctx.lineWidth = 1.0;
+      ctx.stroke();
+
+      ctx.font = `800 ${fontSub}px 'Outfit', sans-serif`;
+      ctx.fillStyle = "#A7F3D0";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      if (isUrgent) {
-        ctx.shadowColor = "#EF4444";
-        ctx.shadowBlur = 8;
-      }
-      ctx.fillText(`⏱️ ${timeFormatted}`, state.width / 2, plaqueY + plaqueH / 2 + 1);
-      ctx.shadowBlur = 0;
+      ctx.fillText(recordLabel, recordPlaqueX + recordPlaqueW / 2, plaqueY + plaqueH / 2);
+      ctx.restore();
+    } else {
+      // Solo cronómetro centrado en placa
+      const clockW = Math.round(Math.max(75, isNarrow ? 70 : 95));
+      const clockX = Math.round((state.width - clockW) / 2);
+
+      ctx.save();
+      ctx.fillStyle = isUrgent ? "rgba(127, 29, 29, 0.70)" : "rgba(0, 0, 0, 0.45)";
+      ctx.beginPath();
+      ctx.roundRect(clockX, plaqueY, clockW, plaqueH, 8);
+      ctx.fill();
+      ctx.strokeStyle = isUrgent ? "#EF4444" : "rgba(255, 215, 0, 0.35)";
+      ctx.lineWidth = 1.0;
+      ctx.stroke();
+
+      const clockIconX = clockX + clockIconR + 6;
+      const clockIconY = plaqueY + plaqueH / 2;
+      this.drawClockIcon(ctx, clockIconX, clockIconY, clockIconR, isUrgent);
+
+      ctx.font = `900 ${fontMain}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = isUrgent ? "#FF4D4D" : "#FFFFFF";
+      ctx.fillText(timeFormatted, clockIconX + clockIconR + 4, plaqueY + plaqueH / 2);
+      ctx.restore();
+
+      // Récord a la derecha
+      const recordPlaqueX = Math.round(state.width - paddingX - recordPlaqueW);
+      ctx.save();
+      ctx.fillStyle = "rgba(6, 78, 59, 0.65)";
+      ctx.beginPath();
+      ctx.roundRect(recordPlaqueX, plaqueY, recordPlaqueW, plaqueH, 8);
+      ctx.fill();
+      ctx.strokeStyle = "#10B981";
+      ctx.lineWidth = 1.0;
+      ctx.stroke();
+
+      ctx.font = `800 ${fontSub}px 'Outfit', sans-serif`;
+      ctx.fillStyle = "#A7F3D0";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(recordLabel, recordPlaqueX + recordPlaqueW / 2, plaqueY + plaqueH / 2);
+      ctx.restore();
     }
 
-    // 4. RÉCORD / TOP (Derecha - Placa de Honor)
-    const recordVal = Math.max(state.score, state.highScore);
-    const recordLabel = isNarrow ? `TOP: ${recordVal}` : `🏆 RÉCORD: ${recordVal}`;
-    ctx.font = `800 ${fontSub}px 'Outfit', sans-serif`;
-    const recordTextW = ctx.measureText(recordLabel).width;
-    const recordPlaqueW = recordTextW + 18;
-    const recordPlaqueX = state.width - paddingX - recordPlaqueW;
-
-    ctx.save();
-    ctx.fillStyle = "rgba(6, 78, 59, 0.55)";
-    ctx.beginPath();
-    ctx.roundRect(recordPlaqueX, plaqueY, recordPlaqueW, plaqueH, 10);
-    ctx.fill();
-    ctx.strokeStyle = "#10B981";
-    ctx.lineWidth = 1.2;
-    ctx.stroke();
-
-    ctx.font = `800 ${fontSub}px 'Outfit', sans-serif`;
-    ctx.fillStyle = "#A7F3D0";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(recordLabel, recordPlaqueX + recordPlaqueW / 2, plaqueY + plaqueH / 2);
-    ctx.restore();
-
-    // 5. Indicador de Power-Up del Logo Activo
+    // 6. Indicador de Power-Up del Logo Activo
     if (state.isLogoPowerUpActive) {
-      const bannerH = Math.max(20, Math.min(34, hudH * 0.55));
+      const bannerH = Math.round(Math.max(20, Math.min(32, hudH * 0.52)));
       const isCampus = state.activeLogo.id === "logo-2";
 
       ctx.fillStyle = isCampus ? "rgba(0, 229, 255, 0.96)" : "rgba(255, 215, 0, 0.96)";
       ctx.fillRect(0, hudH, state.width, bannerH);
       ctx.fillStyle = isCampus ? "#031B33" : "#0A2518";
-      ctx.font = `900 ${Math.max(10, Math.min(16, isShort ? 12 : state.width * 0.028))}px 'Outfit', sans-serif`;
+      ctx.font = `900 ${Math.max(10, Math.min(15, isShort ? 11 : state.width * 0.027))}px 'Outfit', sans-serif`;
       ctx.textAlign = "center";
       const bonusTitle = isCampus ? "¡BONUS CAMPUSLANDS!" : "¡BONUS FERIA MÁGICA!";
       ctx.fillText(`${bonusTitle} (x${state.activeLogo.bonusMultiplier}) - ${Math.ceil(state.logoPowerUpTimer)}s`, state.width / 2, hudH + bannerH * 0.7);
@@ -234,11 +309,8 @@ export class GameHUD {
       : Math.max(90, Math.min(130, height * 0.16));
     const bannerY = (height / 2) - (bannerH / 2);
 
-    ctx.fillStyle = "rgba(4, 12, 28, 0.75)";
+    ctx.fillStyle = "rgba(4, 12, 28, 0.82)";
     ctx.fillRect(0, 0, width, height);
-
-    ctx.shadowColor = "rgba(255, 215, 0, 0.85)";
-    ctx.shadowBlur = 24;
 
     const bannerGrad = ctx.createLinearGradient(0, bannerY, width, bannerY);
     bannerGrad.addColorStop(0, "rgba(255, 143, 0, 0.95)");
@@ -255,7 +327,6 @@ export class GameHUD {
     ctx.moveTo(0, bannerY + bannerH); ctx.lineTo(width, bannerY + bannerH);
     ctx.stroke();
 
-    ctx.shadowBlur = 0;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
@@ -278,10 +349,7 @@ export class GameHUD {
 
   private static drawStar(ctx: CanvasRenderingContext2D, x: number, y: number, starRadius: number): void {
     ctx.save();
-    ctx.translate(x, y);
-
-    ctx.shadowColor = "rgba(255, 215, 0, 0.75)";
-    ctx.shadowBlur = 8;
+    ctx.translate(Math.round(x), Math.round(y));
 
     const starGrad = ctx.createLinearGradient(-starRadius, -starRadius, starRadius, starRadius);
     starGrad.addColorStop(0, "#FFF9C4");
@@ -306,7 +374,6 @@ export class GameHUD {
     ctx.lineWidth = 1.4;
     ctx.stroke();
 
-    ctx.shadowBlur = 0;
     ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
     ctx.lineWidth = 1.0;
     ctx.beginPath();
@@ -334,7 +401,7 @@ export class GameHUD {
 
   private static drawStylizedBellLifeIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isFilled: boolean): void {
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(Math.round(x), Math.round(y));
     const s = size / 14;
     ctx.scale(s, s);
 
@@ -368,9 +435,6 @@ export class GameHUD {
       ctx.restore();
       return;
     }
-
-    ctx.shadowColor = "#FFD700";
-    ctx.shadowBlur = 7;
 
     ctx.strokeStyle = "#FF8F00";
     ctx.lineWidth = 2.0;
@@ -420,7 +484,6 @@ export class GameHUD {
     ctx.lineWidth = 1.2;
     ctx.stroke();
 
-    ctx.shadowBlur = 0;
     ctx.fillStyle = "#FF1744";
     ctx.strokeStyle = "#700010";
     ctx.lineWidth = 1.0;
@@ -439,7 +502,7 @@ export class GameHUD {
 
   private static drawStylizedElfLifeIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isFilled: boolean): void {
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(Math.round(x), Math.round(y));
     const s = size / 14;
     ctx.scale(s, s);
 
@@ -469,9 +532,6 @@ export class GameHUD {
       return;
     }
 
-    ctx.shadowColor = "#FFD700";
-    ctx.shadowBlur = 5;
-
     ctx.fillStyle = "#FFAA80";
     ctx.strokeStyle = "#8D3B1B";
     ctx.lineWidth = 1.2;
@@ -479,7 +539,6 @@ export class GameHUD {
     ctx.beginPath(); ctx.moveTo(-7, 0); ctx.bezierCurveTo(-15, -4, -16, 1, -7, 5); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(7, 0); ctx.bezierCurveTo(15, -4, 16, 1, 7, 5); ctx.closePath(); ctx.fill(); ctx.stroke();
 
-    ctx.shadowBlur = 0;
     ctx.fillStyle = "#FFD8B3";
     ctx.beginPath(); ctx.arc(0, 2.5, 8.5, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = "#7D3210"; ctx.lineWidth = 1.3; ctx.stroke();
@@ -511,7 +570,7 @@ export class GameHUD {
 
   private static drawHeartLifeIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isFilled: boolean): void {
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(Math.round(x), Math.round(y));
     const s = size / 14;
     ctx.scale(s, s);
 
@@ -536,9 +595,6 @@ export class GameHUD {
       return;
     }
 
-    ctx.shadowColor = "#FF1744";
-    ctx.shadowBlur = 8;
-
     const heartGrad = ctx.createLinearGradient(0, -11, 0, 6);
     heartGrad.addColorStop(0, "#FF5252");
     heartGrad.addColorStop(0.5, "#D50000");
@@ -556,7 +612,6 @@ export class GameHUD {
     ctx.lineWidth = 1.4;
     ctx.stroke();
 
-    ctx.shadowBlur = 0;
     ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
     ctx.lineWidth = 1.4;
     ctx.lineCap = "round";

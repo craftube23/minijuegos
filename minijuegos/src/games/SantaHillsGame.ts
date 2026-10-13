@@ -305,12 +305,25 @@ export class SantaHillsGame extends BaseGame {
   private updateViewport(): void {
     const hudTop = clamp(this.height * 0.11, 46, 80);
     const playH = Math.max(200, this.height - hudTop);
-    // En pantallas estrechas (retrato) se limita el zoom para ver suficiente recorrido
-    // por delante; el área de juego se ancla abajo y el cielo ocupa el resto.
-    this.S = Math.min(playH / VH, this.width / 720);
-    this.playTop = this.height - VH * this.S;
-    this.VW = this.width / this.S;
-    this.santaX = clamp(this.VW * 0.24, 150, 300);
+    const isPortrait = this.height > this.width;
+
+    if (isPortrait) {
+      // En modo vertical móvil, escala el trineo a un tamaño protagonista (~135-155px)
+      // para que Papá Noel y las colinas se aprecien en detalle y no queden diminutos.
+      const targetSleighW = clamp(this.width * 0.36, 130, 160);
+      this.S = clamp(targetSleighW / SLEIGH_W, 0.85, 1.15);
+      // Colocar la cota media del terreno (~Y_START) alrededor del 68% de la pantalla
+      // para que las colinas ocupen el 60% inferior con gran dinamismo y el cielo el 40% superior.
+      const targetBaseY = this.height * 0.68;
+      this.playTop = targetBaseY - Y_START * this.S;
+      this.VW = this.width / this.S;
+      this.santaX = clamp(this.VW * 0.23, 100, 150);
+    } else {
+      this.S = Math.min(playH / VH, this.width / 820);
+      this.playTop = this.height - VH * this.S;
+      this.VW = this.width / this.S;
+      this.santaX = clamp(this.VW * 0.24, 150, 300);
+    }
   }
 
   /** Convierte coordenadas virtuales a coordenadas de pantalla (para textos/partículas globales) */
@@ -1119,12 +1132,14 @@ export class SantaHillsGame extends BaseGame {
     }
     this.distantProps = this.distantProps.filter((p) => p.worldX - off > -150);
 
+    const bottomDist = Math.max(VH + 40, (this.height - this.playTop) / this.S + 40);
+
     ctx.beginPath();
-    ctx.moveTo(-20, VH + 20);
+    ctx.moveTo(-20, bottomDist);
     for (let x = -20; x <= this.VW + 20; x += 16) ctx.lineTo(x, this.distantY(off + x));
-    ctx.lineTo(this.VW + 20, VH + 20);
+    ctx.lineTo(this.VW + 20, bottomDist);
     ctx.closePath();
-    const g = ctx.createLinearGradient(0, 240, 0, VH);
+    const g = ctx.createLinearGradient(0, 240, 0, bottomDist);
     g.addColorStop(0, "#A9C9DF");
     g.addColorStop(0.5, "#7FA6C4");
     g.addColorStop(1, "#5D86A8");
@@ -1161,11 +1176,11 @@ export class SantaHillsGame extends BaseGame {
     ctx.globalAlpha = 1;
 
     // Velo de niebla para separar planos
-    const fog = ctx.createLinearGradient(0, 260, 0, VH);
+    const fog = ctx.createLinearGradient(0, 260, 0, bottomDist);
     fog.addColorStop(0, "rgba(200, 225, 242, 0)");
     fog.addColorStop(1, "rgba(200, 225, 242, 0.35)");
     ctx.fillStyle = fog;
-    ctx.fillRect(-20, 200, this.VW + 40, VH);
+    ctx.fillRect(-20, 200, this.VW + 40, bottomDist);
   }
 
   private renderTerrain(ctx: CanvasRenderingContext2D): void {
@@ -1177,7 +1192,7 @@ export class SantaHillsGame extends BaseGame {
       ys.push(this.terrainY(this.worldDistance + x));
     }
     const n = xs.length;
-    const bottom = VH + 40;
+    const bottom = Math.max(VH + 40, (this.height - this.playTop) / this.S + 40);
 
     const pathTop = (offset: number): void => {
       ctx.moveTo(xs[0], ys[0] + offset);

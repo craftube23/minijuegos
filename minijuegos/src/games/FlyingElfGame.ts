@@ -1139,14 +1139,13 @@ export class FlyingElfGame extends BaseGame {
     ctx.textAlign = "center";
     const titleSize = Math.max(16, Math.min(34, this.width * 0.042));
 
-    // Sombra 3D dorada
-    ctx.shadowColor = "rgba(255, 215, 0, 0.85)";
-    ctx.shadowBlur = 18;
-    ctx.fillStyle = "#FFD700";
+    // Título con contorno nítido (sin shadowBlur)
     ctx.font = `900 ${titleSize}px 'Outfit', sans-serif`;
+    ctx.strokeStyle = "#4A2600";
+    ctx.lineWidth = 4;
+    ctx.strokeText("🧝‍♂️ ELIGE A TU ELFO MÁGICO", this.width / 2, layout.titleY);
+    ctx.fillStyle = "#FFD700";
     ctx.fillText("🧝‍♂️ ELIGE A TU ELFO MÁGICO", this.width / 2, layout.titleY);
-
-    ctx.shadowBlur = 0;
     ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
     const subtitleSize = Math.max(10, Math.min(15, titleSize * 0.5));
     ctx.font = `600 ${subtitleSize}px 'Outfit', sans-serif`;
@@ -1194,11 +1193,6 @@ export class FlyingElfGame extends BaseGame {
     const btnW = layout.btn.w;
     const btnH = layout.btn.h;
 
-    // Sombra profunda 3D
-    ctx.shadowColor = "rgba(0, 0, 0, 0.75)";
-    ctx.shadowBlur = 16;
-    ctx.shadowOffsetY = 6;
-
     // Bisel inferior 3D
     ctx.fillStyle = isCampusSelected ? "#064E3B" : "#7F1D1D";
     ctx.beginPath();
@@ -1225,15 +1219,11 @@ export class FlyingElfGame extends BaseGame {
     ctx.fill();
 
     // Borde doble dorado
-    ctx.shadowColor = "rgba(255, 215, 0, 0.6)";
-    ctx.shadowBlur = 10;
     ctx.strokeStyle = "#FFFBEB";
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
     // Texto del botón
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
     ctx.fillStyle = isCampusSelected ? "#FFFFFF" : "#3B1B04";
     const btnFontSize = Math.max(14, Math.min(24, btnH * 0.44));
     ctx.font = `900 ${btnFontSize}px 'Titan One', 'Fredoka', cursive, sans-serif`;
@@ -1273,13 +1263,7 @@ export class FlyingElfGame extends BaseGame {
     const isHorizontalLayout = !isTwoCol || box.w > box.h * 1.35;
     const cornerRadius = 18;
 
-    // 1. Resplandor exterior si está seleccionado
-    if (isSelected) {
-      ctx.shadowColor = glowColor;
-      ctx.shadowBlur = 24;
-    }
-
-    // 2. Fondo de la tarjeta con estilo madera noble / metal pulido
+    // 1. Fondo de la tarjeta con estilo madera noble / metal pulido
     const cardGrad = ctx.createLinearGradient(box.x, box.y, box.x, box.y + box.h);
     if (isSelected) {
       cardGrad.addColorStop(0, "rgba(18, 38, 68, 0.96)");
@@ -1295,7 +1279,7 @@ export class FlyingElfGame extends BaseGame {
     ctx.roundRect(box.x, box.y, box.w, box.h, cornerRadius);
     ctx.fill();
 
-    // 3. Bisel y Borde dorado / cian
+    // 2. Bisel y Borde dorado / cian
     ctx.strokeStyle = isSelected ? themeColor : "rgba(255, 255, 255, 0.25)";
     ctx.lineWidth = isSelected ? 3.0 : 1.5;
     ctx.stroke();
@@ -1328,9 +1312,7 @@ export class FlyingElfGame extends BaseGame {
     ctx.lineTo(box.x + box.w - 4, box.y + box.h - 4 - ornSize);
     ctx.fill();
 
-    ctx.shadowBlur = 0; // Reset sombra
-
-    // 4. Insignia de Estado (ELEGIDO / SELECCIONAR) en la esquina superior derecha
+    // 3. Insignia de Estado (ELEGIDO / SELECCIONAR) en la esquina superior derecha
     const pillW = Math.max(85, Math.min(115, box.w * 0.24));
     const pillH = Math.max(20, Math.min(26, box.h * 0.11));
     const pillX = box.x + box.w - pillW - 12;
@@ -1363,7 +1345,7 @@ export class FlyingElfGame extends BaseGame {
     }
     ctx.restore();
 
-    // 5. Preview Ilustrado en Vivo del Elfo + Pedestal de Nieve Flotante
+    // 4. Preview Ilustrado en Vivo del Elfo + Pedestal de Nieve Flotante
     const sway = Math.sin(this.charSelectAnimTime * 3.2 + (isSelected ? 0 : 1.5)) * 5;
     let previewX = 0;
     let previewY = 0;
@@ -1396,8 +1378,6 @@ export class FlyingElfGame extends BaseGame {
     ctx.translate(previewX, previewY);
 
     if (isSelected) {
-      ctx.shadowColor = glowColor;
-      ctx.shadowBlur = 22;
       const aura = ctx.createRadialGradient(0, 0, 6, 0, 0, previewSize * 0.55);
       aura.addColorStop(0, glowColor);
       aura.addColorStop(1, "rgba(0,0,0,0)");
@@ -1405,7 +1385,6 @@ export class FlyingElfGame extends BaseGame {
       ctx.beginPath();
       ctx.arc(0, 0, previewSize * 0.55, 0, Math.PI * 2);
       ctx.fill();
-      ctx.shadowBlur = 0;
     }
 
     if (img.complete && img.naturalWidth > 0) {
@@ -1418,7 +1397,7 @@ export class FlyingElfGame extends BaseGame {
     }
     ctx.restore();
 
-    // 6. Columna de Información, Habilidades y Estadísticas Arcade
+    // 5. Columna de Información, Habilidades y Estadísticas Arcade
     ctx.save();
     if (!isHorizontalLayout) {
       ctx.textAlign = "center";
@@ -1449,14 +1428,14 @@ export class FlyingElfGame extends BaseGame {
       ctx.fillText(roleText, contentX, curY);
       curY += 20;
 
-      // Nombre del Personaje
+      // Nombre del Personaje con contorno nítido (sin shadowBlur)
       const nameFont = Math.max(15, Math.min(21, box.h * 0.095));
-      ctx.fillStyle = isSelected ? "#FFFFFF" : "#E2E8F0";
       ctx.font = `900 ${nameFont}px 'Titan One', 'Fredoka', cursive, sans-serif`;
-      ctx.shadowColor = isSelected ? glowColor : "rgba(0,0,0,0.8)";
-      ctx.shadowBlur = isSelected ? 8 : 4;
+      ctx.strokeStyle = "#051124";
+      ctx.lineWidth = 3;
+      ctx.strokeText(title, contentX, curY, titleAvailW);
+      ctx.fillStyle = isSelected ? "#FFFFFF" : "#E2E8F0";
       ctx.fillText(title, contentX, curY, titleAvailW);
-      ctx.shadowBlur = 0;
       curY += 18;
 
       // Subtítulo / Descripción
@@ -1541,10 +1520,14 @@ export class FlyingElfGame extends BaseGame {
 
       const imgToDraw = sign.type === "feria" ? this.imgCartelFeria : this.imgCartelSponsor;
       if (imgToDraw.complete && imgToDraw.naturalWidth > 0) {
-        // Resplandor cálido de las luces navideñas del cartel
+        // Resplandor cálido de las luces navideñas del cartel con gradiente suave
         const lightFlicker = 0.8 + Math.sin(sign.lightPhase) * 0.2;
-        ctx.shadowColor = sign.type === "feria" ? "rgba(255, 215, 0, 0.85)" : "rgba(129, 212, 250, 0.85)";
-        ctx.shadowBlur = 22 * lightFlicker;
+        const signGlow = ctx.createRadialGradient(0, 0, imgToDraw.naturalWidth * 0.2, 0, 0, imgToDraw.naturalWidth * 0.6);
+        const glowColor = sign.type === "feria" ? `rgba(255, 215, 0, ${0.4 * lightFlicker})` : `rgba(129, 212, 250, ${0.4 * lightFlicker})`;
+        signGlow.addColorStop(0, glowColor);
+        signGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = signGlow;
+        ctx.fillRect(-imgToDraw.naturalWidth * 0.6, -imgToDraw.naturalHeight * 0.6, imgToDraw.naturalWidth * 1.2, imgToDraw.naturalHeight * 1.2);
 
         ctx.drawImage(imgToDraw, -imgToDraw.naturalWidth / 2, -imgToDraw.naturalHeight / 2);
       }
@@ -1787,10 +1770,15 @@ export class FlyingElfGame extends BaseGame {
       const ly = -20 - l * 12;
       const lightAlpha = 0.4 + Math.sin(lightPhase + l * 1.5) * 0.55;
       ctx.save();
+      const col = colors[l % colors.length];
+      // Halo exterior
+      ctx.globalAlpha = Math.max(0.1, lightAlpha * 0.35);
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.arc(lx, ly, 6.5, 0, Math.PI * 2);
+      ctx.fill();
+      // Núcleo brillante
       ctx.globalAlpha = Math.max(0.2, Math.min(1, lightAlpha));
-      ctx.fillStyle = colors[l % colors.length];
-      ctx.shadowColor = colors[l % colors.length];
-      ctx.shadowBlur = 9;
       ctx.beginPath();
       ctx.arc(lx, ly, 3.5, 0, Math.PI * 2);
       ctx.fill();
@@ -1872,10 +1860,6 @@ export class FlyingElfGame extends BaseGame {
   private renderObstacles(ctx: CanvasRenderingContext2D): void {
     ctx.save();
     for (const obs of this.obstacles) {
-      // Sutil aura de advertencia
-      ctx.shadowColor = "rgba(255, 23, 68, 0.6)";
-      ctx.shadowBlur = 14;
-
       if (obs.type === "house") {
         if (this.imgHouseObstacle.complete && this.imgHouseObstacle.naturalWidth > 0) {
           ctx.drawImage(this.imgHouseObstacle, obs.x, obs.y, obs.width, obs.height);
@@ -1885,10 +1869,6 @@ export class FlyingElfGame extends BaseGame {
         }
       } else if (obs.type === "icicle") {
         ctx.save();
-        // Aura fría de peligro sutil
-        ctx.shadowColor = "rgba(0, 229, 255, 0.75)";
-        ctx.shadowBlur = 18;
-
         if (this.imgIcicle.complete && this.imgIcicle.naturalWidth > 0) {
           // Dibujar con holgura superior para que quede perfectamente sumergida en el techo
           ctx.drawImage(this.imgIcicle, obs.x, -25, obs.width, obs.height + 25);
@@ -1922,20 +1902,35 @@ export class FlyingElfGame extends BaseGame {
     for (const item of this.collectibles) {
       const curY = item.y + Math.sin(item.bobOffset) * 10;
 
-      // Halo verde en coleccionables / Dorado en Logos de la Feria y Estrella
-      if (item.type === "logo_feria" || item.type === "logo_star") {
-        ctx.shadowColor = "rgba(255, 215, 0, 0.9)";
-        ctx.shadowBlur = 22;
-      } else if (item.type === "logo_campus") {
-        ctx.shadowColor = "rgba(0, 229, 255, 0.9)";
-        ctx.shadowBlur = 22;
-      } else {
-        ctx.shadowColor = "rgba(0, 230, 118, 0.6)";
-        ctx.shadowBlur = 14;
-      }
-
       ctx.save();
       ctx.translate(item.x, curY);
+
+      // Halo degradado suave y limpio (sin shadowBlur para evitar tile glitching en Skia GPU)
+      if (item.type === "logo_feria" || item.type === "logo_star") {
+        const glow = ctx.createRadialGradient(0, 0, item.size * 0.25, 0, 0, item.size * 0.72);
+        glow.addColorStop(0, "rgba(255, 215, 0, 0.45)");
+        glow.addColorStop(1, "rgba(255, 215, 0, 0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(0, 0, item.size * 0.72, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (item.type === "logo_campus") {
+        const glow = ctx.createRadialGradient(0, 0, item.size * 0.25, 0, 0, item.size * 0.72);
+        glow.addColorStop(0, "rgba(0, 229, 255, 0.45)");
+        glow.addColorStop(1, "rgba(0, 229, 255, 0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(0, 0, item.size * 0.72, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        const glow = ctx.createRadialGradient(0, 0, item.size * 0.2, 0, 0, item.size * 0.65);
+        glow.addColorStop(0, "rgba(0, 230, 118, 0.35)");
+        glow.addColorStop(1, "rgba(0, 230, 118, 0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(0, 0, item.size * 0.65, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       if (item.type === "gift_red" && this.imgGiftRed.complete) {
         ctx.drawImage(this.imgGiftRed, -item.size / 2, -item.size / 2, item.size, item.size);
@@ -1966,16 +1961,12 @@ export class FlyingElfGame extends BaseGame {
 
         ctx.drawImage(this.logoImage1, -item.size * 0.40, -item.size * 0.40, item.size * 0.80, item.size * 0.80);
       } else if (item.type === "logo_campus" && this.logoImage2 && this.logoImage2.complete) {
-        // Medallón Cian/Dorado de Campuslands (Base blanca luminosa)
+        // Medallón Cian de Campuslands (Fondo blanco nítido y aro cian brillante)
         const rot = Math.sin(this.gliderSwayTime * 1.5) * 0.12;
         ctx.rotate(rot);
 
         const radius = item.size * 0.48;
-        const bgGrad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
-        bgGrad.addColorStop(0, "rgba(255, 255, 255, 1.0)");
-        bgGrad.addColorStop(0.82, "rgba(240, 250, 255, 0.96)");
-        bgGrad.addColorStop(1, "rgba(0, 229, 255, 0.92)");
-        ctx.fillStyle = bgGrad;
+        ctx.fillStyle = "#FFFFFF";
         ctx.beginPath();
         ctx.arc(0, 0, radius, 0, Math.PI * 2);
         ctx.fill();
@@ -1984,7 +1975,7 @@ export class FlyingElfGame extends BaseGame {
         ctx.lineWidth = 3.5;
         ctx.stroke();
 
-        ctx.drawImage(this.logoImage2, -item.size * 0.40, -item.size * 0.40, item.size * 0.80, item.size * 0.80);
+        ctx.drawImage(this.logoImage2, -item.size * 0.38, -item.size * 0.38, item.size * 0.76, item.size * 0.76);
       } else if (item.type === "logo_star" && this.imgStarLogo.complete) {
         ctx.rotate(this.gliderSwayTime * 1.1);
         ctx.drawImage(this.imgStarLogo, -item.size / 2, -item.size / 2, item.size, item.size);
@@ -2011,11 +2002,9 @@ export class FlyingElfGame extends BaseGame {
     const isCampus = this.selectedElf === "campus";
     const elfSprite = isCampus ? this.imgElfCampus : this.imgElfFeria;
 
-    // Escudo de Burbuja Mágica durante Turbo/Imán activo
+    // Escudo de Burbuja Mágica durante Turbo/Imán activo (Gradiente puro sin shadowBlur)
     if (this.isLogoPowerUpActive) {
       ctx.save();
-      ctx.shadowColor = isCampus ? "rgba(0, 229, 255, 0.85)" : "rgba(255, 215, 0, 0.85)";
-      ctx.shadowBlur = 24;
       const shieldGrad = ctx.createRadialGradient(0, 0, 30, 0, 0, 95);
       if (isCampus) {
         shieldGrad.addColorStop(0, "rgba(0, 229, 255, 0.15)");
@@ -2080,12 +2069,12 @@ export class FlyingElfGame extends BaseGame {
       const comboY = 115;
 
       ctx.textAlign = "center";
-      ctx.fillStyle = "#FFD700";
-      ctx.shadowColor = "rgba(255, 215, 0, 0.85)";
-      ctx.shadowBlur = 14;
       ctx.font = "900 28px 'Outfit', sans-serif";
+      ctx.strokeStyle = "#4A2600";
+      ctx.lineWidth = 4;
+      ctx.strokeText(`COMBO x${comboMult}`, comboX, comboY);
+      ctx.fillStyle = "#FFD700";
       ctx.fillText(`COMBO x${comboMult}`, comboX, comboY);
-      ctx.shadowBlur = 0;
       ctx.textAlign = "left";
     }
 
@@ -2111,8 +2100,11 @@ export class FlyingElfGame extends BaseGame {
       ctx.fill();
 
       ctx.textAlign = "center";
-      ctx.fillStyle = "#FFF9C4";
       ctx.font = "bold 13px 'Outfit', sans-serif";
+      ctx.strokeStyle = "#051124";
+      ctx.lineWidth = 2.5;
+      ctx.strokeText("¡PODER MÁGICO ACTIVO!", this.width / 2, barY - 5);
+      ctx.fillStyle = "#FFF9C4";
       ctx.fillText("¡PODER MÁGICO ACTIVO!", this.width / 2, barY - 5);
       ctx.textAlign = "left";
     }
@@ -2120,25 +2112,25 @@ export class FlyingElfGame extends BaseGame {
     // 3. Indicador de Viento Activo
     if (this.isWindActive) {
       ctx.textAlign = "center";
-      ctx.fillStyle = "#81D4FA";
-      ctx.shadowColor = "rgba(129, 212, 250, 0.8)";
-      ctx.shadowBlur = 10;
       ctx.font = "bold 16px 'Outfit', sans-serif";
       const directionArrow = this.windForceY > 0 ? "↓" : "↑";
+      ctx.strokeStyle = "#022B42";
+      ctx.lineWidth = 3;
+      ctx.strokeText(`VIENTO MÁGICO ${directionArrow}`, this.width / 2, 170);
+      ctx.fillStyle = "#81D4FA";
       ctx.fillText(`VIENTO MÁGICO ${directionArrow}`, this.width / 2, 170);
-      ctx.shadowBlur = 0;
       ctx.textAlign = "left";
     }
 
     // 4. Banner de Clímax últimos 5 segundos
     if (this.timeRemaining <= 5 && this.timeRemaining > 0) {
       ctx.textAlign = "center";
-      ctx.fillStyle = "#FF1744";
-      ctx.shadowColor = "rgba(255, 23, 68, 0.85)";
-      ctx.shadowBlur = 18;
       ctx.font = "900 32px 'Outfit', sans-serif";
+      ctx.strokeStyle = "#38000A";
+      ctx.lineWidth = 4;
+      ctx.strokeText("¡ÚLTIMOS SEGUNDOS!", this.width / 2, this.height * 0.28);
+      ctx.fillStyle = "#FF1744";
       ctx.fillText("¡ÚLTIMOS SEGUNDOS!", this.width / 2, this.height * 0.28);
-      ctx.shadowBlur = 0;
       ctx.textAlign = "left";
     }
 

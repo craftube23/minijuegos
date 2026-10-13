@@ -1,12 +1,13 @@
 /**
  * ==============================================================================
- * COMPONENTE: CARRUSEL PUBLICITARIO INFERIOR (Banners de la Feria)
+ * COMPONENTE: CARRUSEL PUBLICITARIO INFERIOR (PATROCINADORES Y FERIA)
  * ==============================================================================
  * 
- * Cumple con el boceto del proyecto:
- * - Ocupa la franja inferior de la pantalla sin tapar el juego.
- * - Cambia automáticamente cada X segundos (configurable en `src/config/banners.ts`).
- * - Diseño 100% responsivo con flexbox para que nunca se corte el texto ni los iconos.
+ * Cumple con los requerimientos de diseño publicitario profesional para el Tótem:
+ * - Soporte para vitrina general de los 8 patrocinadores oficiales (tal como el afiche).
+ * - Banners dobles e individuales de alto impacto con cápsulas de contraste blanco/marfil.
+ * - Tipografía festiva y nítida visible desde varios metros de distancia.
+ * - Rotación automática fluida sin bloquear el juego ni causar caídas de frames.
  */
 
 import { BANNER_CONFIG, type BannerSlide } from "../config/banners";
@@ -30,26 +31,7 @@ export class GameBannerCarousel {
     this.container.innerHTML = `
       <div class="carousel-track" id="carousel-track">
         ${this.slides
-          .map(
-            (slide, idx) => `
-          <div class="carousel-slide ${idx === 0 ? "active" : ""}" data-index="${idx}" style="background: ${slide.bgGradient};">
-            <div class="banner-flex-card">
-              <div class="banner-icon-badge">
-                ${slide.image 
-                  ? `<img src="${slide.image}" alt="${slide.title}" style="height: 38px; max-width: 90px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));" />`
-                  : getIconSvg(slide.iconName, { size: 28, color: "#ffffff", fill: "rgba(255,255,255,0.2)" })}
-              </div>
-              <div class="banner-text-group">
-                <div class="banner-headline">${slide.title}</div>
-                <div class="banner-subline">${slide.subtitle}</div>
-              </div>
-              <div class="banner-tag-container">
-                <span class="banner-tag" style="color: ${slide.badgeColor};">${slide.badgeText}</span>
-              </div>
-            </div>
-          </div>
-        `
-          )
+          .map((slide, idx) => this.renderSlide(slide, idx))
           .join("")}
       </div>
       <div class="carousel-indicators">
@@ -60,6 +42,76 @@ export class GameBannerCarousel {
         `
           )
           .join("")}
+      </div>
+    `;
+  }
+
+  private renderSlide(slide: BannerSlide, idx: number): string {
+    const isActive = idx === 0 ? "active" : "";
+
+    // 1. MODO SHOWCASE GENERAL (La vitrina completa de gala de los 8 patrocinadores)
+    if (slide.type === "showcase") {
+      return `
+        <div class="carousel-slide carousel-slide-showcase ${isActive}" data-index="${idx}" style="background: ${slide.bgGradient};">
+          <div class="banner-showcase-panel">
+            <div class="showcase-header-badge">
+              <span class="showcase-sparkle">★</span>
+              <span class="showcase-title">${slide.title}</span>
+              <span class="showcase-sparkle">★</span>
+            </div>
+            <div class="showcase-logos-row">
+              ${(slide.logos || [])
+                .map(
+                  (logo) => `
+                <div class="showcase-logo-item" title="${logo.name}">
+                  <img src="${logo.src}" alt="${logo.alt}" style="max-height: ${logo.maxHeight || "34px"};" />
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+            <div class="showcase-social-tag">
+              <span class="social-icon">📱</span>
+              <span class="social-handle">@FeriaMagicaJuguete</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 2. MODO SPOTLIGHT / EVENTO (Destacado de marcas con logos en cápsula blanca)
+    return `
+      <div class="carousel-slide ${isActive}" data-index="${idx}" style="background: ${slide.bgGradient};">
+        <div class="banner-flex-card">
+          <div class="banner-logos-capsule">
+            ${
+              slide.logos && slide.logos.length > 0
+                ? slide.logos
+                    .map(
+                      (logo) => `
+                  <div class="banner-logo-wrapper" title="${logo.name}">
+                    <img src="${logo.src}" alt="${logo.alt}" style="max-height: ${logo.maxHeight || "42px"};" />
+                  </div>
+                `
+                    )
+                    .join("")
+                : slide.image
+                ? `<div class="banner-logo-wrapper"><img src="${slide.image}" alt="${slide.title}" style="max-height: 40px;" /></div>`
+                : `<div class="banner-icon-badge">${getIconSvg(slide.iconName || "sparkles", { size: 30, color: "#ffffff", fill: "rgba(255,255,255,0.3)" })}</div>`
+            }
+          </div>
+
+          <div class="banner-text-group">
+            <div class="banner-headline">${slide.title}</div>
+            <div class="banner-subline">${slide.subtitle}</div>
+          </div>
+
+          <div class="banner-tag-container">
+            <span class="banner-tag" style="border-color: ${slide.badgeColor}; color: #331A00;">
+              ${slide.badgeText}
+            </span>
+          </div>
+        </div>
       </div>
     `;
   }

@@ -51,18 +51,13 @@ export class FloatingTextSystem {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
-      // Sombra exterior
-      ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
-      ctx.shadowBlur = 10;
-      ctx.fillStyle = ft.color;
-      ctx.fillText(ft.text, 0, 0);
-
-      // Borde de contraste
-      ctx.shadowBlur = 0;
+      // Borde de contraste arcade de alta definición (sin shadowBlur para evitar fallos de Skia GPU)
       ctx.strokeStyle = "#051124";
-      ctx.lineWidth = 3;
+      ctx.lineWidth = Math.max(3.5, fontSize * 0.18);
+      ctx.lineJoin = "round";
       ctx.strokeText(ft.text, 0, 0);
 
+      // Relleno de texto brillante
       ctx.fillStyle = ft.color;
       ctx.fillText(ft.text, 0, 0);
 

@@ -1310,8 +1310,6 @@ export class BellSymphonyGame extends BaseGame {
       const offset = 10 + i * (barW + gap);
       ctx.globalAlpha = 0.55;
       ctx.fillStyle = c;
-      ctx.shadowColor = c;
-      ctx.shadowBlur = 10;
       ctx.beginPath();
       ctx.roundRect(this.laneStartX - offset - barW, h - bh, barW, bh, 4);
       ctx.fill();
@@ -1319,15 +1317,12 @@ export class BellSymphonyGame extends BaseGame {
       ctx.roundRect(this.laneStartX + totalW + offset, h - bh, barW, bh, 4);
       ctx.fill();
     }
-    ctx.shadowBlur = 0;
 
     // Brasas / luces de feria flotando
     for (const m of this.ambientMotes) {
       const tw = 0.45 + 0.55 * Math.abs(Math.sin(m.phase));
       ctx.globalAlpha = 0.5 * tw;
       ctx.fillStyle = m.hue < 0.5 ? "#FFE082" : (m.hue < 0.8 ? "#FFFFFF" : "#FF8A80");
-      ctx.shadowColor = ctx.fillStyle as string;
-      ctx.shadowBlur = 8;
       ctx.beginPath();
       ctx.arc(m.x + Math.sin(m.phase) * 8, m.y, m.r, 0, Math.PI * 2);
       ctx.fill();
@@ -1344,8 +1339,6 @@ export class BellSymphonyGame extends BaseGame {
       ctx.globalAlpha = (1 - r.t) * 0.9;
       ctx.strokeStyle = r.color;
       ctx.lineWidth = 6 * (1 - r.t) + 1;
-      ctx.shadowColor = r.color;
-      ctx.shadowBlur = 14;
       ctx.beginPath();
       ctx.arc(r.x, this.hitLineY, radius * (1 + e * 1.9), 0, Math.PI * 2);
       ctx.stroke();
@@ -1379,8 +1372,6 @@ export class BellSymphonyGame extends BaseGame {
     ctx.font = "900 58px 'Titan One', 'Outfit', sans-serif";
     ctx.lineWidth = 7;
     ctx.strokeStyle = "rgba(0,0,0,0.85)";
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 18 + this.comboPop * 14;
     ctx.strokeText(String(this.combo), 0, 0);
     ctx.fillStyle = color;
     ctx.fillText(String(this.combo), 0, 0);
@@ -1721,8 +1712,6 @@ export class BellSymphonyGame extends BaseGame {
 
           // 3. Efectos de chispas en la zona de contacto si se sostiene
           if (note.isHolding) {
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = lane.color;
             ctx.fillStyle = "#FFFFFF";
             ctx.beginPath();
             ctx.arc(noteX, this.hitLineY, radius * 0.5, 0, Math.PI * 2);
@@ -1847,8 +1836,6 @@ export class BellSymphonyGame extends BaseGame {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = rankInfo.color;
-    ctx.shadowColor = rankInfo.color;
-    ctx.shadowBlur = 10;
     ctx.fillText(rankInfo.rank, 0, 0);
     ctx.restore();
 
@@ -2097,10 +2084,6 @@ export class BellSymphonyGame extends BaseGame {
         ctx.strokeStyle = "#FFFFFF";
         ctx.lineWidth = 2.4;
         ctx.stroke();
-
-        // Resplandor exterior
-        ctx.shadowColor = cfg.color;
-        ctx.shadowBlur = 12;
 
         ctx.font = `900 ${Math.max(9, Math.min(12, layout.diffBarH * 0.38))}px 'Outfit', sans-serif`;
         ctx.textAlign = "center";
