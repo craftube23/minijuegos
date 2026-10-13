@@ -111,6 +111,8 @@ class KioskApp {
     // 10. Iniciar música de fondo festiva para inicio y menú
     this.audio.playMenuBGM();
 
+    (window as any).kioskApp = this;
+
     console.log("[Feria Mágica del Juguete] Kiosco Interactivo Listo");
   }
 

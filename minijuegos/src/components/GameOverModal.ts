@@ -41,7 +41,7 @@ export class GameOverModal {
       : "¡BUEN INTENTO!";
 
     const modalSubtitle = isRecord
-      ? "¡Hiciste una partida legendaria en la Feria Mágica!"
+      ? (isRhythmGame ? "¡Nuevo récord histórico en esta canción y dificultad!" : "¡Hiciste una partida legendaria en la Feria Mágica!")
       : isCustom
       ? "¡Has probado tu propia canción grabada con éxito!"
       : "¡Estuviste muy cerca! Vuelve a intentarlo para superar la puntuación.";
@@ -55,34 +55,48 @@ export class GameOverModal {
 
     this.container.innerHTML = `
       <div class="modal-card ${isRhythmGame ? "modal-card-rhythm" : ""}">
-        <!-- CABECERA FESTIVA DE ALTO IMPACTO -->
-        <div class="modal-header">
-          <div class="modal-trophy-emblem">
-            <div class="emblem-sparkle-halo"></div>
-            <div class="emblem-icon">
-              ${isRecord ? getIconSvg("trophy", { size: 38, color: "#FFD700", fill: "rgba(255,215,0,0.25)" }) : getIconSvg("sparkles", { size: 38, color: "#FFD700" })}
-            </div>
+        <!-- ADORNOS DE ESQUINA TALLADOS ESTILO FANTASÍA 2D -->
+        <div class="card-ornament ornament-tl"></div>
+        <div class="card-ornament ornament-tr"></div>
+        <div class="card-ornament ornament-bl"></div>
+        <div class="card-ornament ornament-br"></div>
+
+        <!-- MEDALLÓN HEROICO SUPERIOR DE LA FERIA MÁGICA -->
+        <div class="modal-emblem-header">
+          <div class="modal-emblem-aura"></div>
+          <div class="modal-medallion-box">
+            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="modal-feria-seal" />
+            ${isRecord ? `<div class="record-crown-badge">${getIconSvg("crown", { size: 22, color: "#FFD700", fill: "#FFD700" })}</div>` : ""}
           </div>
-          <h2 class="modal-title">${modalTitle}</h2>
-          <p class="modal-game-name">${modalSubtitle}</p>
-          ${isRhythmGame && result.songTitle ? `
-            <div class="modal-song-pill">
-              <span class="song-icon">${getIconSvg("music", { size: 18, color: "var(--color-cyan)" })}</span>
-              <span class="song-name">${result.songTitle}</span>
-              ${result.songArtist ? `<span class="song-by">• ${result.songArtist}</span>` : ""}
-              ${result.difficultyLabel ? `<span class="song-difficulty-badge" style="background:${result.difficultyColor || '#FFD700'}; color:#031524; padding:2px 8px; border-radius:10px; font-weight:800; font-size:0.75rem; margin-left:6px;">${result.difficultyLabel}</span>` : ""}
-            </div>
-          ` : ""}
         </div>
+
+        <!-- CINTA / LISTÓN FESTIVO DEL TÍTULO -->
+        <div class="modal-ribbon-wrapper">
+          <div class="ribbon-tail ribbon-tail-left"></div>
+          <div class="ribbon-banner-body ${isRecord ? "ribbon-banner-record" : ""}">
+            <h2 class="modal-title">${modalTitle}</h2>
+          </div>
+          <div class="ribbon-tail ribbon-tail-right"></div>
+        </div>
+
+        <p class="modal-game-name">${modalSubtitle}</p>
+
+        ${isRhythmGame && result.songTitle ? `
+          <div class="modal-song-pill">
+            <span class="song-icon">${getIconSvg("music", { size: 16, color: "#FFD700" })}</span>
+            <span class="song-name">${result.songTitle}</span>
+            ${result.songArtist ? `<span class="song-by">• ${result.songArtist}</span>` : ""}
+            ${result.difficultyLabel ? `<span class="song-difficulty-badge" style="background:${result.difficultyColor || '#FFD700'}; color:#031524;">${result.difficultyLabel}</span>` : ""}
+          </div>
+        ` : ""}
 
         ${showRank ? `
           <!-- MEDALLÓN 3D DE RANGO ARCADE ESTILO FANTASY GAME ART (S+, S, A, B, C, D) -->
           <div class="modal-rank-container">
             <div class="rank-medallion-badge rank-tier-${rank.toLowerCase().replace('+', 'plus')}" style="--rank-theme: ${rankColor};">
-              <div class="rank-medallion-halo"></div>
               <div class="rank-medallion-inner">
                 <div class="rank-crest-frame">
-                  <div class="rank-frost-crown">${getIconSvg("crown", { size: 18, color: "#FFD700", fill: "#FFD700" })}</div>
+                  <div class="rank-frost-crown">${getIconSvg("crown", { size: 16, color: "#FFD700", fill: "#FFD700" })}</div>
                   <div class="rank-letter-art">${rank}</div>
                   <div class="rank-crest-shine"></div>
                 </div>
@@ -93,7 +107,10 @@ export class GameOverModal {
                       <div class="accuracy-bar-track">
                         <div class="accuracy-bar-fill" style="width: ${result.accuracy}%;"></div>
                       </div>
-                      <span class="accuracy-label">${getIconSvg("target", { size: 15, color: "#FFD700" })} ${result.accuracy}% Precisión</span>
+                      <div class="accuracy-label-row">
+                        <span class="accuracy-label">${getIconSvg("target", { size: 13, color: "#FFD700" })} ${result.accuracy}% Precisión</span>
+                        ${result.scorePercent !== undefined ? `<span class="accuracy-sub">• ${result.scorePercent}% Efectividad</span>` : ""}
+                      </div>
                     </div>
                   ` : ""}
                 </div>
@@ -105,7 +122,10 @@ export class GameOverModal {
         <!-- DESGLOSE DE PARTIDA ARCADE (DETALLES Y MÉTRICAS) -->
         ${hasStats ? `
           <div class="modal-breakdown-panel">
-            <div class="breakdown-title">${getIconSvg("chart", { size: 16, color: "#00E5FF" })} DESGLOSE DE PRECISIÓN</div>
+            <div class="breakdown-title">
+              ${getIconSvg("chart", { size: 14, color: "#FFE082" })}
+              <span>DESGLOSE DE PRECISIÓN</span>
+            </div>
             <div class="breakdown-grid">
               <div class="stat-chip chip-perfect">
                 <span class="stat-name">¡PERFECTO!</span>
@@ -125,28 +145,34 @@ export class GameOverModal {
               </div>
               <div class="stat-chip chip-combo">
                 <span class="stat-name">MÁX COMBO</span>
-                <span class="stat-val">${getIconSvg("flame", { size: 14, color: "#FF9100", fill: "#FF9100" })} ${result.maxCombo || 0}</span>
+                <span class="stat-val">${getIconSvg("flame", { size: 13, color: "#FF9100", fill: "#FF9100" })} ${result.maxCombo || 0}</span>
               </div>
               <div class="stat-chip chip-notes">
                 <span class="stat-name">TOTAL NOTAS</span>
-                <span class="stat-val">${getIconSvg("bell", { size: 14, color: "#FFD700", fill: "#FFD700" })} ${result.totalNotes || 0}</span>
+                <span class="stat-val">${getIconSvg("bell", { size: 13, color: "#FFD700", fill: "#FFD700" })} ${result.totalNotes || 0}</span>
               </div>
             </div>
           </div>
         ` : ""}
 
-        <!-- CAJAS DE PUNTUACIÓN DE ALTA DEFINICIÓN -->
+        <!-- MARCADOR DUAL TALLADO EN MADERA Y ORO -->
         <div class="modal-scores">
           <div class="score-box main-score">
-            <span class="score-label">TU PUNTUACIÓN</span>
-            <span class="score-value">${result.score}</span>
+            <div class="score-box-badge">TU PUNTUACIÓN</div>
+            <span class="score-value">${result.score.toLocaleString()}</span>
           </div>
 
-          <div class="score-box record-score">
-            <span class="score-label">RÉCORD ACTUAL</span>
-            <span class="score-value">${result.highScore}</span>
+          <div class="score-box record-score ${isRecord ? "is-new-record" : ""}">
+            <div class="score-box-badge">${isRecord ? "¡NUEVO RÉCORD!" : (isRhythmGame ? "RÉCORD EN ESTA CANCIÓN" : "RÉCORD ACTUAL")}</div>
+            <span class="score-value">${result.highScore.toLocaleString()}</span>
           </div>
         </div>
+
+        ${result.targetMaxScore ? `
+          <div class="modal-target-score-hint">
+            Puntuación Teórica Máxima: <strong style="color: #FFD700;">${result.targetMaxScore.toLocaleString()}</strong> pts
+          </div>
+        ` : ""}
 
         <!-- Mensaje Promocional -->
         <div class="modal-branding">
@@ -157,33 +183,33 @@ export class GameOverModal {
           }</p>
         </div>
 
-        <!-- ACCIONES / BOTONES ARCADE -->
+        <!-- ACCIONES / BOTONES ARCADE TÁCTILES 3D -->
         <div class="modal-actions ${isRhythmGame ? "modal-actions-rhythm" : ""}">
           <button id="btn-modal-again" class="btn-action btn-again" title="${isRhythmGame ? "Reintentar esta canción" : "Jugar otra vez"}">
-            ${getIconSvg("replay", { size: 22, color: "#ffffff" })}
+            ${getIconSvg("replay", { size: 20, color: "#ffffff" })}
             <span>${isRhythmGame ? "¡REINTENTAR CANCIÓN!" : "¡VOLVER A INTENTAR!"}</span>
           </button>
 
           ${isRhythmGame ? `
             <button id="btn-modal-change-song" class="btn-action btn-change-song" title="Elegir otra canción de campanas">
-              ${getIconSvg("music", { size: 20, color: "#ffffff" })}
+              ${getIconSvg("music", { size: 18, color: "#ffffff" })}
               <span>CAMBIAR CANCIÓN</span>
             </button>
             <button id="btn-modal-editor" class="btn-action btn-editor-action" title="Abrir el editor con tus notas">
-              ${getIconSvg("wrench", { size: 20, color: "#ffffff" })}
+              ${getIconSvg("wrench", { size: 18, color: "#451A03" })}
               <span>${isCustom ? "SEGUIR EDITANDO / GRABAR" : "MODO GRABADOR"}</span>
             </button>
           ` : ""}
 
           ${isCustom && result.customNotes && result.customNotes.length > 0 ? `
             <button id="btn-modal-copy" class="btn-action btn-copy-action" title="Copiar código TypeScript al portapapeles">
-              ${getIconSvg("clipboard", { size: 20, color: "#ffffff" })}
+              ${getIconSvg("clipboard", { size: 18, color: "#083344" })}
               <span>GUARDAR / COPIAR CÓDIGO</span>
             </button>
           ` : ""}
 
           <button id="btn-modal-menu" class="btn-action btn-menu" title="Volver al menú de minijuegos">
-            ${getIconSvg("grid", { size: 22, color: "#ffffff" })}
+            ${getIconSvg("grid", { size: 20, color: "#ffffff" })}
             <span>OTROS JUEGOS</span>
           </button>
         </div>

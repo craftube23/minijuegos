@@ -18,6 +18,7 @@ import { AudioManager } from "../core/AudioManager";
 import { InputManager } from "../core/InputManager";
 import { ParticleSystem } from "../core/ParticleSystem";
 import { ScreenTransition } from "../core/ScreenTransition";
+import { StorageManager } from "../core/StorageManager";
 import { ChartEditorModal, type ChartNoteRecord } from "../components/ChartEditorModal";
 import {
   RHYTHM_SONG_LIST,
@@ -83,11 +84,11 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     icon: "",
     color: "#00E676",
     glowColor: "rgba(0, 230, 118, 0.5)",
-    speedMultiplier: 0.72,
-    perfectWindow: 0.095,
-    greatWindow: 0.170,
-    goodWindow: 0.270,
-    missWindow: 0.350,
+    speedMultiplier: 0.70,
+    perfectWindow: 0.125,
+    greatWindow: 0.220,
+    goodWindow: 0.320,
+    missWindow: 0.400,
     scoreMultiplier: 1.0,
     lives: 5,
     description: "Ideal para niños y principiantes"
@@ -99,11 +100,11 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     icon: "",
     color: "#FFD700",
     glowColor: "rgba(255, 215, 0, 0.5)",
-    speedMultiplier: 0.95,
-    perfectWindow: 0.070,
-    greatWindow: 0.130,
-    goodWindow: 0.220,
-    missWindow: 0.280,
+    speedMultiplier: 0.88,
+    perfectWindow: 0.095,
+    greatWindow: 0.170,
+    goodWindow: 0.260,
+    missWindow: 0.340,
     scoreMultiplier: 1.25,
     lives: 5,
     description: "Ritmo fluido y entretenido"
@@ -115,30 +116,30 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     icon: "",
     color: "#FF3366",
     glowColor: "rgba(255, 51, 102, 0.5)",
-    speedMultiplier: 1.18,
-    perfectWindow: 0.052,
-    greatWindow: 0.100,
-    goodWindow: 0.170,
-    missWindow: 0.230,
+    speedMultiplier: 1.05,
+    perfectWindow: 0.082,
+    greatWindow: 0.145,
+    goodWindow: 0.225,
+    missWindow: 0.295,
     scoreMultiplier: 1.60,
-    lives: 4,
-    description: "Enérgico con acordes dobles"
+    lives: 5,
+    description: "Ritmo activo con acordes dobles"
   },
   expert: {
     id: "expert",
     label: "EXPERTO",
     shortLabel: "EXPERTO",
-    icon: "",
+    icon: "🔥",
     color: "#D500F9",
     glowColor: "rgba(213, 0, 249, 0.5)",
-    speedMultiplier: 1.38,
-    perfectWindow: 0.042,
-    greatWindow: 0.078,
-    goodWindow: 0.140,
-    missWindow: 0.190,
+    speedMultiplier: 1.25,
+    perfectWindow: 0.075,
+    greatWindow: 0.135,
+    goodWindow: 0.210,
+    missWindow: 0.270,
     scoreMultiplier: 2.00,
-    lives: 4,
-    description: "Máximo reto para pantalla táctil"
+    lives: 5,
+    description: "Desafío total: alta velocidad y notas sostenidas"
   }
 };
 
@@ -264,6 +265,8 @@ export class BellSymphonyGame extends BaseGame {
   protected override lives: number = 5;
   protected override maxLives: number = 5;
   protected override showLives: boolean = true;
+  private lastMissLifeLossTime: number = -1;
+  private currentTargetMaxScore: number = 0;
 
   // MODO ESTRELLA / STAR POWER (Guitar Hero Style x4 Multiplier)
   private starPowerTimer: number = 0;
@@ -396,6 +399,7 @@ export class BellSymphonyGame extends BaseGame {
     this.maxLives = diffCfg.lives;
     this.lives = this.maxLives;
     this.activeJudgements = [];
+    this.lastMissLifeLossTime = -1;
     this.lanePressed = [false, false, false, false];
     this.activePointerLanes.clear();
     this.starPowerTimer = 0;
@@ -457,6 +461,8 @@ export class BellSymphonyGame extends BaseGame {
 
     this.selectedSongIndex = Math.max(0, Math.min(this.songList.length - 1, index));
     const song = this.songList[this.selectedSongIndex];
+    const subKey = `${song.id}_${this.selectedDifficulty}`;
+    this.setSubKey(subKey);
 
     this.showLives = true;
     this.isCustomChartPlaying = false;
@@ -472,6 +478,7 @@ export class BellSymphonyGame extends BaseGame {
     this.maxLives = diffCfg.lives;
     this.lives = this.maxLives;
     this.activeJudgements = [];
+    this.lastMissLifeLossTime = -1;
     this.starPowerTimer = 0;
     this.isStarPowerActive = false;
     this.songDuration = song.durationSeconds || 120;
@@ -495,11 +502,13 @@ export class BellSymphonyGame extends BaseGame {
       });
       this.bgAudioElement.addEventListener("ended", () => {
         if (this.gameState === "playing" && !this.isGameOver) {
+          const hasPendingNotes = this.notes.some(n => !n.hit && !n.missed && n.targetTime >= this.currentTime - 0.2);
+          const delay = hasPendingNotes ? 1400 : 500;
           setTimeout(() => {
             if (this.gameState === "playing" && !this.isGameOver) {
               this.endGame();
             }
-          }, 400);
+          }, delay);
         }
       });
       this.bgAudioElement.addEventListener("error", (e) => {
@@ -545,6 +554,7 @@ export class BellSymphonyGame extends BaseGame {
 
   public goToSongSelect(): void {
     this.stopSongAudio();
+    this.setSubKey(undefined);
     this.gameState = "song-select";
     this.score = 0;
     this.isRunning = true;
@@ -567,6 +577,8 @@ export class BellSymphonyGame extends BaseGame {
     this.isCustomChartPlaying = true;
     this.lastCustomNotes = [...customNotes];
     this.lastCustomSongFile = songFile;
+    this.setSubKey("custom");
+    this.currentTargetMaxScore = this.calculateMaxScoreForChart(customNotes, this.selectedDifficulty);
 
     const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
     this.bpm = bpm;
@@ -581,6 +593,7 @@ export class BellSymphonyGame extends BaseGame {
     this.maxLives = diffCfg.lives;
     this.lives = this.maxLives;
     this.activeJudgements = [];
+    this.lastMissLifeLossTime = -1;
     this.starPowerTimer = 0;
     this.isStarPowerActive = false;
     this.songIntroTimer = this.SONG_INTRO_DURATION;
@@ -605,11 +618,13 @@ export class BellSymphonyGame extends BaseGame {
       });
       this.bgAudioElement.addEventListener("ended", () => {
         if (this.gameState === "playing" && !this.isGameOver) {
+          const hasPendingNotes = this.notes.some(n => !n.hit && !n.missed && n.targetTime >= this.currentTime - 0.2);
+          const delay = hasPendingNotes ? 1400 : 500;
           setTimeout(() => {
             if (this.gameState === "playing" && !this.isGameOver) {
               this.endGame();
             }
-          }, 400);
+          }, delay);
         }
       });
       this.bgAudioElement.addEventListener("error", (e) => {
@@ -831,6 +846,53 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
+   * Calcula la puntuación máxima teórica (100% Perfect Full Combo) para una canción y dificultad dada
+   */
+  public calculateMaxScoreForChart(chart: ChartNoteRecord[], diff: DifficultyLevel): number {
+    const diffCfg = DIFFICULTY_CONFIGS[diff] || DIFFICULTY_CONFIGS.normal;
+    let simulatedScore = 0;
+    let simulatedCombo = 0;
+    let starPowerRemaining = 0;
+
+    for (let i = 0; i < chart.length; i++) {
+      const note = chart[i];
+      simulatedCombo++;
+
+      // Multiplicador base por combo (1x, 2x a 10+, 3x a 25+, 4x a 50+)
+      let baseMult = 1;
+      if (simulatedCombo >= 50) baseMult = 4;
+      else if (simulatedCombo >= 25) baseMult = 3;
+      else if (simulatedCombo >= 10) baseMult = 2;
+
+      // Si Star Power está activo (simulando x4)
+      const effectiveMult = starPowerRemaining > 0 ? 4 : baseMult;
+
+      // Puntos por cabeza Perfect
+      const tapPts = Math.round(300 * diffCfg.scoreMultiplier * effectiveMult);
+      simulatedScore += tapPts;
+
+      // Si es nota sostenida
+      const dur = note.duration && note.duration > 0 ? note.duration : 0;
+      if (dur > 0) {
+        const ticks = Math.floor(dur / 0.12);
+        simulatedScore += ticks * 20 * effectiveMult;
+        simulatedScore += 160 * effectiveMult;
+      }
+
+      // Si es Star Note
+      if (note.isStar) {
+        simulatedScore += 800;
+        starPowerRemaining = 7.0;
+      } else if (starPowerRemaining > 0) {
+        const nextTime = i < chart.length - 1 ? chart[i + 1].time : note.time + 1.0;
+        starPowerRemaining = Math.max(0, starPowerRemaining - (nextTime - note.time));
+      }
+    }
+
+    return Math.max(1000, simulatedScore);
+  }
+
+  /**
    * Genera y adapta la partitura de notas para la canción según la dificultad seleccionada
    */
   private generateSongChart(song: SongDef): void {
@@ -988,6 +1050,8 @@ export class BellSymphonyGame extends BaseGame {
       const calculatedEnd = lastItem.time + (lastItem.duration || 0) + 3.0;
       this.songDuration = Math.max(song.durationSeconds || 120, calculatedEnd);
     }
+
+    this.currentTargetMaxScore = this.calculateMaxScoreForChart(adaptedChart, this.selectedDifficulty);
   }
 
   /**
@@ -1060,7 +1124,7 @@ export class BellSymphonyGame extends BaseGame {
       }
 
       // Recuperar 1 campana (vida)
-      if (closestNote.isStar || (this.combo > 0 && this.combo % 15 === 0)) {
+      if (closestNote.isStar || (this.combo > 0 && this.combo % 12 === 0)) {
         if (this.lives < this.maxLives) {
           this.lives = Math.min(this.maxLives, this.lives + 1);
           this.addFloatingText("+1 VIDA", this.width / 2, this.hitLineY - 95, "#00E676", 1.25);
@@ -1151,6 +1215,185 @@ export class BellSymphonyGame extends BaseGame {
       y: this.hitLineY - 60,
       time: 0.65
     });
+    if (text !== "MISS" && !text.includes("MISS")) {
+      this.hitRings.push({ x, color, t: 0 });
+      if (this.hitRings.length > 24) this.hitRings.shift();
+    }
+  }
+
+  // ==========================================================================
+  // AMBIENTE VISUAL: destellos al ritmo, haces de luz, brasas y ecualizador
+  // ==========================================================================
+  private ambientMotes: { x: number; y: number; vy: number; r: number; phase: number; hue: number }[] = [];
+  private hitRings: { x: number; color: string; t: number }[] = [];
+  private lastComboSeen: number = 0;
+  private comboPop: number = 0;
+
+  private updateAmbient(dt: number): void {
+    if (this.ambientMotes.length === 0 && this.width > 0) {
+      for (let i = 0; i < 46; i++) {
+        this.ambientMotes.push({
+          x: Math.random() * this.width,
+          y: Math.random() * this.height,
+          vy: 14 + Math.random() * 34,
+          r: 1.2 + Math.random() * 2.6,
+          phase: Math.random() * Math.PI * 2,
+          hue: Math.random()
+        });
+      }
+    }
+    const speedBoost = this.isStarPowerActive ? 3 : (this.combo >= 20 ? 1.8 : 1);
+    for (const m of this.ambientMotes) {
+      m.y -= m.vy * dt * speedBoost;
+      m.phase += dt * 2;
+      if (m.y < -10) {
+        m.y = this.height + 10;
+        m.x = Math.random() * this.width;
+      }
+    }
+    for (let i = this.hitRings.length - 1; i >= 0; i--) {
+      this.hitRings[i].t += dt * 2.6;
+      if (this.hitRings[i].t >= 1) this.hitRings.splice(i, 1);
+    }
+    if (this.combo !== this.lastComboSeen) {
+      if (this.combo > this.lastComboSeen) this.comboPop = 1;
+      this.lastComboSeen = this.combo;
+    }
+    this.comboPop = Math.max(0, this.comboPop - dt * 4.5);
+  }
+
+  private drawAmbient(ctx: CanvasRenderingContext2D): void {
+    const w = this.width;
+    const h = this.height;
+    const totalW = this.laneWidth * 4;
+    const cx = this.laneStartX + totalW / 2;
+    const hot = this.isStarPowerActive || this.combo >= 20;
+    const inv = 1 - this.beatPulse;
+    const flash = (hot ? 0.20 : 0.09) * inv * inv;
+
+    ctx.save();
+
+    // Destello al compás desde el centro de la pista
+    const flashColor = this.isStarPowerActive
+      ? (this.activeStarPowerType === 2 ? "0, 229, 255" : "255, 120, 160")
+      : "255, 200, 90";
+    const burst = ctx.createRadialGradient(cx, h * 0.55, 20, cx, h * 0.55, Math.max(w, h) * 0.7);
+    burst.addColorStop(0, `rgba(${flashColor}, ${flash + 0.04})`);
+    burst.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = burst;
+    ctx.fillRect(0, 0, w, h);
+
+    // Haces de luz a los costados de la pista
+    const beamAlpha = 0.07 + 0.10 * inv;
+    for (const side of [-1, 1]) {
+      const bx = side < 0 ? this.laneStartX : this.laneStartX + totalW;
+      const beam = ctx.createLinearGradient(bx, 0, bx + side * Math.min(180, w * 0.14), 0);
+      beam.addColorStop(0, `rgba(${flashColor}, ${beamAlpha})`);
+      beam.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = beam;
+      if (side < 0) {
+        ctx.fillRect(Math.max(0, bx - Math.min(180, w * 0.14)), 0, Math.min(180, w * 0.14), h);
+      } else {
+        ctx.fillRect(bx, 0, Math.min(180, w * 0.14), h);
+      }
+    }
+
+    // Ecualizador de luces que rebota con la música
+    const barW = 9;
+    const gap = 6;
+    const maxBars = Math.min(8, Math.floor((this.laneStartX - 16) / (barW + gap)));
+    const colors = ["#FF4D6D", "#FFD700", "#00E676", "#00E5FF"];
+    for (let i = 0; i < maxBars; i++) {
+      const energy = 0.35 + 0.65 * Math.abs(Math.sin(this.currentTime * (3.2 + i * 0.7) + i * 1.3));
+      const bh = (24 + 120 * energy) * (0.55 + 0.45 * inv) * (hot ? 1.35 : 1);
+      const c = colors[i % 4];
+      const offset = 10 + i * (barW + gap);
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = c;
+      ctx.shadowColor = c;
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.roundRect(this.laneStartX - offset - barW, h - bh, barW, bh, 4);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.roundRect(this.laneStartX + totalW + offset, h - bh, barW, bh, 4);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+
+    // Brasas / luces de feria flotando
+    for (const m of this.ambientMotes) {
+      const tw = 0.45 + 0.55 * Math.abs(Math.sin(m.phase));
+      ctx.globalAlpha = 0.5 * tw;
+      ctx.fillStyle = m.hue < 0.5 ? "#FFE082" : (m.hue < 0.8 ? "#FFFFFF" : "#FF8A80");
+      ctx.shadowColor = ctx.fillStyle as string;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(m.x + Math.sin(m.phase) * 8, m.y, m.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  private drawHitRings(ctx: CanvasRenderingContext2D): void {
+    const radius = Math.min(this.laneWidth * 0.38, 38);
+    ctx.save();
+    for (const r of this.hitRings) {
+      const e = 1 - Math.pow(1 - r.t, 3);
+      ctx.globalAlpha = (1 - r.t) * 0.9;
+      ctx.strokeStyle = r.color;
+      ctx.lineWidth = 6 * (1 - r.t) + 1;
+      ctx.shadowColor = r.color;
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(r.x, this.hitLineY, radius * (1 + e * 1.9), 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  private drawComboHUD(ctx: CanvasRenderingContext2D): void {
+    if (this.combo < 3) return;
+    const totalW = this.laneWidth * 4;
+    const sideRoom = this.laneStartX >= 130;
+    const cx = sideRoom ? this.laneStartX / 2 : this.laneStartX + totalW / 2;
+    const cy = sideRoom ? this.height * 0.42 : this.height * 0.28;
+    const mult = this.getMultiplier();
+    const color = mult >= 4 ? "#FF4D6D" : mult === 3 ? "#FF9100" : mult === 2 ? "#FFD700" : "#FFFFFF";
+    const pop = 1 + this.comboPop * 0.35;
+    const baseAlpha = sideRoom ? 1 : 0.55;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.globalAlpha = baseAlpha;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.font = "800 14px 'Outfit', sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.fillText("COMBO", 0, -42);
+
+    ctx.save();
+    ctx.scale(pop, pop);
+    ctx.font = "900 58px 'Titan One', 'Outfit', sans-serif";
+    ctx.lineWidth = 7;
+    ctx.strokeStyle = "rgba(0,0,0,0.85)";
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 18 + this.comboPop * 14;
+    ctx.strokeText(String(this.combo), 0, 0);
+    ctx.fillStyle = color;
+    ctx.fillText(String(this.combo), 0, 0);
+    ctx.restore();
+
+    ctx.font = "900 20px 'Titan One', 'Outfit', sans-serif";
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "rgba(0,0,0,0.85)";
+    ctx.strokeText(`x${mult}`, 0, 44);
+    ctx.fillStyle = color;
+    ctx.fillText(`x${mult}`, 0, 44);
+
+    ctx.restore();
   }
 
   private playHitsound(_lane: number): void {
@@ -1231,8 +1474,10 @@ export class BellSymphonyGame extends BaseGame {
           this.missCount++;
           this.combo = 0;
 
-          if (this.currentTime > 1.2) {
+          // Deducción de vida con protección contra dobles misses instantáneos (acordes de 2 notas o ráfagas)
+          if (this.currentTime > 1.2 && (this.lastMissLifeLossTime < 0 || this.currentTime - this.lastMissLifeLossTime >= 0.28)) {
             this.lives = Math.max(0, this.lives - 1);
+            this.lastMissLifeLossTime = this.currentTime;
           }
 
           this.spawnJudgement("MISS", "#E53935", laneCenterX);
@@ -1250,6 +1495,8 @@ export class BellSymphonyGame extends BaseGame {
         }
       }
     }
+
+    this.updateAmbient(dt);
 
     // Actualización de popups de juicio
     for (let i = this.activeJudgements.length - 1; i >= 0; i--) {
@@ -1283,6 +1530,8 @@ export class BellSymphonyGame extends BaseGame {
       this.drawSongSelector(ctx);
       return;
     }
+
+    this.drawAmbient(ctx);
 
     const trackH = this.height;
     const totalW = this.laneWidth * 4;
@@ -1319,6 +1568,16 @@ export class BellSymphonyGame extends BaseGame {
     for (let i = 0; i < 4; i++) {
       const lx = this.laneStartX + i * this.laneWidth;
       const lane = this.lanes[i];
+
+      // Tinte de carril con el color de la nota, late con el ritmo
+      ctx.save();
+      const tint = ctx.createLinearGradient(0, this.hitLineY, 0, this.hitLineY - this.height * 0.55);
+      tint.addColorStop(0, lane.glowColor);
+      tint.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.globalAlpha = 0.16 + 0.14 * Math.pow(1 - this.beatPulse, 2);
+      ctx.fillStyle = tint;
+      ctx.fillRect(lx, 0, this.laneWidth, this.hitLineY);
+      ctx.restore();
 
       if (this.lanePressed[i]) {
         const laneBeam = ctx.createLinearGradient(0, this.hitLineY, 0, 0);
@@ -1504,6 +1763,31 @@ export class BellSymphonyGame extends BaseGame {
 
         const drawSize = radius * 2.35;
 
+        // Estela de cometa + aura luminosa detrás de la nota
+        if (!note.hit) {
+          const auraColor = note.isStar ? "rgba(255, 215, 0, 0.55)" : lane.glowColor;
+          const aura = ctx.createRadialGradient(0, 0, drawSize * 0.1, 0, 0, drawSize * 0.95);
+          aura.addColorStop(0, auraColor);
+          aura.addColorStop(1, "rgba(0, 0, 0, 0)");
+          ctx.fillStyle = aura;
+          ctx.beginPath();
+          ctx.arc(0, 0, drawSize * 0.95, 0, Math.PI * 2);
+          ctx.fill();
+
+          const tailLen = Math.min(150, this.height * 0.2);
+          const tail = ctx.createLinearGradient(0, 0, 0, -tailLen);
+          tail.addColorStop(0, note.isStar ? "rgba(255, 215, 0, 0.45)" : lane.glowColor);
+          tail.addColorStop(1, "rgba(0, 0, 0, 0)");
+          ctx.fillStyle = tail;
+          ctx.beginPath();
+          ctx.moveTo(-radius * 0.55, 0);
+          ctx.lineTo(radius * 0.55, 0);
+          ctx.lineTo(radius * 0.12, -tailLen);
+          ctx.lineTo(-radius * 0.12, -tailLen);
+          ctx.closePath();
+          ctx.fill();
+        }
+
         if (sprite && sprite.complete && sprite.naturalWidth > 0) {
           ctx.drawImage(sprite, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
         } else {
@@ -1517,6 +1801,10 @@ export class BellSymphonyGame extends BaseGame {
         ctx.restore();
       }
     }
+
+    // Anillos de impacto y contador de combo
+    this.drawHitRings(ctx);
+    this.drawComboHUD(ctx);
 
     // Dibujar Popups de Juicio
     for (const j of this.activeJudgements) {
@@ -1882,11 +2170,16 @@ export class BellSymphonyGame extends BaseGame {
       ctx.fillStyle = isSelected ? "#FFFFFF" : "#E2E8F0";
       ctx.fillText(song.title, cardX + iconSize * 2 + 12, cy + cardH * 0.36);
 
-      // Subtítulo y BPM
+      // Subtítulo, BPM y Récord de esta canción en esta dificultad
+      const subKey = `${song.id}_${this.selectedDifficulty}`;
+      const songRecord = StorageManager.getHighScore(this.id, subKey);
+      const songRank = StorageManager.getBestRank(this.id, subKey);
+
       const subFont = Math.max(8, Math.min(10.5, cardH * 0.22));
       ctx.font = `600 ${subFont}px 'Outfit', sans-serif`;
       ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
-      ctx.fillText(`${song.subtitle} • ${song.bpm} BPM`, cardX + iconSize * 2 + 12, cy + cardH * 0.72);
+      const recordText = songRecord > 0 ? ` • 🏆 ${songRecord.toLocaleString()} pts` : "";
+      ctx.fillText(`${song.subtitle} • ${song.bpm} BPM${recordText}`, cardX + iconSize * 2 + 12, cy + cardH * 0.72);
 
       // Badge de Dificultad Dinámica
       const badgeW = Math.max(54, Math.min(76, cardW * 0.17));
@@ -1904,6 +2197,29 @@ export class BellSymphonyGame extends BaseGame {
       ctx.textBaseline = "middle";
       ctx.fillStyle = "#031524";
       ctx.fillText(`${activeDiffCfg.shortLabel} ${activeDiffCfg.scoreMultiplier}x`, badgeX + badgeW / 2, badgeY + badgeH / 2);
+
+      // Badge de Rango obtenido (si existe para esta dificultad)
+      if (songRank) {
+        const rankW = Math.max(26, Math.min(34, cardW * 0.08));
+        const rankX = badgeX - rankW - 6;
+        const rankColor = songRank === "S+" || songRank === "S" ? "#FFD700" : songRank === "A" ? "#00E5FF" : songRank === "B" ? "#00E676" : songRank === "C" ? "#FF9100" : "#FF5252";
+
+        ctx.save();
+        ctx.fillStyle = "rgba(3, 21, 36, 0.95)";
+        ctx.strokeStyle = rankColor;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.roundRect(rankX, badgeY, rankW, badgeH, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.font = `900 ${Math.max(8.5, Math.min(11, badgeH * 0.58))}px 'Outfit', sans-serif`;
+        ctx.fillStyle = rankColor;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(songRank, rankX + rankW / 2, badgeY + badgeH / 2);
+        ctx.restore();
+      }
     }
 
     // Botón Modo Grabador / Editor
@@ -1938,35 +2254,111 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   /**
-   * Calcula el rango (S+, S, A, B, C, D) basado en precisión y fallos
+   * Calcula el rango (S+, S, A, B, C, D) basado en precisión, fallos y puntuación teórica de la canción
    */
-  public calculateRank(): { rank: "S+" | "S" | "A" | "B" | "C" | "D"; accuracy: number; label: string; color: string } {
-    const totalNotes = this.perfectCount + this.greatCount + this.goodCount + this.missCount;
-    if (totalNotes === 0) return { rank: "S", accuracy: 100, label: "¡PERFECTO!", color: "#FFD700" };
+  public calculateRank(isFinal: boolean = false): {
+    rank: "S+" | "S" | "A" | "B" | "C" | "D";
+    accuracy: number;
+    label: string;
+    color: string;
+    scorePercent: number;
+  } {
+    // Si el jugador perdió todas las vidas (campanas) durante la partida
+    if (this.lives <= 0) {
+      const passedSoFar = this.perfectCount + this.greatCount + this.goodCount + this.missCount;
+      const acc = passedSoFar > 0 ? Math.round(((this.perfectCount * 1.0 + this.greatCount * 0.85 + this.goodCount * 0.60) / passedSoFar) * 100) : 0;
+      return { rank: "D", accuracy: acc, label: "RANGO ASPIRANTE (SIN CAMPANAS)", color: "#FF5252", scorePercent: 0 };
+    }
 
-    const scoreWeighted = (this.perfectCount * 1.0 + this.greatCount * 0.70 + this.goodCount * 0.40);
-    const accuracy = Math.min(100, Math.round((scoreWeighted / totalNotes) * 100));
+    // Para el cálculo final al completar la canción
+    if (isFinal) {
+      const totalChartNotes = this.notes.length > 0 ? this.notes.length : (this.perfectCount + this.greatCount + this.goodCount + this.missCount);
+      if (totalChartNotes === 0) return { rank: "S", accuracy: 100, label: "¡PERFECTO!", color: "#FFD700", scorePercent: 100 };
 
-    if (accuracy >= 95 && this.missCount === 0) {
-      return { rank: "S+", accuracy, label: "RANGO LEGENDARIO", color: "#FFD700" };
-    } else if (accuracy >= 90) {
-      return { rank: "S", accuracy, label: "RANGO EXCELENTE", color: "#FFD700" };
-    } else if (accuracy >= 78) {
-      return { rank: "A", accuracy, label: "RANGO GENIAL", color: "#00E5FF" };
-    } else if (accuracy >= 65) {
-      return { rank: "B", accuracy, label: "RANGO BUENO", color: "#00E676" };
-    } else if (accuracy >= 50) {
-      return { rank: "C", accuracy, label: "RANGO REGULAR", color: "#FF9100" };
+      // Notas tocadas y fallos totales (incluyendo notas no alcanzadas si terminó prematuramente)
+      const totalHit = this.perfectCount + this.greatCount + this.goodCount;
+      const totalMisses = Math.max(this.missCount, totalChartNotes - totalHit);
+
+      // Ponderación de precisión amigable para ritmos táctiles arcade:
+      // Perfect: 100%, Great: 85%, Good: 60%, Miss: 0%
+      const weightedScore = (this.perfectCount * 1.0 + this.greatCount * 0.85 + this.goodCount * 0.60);
+      const accuracy = Math.min(100, Math.round((weightedScore / totalChartNotes) * 100));
+
+      // Porcentaje de la puntuación máxima teórica
+      const targetMax = Math.max(1000, this.currentTargetMaxScore);
+      const scorePercent = Math.min(100, Math.round((this.score / targetMax) * 100));
+
+      // Margen de fallos permitido para S+ (Full Combo o hasta 1.5% de notas en canciones largas)
+      const allowedMissesForSPlus = Math.max(1, Math.floor(totalChartNotes * 0.015));
+      const isFullCombo = totalMisses === 0;
+
+      // Rango S+ (Legendario):
+      // - Full Combo con precisión >= 90%
+      // - O Precisión >= 94% con fallos mínimos
+      // - O Efectividad de puntuación >= 88%
+      if ((isFullCombo && accuracy >= 90) || (accuracy >= 94 && totalMisses <= allowedMissesForSPlus) || scorePercent >= 88) {
+        return { rank: "S+", accuracy, label: "RANGO LEGENDARIO", color: "#FFD700", scorePercent };
+      }
+      // Rango S (Excelente):
+      // - Precisión >= 86% o Puntuación >= 74%
+      else if (accuracy >= 86 || scorePercent >= 74) {
+        return { rank: "S", accuracy, label: "RANGO EXCELENTE", color: "#FFD700", scorePercent };
+      }
+      // Rango A (Genial):
+      else if (accuracy >= 74 || scorePercent >= 58) {
+        return { rank: "A", accuracy, label: "RANGO GENIAL", color: "#00E5FF", scorePercent };
+      }
+      // Rango B (Bueno):
+      else if (accuracy >= 60 || scorePercent >= 42) {
+        return { rank: "B", accuracy, label: "RANGO BUENO", color: "#00E676", scorePercent };
+      }
+      // Rango C (Regular):
+      else if (accuracy >= 45 || scorePercent >= 28) {
+        return { rank: "C", accuracy, label: "RANGO REGULAR", color: "#FF9100", scorePercent };
+      }
+      // Rango D (Aspirante):
+      else {
+        return { rank: "D", accuracy, label: "RANGO ASPIRANTE", color: "#FF5252", scorePercent };
+      }
+    }
+
+    // Cálculo en vivo durante el juego (Live HUD badge)
+    const passedNotes = this.perfectCount + this.greatCount + this.goodCount + this.missCount;
+    if (passedNotes === 0) return { rank: "S+", accuracy: 100, label: "¡PERFECTO!", color: "#FFD700", scorePercent: 100 };
+
+    const scoreWeighted = (this.perfectCount * 1.0 + this.greatCount * 0.85 + this.goodCount * 0.60);
+    const liveAccuracy = Math.min(100, Math.round((scoreWeighted / passedNotes) * 100));
+    const liveTargetMax = Math.max(1000, this.currentTargetMaxScore);
+    const liveScorePercent = Math.min(100, Math.round((this.score / liveTargetMax) * 100));
+
+    if (liveAccuracy >= 94 && this.missCount <= Math.max(1, Math.floor(passedNotes * 0.015))) {
+      return { rank: "S+", accuracy: liveAccuracy, label: "RANGO LEGENDARIO", color: "#FFD700", scorePercent: liveScorePercent };
+    } else if (liveAccuracy >= 86) {
+      return { rank: "S", accuracy: liveAccuracy, label: "RANGO EXCELENTE", color: "#FFD700", scorePercent: liveScorePercent };
+    } else if (liveAccuracy >= 74) {
+      return { rank: "A", accuracy: liveAccuracy, label: "RANGO GENIAL", color: "#00E5FF", scorePercent: liveScorePercent };
+    } else if (liveAccuracy >= 60) {
+      return { rank: "B", accuracy: liveAccuracy, label: "RANGO BUENO", color: "#00E676", scorePercent: liveScorePercent };
+    } else if (liveAccuracy >= 45) {
+      return { rank: "C", accuracy: liveAccuracy, label: "RANGO REGULAR", color: "#FF9100", scorePercent: liveScorePercent };
     } else {
-      return { rank: "D", accuracy, label: "RANGO ASPIRANTE", color: "#FF5252" };
+      return { rank: "D", accuracy: liveAccuracy, label: "RANGO ASPIRANTE", color: "#FF5252", scorePercent: liveScorePercent };
     }
   }
 
   public override endGame(): void {
     this.stopSongAudio();
-    const rankInfo = this.calculateRank();
+    const rankInfo = this.calculateRank(true);
     const song = this.songList[this.selectedSongIndex];
     const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
+    const subKey = this.isCustomChartPlaying ? "custom" : `${song?.id || "default"}_${this.selectedDifficulty}`;
+
+    // Guardar el mejor rango obtenido para esta canción y dificultad
+    StorageManager.saveBestRank(this.id, subKey, rankInfo.rank);
+
+    const totalNotesCount = this.notes.length > 0 ? this.notes.length : (this.perfectCount + this.greatCount + this.goodCount + this.missCount);
+    const totalHit = this.perfectCount + this.greatCount + this.goodCount;
+    const finalMissCount = this.notes.length > 0 ? Math.max(this.missCount, totalNotesCount - totalHit) : this.missCount;
 
     super.endGame({
       isCustomChart: this.isCustomChartPlaying,
@@ -1982,12 +2374,14 @@ export class BellSymphonyGame extends BaseGame {
       rankLabel: rankInfo.label,
       rankColor: rankInfo.color,
       accuracy: rankInfo.accuracy,
+      scorePercent: rankInfo.scorePercent,
+      targetMaxScore: this.currentTargetMaxScore,
       maxCombo: this.maxCombo,
       perfectCount: this.perfectCount,
       greatCount: this.greatCount,
       goodCount: this.goodCount,
-      missCount: this.missCount,
-      totalNotes: this.perfectCount + this.greatCount + this.goodCount + this.missCount
+      missCount: finalMissCount,
+      totalNotes: totalNotesCount
     });
   }
 

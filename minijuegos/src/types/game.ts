@@ -17,6 +17,8 @@ export interface GameResult {
   rankLabel?: string;
   rankColor?: string;
   accuracy?: number; // 0 - 100%
+  scorePercent?: number; // 0 - 100% de la puntuación máxima teórica
+  targetMaxScore?: number; // Puntuación máxima teórica de la canción y dificultad
   maxCombo?: number;
   perfectCount?: number;
   greatCount?: number;

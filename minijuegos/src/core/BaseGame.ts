@@ -38,6 +38,7 @@ export abstract class BaseGame {
 
   protected score: number = 0;
   protected highScore: number = 0;
+  protected currentSubKey?: string;
   protected timeRemaining: number = 45;
   protected isRunning: boolean = false;
   protected isGameOver: boolean = false;
@@ -107,6 +108,11 @@ export abstract class BaseGame {
     this.logoImage2.src = BRANDING.getLogoPath(2);
   }
 
+  public setSubKey(subKey?: string): void {
+    this.currentSubKey = subKey;
+    this.highScore = StorageManager.getHighScore(this.id, this.currentSubKey);
+  }
+
   public start(durationSeconds: number = 45): void {
     this.audio.setGameActive(true);
     this.audio.stopMenuBGM();
@@ -124,7 +130,7 @@ export abstract class BaseGame {
     this.logoPowerUpTimer = 0;
     this.shakeTimer = 0;
     this.floatingTextSystem.clear();
-    this.highScore = StorageManager.getHighScore(this.id);
+    this.highScore = StorageManager.getHighScore(this.id, this.currentSubKey);
     this.particles.clear();
 
     this.onStart();
@@ -296,7 +302,9 @@ export abstract class BaseGame {
       this.audio.stopGameBGM();
     }
 
-    const recordCheck = StorageManager.saveScore(this.id, this.score);
+    const recordCheck = StorageManager.saveScore(this.id, this.score, this.currentSubKey);
+    this.highScore = recordCheck.highScore;
+
     if (recordCheck.isNewRecord) {
       this.audio.playVictory();
       this.particles.emitConfetti(this.width, 80);

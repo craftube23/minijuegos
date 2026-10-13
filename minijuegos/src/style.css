@@ -984,103 +984,261 @@ html, body {
 }
 
 /* ==========================================================================
-   MODAL DE FIN DE PARTIDA (RESULTADOS LIMPIOS, ACCESIBLES Y RESPONSIVOS)
+   MODAL DE FIN DE PARTIDA - ESTILO VIDEOJUEGO 2D CONCEPT ART
+   (TALLADO EN MADERA, MARCO DORADO ORNAMENTADO, LISTÓN Y MEDALLÓN HEROICO)
    ========================================================================== */
 .modal-layer {
-  background: rgba(4, 12, 22, 0.92);
-  backdrop-filter: blur(14px);
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: radial-gradient(circle at 50% 50%, rgba(10, 20, 36, 0.94) 0%, rgba(3, 7, 14, 0.98) 100%);
+  backdrop-filter: blur(10px);
   align-items: center;
   justify-content: center;
-  padding: clamp(12px, 2.5vh, 28px);
+  padding: clamp(6px, 1.5vh, 16px);
   overflow-y: auto;
   overscroll-behavior: contain;
+  box-sizing: border-box;
 }
 
 .modal-card {
-  background: linear-gradient(180deg, #132F4C 0%, #081627 100%);
-  border: 3.5px solid var(--color-gold);
-  border-radius: 28px;
-  padding: clamp(18px, 3.2vh, 36px) clamp(16px, 3vw, 30px);
-  max-width: 540px;
-  width: 100%;
-  max-height: 90dvh;
+  position: relative;
+  background: 
+    radial-gradient(ellipse at 50% 0%, rgba(30, 60, 95, 0.45) 0%, rgba(10, 22, 36, 0) 70%),
+    linear-gradient(180deg, #132438 0%, #0A1422 60%, #050B13 100%);
+  /* Marco estilo fantasy 2D: bisel de madera caoba + ribete dorado noble */
+  border: 3px solid #F1C40F;
+  border-radius: 22px;
+  box-shadow: 
+    0 0 0 3px #3D1C06,
+    0 0 0 5.5px #B78103,
+    0 16px 36px rgba(0, 0, 0, 0.85),
+    inset 0 2px 4px rgba(255, 255, 255, 0.25),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.7);
+  padding: clamp(8px, 1.4vh, 14px) clamp(12px, 2.2vw, 20px);
+  max-width: 480px;
+  width: min(94vw, 480px);
+  max-height: 94vh;
   overflow-y: auto;
   text-align: center;
-  box-shadow: 0 0 50px rgba(255, 215, 0, 0.4), inset 0 2px 5px rgba(255, 255, 255, 0.2);
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 2vh, 18px);
-  animation: zoomIn 0.3s ease-out;
+  gap: clamp(5px, 1vh, 8px);
+  animation: zoomIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   scrollbar-width: thin;
-  scrollbar-color: var(--color-gold) rgba(0, 0, 0, 0.4);
+  scrollbar-color: #D4AF37 rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
 }
 
-.modal-trophy {
+.modal-card::-webkit-scrollbar {
+  width: 5px;
+}
+.modal-card::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+.modal-card::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #FFE082, #D4AF37);
+  border-radius: 3px;
+}
+
+/* --- ADORNOS DE ESQUINA TALLADOS ESTILO FANTASÍA --- */
+.card-ornament {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  z-index: 5;
+}
+.ornament-tl {
+  top: 4px;
+  left: 4px;
+  border-top: 3px solid #FFE082;
+  border-left: 3px solid #FFE082;
+  border-top-left-radius: 12px;
+}
+.ornament-tr {
+  top: 4px;
+  right: 4px;
+  border-top: 3px solid #FFE082;
+  border-right: 3px solid #FFE082;
+  border-top-right-radius: 12px;
+}
+.ornament-bl {
+  bottom: 4px;
+  left: 4px;
+  border-bottom: 3px solid #FFE082;
+  border-left: 3px solid #FFE082;
+  border-bottom-left-radius: 12px;
+}
+.ornament-br {
+  bottom: 4px;
+  right: 4px;
+  border-bottom: 3px solid #FFE082;
+  border-right: 3px solid #FFE082;
+  border-bottom-right-radius: 12px;
+}
+
+/* --- MEDALLÓN SUPERIOR FESTIVO HEROICO (CRESTA CORONADA) --- */
+.modal-emblem-header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 0 18px rgba(255, 215, 0, 0.75));
+  margin: -24px auto 2px auto;
+  z-index: 10;
+}
+
+.modal-emblem-aura {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.28) 0%, rgba(255, 215, 0, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: pulseGlow 3s ease-in-out infinite alternate;
+}
+
+.modal-medallion-box {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.85));
+}
+
+.modal-feria-seal {
+  width: clamp(60px, 9.5vw, 74px);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  animation: sealFloat 3.5s ease-in-out infinite alternate;
+  display: block;
+}
+
+@keyframes sealFloat {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-2px) rotate(0.8deg); }
+  100% { transform: translateY(0px) rotate(-0.8deg); }
+}
+
+.record-crown-badge {
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  background: linear-gradient(135deg, #FFE082 0%, #FFB300 100%);
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+  animation: bounceMini 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes bounceMini {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-3px) scale(1.08); }
+}
+
+/* --- LISTÓN / CINTA FESTIVA DE TÍTULO ESTILO 2D GAME ART --- */
+.modal-ribbon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.ribbon-banner-body {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(180deg, #D32F2F 0%, #A81B1B 55%, #7F0E0E 100%);
+  border: 2px solid #FDE68A;
+  border-radius: 10px;
+  padding: clamp(3px, 0.8vh, 6px) clamp(14px, 3vw, 24px);
+  box-shadow: 
+    0 3px 10px rgba(0, 0, 0, 0.65),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.5);
+  max-width: 90%;
+}
+
+.ribbon-banner-record {
+  background: linear-gradient(180deg, #E65100 0%, #C62828 50%, #7F0000 100%);
+  border-color: #FFF59D;
+  box-shadow: 
+    0 3px 12px rgba(230, 81, 0, 0.35),
+    0 3px 10px rgba(0, 0, 0, 0.7),
+    inset 0 1px 3px rgba(255, 255, 255, 0.5);
+}
+
+.ribbon-tail {
+  position: absolute;
+  top: 50%;
+  width: clamp(10px, 2.2vw, 18px);
+  height: 65%;
+  transform: translateY(-50%);
+  background: #5A0A0A;
+  z-index: 1;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+
+.ribbon-tail-left {
+  left: 4px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  clip-path: polygon(100% 0, 100% 100%, 0 50%);
+}
+
+.ribbon-tail-right {
+  right: 4px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  clip-path: polygon(0 0, 0 100%, 100% 50%);
 }
 
 .modal-title {
-  font-family: 'Titan One', 'Fredoka', var(--font-festive), cursive, sans-serif;
-  font-size: clamp(1.75rem, 4.5vw, 2.6rem);
+  font-family: 'Titan One', 'Fredoka', cursive, sans-serif;
+  font-size: clamp(1.12rem, 2.5vw, 1.5rem);
   font-weight: 900;
-  color: #FFF275;
+  color: #FFFBE6;
   text-shadow: 
-    0 2px 0 #D4AF37,
-    0 4px 0 #8B1E1E,
-    0 6px 14px rgba(0, 0, 0, 0.95),
-    0 0 25px rgba(255, 215, 0, 0.7);
-  letter-spacing: 1px;
-  line-height: 1.12;
+    0 1.5px 0 #5C0000,
+    0 3px 0 #330000,
+    0 4px 6px rgba(0, 0, 0, 0.85);
+  letter-spacing: 0.6px;
+  line-height: 1.15;
+  margin: 0;
+  text-transform: uppercase;
 }
 
 .modal-game-name {
-  font-size: clamp(0.88rem, 1.8vw, 1.05rem);
+  font-size: clamp(0.72rem, 1.2vw, 0.82rem);
   color: #CBD5E1;
-  font-weight: 700;
+  font-weight: 600;
   font-family: 'Fredoka', var(--font-main), sans-serif;
-  margin-top: 2px;
+  margin: -1px 0 0 0;
+  line-height: 1.2;
 }
 
-/* --- EMBLEMA DE CABECERA CON HALO RADIAL --- */
-.modal-trophy-emblem {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 4px auto;
-}
-
-.emblem-sparkle-halo {
-  position: absolute;
-  width: 90px;
-  height: 90px;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.45) 0%, rgba(255, 215, 0, 0) 70%);
-  border-radius: 50%;
-  animation: pulseGlow 2.5s ease-in-out infinite alternate;
-}
-
-.emblem-icon {
-  position: relative;
-  z-index: 2;
-  font-size: clamp(2.4rem, 5.5vw, 3.4rem);
-  filter: drop-shadow(0 4px 14px rgba(255, 215, 0, 0.65));
-}
-
-/* --- PILL DE INFORMACIÓN DE CANCIÓN --- */
+/* --- PILL DE INFORMACIÓN DE CANCIÓN ESTILO LATÓN & PINO --- */
 .modal-song-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: linear-gradient(90deg, rgba(255, 215, 0, 0.15) 0%, rgba(0, 229, 255, 0.15) 100%);
-  border: 1.5px solid rgba(255, 215, 0, 0.5);
-  border-radius: 20px;
-  padding: 4px 14px;
-  margin: 6px auto 0 auto;
+  justify-content: center;
+  gap: 5px;
+  background: linear-gradient(90deg, #0e2a1d 0%, #0a1f15 100%);
+  border: 1.5px solid #D4AF37;
+  border-radius: 16px;
+  padding: 2px 8px;
+  margin: 0 auto;
   font-family: var(--font-main);
-  font-size: clamp(0.75rem, 1.4vw, 0.88rem);
+  font-size: clamp(0.68rem, 1.1vw, 0.76rem);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2), 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
 .modal-song-pill .song-name {
@@ -1093,224 +1251,218 @@ html, body {
   font-weight: 600;
 }
 
+.song-difficulty-badge {
+  padding: 1px 6px;
+  border-radius: 7px;
+  font-weight: 800;
+  font-size: 0.68rem;
+  letter-spacing: 0.4px;
+  margin-left: 3px;
+}
+
 /* ==========================================================================
-   MEDALLÓN 3D DE RANGO ARCADE ESTILO FANTASY GAME CONCEPT ART
+   MEDALLÓN 3D DE RANGO ARCADE (INTEGRADO, COMPACTO, ULTRA ESTILIZADO)
    ========================================================================== */
 .modal-rank-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 6px 0 10px 0;
+  margin: 0;
 }
 
 .rank-medallion-badge {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at 50% 0%, #153255 0%, #09192C 65%, #040D18 100%);
-  border: 3px solid var(--rank-theme, #FFD700);
-  border-radius: 26px;
-  padding: 14px 22px;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 60%),
+    linear-gradient(180deg, #12253E 0%, #091524 100%);
+  border: 2px solid var(--rank-theme, #FFD700);
+  border-radius: 15px;
+  padding: 4px 10px;
   max-width: 440px;
   width: 100%;
   box-shadow: 
-    0 10px 32px rgba(0, 0, 0, 0.8),
-    0 0 30px var(--rank-theme, rgba(255, 215, 0, 0.45)),
-    inset 0 2px 4px rgba(255, 255, 255, 0.4),
-    inset 0 -3px 8px rgba(0, 0, 0, 0.7);
-  animation: floatDecor 3s ease-in-out infinite alternate;
-}
-
-.rank-medallion-halo {
-  position: absolute;
-  top: 50%;
-  left: 45px;
-  transform: translate(-50%, -50%);
-  width: 110px;
-  height: 110px;
-  background: radial-gradient(circle, var(--rank-theme, #FFD700) 0%, rgba(0, 0, 0, 0) 70%);
-  opacity: 0.45;
-  filter: blur(8px);
-  pointer-events: none;
+    0 3px 10px rgba(0, 0, 0, 0.75),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.6);
 }
 
 .rank-medallion-inner {
-  position: relative;
-  z-index: 2;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 10px;
   width: 100%;
 }
 
-/* --- ESCUDO / CREST DE FANTASÍA 2D STYLIZED --- */
 .rank-crest-frame {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 82px;
-  height: 82px;
-  min-width: 82px;
-  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.4) 70%),
-              linear-gradient(180deg, #1A3A5E 0%, #071424 100%);
-  border: 3px solid var(--rank-theme, #FFD700);
-  border-radius: 20px;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  background: 
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.3) 0%, rgba(0, 0, 0, 0.35) 70%),
+    linear-gradient(180deg, #1A3A5E 0%, #071424 100%);
+  border: 2px solid var(--rank-theme, #FFD700);
+  border-radius: 12px;
   box-shadow: 
-    0 6px 14px rgba(0, 0, 0, 0.8),
-    inset 0 2px 5px rgba(255, 255, 255, 0.5),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.8),
-    0 0 16px var(--rank-theme, rgba(255, 215, 0, 0.5));
+    0 3px 6px rgba(0, 0, 0, 0.7),
+    inset 0 1px 3px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.7);
 }
 
 .rank-frost-crown {
   position: absolute;
-  top: -10px;
+  top: -7px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 15px;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.8));
   z-index: 4;
 }
 
 .rank-crest-shine {
   position: absolute;
-  top: 3px;
-  left: 3px;
-  right: 3px;
+  top: 1px;
+  left: 1px;
+  right: 1px;
   height: 40%;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 100%);
-  border-radius: 16px 16px 40% 40%;
+  border-radius: 9px 9px 30% 30%;
   pointer-events: none;
 }
 
-/* --- LETRA VOLUMÉTRICA STYLIZED 2D CONCEPT ART --- */
 .rank-letter-art {
-  font-family: 'Titan One', 'Fredoka', 'Luckiest Guy', cursive, sans-serif;
-  font-size: clamp(2.8rem, 6.5vw, 3.8rem);
+  font-family: 'Titan One', 'Fredoka', cursive, sans-serif;
+  font-size: clamp(1.7rem, 3.8vw, 2.1rem);
   font-weight: 900;
   line-height: 1;
   text-align: center;
   position: relative;
   z-index: 3;
-  margin-top: -2px;
 }
 
 /* TEMAS ESTILIZADOS 2D POR RANGO */
 .rank-tier-splus .rank-letter-art,
 .rank-tier-s .rank-letter-art {
-  color: #FFFDF0;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFF59D 20%, #FFD700 50%, #FF8F00 80%, #C25E00 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 3px 0 #7A3500) drop-shadow(0 5px 0 #3D1A00) drop-shadow(0 8px 12px rgba(0,0,0,0.9));
+  color: #FFE600;
+  text-shadow: 0 2px 0 #B25900, 0 3px 0 #5E2600, 0 5px 8px rgba(0,0,0,0.9);
 }
 
 .rank-tier-a .rank-letter-art {
-  color: #F0FDFF;
-  background: linear-gradient(180deg, #FFFFFF 0%, #BAF7FF 20%, #00E5FF 50%, #0097A7 80%, #004D54 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 3px 0 #005662) drop-shadow(0 5px 0 #002D33) drop-shadow(0 8px 12px rgba(0,0,0,0.9));
+  color: #00E5FF;
+  text-shadow: 0 2px 0 #006064, 0 3px 0 #002f33, 0 5px 8px rgba(0,0,0,0.9);
 }
 
 .rank-tier-b .rank-letter-art {
-  color: #F0FFF4;
-  background: linear-gradient(180deg, #FFFFFF 0%, #A8F5D2 20%, #2ECC71 50%, #15803D 80%, #0B4520 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 3px 0 #0E4723) drop-shadow(0 5px 0 #062411) drop-shadow(0 8px 12px rgba(0,0,0,0.9));
+  color: #2ECC71;
+  text-shadow: 0 2px 0 #15803D, 0 3px 0 #0B4520, 0 5px 8px rgba(0,0,0,0.9);
 }
 
 .rank-tier-c .rank-letter-art {
-  color: #FFF8E1;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFE0B2 20%, #FF9800 50%, #E65100 80%, #7A2800 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 3px 0 #612000) drop-shadow(0 5px 0 #331000) drop-shadow(0 8px 12px rgba(0,0,0,0.9));
+  color: #FF9800;
+  text-shadow: 0 2px 0 #E65100, 0 3px 0 #5E1F00, 0 5px 8px rgba(0,0,0,0.9);
 }
 
 .rank-tier-d .rank-letter-art {
-  color: #FFF0F0;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFCDD2 20%, #EF5350 50%, #C62828 80%, #5C0000 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 3px 0 #5C0E0E) drop-shadow(0 5px 0 #2E0505) drop-shadow(0 8px 12px rgba(0,0,0,0.9));
+  color: #EF5350;
+  text-shadow: 0 2px 0 #C62828, 0 3px 0 #4A0000, 0 5px 8px rgba(0,0,0,0.9);
 }
 
 .rank-info-column {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+  gap: 2px;
   flex: 1;
+  min-width: 0;
 }
 
 .rank-tier-ribbon {
-  font-family: 'Titan One', 'Fredoka', var(--font-festive), sans-serif;
-  font-size: clamp(1.05rem, 2.3vw, 1.4rem);
+  font-family: 'Titan One', 'Fredoka', sans-serif;
+  font-size: clamp(0.82rem, 1.6vw, 0.95rem);
   font-weight: 900;
   color: var(--rank-theme, #FFD700);
   text-shadow: 
-    0 2px 0 #040E1A,
-    0 3px 0 rgba(0, 0, 0, 0.9),
-    0 0 16px var(--rank-theme, rgba(255, 215, 0, 0.7));
-  letter-spacing: 0.8px;
+    0 1.5px 0 #040E1A,
+    0 2px 4px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.5px;
+  line-height: 1.1;
 }
 
 .rank-accuracy-meter {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   width: 100%;
 }
 
 .accuracy-bar-track {
   width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
   overflow: hidden;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .accuracy-bar-fill {
   height: 100%;
   background: linear-gradient(90deg, #00E5FF 0%, #00E676 60%, #FFD700 100%);
-  border-radius: 6px;
-  box-shadow: 0 0 10px rgba(0, 230, 118, 0.9);
-  transition: width 0.8s ease-out;
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.accuracy-label-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
 .accuracy-label {
-  font-family: 'Fredoka', 'Outfit', sans-serif;
-  font-size: clamp(0.82rem, 1.6vw, 0.95rem);
+  font-family: 'Fredoka', var(--font-main), sans-serif;
+  font-size: clamp(0.66rem, 1.1vw, 0.76rem);
   font-weight: 700;
   color: #E2E8F0;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.accuracy-sub {
+  font-family: 'Fredoka', var(--font-main), sans-serif;
+  font-size: clamp(0.64rem, 1vw, 0.72rem);
+  font-weight: 600;
+  color: #94A3B8;
 }
 
 /* ==========================================================================
-   DESGLOSE DE PARTIDA ARCADE (DETALLES Y MÉTRICAS)
+   DESGLOSE DE PRECISIÓN (FICHAS ARCADE ESTILIZADAS)
    ========================================================================== */
 .modal-breakdown-panel {
-  background: rgba(6, 18, 36, 0.85);
-  border: 1.5px solid rgba(255, 215, 0, 0.35);
-  border-radius: 18px;
-  padding: 10px 14px;
+  background: rgba(8, 20, 36, 0.85);
+  border: 1.5px solid rgba(212, 175, 55, 0.35);
+  border-radius: 14px;
+  padding: 6px 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+  gap: 5px;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
 .breakdown-title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   font-family: 'Titan One', 'Fredoka', sans-serif;
-  font-size: clamp(0.76rem, 1.4vw, 0.88rem);
+  font-size: clamp(0.68rem, 1.2vw, 0.78rem);
   font-weight: 900;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   color: #CBD5E1;
   text-transform: uppercase;
 }
@@ -1318,111 +1470,162 @@ html, body {
 .breakdown-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 5px;
 }
 
 .stat-chip {
-  background: rgba(12, 28, 54, 0.9);
-  border-radius: 12px;
-  padding: 6px 8px;
+  background: linear-gradient(180deg, #102238 0%, #091524 100%);
+  border-radius: 9px;
+  padding: 3px 5px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  border: 1.2px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  gap: 1px;
+  border: 1.2px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .stat-chip .stat-name {
-  font-family: 'Fredoka', 'Outfit', sans-serif;
-  font-size: clamp(0.62rem, 1.15vw, 0.74rem);
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(0.56rem, 0.95vw, 0.66rem);
   font-weight: 800;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .stat-chip .stat-val {
   font-family: 'Titan One', 'Fredoka', sans-serif;
-  font-size: clamp(1rem, 2vw, 1.32rem);
+  font-size: clamp(0.92rem, 1.6vw, 1.15rem);
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
-.chip-perfect { border-color: rgba(255, 215, 0, 0.5); }
+.chip-perfect { border-color: rgba(255, 215, 0, 0.6); }
 .chip-perfect .stat-name { color: #FFD700; }
-.chip-perfect .stat-val { color: #FFF275; text-shadow: 0 0 8px rgba(255, 215, 0, 0.6); }
+.chip-perfect .stat-val { color: #FFF275; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8); }
 
-.chip-great { border-color: rgba(0, 229, 255, 0.5); }
+.chip-great { border-color: rgba(0, 229, 255, 0.6); }
 .chip-great .stat-name { color: #00E5FF; }
-.chip-great .stat-val { color: #80E9FF; text-shadow: 0 0 8px rgba(0, 229, 255, 0.6); }
+.chip-great .stat-val { color: #80E9FF; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8); }
 
-.chip-good { border-color: rgba(0, 230, 118, 0.5); }
+.chip-good { border-color: rgba(0, 230, 118, 0.6); }
 .chip-good .stat-name { color: #00E676; }
 .chip-good .stat-val { color: #69F0AE; }
 
-.chip-miss { border-color: rgba(255, 82, 82, 0.5); }
+.chip-miss { border-color: rgba(255, 82, 82, 0.6); }
 .chip-miss .stat-name { color: #FF5252; }
 .chip-miss .stat-val { color: #FF8A80; }
 
-.chip-combo { border-color: rgba(255, 145, 0, 0.5); }
+.chip-combo { border-color: rgba(255, 145, 0, 0.6); }
 .chip-combo .stat-name { color: #FF9100; }
 .chip-combo .stat-val { color: #FFD180; }
 
-.chip-notes { border-color: rgba(179, 136, 255, 0.5); }
+.chip-notes { border-color: rgba(179, 136, 255, 0.6); }
 .chip-notes .stat-name { color: #B388FF; }
 .chip-notes .stat-val { color: #E1BEE7; }
 
 /* ==========================================================================
-   CAJAS DE PUNTUACIÓN DE ALTA DEFINICIÓN
+   MARCADOR DUAL TALLADO EN MADERA Y ORO (SCOREBOARD)
    ========================================================================== */
 .modal-scores {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(10px, 2vw, 16px);
-  margin: 4px 0;
+  gap: clamp(8px, 1.6vw, 14px);
+  margin: 1px 0;
 }
 
 .score-box {
-  padding: clamp(10px, 1.8vh, 16px);
-  border-radius: 18px;
+  position: relative;
+  padding: clamp(6px, 1.2vh, 10px) 8px;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  background: linear-gradient(180deg, rgba(14, 34, 60, 0.95) 0%, rgba(6, 16, 32, 0.95) 100%);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  align-items: center;
+  gap: 2px;
+  background: 
+    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 60%),
+    linear-gradient(180deg, #142740 0%, #0A1626 100%);
+  border: 2px solid #D4AF37;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.6),
+    inset 0 1px 2px rgba(255, 255, 255, 0.25),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.6);
 }
 
 .main-score {
-  border: 2.2px solid var(--color-gold);
-  box-shadow: 0 4px 18px rgba(255, 215, 0, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  border-color: #F1C40F;
 }
 
 .record-score {
-  border: 2.2px solid var(--color-green);
-  box-shadow: 0 4px 18px rgba(46, 204, 113, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  border-color: #2ECC71;
 }
 
-.score-label {
-  font-size: clamp(0.72rem, 1.4vw, 0.85rem);
-  font-weight: 900;
-  letter-spacing: 1px;
+.record-score.is-new-record {
+  border-color: #FFB300;
+  background: 
+    radial-gradient(ellipse at 50% 0%, rgba(255, 179, 0, 0.15) 0%, transparent 70%),
+    linear-gradient(180deg, #1A2840 0%, #0D192A 100%);
+  animation: pulseRecord 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseRecord {
+  0% { box-shadow: 0 4px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.25); }
+  100% { box-shadow: 0 4px 18px rgba(255, 179, 0, 0.35), inset 0 1px 3px rgba(255, 215, 0, 0.4); }
+}
+
+.score-box-badge {
   font-family: 'Titan One', 'Fredoka', sans-serif;
+  font-size: clamp(0.66rem, 1.1vw, 0.76rem);
+  font-weight: 900;
+  letter-spacing: 0.8px;
   color: #CBD5E1;
+  text-transform: uppercase;
+}
+
+.record-score .score-box-badge {
+  color: #A7F3D0;
+}
+
+.record-score.is-new-record .score-box-badge {
+  color: #FFD54F;
 }
 
 .score-value {
-  font-family: 'Titan One', 'Fredoka', var(--font-game), sans-serif;
-  font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+  font-family: 'Titan One', 'Fredoka', cursive, sans-serif;
+  font-size: clamp(1.35rem, 2.8vw, 1.85rem);
   font-weight: 900;
-  color: var(--color-white);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
-  letter-spacing: 1px;
+  line-height: 1.05;
+  letter-spacing: 0.8px;
+}
+
+.main-score .score-value {
+  color: #FFEA79;
+  text-shadow: 
+    0 2px 0 #A85200,
+    0 3px 0 #612800,
+    0 5px 8px rgba(0, 0, 0, 0.9);
+}
+
+.record-score .score-value {
+  color: #86EFAC;
+  text-shadow: 
+    0 2px 0 #15803D,
+    0 3px 0 #0B4520,
+    0 5px 8px rgba(0, 0, 0, 0.9);
+}
+
+.modal-target-score-hint {
+  text-align: center;
+  font-size: clamp(0.68rem, 1.1vw, 0.76rem);
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: -3px;
+  margin-bottom: 1px;
 }
 
 .modal-branding {
-  background: rgba(255, 215, 0, 0.08);
-  border-radius: 16px;
-  padding: clamp(10px, 1.6vh, 14px) 18px;
-  border: 1.5px solid rgba(255, 215, 0, 0.35);
+  background: rgba(255, 215, 0, 0.05);
+  border-radius: 10px;
+  padding: 3px 8px;
+  border: 1px solid rgba(255, 215, 0, 0.2);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1430,93 +1633,124 @@ html, body {
 }
 
 .modal-promo-text {
-  font-size: clamp(0.85rem, 1.8vw, 1.05rem);
+  font-size: clamp(0.68rem, 1.1vw, 0.78rem);
   color: #FFF9C4;
   font-weight: 700;
-  letter-spacing: 0.5px;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.3px;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
+/* ==========================================================================
+   BOTONES ARCADE TÁCTILES 3D (ESTILO SUPERCELL / VIDEOJUEGO FÍSICO)
+   ========================================================================== */
 .modal-actions {
   display: flex;
-  gap: clamp(8px, 1.8vw, 14px);
+  gap: clamp(5px, 1vw, 8px);
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .btn-action {
   flex: 1;
-  min-width: 150px;
-  padding: clamp(10px, 1.8vh, 15px) 18px;
-  border-radius: 28px;
-  font-size: clamp(0.92rem, 2vw, 1.15rem);
+  min-width: 120px;
+  padding: clamp(6px, 1vh, 9px) 10px;
+  border-radius: 14px;
+  font-size: clamp(0.78rem, 1.4vw, 0.9rem);
   font-weight: 900;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-family: var(--font-game);
-  letter-spacing: 1px;
-  min-height: 48px;
-  transition: transform 0.1s;
+  gap: 5px;
+  font-family: 'Titan One', 'Fredoka', cursive, sans-serif;
+  letter-spacing: 0.5px;
+  min-height: 38px;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.btn-action:hover {
+  filter: brightness(1.08);
+}
+
+.btn-action:active {
+  transform: translateY(3px) !important;
+  border-bottom-width: 2px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
 }
 
 .btn-again {
-  background: linear-gradient(135deg, #FF416C 0%, #C0392B 100%);
-  border: 2.5px solid var(--color-gold);
-  color: var(--color-white);
-  box-shadow: 0 6px 18px rgba(255, 65, 108, 0.5);
+  background: linear-gradient(180deg, #F87171 0%, #EF4444 35%, #DC2626 70%, #B91C1C 100%);
+  border: 2px solid #FCA5A5;
+  border-bottom: 5px solid #7F1D1D;
+  color: #FFFFFF;
+  text-shadow: 0 2px 0 #7F1D1D;
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.4), 0 3px 6px rgba(0, 0, 0, 0.5);
 }
 
 .btn-change-song {
-  background: linear-gradient(135deg, #00C853 0%, #00897B 100%);
-  border: 2.5px solid var(--color-gold);
-  color: var(--color-white);
-  box-shadow: 0 6px 18px rgba(0, 200, 83, 0.5);
+  background: linear-gradient(180deg, #34D399 0%, #10B981 35%, #059669 70%, #047857 100%);
+  border: 2px solid #A7F3D0;
+  border-bottom: 5px solid #064E3B;
+  color: #FFFFFF;
+  text-shadow: 0 2px 0 #064E3B;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4), 0 3px 6px rgba(0, 0, 0, 0.5);
 }
 
 .btn-editor-action {
-  background: linear-gradient(135deg, #FFD700 0%, #FF9100 100%);
-  border: 2.5px solid #FFFFFF;
-  color: #031424;
-  box-shadow: 0 6px 18px rgba(255, 215, 0, 0.5);
+  background: linear-gradient(180deg, #FDE68A 0%, #FBBF24 35%, #F59E0B 70%, #D97706 100%);
+  border: 2px solid #FEF3C7;
+  border-bottom: 5px solid #78350F;
+  color: #451A03;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4), 0 3px 6px rgba(0, 0, 0, 0.5);
 }
 
 .btn-copy-action {
-  background: linear-gradient(135deg, #00E5FF 0%, #00B0FF 100%);
-  border: 2.5px solid #FFFFFF;
-  color: #031424;
-  box-shadow: 0 6px 18px rgba(0, 229, 255, 0.5);
+  background: linear-gradient(180deg, #67E8F9 0%, #06B6D4 35%, #0891B2 70%, #0E7490 100%);
+  border: 2px solid #CFFAFE;
+  border-bottom: 5px solid #164E63;
+  color: #083344;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 10px rgba(6, 182, 212, 0.4), 0 3px 6px rgba(0, 0, 0, 0.5);
 }
 
 .btn-menu {
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid var(--color-gold);
-  color: var(--color-white);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(180deg, #60A5FA 0%, #3B82F6 35%, #2563EB 70%, #1D4ED8 100%);
+  border: 2px solid #BFDBFE;
+  border-bottom: 5px solid #1E3A8A;
+  color: #FFFFFF;
+  text-shadow: 0 2px 0 #1E3A8A;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4), 0 3px 6px rgba(0, 0, 0, 0.5);
 }
 
 .modal-actions-rhythm {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
   width: 100%;
+}
+
+.modal-actions-rhythm .btn-copy-action {
+  grid-column: 1 / -1;
 }
 
 .modal-toast {
   position: absolute;
-  bottom: 20px;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: #021a30;
-  color: #00E5FF;
-  border: 2px solid #00E5FF;
-  padding: 8px 18px;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  background: #0B192C;
+  color: #FFE082;
+  border: 2px solid #D4AF37;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 0.82rem;
   font-weight: 800;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.85);
+  font-family: 'Fredoka', sans-serif;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85);
   opacity: 0;
   transition: all 0.3s ease;
   pointer-events: none;
@@ -1526,10 +1760,6 @@ html, body {
 .modal-toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
-}
-
-.btn-action:active {
-  transform: scale(0.94);
 }
 
 
