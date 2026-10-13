@@ -83,6 +83,16 @@ export class GameMenu {
       category: "INGENIO & MEMORIA",
       tagline: "¡Encuentra las parejas de cartas mágicas!",
       gemColor: "#D500F9"
+    },
+    {
+      id: "santa-hills",
+      title: "El Descenso de Santa",
+      imageSrc: "./assets/images/icon-santa-colinas.png",
+      frameImageSrc: "./assets/images/marco-juego-rojo.png",
+      themeClass: "theme-wood-red",
+      category: "CARRERA & COLINAS",
+      tagline: "¡Deslízate por las colinas y rescata los regalos!",
+      gemColor: "#FF2A4D"
     }
   ];
 

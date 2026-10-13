@@ -33,6 +33,7 @@ import { BellSymphonyGame } from "./games/BellSymphonyGame";
 import { NutcrackerDrumsGame } from "./games/NutcrackerDrumsGame";
 import { FlyingElfGame } from "./games/FlyingElfGame";
 import { MagicPairsGame } from "./games/MagicPairsGame";
+import { SantaHillsGame } from "./games/SantaHillsGame";
 import { getIconSvg } from "./utils/icons";
 
 class KioskApp {
@@ -165,9 +166,10 @@ class KioskApp {
     const game3 = new NutcrackerDrumsGame(this.canvas, this.input, this.audio, this.particles);
     const game4 = new FlyingElfGame(this.canvas, this.input, this.audio, this.particles);
     const game5 = new MagicPairsGame(this.canvas, this.input, this.audio, this.particles);
+    const game6 = new SantaHillsGame(this.canvas, this.input, this.audio, this.particles);
 
     // Conectar callback de Game Over de cada juego
-    [game1, game2, game3, game4, game5].forEach((g) => {
+    [game1, game2, game3, game4, game5, game6].forEach((g) => {
       g.onGameOver = (result: GameResult) => this.handleGameOver(result);
       this.games.set(g.id, g);
     });
@@ -411,7 +413,8 @@ class KioskApp {
       "bell-symphony": { title: "Sinfonía de Campanas", icon: getIconSvg("bell", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" },
       "tree-melody": { title: "Tambores del Cascanueces", icon: getIconSvg("drum", { size: 36, color: "#FFB300" }), themeColor: "#FFB300" },
       "flying-elf": { title: "El Vuelo Mágico del Elfo", icon: getIconSvg("wing", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
-      "magic-pairs": { title: "Parejas de Juguetes", icon: getIconSvg("cards", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" }
+      "magic-pairs": { title: "Parejas de Juguetes", icon: getIconSvg("cards", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
+      "santa-hills": { title: "El Descenso de Santa", icon: getIconSvg("gift", { size: 36, color: "#FF2A4D" }), themeColor: "#FF2A4D" }
     };
     return map[gameId] || { title: "Minijuego Mágico", icon: getIconSvg("tree", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" };
   }

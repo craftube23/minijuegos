@@ -102,6 +102,22 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
       { iconName: "timer", label: "El tiempo corre sin detenerse" }
     ],
     controls: "Toca cualquier carta para girarla"
+  },
+  "santa-hills": {
+    id: "santa-hills",
+    title: "El Descenso de Santa",
+    iconName: "gift",
+    themeColor: "#FF2A4D",
+    goal: "Deslízate por las colinas nevadas, salta en las crestas y recupera los regalos perdidos de Papá Noel.",
+    positiveItems: [
+      { iconName: "gift", label: "Regalos y Dulces (+100 a +300 pts)" },
+      { iconName: "star", label: "Medallón Feria (¡Trineo Dorado + Imán x2!)" }
+    ],
+    negativeItems: [
+      { iconName: "flame", label: "Rocas de Carbón (-1 Vida)" },
+      { iconName: "snowflake", label: "Hielo (Frena y pierde poderes)" }
+    ],
+    controls: "Toca para saltar, doble toque en el aire o [ Espacio / W / ▲ ]"
   }
 };
 
