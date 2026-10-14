@@ -17,6 +17,7 @@ import { InputManager } from "../core/InputManager";
 import { AudioManager } from "../core/AudioManager";
 import { ParticleSystem } from "../core/ParticleSystem";
 import { ScreenTransition } from "../core/ScreenTransition";
+import { BRANDING } from "../config/branding";
 
 export type ElfCharacterId =
   | "feria"
@@ -187,7 +188,8 @@ interface CollectibleItem {
   x: number;
   y: number;
   size: number;
-  type: "gift_red" | "gift_green" | "candy" | "teddy" | "logo_feria" | "logo_campus" | "logo_star";
+  type: "gift_red" | "gift_green" | "candy" | "teddy" | "logo_sponsor" | "logo_feria" | "logo_campus" | "logo_star";
+  sponsorId?: string;
   points: number;
   bobOffset: number;
   bobSpeed: number;
@@ -218,7 +220,7 @@ interface GroundProp {
 
 interface BackgroundSign {
   x: number;
-  type: "feria" | "sponsor";
+  sponsorKey: string;
   scale: number;
   lightPhase: number;
 }
@@ -252,13 +254,17 @@ export class FlyingElfGame extends BaseGame {
   private obstacles: ObstacleItem[] = [];
   private groundProps: GroundProp[] = [];
   private backgroundSigns: BackgroundSign[] = [];
+  private cartelImages: Map<string, HTMLImageElement> = new Map();
+  private nextSignSponsorIndex: number = 0;
+  private nextCollectibleSponsorIndex: number = 0;
 
   // Temporizadores de spawn y dificultad
   private spawnItemTimer: number = 0;
   private spawnObstacleTimer: number = 0;
-  private logoSpawnTimer: number = 6.0; // Cadencia garantizada para Logos cada 8-10s
+  private logoSpawnTimer: number = 8.5; // Cadencia equilibrada para Logos cada 10-14s
   private speedMultiplier: number = 1.0;
-  private baseScrollSpeed: number = 460; // Velocidad base equilibrada para arcade accesible
+  private lastSpeedTier: number = 1;
+  private baseScrollSpeed: number = 480; // Velocidad base equilibrada y ágil para arcade accesible
 
   // Ráfagas de viento / Vórtice mágico
   private windTimer: number = 0;
@@ -291,8 +297,6 @@ export class FlyingElfGame extends BaseGame {
   private imgBgPanorama: HTMLImageElement;
   private imgHouseObstacle: HTMLImageElement;
   private imgIcicle: HTMLImageElement;
-  private imgCartelFeria: HTMLImageElement;
-  private imgCartelSponsor: HTMLImageElement;
   private imgTree: HTMLImageElement;
   private imgGiftRed: HTMLImageElement;
   private imgGiftGreen: HTMLImageElement;
@@ -344,12 +348,13 @@ export class FlyingElfGame extends BaseGame {
     this.imgIcicle = new Image();
     this.imgIcicle.src = "./assets/images/estalactita-hielo.png";
 
-    // 4. Carteles de Publicidad con Logos Integrados en el Escenario
-    this.imgCartelFeria = new Image();
-    this.imgCartelFeria.src = "./assets/images/cartel-feria.png";
-
-    this.imgCartelSponsor = new Image();
-    this.imgCartelSponsor.src = "./assets/images/cartel-sponsor.png";
+    // 4. Carteles de Publicidad con Logos Integrados de Todos los Patrocinadores
+    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu"];
+    for (const key of cartelKeys) {
+      const img = new Image();
+      img.src = `./assets/images/cartel-${key}.png`;
+      this.cartelImages.set(key, img);
+    }
 
     // 5. Decoraciones de Piso
     this.imgTree = new Image();
@@ -406,6 +411,7 @@ export class FlyingElfGame extends BaseGame {
     this.comboCount = 0;
     this.comboTimer = 0;
     this.speedMultiplier = 1.0;
+    this.lastSpeedTier = 1;
     this.bgScrollX = 0;
     this.groundScrollX = 0;
     this.chimneyPuffs = [];
@@ -416,7 +422,7 @@ export class FlyingElfGame extends BaseGame {
     this.backgroundSigns = [];
     this.spawnItemTimer = 0.4;
     this.spawnObstacleTimer = 1.1;
-    this.logoSpawnTimer = 4.5;
+    this.logoSpawnTimer = 8.5;
     this.windTimer = 6.5;
     this.isWindActive = false;
     this.wasThrusting = false;
@@ -438,10 +444,13 @@ export class FlyingElfGame extends BaseGame {
   private initBackgroundSigns(): void {
     const spacing = 480;
     const count = Math.ceil(this.width / spacing) + 3;
+    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu"];
     for (let i = 0; i < count; i++) {
+      const sponsorKey = cartelKeys[this.nextSignSponsorIndex % cartelKeys.length];
+      this.nextSignSponsorIndex++;
       this.backgroundSigns.push({
         x: i * spacing + 100,
-        type: i % 2 === 0 ? "feria" : "sponsor",
+        sponsorKey: sponsorKey,
         scale: 1.0 + Math.random() * 0.15,
         lightPhase: Math.random() * Math.PI * 2
       });
@@ -520,20 +529,31 @@ export class FlyingElfGame extends BaseGame {
     // 1. Progresión de Dificultad Dinámica Continua (A más tiempo de juego, mayor velocidad y reto)
     const timeProgress = this.totalPlayTime;
     let baseMultiplier = 1.0;
-    if (timeProgress < 10) {
-      baseMultiplier = 1.0 + (timeProgress / 10) * 0.22; // 1.00x -> 1.22x
-    } else if (timeProgress < 22) {
-      baseMultiplier = 1.22 + ((timeProgress - 10) / 12) * 0.38; // 1.22x -> 1.60x
-    } else if (timeProgress < 38) {
-      baseMultiplier = 1.60 + ((timeProgress - 22) / 16) * 0.45; // 1.60x -> 2.05x
+    if (timeProgress < 6) {
+      baseMultiplier = 1.0 + (timeProgress / 6) * 0.35; // 1.00x -> 1.35x en los primeros 6 segundos
+    } else if (timeProgress < 18) {
+      baseMultiplier = 1.35 + ((timeProgress - 6) / 12) * 0.50; // 1.35x -> 1.85x
+    } else if (timeProgress < 32) {
+      baseMultiplier = 1.85 + ((timeProgress - 18) / 14) * 0.55; // 1.85x -> 2.40x
     } else {
-      baseMultiplier = Math.min(2.45, 2.05 + ((timeProgress - 38) / 20) * 0.40); // 2.05x -> 2.45x
+      baseMultiplier = Math.min(2.80, 2.40 + ((timeProgress - 32) / 13) * 0.40); // 2.40x -> 2.80x
     }
 
     this.speedMultiplier = baseMultiplier;
 
     if (this.isLogoPowerUpActive) {
-      this.speedMultiplier *= 1.25; // Turbo activo
+      this.speedMultiplier *= 1.30; // Turbo activo por power-up
+    }
+
+    // Celebración visual y sonora al alcanzar cada nivel de velocidad
+    const currentTier = this.speedMultiplier >= 2.2 ? 4 : this.speedMultiplier >= 1.7 ? 3 : this.speedMultiplier >= 1.3 ? 2 : 1;
+    if (currentTier > this.lastSpeedTier) {
+      this.lastSpeedTier = currentTier;
+      const tierLabels = ["", "", "⚡ ¡VELOCIDAD x1.4!", "⚡ ¡SUPER VELOCIDAD x1.8!", "🚀 ¡HIPERVELOCIDAD x2.2!"];
+      const tierColors = ["", "", "#00E5FF", "#FFD700", "#FF3D00"];
+      this.addFloatingText(tierLabels[currentTier], this.elfX, this.elfY - 50, tierColors[currentTier], 1.5);
+      this.audio.playWindGust();
+      this.particles.emitBurst(this.elfX, this.elfY, tierColors[currentTier], 20);
     }
 
     const currentScrollSpeed = this.baseScrollSpeed * this.speedMultiplier * dt;
@@ -685,10 +705,10 @@ export class FlyingElfGame extends BaseGame {
       this.spawnItemTimer = Math.max(0.38, 0.95 / this.speedMultiplier);
     }
 
-    // Chequeo de aparición de Logos Oficiales: Frecuencia equilibrada (cada 6 a 8.5 segundos)
+    // Chequeo de aparición de Logos Oficiales: Frecuencia equilibrada (cada 10 a 14 segundos)
     this.logoSpawnTimer -= dt;
     if (this.logoSpawnTimer <= 0) {
-      this.logoSpawnTimer = 6.0 + Math.random() * 2.5;
+      this.logoSpawnTimer = 10.0 + Math.random() * 4.0;
       if (!this.isLogoPowerUpActive) {
         this.spawnLogoMedallion();
       }
@@ -709,6 +729,7 @@ export class FlyingElfGame extends BaseGame {
       sign.lightPhase += _dt * 3.0;
     }
 
+    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu"];
     for (let i = 0; i < this.backgroundSigns.length; i++) {
       const sign = this.backgroundSigns[i];
       if (sign.x < -220) {
@@ -717,7 +738,8 @@ export class FlyingElfGame extends BaseGame {
           if (s.x > maxX) maxX = s.x;
         }
         sign.x = Math.max(this.width + 80, maxX + spacing + (Math.random() * 60 - 30));
-        sign.type = Math.random() > 0.5 ? "feria" : "sponsor";
+        sign.sponsorKey = cartelKeys[this.nextSignSponsorIndex % cartelKeys.length];
+        this.nextSignSponsorIndex++;
         sign.scale = 0.95 + Math.random() * 0.15;
       }
     }
@@ -764,8 +786,8 @@ export class FlyingElfGame extends BaseGame {
   }
 
   private spawnCollectiblePattern(): void {
-    // 8% de probabilidad de generar un logo directamente si no hay power-up activo
-    if (!this.isLogoPowerUpActive && Math.random() < 0.08) {
+    // 5% de probabilidad moderada de generar un medallón oficial rotatorio si no hay poder activo
+    if (!this.isLogoPowerUpActive && Math.random() < 0.05) {
       this.spawnLogoMedallion();
       return;
     }
@@ -819,11 +841,14 @@ export class FlyingElfGame extends BaseGame {
   }
 
   /**
-   * Genera un Medallón de Logo Oficial (Feria Mágica / Campuslands) en trayectoria accesible
+   * Genera un Medallón de Logo Oficial rotando equitativamente por los 9 patrocinadores
    */
   private spawnLogoMedallion(): void {
-    const brandLogo: "logo_feria" | "logo_campus" | "logo_star" =
-      Math.random() < 0.48 ? "logo_feria" : Math.random() < 0.88 ? "logo_campus" : "logo_star";
+    const isStar = Math.random() < 0.10;
+    const allSponsors = BRANDING.getAllSponsors();
+    const sponsor = allSponsors[this.nextCollectibleSponsorIndex % allSponsors.length];
+    this.nextCollectibleSponsorIndex++;
+    const brandLogo = isStar ? "logo_star" : "logo_sponsor";
 
     const baseSpawnY = 160 + Math.random() * (this.height - 400);
     const clampedY = Math.max(140, Math.min(this.height - 200, baseSpawnY));
@@ -833,13 +858,14 @@ export class FlyingElfGame extends BaseGame {
       y: clampedY,
       size: 94,
       type: brandLogo,
+      sponsorId: sponsor.id,
       points: 500,
       bobOffset: Math.random() * Math.PI * 2,
       bobSpeed: 3.2
     });
 
-    // Destello de anticipación mágica
-    this.particles.emitBurst(this.width + 80, clampedY, "#FFD700", 16);
+    // Destello de anticipación mágica con el color distintivo del patrocinador
+    this.particles.emitBurst(this.width + 80, clampedY, isStar ? "#FFD700" : sponsor.themeColor, 16);
   }
 
   private spawnObstacle(): void {
@@ -944,27 +970,24 @@ export class FlyingElfGame extends BaseGame {
     }
 
     // Feedback visual y de audio
-    if (item.type === "logo_feria") {
+    if (item.type === "logo_sponsor" || item.type === "logo_feria" || item.type === "logo_campus") {
+      const sponsorKey = item.sponsorId || (item.type === "logo_campus" ? "campus" : "feria");
+      const sponsor = BRANDING.getLogoConfig(sponsorKey);
+
       this.isLogoPowerUpActive = true;
-      this.logoPowerUpTimer = 6.0;
-      this.timeRemaining = Math.min(45, this.timeRemaining + 3.0); // +3s Tiempo Extra
+      this.logoPowerUpTimer = 3.5;
+      this.activeLogo = sponsor;
+      this.timeRemaining = Math.min(45, this.timeRemaining + 1.5); // +1.5s Tiempo Extra
       this.audio.playPowerUp();
       this.particles.emitConfetti(this.width, 35);
-      this.addFloatingText("¡FERIA MÁGICA! +3s & IMÁN x2", this.elfX, this.elfY - 45, "#FFD700", 1.4);
-    } else if (item.type === "logo_campus") {
-      this.isLogoPowerUpActive = true;
-      this.logoPowerUpTimer = 6.0;
-      this.timeRemaining = Math.min(45, this.timeRemaining + 3.0); // +3s Tiempo Extra
-      this.audio.playPowerUp();
-      this.particles.emitConfetti(this.width, 35);
-      this.addFloatingText("¡CAMPUSLANDS! +3s & IMÁN x2", this.elfX, this.elfY - 45, "#00E5FF", 1.4);
+      this.addFloatingText(`¡${sponsor.shortName.toUpperCase()}! +1.5s & IMÁN x2`, this.elfX, this.elfY - 45, sponsor.themeColor, 1.4);
     } else if (item.type === "logo_star") {
       this.isLogoPowerUpActive = true;
-      this.logoPowerUpTimer = 5.0;
-      this.timeRemaining = Math.min(45, this.timeRemaining + 3.0); // +3s Tiempo Extra
+      this.logoPowerUpTimer = 3.0;
+      this.timeRemaining = Math.min(45, this.timeRemaining + 1.5); // +1.5s Tiempo Extra
       this.audio.playGiftUnwrap();
       this.particles.emitBurst(this.elfX, this.elfY, "#FFD700", 25);
-      this.addFloatingText("¡TURBO + IMÁN +3s!", this.elfX, this.elfY - 45, "#FFE082", 1.35);
+      this.addFloatingText("¡TURBO + IMÁN +1.5s!", this.elfX, this.elfY - 45, "#FFE082", 1.35);
     } else {
       this.audio.playElfCollectItem();
       this.particles.emitBurst(this.elfX, this.elfY, "#00E676", 6);
@@ -1170,6 +1193,59 @@ export class FlyingElfGame extends BaseGame {
    */
   public startGameWithCountdown(): void {
     if (this.gameState !== "character-select") return;
+    this.gameState = "countdown";
+    this.audio.playCountdownStep(3);
+
+    const mainContainer = document.getElementById("game-container") || document.body;
+    ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+      this.gameState = "playing";
+      this.showLives = true;
+      this.timeRemaining = this.initialGameDuration;
+      this.totalPlayTime = 0;
+      this.audio.playGameBGM(this.inGameMusicPath, this.inGameMusicVolume);
+    });
+  }
+
+  /**
+   * Reinicia una partida directa manteniendo el elfo elegido y lanzando la cuenta regresiva oficial 3-2-1
+   */
+  public replayWithCountdown(): void {
+    this.score = 0;
+    this.lives = 5;
+    this.maxLives = 5;
+    this.totalPlayTime = 0;
+    this.initialGameDuration = 45;
+    this.timeRemaining = 45;
+    this.isRunning = true;
+    this.isGameOver = false;
+    this.isFinishing = false;
+    this.isLogoPowerUpActive = false;
+    this.logoPowerUpTimer = 0;
+    this.comboCount = 0;
+    this.comboTimer = 0;
+    this.speedMultiplier = 1.0;
+    this.lastSpeedTier = 1;
+    this.bgScrollX = 0;
+    this.groundScrollX = 0;
+    this.chimneyPuffs = [];
+    this.collectibles = [];
+    this.obstacles = [];
+    this.groundProps = [];
+    this.backgroundSigns = [];
+    this.spawnItemTimer = 0.4;
+    this.spawnObstacleTimer = 1.1;
+    this.logoSpawnTimer = 8.5;
+    this.windTimer = 6.5;
+    this.isWindActive = false;
+    this.wasThrusting = false;
+    this.flyAudioCooldown = 0;
+    this.elfX = Math.max(140, this.width * 0.22);
+    this.elfY = this.height * 0.45;
+    this.elfVy = 0;
+    this.elfAngle = 0;
+    this.initGroundProps();
+    this.initBackgroundSigns();
+
     this.gameState = "countdown";
     this.audio.playCountdownStep(3);
 
@@ -1866,13 +1942,15 @@ export class FlyingElfGame extends BaseGame {
       ctx.translate(sign.x, signBaseY);
       ctx.scale(sign.scale * 0.35, sign.scale * 0.35);
 
-      const imgToDraw = sign.type === "feria" ? this.imgCartelFeria : this.imgCartelSponsor;
-      if (imgToDraw.complete && imgToDraw.naturalWidth > 0) {
-        // Resplandor cálido de las luces navideñas del cartel con gradiente suave
+      const imgToDraw = this.cartelImages.get(sign.sponsorKey) || this.cartelImages.get("feria");
+      if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth > 0) {
+        // Resplandor cálido de las luces navideñas del cartel con tono distintivo de la marca
+        const sponsorCfg = BRANDING.getLogoConfig(sign.sponsorKey);
+        const themeColor = sponsorCfg?.themeColor || "#FFD700";
         const lightFlicker = 0.8 + Math.sin(sign.lightPhase) * 0.2;
         const signGlow = ctx.createRadialGradient(0, 0, imgToDraw.naturalWidth * 0.2, 0, 0, imgToDraw.naturalWidth * 0.6);
-        const glowColor = sign.type === "feria" ? `rgba(255, 215, 0, ${0.4 * lightFlicker})` : `rgba(129, 212, 250, ${0.4 * lightFlicker})`;
-        signGlow.addColorStop(0, glowColor);
+        const alphaHex = Math.min(255, Math.max(0, Math.floor(0.40 * lightFlicker * 255))).toString(16).padStart(2, "0");
+        signGlow.addColorStop(0, `${themeColor}${alphaHex}`);
         signGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
         ctx.fillStyle = signGlow;
         ctx.fillRect(-imgToDraw.naturalWidth * 0.6, -imgToDraw.naturalHeight * 0.6, imgToDraw.naturalWidth * 1.2, imgToDraw.naturalHeight * 1.2);
@@ -2254,7 +2332,50 @@ export class FlyingElfGame extends BaseGame {
       ctx.translate(item.x, curY);
 
       // Halo degradado suave y limpio (sin shadowBlur para evitar tile glitching en Skia GPU)
-      if (item.type === "logo_feria" || item.type === "logo_star") {
+      if (item.type === "logo_sponsor" || item.type === "logo_feria" || item.type === "logo_campus") {
+        const sponsorKey = item.sponsorId || (item.type === "logo_campus" ? "campus" : "feria");
+        const sponsor = BRANDING.getLogoConfig(sponsorKey);
+        const glow = ctx.createRadialGradient(0, 0, item.size * 0.25, 0, 0, item.size * 0.72);
+        glow.addColorStop(0, sponsor.themeColor + "80");
+        glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(0, 0, item.size * 0.72, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Medallón oficial del patrocinador (Fondo blanco nítido y aro temático brillante)
+        const rot = Math.sin(this.gliderSwayTime * 1.5) * 0.12;
+        ctx.rotate(rot);
+
+        const radius = item.size * 0.48;
+        const bgGrad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
+        bgGrad.addColorStop(0, "#FFFFFF");
+        bgGrad.addColorStop(0.85, "rgba(248, 250, 252, 0.98)");
+        bgGrad.addColorStop(1, sponsor.themeColor + "99");
+        ctx.fillStyle = bgGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = sponsor.themeColor;
+        ctx.lineWidth = 3.5;
+        ctx.stroke();
+
+        const sponsorImg = this.getSponsorImage(sponsor.id) || this.getSponsorImage(sponsor.shortName) || this.getSponsorImage(item.sponsorId || "") || (sponsor.id === "logo-campus" ? this.logoImage2 : this.logoImage1);
+        if (sponsorImg && sponsorImg.complete && sponsorImg.naturalWidth > 0) {
+          const aspect = sponsorImg.naturalWidth / (sponsorImg.naturalHeight || 1);
+          let logoW = item.size * 0.80;
+          let logoH = item.size * 0.80;
+          if (aspect > 1.35) {
+            logoW = item.size * 0.85;
+            logoH = logoW / aspect;
+          } else if (aspect < 0.75) {
+            logoH = item.size * 0.85;
+            logoW = logoH * aspect;
+          }
+          ctx.drawImage(sponsorImg, -logoW / 2, -logoH / 2, logoW, logoH);
+        }
+      } else if (item.type === "logo_star") {
         const glow = ctx.createRadialGradient(0, 0, item.size * 0.25, 0, 0, item.size * 0.72);
         glow.addColorStop(0, "rgba(255, 215, 0, 0.45)");
         glow.addColorStop(1, "rgba(255, 215, 0, 0)");
@@ -2262,14 +2383,11 @@ export class FlyingElfGame extends BaseGame {
         ctx.beginPath();
         ctx.arc(0, 0, item.size * 0.72, 0, Math.PI * 2);
         ctx.fill();
-      } else if (item.type === "logo_campus") {
-        const glow = ctx.createRadialGradient(0, 0, item.size * 0.25, 0, 0, item.size * 0.72);
-        glow.addColorStop(0, "rgba(0, 229, 255, 0.45)");
-        glow.addColorStop(1, "rgba(0, 229, 255, 0)");
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(0, 0, item.size * 0.72, 0, Math.PI * 2);
-        ctx.fill();
+
+        if (this.imgStarLogo.complete) {
+          ctx.rotate(this.gliderSwayTime * 1.1);
+          ctx.drawImage(this.imgStarLogo, -item.size / 2, -item.size / 2, item.size, item.size);
+        }
       } else {
         const glow = ctx.createRadialGradient(0, 0, item.size * 0.2, 0, 0, item.size * 0.65);
         glow.addColorStop(0, "rgba(0, 230, 118, 0.35)");
@@ -2278,60 +2396,21 @@ export class FlyingElfGame extends BaseGame {
         ctx.beginPath();
         ctx.arc(0, 0, item.size * 0.65, 0, Math.PI * 2);
         ctx.fill();
-      }
 
-      if (item.type === "gift_red" && this.imgGiftRed.complete) {
-        ctx.drawImage(this.imgGiftRed, -item.size / 2, -item.size / 2, item.size, item.size);
-      } else if (item.type === "gift_green" && this.imgGiftGreen.complete) {
-        ctx.drawImage(this.imgGiftGreen, -item.size / 2, -item.size / 2, item.size, item.size);
-      } else if (item.type === "candy" && this.imgCandy.complete) {
-        ctx.drawImage(this.imgCandy, -item.size / 2, -item.size / 2, item.size, item.size);
-      } else if (item.type === "teddy" && this.imgTeddy.complete) {
-        ctx.drawImage(this.imgTeddy, -item.size / 2, -item.size / 2, item.size, item.size);
-      } else if (item.type === "logo_feria" && this.logoImage1 && this.logoImage1.complete) {
-        // Medallón Dorado de la Feria Mágica (Alta visibilidad y brillo)
-        const rot = Math.sin(this.gliderSwayTime * 1.5) * 0.12;
-        ctx.rotate(rot);
-
-        const radius = item.size * 0.48;
-        const bgGrad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
-        bgGrad.addColorStop(0, "rgba(255, 255, 255, 1.0)");
-        bgGrad.addColorStop(0.82, "rgba(255, 248, 220, 0.96)");
-        bgGrad.addColorStop(1, "rgba(255, 215, 0, 0.92)");
-        ctx.fillStyle = bgGrad;
-        ctx.beginPath();
-        ctx.arc(0, 0, radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = "#FFD700";
-        ctx.lineWidth = 3.5;
-        ctx.stroke();
-
-        ctx.drawImage(this.logoImage1, -item.size * 0.40, -item.size * 0.40, item.size * 0.80, item.size * 0.80);
-      } else if (item.type === "logo_campus" && this.logoImage2 && this.logoImage2.complete) {
-        // Medallón Cian de Campuslands (Fondo blanco nítido y aro cian brillante)
-        const rot = Math.sin(this.gliderSwayTime * 1.5) * 0.12;
-        ctx.rotate(rot);
-
-        const radius = item.size * 0.48;
-        ctx.fillStyle = "#FFFFFF";
-        ctx.beginPath();
-        ctx.arc(0, 0, radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = "#00E5FF";
-        ctx.lineWidth = 3.5;
-        ctx.stroke();
-
-        ctx.drawImage(this.logoImage2, -item.size * 0.38, -item.size * 0.38, item.size * 0.76, item.size * 0.76);
-      } else if (item.type === "logo_star" && this.imgStarLogo.complete) {
-        ctx.rotate(this.gliderSwayTime * 1.1);
-        ctx.drawImage(this.imgStarLogo, -item.size / 2, -item.size / 2, item.size, item.size);
-      } else {
-        ctx.fillStyle = "#00E676";
-        ctx.beginPath();
-        ctx.arc(0, 0, item.size / 2, 0, Math.PI * 2);
-        ctx.fill();
+        if (item.type === "gift_red" && this.imgGiftRed.complete) {
+          ctx.drawImage(this.imgGiftRed, -item.size / 2, -item.size / 2, item.size, item.size);
+        } else if (item.type === "gift_green" && this.imgGiftGreen.complete) {
+          ctx.drawImage(this.imgGiftGreen, -item.size / 2, -item.size / 2, item.size, item.size);
+        } else if (item.type === "candy" && this.imgCandy.complete) {
+          ctx.drawImage(this.imgCandy, -item.size / 2, -item.size / 2, item.size, item.size);
+        } else if (item.type === "teddy" && this.imgTeddy.complete) {
+          ctx.drawImage(this.imgTeddy, -item.size / 2, -item.size / 2, item.size, item.size);
+        } else {
+          ctx.fillStyle = "#00E676";
+          ctx.beginPath();
+          ctx.arc(0, 0, item.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
       ctx.restore();
     }
@@ -2388,21 +2467,115 @@ export class FlyingElfGame extends BaseGame {
 
   private renderAtmosphere(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
-    const snowTime = this.gliderSwayTime * 2;
-    for (let s = 0; s < 22; s++) {
-      const sx = (s * 52 + snowTime * 35) % this.width;
-      const sy = (s * 68 + snowTime * 65) % this.height;
-      const sRadius = 1.6 + (s % 3);
+
+    // 1. Copos de nieve con velocidad vinculada al desplazamiento real
+    ctx.fillStyle = "rgba(255, 255, 255, 0.70)";
+    const snowScroll = this.groundScrollX * 0.75;
+    for (let s = 0; s < 28; s++) {
+      const sx = ((s * 48 - snowScroll * (0.8 + (s % 4) * 0.25)) % this.width + this.width) % this.width;
+      const sy = (s * 62 + this.gliderSwayTime * 25) % this.height;
+      const sRadius = 1.5 + (s % 3) * 0.8;
       ctx.beginPath();
       ctx.arc(sx, sy, sRadius, 0, Math.PI * 2);
       ctx.fill();
     }
+
+    // 2. Líneas de viento dinámicas / Speedlines (Aparecen conforme aumenta la velocidad)
+    if (this.speedMultiplier > 1.25) {
+      const streakCount = Math.min(12, Math.floor((this.speedMultiplier - 1.1) * 7));
+      const lineSpeed = this.groundScrollX * 1.5;
+      ctx.lineWidth = 2.0;
+
+      for (let k = 0; k < streakCount; k++) {
+        const lineY = ((k * 89 + 60) % (this.height - 180)) + 60;
+        const lineX = ((k * 170 - lineSpeed) % (this.width + 300) + (this.width + 300)) % (this.width + 300) - 100;
+        const lineLength = 40 + (this.speedMultiplier - 1.0) * 60;
+        const alpha = Math.min(0.70, (this.speedMultiplier - 1.15) * 0.45);
+
+        ctx.strokeStyle = `rgba(224, 247, 250, ${alpha})`;
+        ctx.beginPath();
+        ctx.moveTo(lineX, lineY);
+        ctx.lineTo(lineX - lineLength, lineY);
+        ctx.stroke();
+      }
+    }
+
+    // 3. Estela aerodinámica detrás del parapente del elfo a altas velocidades
+    if (this.speedMultiplier > 1.35) {
+      const tailLen = (this.speedMultiplier - 1.2) * 55;
+      const tailAlpha = Math.min(0.65, (this.speedMultiplier - 1.2) * 0.40);
+      const curElf = ELF_ROSTER.find(e => e.id === this.selectedElf) || ELF_ROSTER[0];
+
+      const grad = ctx.createLinearGradient(this.elfX - 55, this.elfY, this.elfX - 55 - tailLen, this.elfY);
+      grad.addColorStop(0, curElf.themeColor);
+      grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 3.5;
+      ctx.globalAlpha = tailAlpha;
+      ctx.beginPath();
+      ctx.moveTo(this.elfX - 50, this.elfY - 12);
+      ctx.lineTo(this.elfX - 50 - tailLen, this.elfY - 12);
+      ctx.moveTo(this.elfX - 50, this.elfY + 12);
+      ctx.lineTo(this.elfX - 50 - tailLen, this.elfY + 12);
+      ctx.stroke();
+      ctx.globalAlpha = 1.0;
+    }
+
     ctx.restore();
   }
 
   private renderHUDOverlay(ctx: CanvasRenderingContext2D): void {
     ctx.save();
+
+    // 0. Velocímetro Dinámico en Tiempo Real (Muestra la progresión continua de velocidad)
+    const speedX = 18;
+    const speedY = 78;
+    const speedW = 120;
+    const speedH = 26;
+
+    let tierColor = "#00E5FF";
+    let tierText = "NORMAL";
+    if (this.speedMultiplier >= 2.2) {
+      tierColor = "#FF3D00";
+      tierText = "HIPER";
+    } else if (this.speedMultiplier >= 1.7) {
+      tierColor = "#FFD700";
+      tierText = "TURBO";
+    } else if (this.speedMultiplier >= 1.3) {
+      tierColor = "#76FF03";
+      tierText = "RÁPIDO";
+    }
+
+    ctx.save();
+    ctx.fillStyle = "rgba(4, 18, 38, 0.82)";
+    ctx.strokeStyle = tierColor;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(speedX, speedY, speedW, speedH, 13);
+    ctx.fill();
+    ctx.stroke();
+
+    // Barra de progreso interior del velocímetro
+    const maxSpeedLimit = 2.8;
+    const speedPct = Math.max(0, Math.min(1, (this.speedMultiplier - 1.0) / (maxSpeedLimit - 1.0)));
+    ctx.fillStyle = `${tierColor}44`;
+    ctx.beginPath();
+    ctx.roundRect(speedX + 2, speedY + 2, (speedW - 4) * speedPct, speedH - 4, 11);
+    ctx.fill();
+
+    // Texto de velocidad
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.font = "900 12px 'Outfit', sans-serif";
+    ctx.fillStyle = tierColor;
+    ctx.fillText(`⚡ ${this.speedMultiplier.toFixed(1)}x`, speedX + 9, speedY + speedH / 2);
+
+    ctx.textAlign = "right";
+    ctx.font = "bold 10px 'Outfit', sans-serif";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(tierText, speedX + speedW - 9, speedY + speedH / 2);
+    ctx.restore();
 
     // 1. Indicador de Combo Activo
     if (this.comboCount > 1) {
@@ -2420,23 +2593,25 @@ export class FlyingElfGame extends BaseGame {
       ctx.textAlign = "left";
     }
 
-    // 2. Barra de Turbo / Power-Up de la Feria
+    // 2. Barra de Turbo / Power-Up Dinámica con Identidad del Patrocinador
     if (this.isLogoPowerUpActive) {
       const barW = Math.min(300, this.width * 0.65);
       const barH = 12;
       const barX = this.width / 2 - barW / 2;
       const barY = 140;
-      const progress = Math.max(0, this.logoPowerUpTimer / 5.0);
+      const progress = Math.max(0, this.logoPowerUpTimer / 3.5);
+      const activeColor = this.activeLogo?.themeColor || "#FFD700";
+      const sponsorTitle = this.activeLogo?.shortName ? `¡PODER ${this.activeLogo.shortName.toUpperCase()} ACTIVO!` : "¡PODER MÁGICO ACTIVO!";
 
       ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-      ctx.strokeStyle = "#FFD700";
+      ctx.strokeStyle = activeColor;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.roundRect(barX, barY, barW, barH, 6);
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = "#FFD700";
+      ctx.fillStyle = activeColor;
       ctx.beginPath();
       ctx.roundRect(barX + 2, barY + 2, (barW - 4) * progress, barH - 4, 4);
       ctx.fill();
@@ -2445,9 +2620,9 @@ export class FlyingElfGame extends BaseGame {
       ctx.font = "bold 13px 'Outfit', sans-serif";
       ctx.strokeStyle = "#051124";
       ctx.lineWidth = 2.5;
-      ctx.strokeText("¡PODER MÁGICO ACTIVO!", this.width / 2, barY - 5);
+      ctx.strokeText(sponsorTitle, this.width / 2, barY - 5);
       ctx.fillStyle = "#FFF9C4";
-      ctx.fillText("¡PODER MÁGICO ACTIVO!", this.width / 2, barY - 5);
+      ctx.fillText(sponsorTitle, this.width / 2, barY - 5);
       ctx.textAlign = "left";
     }
 

@@ -31,6 +31,11 @@ export class AudioManager {
     catchBag: "./assets/audio/atrapa regalos/atrapar_saco.mp3",
     obstacleHit: "./assets/audio/elfo/elfo_golpe.mp3"
   } as const;
+  public static readonly MAGIC_PAIRS_SFX = {
+    flip: "./assets/audio/cartas/carta_voltear.mp3",
+    match: "./assets/audio/cartas/pareja_acierto.mp3",
+    mismatch: "./assets/audio/cartas/pareja_fallo.mp3"
+  } as const;
 
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
@@ -336,8 +341,9 @@ export class AudioManager {
       errorCount: 0
     };
 
+    const sources = src.endsWith(".wav") ? [src, src.replace(/\.wav$/, ".mp3")] : [src];
     const howlInstance = new Howl({
-      src: [src],
+      src: sources,
       preload: true,
       pool: poolSize,
       volume: 0.9,
@@ -371,6 +377,15 @@ export class AudioManager {
    */
   public preloadToyCatchPilotAudio(): void {
     this.preloadHowlSfx(AudioManager.TOY_CATCH_PILOT_SFX.catchBag, 5);
+  }
+
+  /**
+   * Precarga en memoria los clips de sonido de Parejas Mágicas para latencia cero instantánea (0ms)
+   */
+  public preloadMagicPairsAudio(): void {
+    this.preloadHowlSfx(AudioManager.MAGIC_PAIRS_SFX.flip, 6);
+    this.preloadHowlSfx(AudioManager.MAGIC_PAIRS_SFX.match, 4);
+    this.preloadHowlSfx(AudioManager.MAGIC_PAIRS_SFX.mismatch, 4);
   }
 
   /**
@@ -580,27 +595,147 @@ export class AudioManager {
   // ==========================================================================
 
   /**
-   * Sonido al voltear una carta
+   * Sonido al voltear una carta (0ms de latencia con Howler + respaldo sintetizado instantáneo)
    */
   public playCardFlip(): void {
     Haptics.tap();
-    this.playSoundEffect("./assets/audio/cartas/carta_voltear.mp3", 0.85);
+    if (this.isMuted) return;
+    this.unlockAudio();
+
+    const played = this.playHowlSfx(AudioManager.MAGIC_PAIRS_SFX.flip, 0.88, 1.0, 0);
+    if (!played) {
+      const entry = this.howlSfxRegistry.get(AudioManager.MAGIC_PAIRS_SFX.flip);
+      if (!entry || entry.status !== "loaded") {
+        this.playSynthesizedCardFlipFallback();
+      }
+    }
   }
 
   /**
-   * Sonido al encontrar una pareja correcta (acierto)
+   * Sonido al encontrar una pareja correcta (acierto a 0ms de latencia)
    */
   public playCardMatch(): void {
     Haptics.medium();
-    this.playSoundEffect("./assets/audio/cartas/pareja_acierto.mp3", 0.90);
+    if (this.isMuted) return;
+    this.unlockAudio();
+
+    const played = this.playHowlSfx(AudioManager.MAGIC_PAIRS_SFX.match, 0.92, 1.0, 0);
+    if (!played) {
+      const entry = this.howlSfxRegistry.get(AudioManager.MAGIC_PAIRS_SFX.match);
+      if (!entry || entry.status !== "loaded") {
+        this.playSynthesizedMatchFallback();
+      }
+    }
   }
 
   /**
-   * Sonido al fallar en encontrar una pareja (desacierto)
+   * Sonido al fallar en encontrar una pareja (desacierto a 0ms de latencia)
    */
   public playCardMismatch(): void {
     Haptics.light();
-    this.playSoundEffect("./assets/audio/cartas/pareja_fallo.mp3", 0.80);
+    if (this.isMuted) return;
+    this.unlockAudio();
+
+    const played = this.playHowlSfx(AudioManager.MAGIC_PAIRS_SFX.mismatch, 0.82, 1.0, 0);
+    if (!played) {
+      const entry = this.howlSfxRegistry.get(AudioManager.MAGIC_PAIRS_SFX.mismatch);
+      if (!entry || entry.status !== "loaded") {
+        this.playSynthesizedMismatchFallback();
+      }
+    }
+  }
+
+  /**
+   * Respaldo sintetizado inmediato al voltear carta (chasquido mecánico sutil de naipe a 0ms)
+   */
+  private playSynthesizedCardFlipFallback(): void {
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(750, now);
+      osc.frequency.exponentialRampToValueAtTime(180, now + 0.05);
+
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.06);
+    } catch {
+      // Ignorar de forma segura
+    }
+  }
+
+  /**
+   * Respaldo sintetizado inmediato para acierto de pareja (campanitas armónicas festivas)
+   */
+  private playSynthesizedMatchFallback(): void {
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      [1046.5, 1318.5].forEach((freq, i) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const start = now + i * 0.06;
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, start);
+
+        gain.gain.setValueAtTime(0.2, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.2);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(start);
+        osc.stop(start + 0.22);
+      });
+    } catch {
+      // Ignorar de forma segura
+    }
+  }
+
+  /**
+   * Respaldo sintetizado inmediato para fallo de pareja (tono suave descendente)
+   */
+  private playSynthesizedMismatchFallback(): void {
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(140, now + 0.15);
+
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.16);
+    } catch {
+      // Ignorar de forma segura
+    }
   }
 
   // ==========================================================================

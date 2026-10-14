@@ -64,12 +64,13 @@ export abstract class BaseGame {
   protected inGameMusicPath: string = "";
   protected inGameMusicVolume: number = 0.48;
 
-  // Sistema de Power-Up del Logo de la Feria
+  // Sistema de Power-Up del Logo de la Feria y Patrocinadores
   protected isLogoPowerUpActive: boolean = false;
   protected logoPowerUpTimer: number = 0;
   protected activeLogo: LogoConfig;
   protected logoImage1: HTMLImageElement | null = null;
   protected logoImage2: HTMLImageElement | null = null;
+  protected sponsorImages: Map<string, HTMLImageElement> = new Map();
 
   // Callback al terminar partida
   public onGameOver?: (result: GameResult) => void;
@@ -106,6 +107,19 @@ export abstract class BaseGame {
 
     this.logoImage2 = new Image();
     this.logoImage2.src = BRANDING.getLogoPath(2);
+
+    // Precargar imágenes de todos los patrocinadores oficiales
+    for (const [key, sponsor] of Object.entries(BRANDING.sponsors)) {
+      const img = new Image();
+      img.src = sponsor.path;
+      this.sponsorImages.set(sponsor.id, img);
+      this.sponsorImages.set(sponsor.shortName.toLowerCase(), img);
+      this.sponsorImages.set(key.toLowerCase(), img);
+    }
+  }
+
+  public getSponsorImage(idOrKey: string): HTMLImageElement | undefined {
+    return this.sponsorImages.get(idOrKey) || this.sponsorImages.get(idOrKey.toLowerCase());
   }
 
   public setSubKey(subKey?: string): void {
@@ -281,8 +295,8 @@ export abstract class BaseGame {
     GameHUD.drawFinishOverlay(ctx, this.width, this.height);
   }
 
-  protected triggerLogoPowerUp(logoNumber: 1 | 2 = 1, durationSeconds: number = 6): void {
-    this.activeLogo = BRANDING.getLogoConfig(logoNumber);
+  protected triggerLogoPowerUp(logoIdOrNumber: 1 | 2 | string = 1, durationSeconds: number = 6): void {
+    this.activeLogo = BRANDING.getLogoConfig(logoIdOrNumber as any);
     this.isLogoPowerUpActive = true;
     this.logoPowerUpTimer = durationSeconds;
     this.audio.playPowerUp();

@@ -282,17 +282,18 @@ export class GameHUD {
       ctx.restore();
     }
 
-    // 6. Indicador de Power-Up del Logo Activo
-    if (state.isLogoPowerUpActive) {
+    // 6. Indicador de Power-Up del Logo Activo (Soporta todos los patrocinadores)
+    if (state.isLogoPowerUpActive && state.activeLogo) {
       const bannerH = Math.round(Math.max(20, Math.min(32, hudH * 0.52)));
-      const isCampus = state.activeLogo.id === "logo-2";
+      const brandColor = state.activeLogo.themeColor || "#FFD700";
+      const brandName = (state.activeLogo.shortName || state.activeLogo.name || "FERIA").toUpperCase();
 
-      ctx.fillStyle = isCampus ? "rgba(0, 229, 255, 0.96)" : "rgba(255, 215, 0, 0.96)";
+      ctx.fillStyle = brandColor;
       ctx.fillRect(0, hudH, state.width, bannerH);
-      ctx.fillStyle = isCampus ? "#031B33" : "#0A2518";
+      ctx.fillStyle = "#0A192F";
       ctx.font = `900 ${Math.max(10, Math.min(15, isShort ? 11 : state.width * 0.027))}px 'Outfit', sans-serif`;
       ctx.textAlign = "center";
-      const bonusTitle = isCampus ? "¡BONUS CAMPUSLANDS!" : "¡BONUS FERIA MÁGICA!";
+      const bonusTitle = `¡BONUS ${brandName}!`;
       ctx.fillText(`${bonusTitle} (x${state.activeLogo.bonusMultiplier}) - ${Math.ceil(state.logoPowerUpTimer)}s`, state.width / 2, hudH + bannerH * 0.7);
     }
 

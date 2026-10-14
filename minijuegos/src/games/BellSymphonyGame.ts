@@ -15,6 +15,7 @@
 
 import { BaseGame } from "../core/BaseGame";
 import { AudioManager } from "../core/AudioManager";
+import { BRANDING } from "../config/branding";
 import { InputManager } from "../core/InputManager";
 import { ParticleSystem } from "../core/ParticleSystem";
 import { ScreenTransition } from "../core/ScreenTransition";
@@ -52,6 +53,7 @@ import {
   WE_WISH_YOU_CHART_NORMAL,
   WE_WISH_YOU_CHART_HARD,
   WE_WISH_YOU_CHART_EXPERT,
+  sanitizeChartNotes,
   type SongDef
 } from "../data/songs";
 
@@ -162,6 +164,7 @@ interface FallingNote {
 
   isStar?: boolean;
   logoType?: 1 | 2; // 1: Feria Mágica (Dorado), 2: Campuslands (Cian)
+  sponsorId?: string;
 }
 
 interface LaneConfig {
@@ -271,7 +274,7 @@ export class BellSymphonyGame extends BaseGame {
   // MODO ESTRELLA / STAR POWER (Guitar Hero Style x4 Multiplier)
   private starPowerTimer: number = 0;
   private isStarPowerActive: boolean = false;
-  private activeStarPowerType: 1 | 2 = 1; // 1: Feria Mágica, 2: Campuslands
+  private activeStarPowerSponsorId: string = "feria";
 
   // Popups visuales
   private activeJudgements: JudgementPopup[] = [];
@@ -404,6 +407,7 @@ export class BellSymphonyGame extends BaseGame {
     this.activePointerLanes.clear();
     this.starPowerTimer = 0;
     this.isStarPowerActive = false;
+    this.activeStarPowerSponsorId = "feria";
     this.songIntroTimer = 0;
 
     this.recalculateLayout();
@@ -481,6 +485,7 @@ export class BellSymphonyGame extends BaseGame {
     this.lastMissLifeLossTime = -1;
     this.starPowerTimer = 0;
     this.isStarPowerActive = false;
+    this.activeStarPowerSponsorId = "feria";
     this.songDuration = song.durationSeconds || 120;
     this.songIntroTimer = this.SONG_INTRO_DURATION;
     this.lanePressed = [false, false, false, false];
@@ -574,11 +579,12 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   public startCustomChart(customNotes: ChartNoteRecord[], songFile: string, bpm: number): void {
+    const cleanCustomNotes = sanitizeChartNotes(customNotes, this.selectedDifficulty);
     this.isCustomChartPlaying = true;
-    this.lastCustomNotes = [...customNotes];
+    this.lastCustomNotes = [...cleanCustomNotes];
     this.lastCustomSongFile = songFile;
     this.setSubKey("custom");
-    this.currentTargetMaxScore = this.calculateMaxScoreForChart(customNotes, this.selectedDifficulty);
+    this.currentTargetMaxScore = this.calculateMaxScoreForChart(cleanCustomNotes, this.selectedDifficulty);
 
     const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
     this.bpm = bpm;
@@ -596,11 +602,12 @@ export class BellSymphonyGame extends BaseGame {
     this.lastMissLifeLossTime = -1;
     this.starPowerTimer = 0;
     this.isStarPowerActive = false;
+    this.activeStarPowerSponsorId = "feria";
     this.songIntroTimer = this.SONG_INTRO_DURATION;
     this.lanePressed = [false, false, false, false];
     this.activePointerLanes.clear();
 
-    const lastNoteTime = customNotes.length > 0 ? customNotes[customNotes.length - 1].time + (customNotes[customNotes.length - 1].duration || 0) + 3.0 : 120;
+    const lastNoteTime = cleanCustomNotes.length > 0 ? cleanCustomNotes[cleanCustomNotes.length - 1].time + (cleanCustomNotes[cleanCustomNotes.length - 1].duration || 0) + 3.0 : 120;
     this.songDuration = Math.max(120, lastNoteTime);
 
     this.audio.stopMenuBGM();
@@ -637,11 +644,15 @@ export class BellSymphonyGame extends BaseGame {
     this.notes = [];
     let noteId = 0;
     let starCount = 0;
-    for (const item of customNotes) {
+    const allSponsors = BRANDING.getAllSponsors();
+    for (const item of cleanCustomNotes) {
       let logoType: 1 | 2 = 1;
+      let sponsorId: string | undefined = undefined;
       if (item.isStar) {
+        const sponsor = allSponsors[starCount % allSponsors.length];
+        sponsorId = sponsor.id;
         starCount++;
-        logoType = starCount % 2 === 0 ? 2 : 1;
+        logoType = sponsor.id === "campus" ? 2 : 1;
       }
       const dur = item.duration && item.duration > 0 ? item.duration : 0;
       this.notes.push({
@@ -659,7 +670,8 @@ export class BellSymphonyGame extends BaseGame {
         sustainFailed: false,
         lastScoreTickTime: 0,
         isStar: item.isStar || false,
-        logoType: item.isStar ? logoType : undefined
+        logoType: item.isStar ? logoType : undefined,
+        sponsorId
       });
     }
 
@@ -1013,15 +1025,22 @@ export class BellSymphonyGame extends BaseGame {
       adaptedChart = [...adaptedChart, ...chords].sort((a, b) => a.time - b.time);
     }
 
+    // Saneamiento final: evita notas duplicadas en el mismo lugar, sustains sobre sustains o flechas amontonadas
+    adaptedChart = sanitizeChartNotes(adaptedChart, diff);
+
     this.notes = [];
     let noteId = 0;
     let starCount = 0;
+    const allSponsors = BRANDING.getAllSponsors();
 
     for (const item of adaptedChart) {
       let logoType: 1 | 2 = 1;
+      let sponsorId: string | undefined = undefined;
       if (item.isStar) {
+        const sponsor = allSponsors[starCount % allSponsors.length];
+        sponsorId = sponsor.id;
         starCount++;
-        logoType = starCount % 2 === 0 ? 2 : 1;
+        logoType = sponsor.id === "campus" ? 2 : 1;
       }
 
       const dur = item.duration && item.duration > 0 ? item.duration : 0;
@@ -1041,7 +1060,8 @@ export class BellSymphonyGame extends BaseGame {
         sustainFailed: false,
         lastScoreTickTime: 0,
         isStar: item.isStar || false,
-        logoType: item.isStar ? logoType : undefined
+        logoType: item.isStar ? logoType : undefined,
+        sponsorId
       });
     }
 
@@ -1120,7 +1140,8 @@ export class BellSymphonyGame extends BaseGame {
 
       // Star Note: ACTIVA MODO ESTRELLA GUITAR HERO (x4 por 7s)
       if (closestNote.isStar) {
-        this.activateStarPower(7.0, laneCenterX, closestNote.logoType || 1);
+        const sId = closestNote.sponsorId || (closestNote.logoType === 2 ? "campus" : "feria");
+        this.activateStarPower(7.0, laneCenterX, sId);
       }
 
       // Recuperar 1 campana (vida)
@@ -1180,18 +1201,22 @@ export class BellSymphonyGame extends BaseGame {
   /**
    * Activa el Modo Estrella estilo Guitar Hero (Multiplicador x4 durante 7s)
    */
-  private activateStarPower(durationSeconds: number = 7.0, x: number = this.width / 2, logoType: 1 | 2 = 1): void {
+  private activateStarPower(durationSeconds: number = 7.0, x: number = this.width / 2, sponsorIdOrLegacy: string | 1 | 2 = "feria"): void {
+    const sponsor = typeof sponsorIdOrLegacy === "string"
+      ? BRANDING.getLogoConfig(sponsorIdOrLegacy)
+      : BRANDING.getLogoConfig(sponsorIdOrLegacy === 2 ? "campus" : "feria");
+
     this.isStarPowerActive = true;
-    this.activeStarPowerType = logoType;
+    this.activeStarPowerSponsorId = sponsor.id;
     this.starPowerTimer = durationSeconds;
+    this.triggerLogoPowerUp(sponsor.id, durationSeconds);
     this.addScore(800);
 
     this.audio.playPowerUp();
     this.triggerShake(0.25, 7);
 
-    const isCampus = logoType === 2;
-    const starColor = isCampus ? "#00E5FF" : "#FFD700";
-    const starText = isCampus ? "¡STAR POWER CAMPUS x4!" : "¡STAR POWER FERIA x4!";
+    const starColor = sponsor.themeColor || "#FFD700";
+    const starText = `¡STAR POWER ${sponsor.shortName.toUpperCase()} x4!`;
 
     this.particles.emitConfetti(this.width, 40);
     this.addFloatingText(starText, x, this.hitLineY - 75, starColor, 1.55);
@@ -1274,12 +1299,15 @@ export class BellSymphonyGame extends BaseGame {
     ctx.save();
 
     // Destello al compás desde el centro de la pista
-    const flashColor = this.isStarPowerActive
-      ? (this.activeStarPowerType === 2 ? "0, 229, 255" : "255, 120, 160")
-      : "255, 200, 90";
+    const activeSponsor = BRANDING.getLogoConfig(this.activeStarPowerSponsorId || "feria");
     const burst = ctx.createRadialGradient(cx, h * 0.55, 20, cx, h * 0.55, Math.max(w, h) * 0.7);
-    burst.addColorStop(0, `rgba(${flashColor}, ${flash + 0.04})`);
-    burst.addColorStop(1, "rgba(0, 0, 0, 0)");
+    if (this.isStarPowerActive) {
+      burst.addColorStop(0, `${activeSponsor.themeColor}55`);
+      burst.addColorStop(1, "rgba(0, 0, 0, 0)");
+    } else {
+      burst.addColorStop(0, `rgba(255, 200, 90, ${flash + 0.04})`);
+      burst.addColorStop(1, "rgba(0, 0, 0, 0)");
+    }
     ctx.fillStyle = burst;
     ctx.fillRect(0, 0, w, h);
 
@@ -1288,8 +1316,13 @@ export class BellSymphonyGame extends BaseGame {
     for (const side of [-1, 1]) {
       const bx = side < 0 ? this.laneStartX : this.laneStartX + totalW;
       const beam = ctx.createLinearGradient(bx, 0, bx + side * Math.min(180, w * 0.14), 0);
-      beam.addColorStop(0, `rgba(${flashColor}, ${beamAlpha})`);
-      beam.addColorStop(1, "rgba(0, 0, 0, 0)");
+      if (this.isStarPowerActive) {
+        beam.addColorStop(0, `${activeSponsor.themeColor}44`);
+        beam.addColorStop(1, "rgba(0, 0, 0, 0)");
+      } else {
+        beam.addColorStop(0, `rgba(255, 200, 90, ${beamAlpha})`);
+        beam.addColorStop(1, "rgba(0, 0, 0, 0)");
+      }
       ctx.fillStyle = beam;
       if (side < 0) {
         ctx.fillRect(Math.max(0, bx - Math.min(180, w * 0.14)), 0, Math.min(180, w * 0.14), h);
@@ -1533,17 +1566,11 @@ export class BellSymphonyGame extends BaseGame {
 
     // Resplandor Star Power
     if (this.isStarPowerActive) {
-      const isCampus = this.activeStarPowerType === 2;
+      const activeSponsor = BRANDING.getLogoConfig(this.activeStarPowerSponsorId || "feria");
       const starGlow = ctx.createLinearGradient(this.laneStartX, 0, this.laneStartX + totalW, 0);
-      if (isCampus) {
-        starGlow.addColorStop(0, "rgba(0, 229, 255, 0.45)");
-        starGlow.addColorStop(0.5, "rgba(255, 255, 255, 0.40)");
-        starGlow.addColorStop(1, "rgba(0, 229, 255, 0.45)");
-      } else {
-        starGlow.addColorStop(0, "rgba(255, 215, 0, 0.45)");
-        starGlow.addColorStop(0.5, "rgba(255, 65, 108, 0.35)");
-        starGlow.addColorStop(1, "rgba(255, 215, 0, 0.45)");
-      }
+      starGlow.addColorStop(0, `${activeSponsor.themeColor}77`);
+      starGlow.addColorStop(0.5, "rgba(255, 255, 255, 0.40)");
+      starGlow.addColorStop(1, `${activeSponsor.themeColor}77`);
       ctx.fillStyle = starGlow;
       ctx.fillRect(this.laneStartX, 0, totalW, trackH);
     } else if (this.combo >= 20) {
@@ -1578,7 +1605,8 @@ export class BellSymphonyGame extends BaseGame {
         ctx.fillRect(lx, 0, this.laneWidth, this.hitLineY);
       }
 
-      ctx.strokeStyle = this.isStarPowerActive ? (this.activeStarPowerType === 2 ? "#00E5FF" : "#FFD700") : "rgba(255, 215, 0, 0.35)";
+      const activeSponsor = BRANDING.getLogoConfig(this.activeStarPowerSponsorId || "feria");
+      ctx.strokeStyle = this.isStarPowerActive ? activeSponsor.themeColor : "rgba(255, 215, 0, 0.35)";
       ctx.lineWidth = this.isStarPowerActive ? 2.5 : 1.5;
       ctx.beginPath();
       ctx.moveTo(lx, 0);
@@ -1654,14 +1682,17 @@ export class BellSymphonyGame extends BaseGame {
     // RENDERIZADO DE NOTAS Y NOTAS SOSTENIDAS (SUSTAIN NOTES)
     // ==========================================================================
     for (const note of this.notes) {
-      if (note.missed) continue;
+      if (note.missed || note.sustainCompleted || note.sustainFailed) continue;
+      if (note.type === "normal" && note.hit) continue;
+      if (note.type === "sustain" && note.hit && !note.isHolding) continue;
 
       const lane = this.lanes[note.lane];
       const noteX = this.laneStartX + note.lane * this.laneWidth + this.laneWidth / 2;
       const radius = Math.min(this.laneWidth * 0.36, 36);
+      const isSustainNote = note.type === "sustain" && note.duration > 0;
 
       // Si es NOTA SOSTENIDA: Dibujar cuerpo y cola
-      if (note.type === "sustain" && note.duration > 0 && !note.sustainCompleted) {
+      if (isSustainNote) {
         const timeHeadDiff = note.targetTime - this.currentTime;
         const timeTailDiff = (note.targetTime + note.duration) - this.currentTime;
 
@@ -1673,7 +1704,7 @@ export class BellSymphonyGame extends BaseGame {
           yHead = this.hitLineY;
         }
 
-        if (yHead > -100 && yTail < this.height + 100) {
+        if (yHead > -100 && yTail < this.height + 100 && yHead > yTail) {
           const bodyWidth = Math.max(14, radius * 0.75);
 
           ctx.save();
@@ -1722,69 +1753,132 @@ export class BellSymphonyGame extends BaseGame {
         }
       }
 
-      // Dibujar Cabeza de la Nota
+      // Dibujar Cabeza de la Nota (anclada en hitLineY mientras se sostiene un sustain)
       const timeDiff = note.targetTime - this.currentTime;
-      const noteY = this.hitLineY - timeDiff * this.noteSpeed;
+      const noteY = note.isHolding ? this.hitLineY : this.hitLineY - timeDiff * this.noteSpeed;
 
       if (noteY > -80 && noteY < this.height + 80) {
         ctx.save();
-
-        // Si ya fue tocada, mostrarla translúcida / opaca para indicar que ya fue consumida
-        if (note.hit) {
-          ctx.globalAlpha = 0.32;
-        }
-
         ctx.translate(noteX, noteY);
 
-        const isCampus = note.logoType === 2;
-
-        let sprite: HTMLImageElement | null = null;
         if (note.isStar) {
-          if (isCampus) {
-            sprite = this.imgLogoCampus.complete && this.imgLogoCampus.naturalWidth > 0 ? this.imgLogoCampus : this.imgStarWithLogo;
-          } else {
-            sprite = this.imgLogoFair.complete && this.imgLogoFair.naturalWidth > 0 ? this.imgLogoFair : this.imgStarWithLogo;
+          const sponsorId = note.sponsorId || (note.logoType === 2 ? "campus" : "feria");
+          const sponsor = BRANDING.getLogoConfig(sponsorId);
+          const sponsorImg = this.getSponsorImage(sponsor.id) || (sponsor.id === "campus" ? this.imgLogoCampus : this.imgLogoFair);
+
+          const starR = radius * 1.15;
+
+          // Aura luminosa y estela corta (solo para notas que NO son sustain)
+          if (!note.hit) {
+            const aura = ctx.createRadialGradient(0, 0, starR * 0.2, 0, 0, starR * 1.6);
+            aura.addColorStop(0, sponsor.themeColor);
+            aura.addColorStop(0.8, "rgba(255, 255, 255, 0.3)");
+            aura.addColorStop(1, "rgba(0, 0, 0, 0)");
+            ctx.fillStyle = aura;
+            ctx.beginPath();
+            ctx.arc(0, 0, starR * 1.6, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (!isSustainNote) {
+              const tailLen = Math.min(44, this.height * 0.06);
+              const tail = ctx.createLinearGradient(0, 0, 0, -tailLen);
+              tail.addColorStop(0, sponsor.themeColor);
+              tail.addColorStop(1, "rgba(0, 0, 0, 0)");
+              ctx.fillStyle = tail;
+              ctx.beginPath();
+              ctx.moveTo(-radius * 0.55, 0);
+              ctx.lineTo(radius * 0.55, 0);
+              ctx.lineTo(radius * 0.12, -tailLen);
+              ctx.lineTo(-radius * 0.12, -tailLen);
+              ctx.closePath();
+              ctx.fill();
+            }
           }
-        } else if (note.lane === 0) sprite = this.imgArrowLeft;
-        else if (note.lane === 1) sprite = this.imgArrowDown;
-        else if (note.lane === 2) sprite = this.imgArrowUp;
-        else if (note.lane === 3) sprite = this.imgArrowRight;
 
-        const drawSize = radius * 2.35;
-
-        // Estela de cometa + aura luminosa detrás de la nota
-        if (!note.hit) {
-          const auraColor = note.isStar ? "rgba(255, 215, 0, 0.55)" : lane.glowColor;
-          const aura = ctx.createRadialGradient(0, 0, drawSize * 0.1, 0, 0, drawSize * 0.95);
-          aura.addColorStop(0, auraColor);
-          aura.addColorStop(1, "rgba(0, 0, 0, 0)");
-          ctx.fillStyle = aura;
+          // Medallón base perla para máxima legibilidad de cualquier logo
+          ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
           ctx.beginPath();
-          ctx.arc(0, 0, drawSize * 0.95, 0, Math.PI * 2);
+          ctx.arc(0, 0, starR, 0, Math.PI * 2);
           ctx.fill();
 
-          const tailLen = Math.min(150, this.height * 0.2);
-          const tail = ctx.createLinearGradient(0, 0, 0, -tailLen);
-          tail.addColorStop(0, note.isStar ? "rgba(255, 215, 0, 0.45)" : lane.glowColor);
-          tail.addColorStop(1, "rgba(0, 0, 0, 0)");
-          ctx.fillStyle = tail;
-          ctx.beginPath();
-          ctx.moveTo(-radius * 0.55, 0);
-          ctx.lineTo(radius * 0.55, 0);
-          ctx.lineTo(radius * 0.12, -tailLen);
-          ctx.lineTo(-radius * 0.12, -tailLen);
-          ctx.closePath();
-          ctx.fill();
-        }
+          // Aro exterior en color de marca
+          ctx.lineWidth = 3.5;
+          ctx.strokeStyle = sponsor.themeColor;
+          ctx.stroke();
 
-        if (sprite && sprite.complete && sprite.naturalWidth > 0) {
-          ctx.drawImage(sprite, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+          // Anillo interior sutil dorado
+          ctx.lineWidth = 1.2;
+          ctx.strokeStyle = "#FFD700";
+          ctx.beginPath();
+          ctx.arc(0, 0, starR - 3.5, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Renderizar logo contenido proporcionalmente sin deformar
+          if (sponsorImg && sponsorImg.complete && sponsorImg.naturalWidth > 0) {
+            const nw = sponsorImg.naturalWidth;
+            const nh = sponsorImg.naturalHeight;
+            const aspect = nw / nh;
+            const maxW = starR * 1.55;
+            const maxH = starR * 1.35;
+            let dw = maxW;
+            let dh = maxW / aspect;
+            if (dh > maxH) {
+              dh = maxH;
+              dw = maxH * aspect;
+            }
+            ctx.drawImage(sponsorImg, -dw / 2, -dh / 2, dw, dh);
+          } else {
+            ctx.font = "900 24px 'Cinzel Decorative', 'Outfit', sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = sponsor.themeColor;
+            ctx.fillText("⭐", 0, 0);
+          }
         } else {
-          ctx.font = "900 28px 'Cinzel Decorative', 'Outfit', sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillStyle = note.isStar ? "#FFD700" : lane.color;
-          ctx.fillText(note.isStar ? "⭐" : lane.arrow, 0, 0);
+          let sprite: HTMLImageElement | null = null;
+          if (note.lane === 0) sprite = this.imgArrowLeft;
+          else if (note.lane === 1) sprite = this.imgArrowDown;
+          else if (note.lane === 2) sprite = this.imgArrowUp;
+          else if (note.lane === 3) sprite = this.imgArrowRight;
+
+          const drawSize = radius * 2.35;
+
+          // Estela de cometa compacta + aura luminosa detrás de la nota
+          if (!note.hit) {
+            const auraColor = lane.glowColor;
+            const aura = ctx.createRadialGradient(0, 0, drawSize * 0.1, 0, 0, drawSize * 0.95);
+            aura.addColorStop(0, auraColor);
+            aura.addColorStop(1, "rgba(0, 0, 0, 0)");
+            ctx.fillStyle = aura;
+            ctx.beginPath();
+            ctx.arc(0, 0, drawSize * 0.95, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (!isSustainNote) {
+              const tailLen = Math.min(44, this.height * 0.06);
+              const tail = ctx.createLinearGradient(0, 0, 0, -tailLen);
+              tail.addColorStop(0, lane.glowColor);
+              tail.addColorStop(1, "rgba(0, 0, 0, 0)");
+              ctx.fillStyle = tail;
+              ctx.beginPath();
+              ctx.moveTo(-radius * 0.55, 0);
+              ctx.lineTo(radius * 0.55, 0);
+              ctx.lineTo(radius * 0.12, -tailLen);
+              ctx.lineTo(-radius * 0.12, -tailLen);
+              ctx.closePath();
+              ctx.fill();
+            }
+          }
+
+          if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+            ctx.drawImage(sprite, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+          } else {
+            ctx.font = "900 28px 'Cinzel Decorative', 'Outfit', sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = lane.color;
+            ctx.fillText(lane.arrow, 0, 0);
+          }
         }
 
         ctx.restore();

@@ -26,6 +26,7 @@ import {
   JOY_TO_WORLD_POWER_CHART,
   DECK_THE_HALLS_CHART,
   WE_WISH_YOU_CHART,
+  sanitizeChartNotes,
   type SongDef,
   type ChartNoteRecord
 } from "../data/songs";
@@ -474,7 +475,7 @@ export class ChartEditorModal {
 
     const endTime = this.audioElement ? this.audioElement.currentTime : startTime;
     const duration = Math.max(0, endTime - startTime);
-    const isSustain = duration >= 0.22;
+    const isSustain = duration >= 0.45;
 
     const newNote: ChartNoteRecord = {
       lane,
@@ -494,7 +495,7 @@ export class ChartEditorModal {
     }
 
     this.recordedNotes.push(newNote);
-    this.recordedNotes.sort((a, b) => a.time - b.time);
+    this.recordedNotes = sanitizeChartNotes(this.recordedNotes, "hard");
     this.updateNotesView();
   }
 

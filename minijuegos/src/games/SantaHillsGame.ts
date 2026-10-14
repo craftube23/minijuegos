@@ -20,8 +20,9 @@ import { BaseGame } from "../core/BaseGame";
 import { InputManager } from "../core/InputManager";
 import { AudioManager } from "../core/AudioManager";
 import { ParticleSystem } from "../core/ParticleSystem";
+import { BRANDING } from "../config/branding";
 
-type CollectibleType = "gift_red" | "gift_green" | "candy" | "teddy" | "robot" | "logo_feria";
+type CollectibleType = "gift_red" | "gift_green" | "candy" | "teddy" | "robot" | "logo_feria" | "logo_sponsor";
 type ObstacleType = "snowman" | "crystal" | "log" | "rock" | "ice";
 type SegmentKind = "flat" | "hill" | "valley" | "rolling" | "kicker";
 
@@ -34,6 +35,7 @@ interface SledCollectible {
   worldX: number;
   y: number;
   type: CollectibleType;
+  sponsorId?: string;
   points: number;
   size: number;
   floatPhase: number;
@@ -510,14 +512,15 @@ export class SantaHillsGame extends BaseGame {
     return true;
   }
 
-  private addCollectible(x: number, y: number, type: CollectibleType): void {
+  private addCollectible(x: number, y: number, type: CollectibleType, sponsorId?: string): void {
     const sizes: Record<CollectibleType, number> = {
       gift_red: 50,
       gift_green: 50,
       candy: 48,
       teddy: 56,
       robot: 54,
-      logo_feria: 84
+      logo_feria: 84,
+      logo_sponsor: 84
     };
     const pts: Record<CollectibleType, number> = {
       gift_red: 100,
@@ -525,12 +528,14 @@ export class SantaHillsGame extends BaseGame {
       candy: 50,
       teddy: 250,
       robot: 300,
-      logo_feria: 500
+      logo_feria: 500,
+      logo_sponsor: 500
     };
     this.collectibles.push({
       worldX: x,
       y,
       type,
+      sponsorId,
       points: pts[type],
       size: sizes[type],
       floatPhase: Math.random() * Math.PI * 2
@@ -659,7 +664,8 @@ export class SantaHillsGame extends BaseGame {
     // Buscar un hueco libre en el segmento
     for (let x = Math.max(a + 80, this.nextLogoX); x < b - 80; x += 40) {
       if (this.isFree(x - 70, x + 70)) {
-        this.addCollectible(x, this.terrainY(x) - 135, "logo_feria");
+        const sponsor = BRANDING.getRandomSponsor();
+        this.addCollectible(x, this.terrainY(x) - 135, "logo_sponsor", sponsor.id);
         this.reserve(x - 70, x + 70);
         this.nextLogoX = x + rand(3600, 4800);
         return;
@@ -700,8 +706,8 @@ export class SantaHillsGame extends BaseGame {
     this.updateViewport();
     this.totalPlayTime += dt;
 
-    this.diffMult = 1 + Math.min(0.45, (this.totalPlayTime / 45) * 0.45);
-    const turbo = this.isLogoPowerUpActive ? 1.25 : 1;
+    this.diffMult = 1 + Math.min(0.75, (this.totalPlayTime / 35) * 0.75);
+    const turbo = this.isLogoPowerUpActive ? 1.30 : 1;
     const targetSpeed = BASE_SPEED * this.diffMult * turbo;
     const maxSpeed = MAX_SPEED * this.diffMult * turbo;
 
@@ -1004,14 +1010,17 @@ export class SantaHillsGame extends BaseGame {
     const x = this.sx(c.worldX - this.worldDistance);
     const y = this.sy(c.y);
 
-    if (c.type === "logo_feria") {
+    if (c.type === "logo_sponsor" || c.type === "logo_feria") {
+      const sponsorKey = c.sponsorId || "feria";
+      const sponsor = BRANDING.getLogoConfig(sponsorKey);
       this.isLogoPowerUpActive = true;
-      this.logoPowerUpTimer = 6;
-      this.timeRemaining = Math.min(45, this.timeRemaining + 3);
+      this.logoPowerUpTimer = 3.5;
+      this.activeLogo = sponsor;
+      this.timeRemaining = Math.min(45, this.timeRemaining + 1.5);
       this.score += 500;
       this.audio.playPowerUp();
       this.particles.emitConfetti(this.width, 40);
-      this.addFloatingText("¡TRINEO DORADO! +3s", x, y - 30, "#FFD700", 1.35);
+      this.addFloatingText(`¡BONUS ${sponsor.shortName.toUpperCase()}! +1.5s & x2`, x, y - 30, sponsor.themeColor, 1.35);
       return;
     }
 
@@ -1420,20 +1429,48 @@ export class SantaHillsGame extends BaseGame {
       const bob = Math.sin(c.floatPhase) * 4;
       const s = c.size;
 
-      if (c.type === "logo_feria") {
-        // Halo dorado pintado (anillo), legible pero discreto
+      if (c.type === "logo_feria" || c.type === "logo_sponsor") {
+        const sponsorKey = c.sponsorId || "feria";
+        const sponsor = BRANDING.getLogoConfig(sponsorKey);
+        const sponsorImg = this.getSponsorImage(sponsor.id) || this.imgMedallonFeria;
+
+        // Halo pintado y anillo temático del patrocinador
         const pulse = 1 + Math.sin(c.floatPhase * 1.5) * 0.06;
         ctx.save();
         ctx.translate(x, c.y + bob);
         ctx.scale(pulse, pulse);
-        const halo = ctx.createRadialGradient(0, 0, s * 0.3, 0, 0, s * 0.75);
-        halo.addColorStop(0, "rgba(255, 224, 130, 0.45)");
-        halo.addColorStop(1, "rgba(255, 224, 130, 0)");
+
+        const halo = ctx.createRadialGradient(0, 0, s * 0.25, 0, 0, s * 0.75);
+        halo.addColorStop(0, sponsor.themeColor + "80");
+        halo.addColorStop(1, "rgba(0, 0, 0, 0)");
         ctx.fillStyle = halo;
         ctx.beginPath();
         ctx.arc(0, 0, s * 0.75, 0, Math.PI * 2);
         ctx.fill();
-        ctx.drawImage(img, -s / 2, -s / 2, s, s);
+
+        // Base circular blanca nítida
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath();
+        ctx.arc(0, 0, s * 0.44, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = sponsor.themeColor;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        if (sponsorImg && sponsorImg.complete && sponsorImg.naturalWidth > 0) {
+          const aspect = sponsorImg.naturalWidth / (sponsorImg.naturalHeight || 1);
+          let logoW = s * 0.78;
+          let logoH = s * 0.78;
+          if (aspect > 1.35) {
+            logoW = s * 0.85;
+            logoH = logoW / aspect;
+          } else if (aspect < 0.75) {
+            logoH = s * 0.85;
+            logoW = logoH * aspect;
+          }
+          ctx.drawImage(sponsorImg, -logoW / 2, -logoH / 2, logoW, logoH);
+        }
         ctx.restore();
         continue;
       }

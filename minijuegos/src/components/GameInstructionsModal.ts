@@ -119,6 +119,24 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
       { iconName: "snowflake", label: "Hielo (Frena y pierde poderes)" }
     ],
     controls: "Toca para saltar, doble toque en el aire o [ Espacio / W / ▲ ]"
+  },
+  "snowball-target": {
+    id: "snowball-target",
+    title: "Tiro al Blanco Navideño",
+    iconName: "target",
+    themeColor: "#00E676",
+    goal: "Apunta y lanza bolas de nieve a las dianas y enemigos. ¡Los logos de patrocinadores te darán superpoderes únicos!",
+    positiveItems: [
+      { iconName: "target", label: "Dianas, Juguetes y Regalos (+150 a +300 pts)" },
+      { iconName: "star", label: "Logos Patrocinador (¡Superpoderes: Triple Tiro, Slow-Mo, Mega-Bola, Escudo!)" },
+      { iconName: "award", label: "Elfo Pillo Enemigo (+350 pts si lo atrapas rápido)" }
+    ],
+    negativeItems: [
+      { iconName: "flame", label: "Carbón Ardiente (-150 pts y rompe la racha)" },
+      { iconName: "snowflake", label: "Cristal Helado (-200 pts y congela tu resortera)" },
+      { iconName: "skull", label: "Muñeco Gruñón (¡Te arrojará nieve a la lente si no lo abates!)" }
+    ],
+    controls: "Toca o haz clic en cualquier diana para disparar tu resortera"
   }
 };
 

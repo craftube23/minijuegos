@@ -60,9 +60,9 @@ export class MagicPairsGame extends BaseGame {
   private spriteHouse: HTMLImageElement;
   private spriteStarLogo: HTMLImageElement;
   private spriteLogo1: HTMLImageElement;
-  private spriteLogo2: HTMLImageElement;
   private spriteMedallion: HTMLImageElement;
   private bgImage: HTMLImageElement;
+  private sponsorCardSprites: Map<string, HTMLImageElement> = new Map();
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -93,13 +93,22 @@ export class MagicPairsGame extends BaseGame {
     this.spriteHouse = this.createImage("./assets/images/casa-obstaculo.png");
     this.spriteStarLogo = this.createImage("./assets/images/estrella con logo.png");
     this.spriteLogo1 = this.createImage(BRANDING.getLogoPath(1));
-    this.spriteLogo2 = this.createImage(BRANDING.getLogoPath(2));
     this.spriteMedallion = this.createImage("./assets/images/medallon-feria.png");
     this.bgImage = this.createImage("./assets/images/fondo-habitacion.webp");
+
+    // Precargar sprites de todos los patrocinadores oficiales
+    for (const sponsor of BRANDING.getAllSponsors()) {
+      const img = this.createImage(sponsor.path);
+      this.sponsorCardSprites.set(sponsor.id, img);
+      this.sponsorCardSprites.set(sponsor.shortName.toLowerCase(), img);
+    }
 
     // Música temática para el juego de memoria
     this.inGameMusicPath = "./assets/audio/We Wish You a Merry Christmas.mp3";
     this.inGameMusicVolume = 0.45;
+
+    // Precargar efectos de sonido de cartas para respuesta inmediata (0ms latencia)
+    this.audio.preloadMagicPairsAudio();
   }
 
   private createImage(src: string): HTMLImageElement {
@@ -123,6 +132,9 @@ export class MagicPairsGame extends BaseGame {
     this.firstSelectedCard = null;
     this.secondSelectedCard = null;
     this.isCheckingMatch = false;
+
+    // Asegurar precarga y desbloqueo de audio para latencia cero
+    this.audio.preloadMagicPairsAudio();
 
     // Asignar manejador de interacción táctil / ratón
     this.input.onTap = (x: number, y: number) => {
@@ -190,7 +202,14 @@ export class MagicPairsGame extends BaseGame {
       { key: "teddy", name: "Osito", isSpecial: false },
       { key: "robot", name: "Robot", isSpecial: false },
       { key: "fair_logo", name: "Feria Mágica", isSpecial: true },
-      { key: "campus_logo", name: "Campuslands", isSpecial: true }
+      { key: "campus_logo", name: "Campuslands", isSpecial: true },
+      { key: "cajasan_logo", name: "Cajasan", isSpecial: true },
+      { key: "practi_logo", name: "Practi Arepa", isSpecial: true },
+      { key: "mariposa_logo", name: "Dulces Mariposa", isSpecial: true },
+      { key: "angelus_logo", name: "Ángelus Seguridad", isSpecial: true },
+      { key: "factor_logo", name: "Factor Humano", isSpecial: true },
+      { key: "fundalas_logo", name: "Fundalas", isSpecial: true },
+      { key: "imebu_logo", name: "IMEBU", isSpecial: true }
     ];
 
     // Número de parejas según el nivel
@@ -204,14 +223,32 @@ export class MagicPairsGame extends BaseGame {
       this.totalPairs = 6; // 12 cartas (3x4)
     }
 
-    // Barajar el catálogo completo (Fisher-Yates)
-    const shuffledPool = [...fullPool];
-    for (let i = shuffledPool.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledPool[i], shuffledPool[j]] = [shuffledPool[j], shuffledPool[i]];
-    }
+    // Separar juguetes clásicos y patrocinadores para garantizar presencia de marcas
+    const sponsorPairs = fullPool.filter((p) => p.isSpecial);
+    const standardPairs = fullPool.filter((p) => !p.isSpecial);
 
-    const selectedPairs = shuffledPool.slice(0, this.totalPairs);
+    // Barajar ambos conjuntos (Fisher-Yates)
+    const shuffleArray = <T>(arr: T[]): T[] => {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+
+    const shuffledSponsors = shuffleArray(sponsorPairs);
+    const shuffledStandards = shuffleArray(standardPairs);
+
+    // Cantidad equilibrada de cartas de patrocinadores (al menos 1 en nivel 1-2, 2-3 en niveles superiores)
+    const numSponsors = Math.min(shuffledSponsors.length, Math.max(1, Math.floor(this.totalPairs * 0.45)));
+    const numStandards = this.totalPairs - numSponsors;
+
+    const selectedPairs = [
+      ...shuffledSponsors.slice(0, numSponsors),
+      ...shuffledStandards.slice(0, numStandards)
+    ];
+
     const rawDeck: Array<{ pairKey: string; isSpecial: boolean }> = [];
     for (const p of selectedPairs) {
       rawDeck.push({ pairKey: p.key, isSpecial: p.isSpecial });
@@ -354,10 +391,9 @@ export class MagicPairsGame extends BaseGame {
     this.audio.playCardMatch(); // Sonido exclusivo de pareja acertada
 
     const isLogo = this.firstSelectedCard.isSpecialLogo;
-    const isCampus = this.firstSelectedCard.pairKey === "campus_logo";
-    const isFair = this.firstSelectedCard.pairKey === "fair_logo";
-    const isStar = this.firstSelectedCard.pairKey === "star_logo";
-    const isElf = this.firstSelectedCard.pairKey === "elf_flyer";
+    const pairKey = this.firstSelectedCard.pairKey;
+    const isStar = pairKey === "star_logo";
+    const isElf = pairKey === "elf_flyer";
     const points = isLogo ? 500 : (isElf ? 300 : 200);
 
     this.addScore(points);
@@ -365,27 +401,28 @@ export class MagicPairsGame extends BaseGame {
     const centerX = (this.firstSelectedCard.x + this.secondSelectedCard.x) / 2 + this.firstSelectedCard.w / 2;
     const centerY = (this.firstSelectedCard.y + this.secondSelectedCard.y) / 2 + this.firstSelectedCard.h / 2;
 
-    if (isFair) {
-      this.triggerLogoPowerUp(1, 6);
-      this.addFloatingText("¡PAREJA FERIA MÁGICA! +500", centerX, centerY, "#FFD700", 1.35);
-      this.particles.emitConfetti(this.width, 35);
-    } else if (isCampus) {
-      this.triggerLogoPowerUp(2, 6);
-      this.addFloatingText("¡PAREJA CAMPUSLANDS! +500", centerX, centerY, "#00E5FF", 1.35);
-      this.particles.emitConfetti(this.width, 35);
+    // Detectar si la pareja corresponde a un patrocinador oficial
+    const sponsorKey = pairKey.replace("_logo", "");
+    const sponsorConfig = BRANDING.sponsors[sponsorKey] || (pairKey === "fair_logo" ? BRANDING.sponsors.feria : null);
+
+    if (sponsorConfig) {
+      this.triggerLogoPowerUp(sponsorConfig.id, 6);
+      this.addFloatingText(`¡PAREJA ${sponsorConfig.shortName.toUpperCase()}! +500`, centerX, centerY, sponsorConfig.themeColor, 1.35);
+      this.particles.emitBurst(centerX, centerY, sponsorConfig.themeColor, 30);
+      this.particles.emitConfetti(this.width, 30);
     } else if (isStar) {
       this.addFloatingText("¡ESTRELLA MÁGICA! +500", centerX, centerY, "#FFE082", 1.35);
       this.particles.emitBurst(centerX, centerY, "#FFD700", 25);
     } else if (isElf) {
       this.addFloatingText("¡ELFO VOLADOR! +300", centerX, centerY, "#76FF03", 1.3);
       this.particles.emitBurst(centerX, centerY, "#00E676", 20);
-    } else if (this.firstSelectedCard.pairKey === "candy_cane") {
+    } else if (pairKey === "candy_cane") {
       this.addFloatingText("¡BASTÓN DULCE! +200", centerX, centerY, "#FF1744", 1.25);
       this.particles.emitBurst(centerX, centerY, "#FF5252", 18);
-    } else if (this.firstSelectedCard.pairKey === "drums") {
+    } else if (pairKey === "drums") {
       this.addFloatingText("¡TAMBORES! +200", centerX, centerY, "#FF9100", 1.25);
       this.particles.emitBurst(centerX, centerY, "#FFAB40", 18);
-    } else if (this.firstSelectedCard.pairKey === "bells") {
+    } else if (pairKey === "bells") {
       this.addFloatingText("¡CAMPANAS! +200", centerX, centerY, "#FFD700", 1.25);
       this.particles.emitBurst(centerX, centerY, "#FFE57F", 18);
     } else {
@@ -640,8 +677,8 @@ export class MagicPairsGame extends BaseGame {
     halfH: number,
     isMismatch: boolean
   ): void {
-    const isFair = card.pairKey === "fair_logo";
-    const isCampus = card.pairKey === "campus_logo";
+    const sponsorKey = card.pairKey.replace("_logo", "");
+    const sponsorConfig = BRANDING.sponsors[sponsorKey] || (card.pairKey === "fair_logo" ? BRANDING.sponsors.feria : null);
     const isStar = card.pairKey === "star_logo";
 
     ctx.save();
@@ -655,12 +692,9 @@ export class MagicPairsGame extends BaseGame {
     } else if (isMismatch) {
       frontGrad.addColorStop(0, "#FEE2E2");
       frontGrad.addColorStop(1, "#FECACA");
-    } else if (isFair || isStar) {
-      frontGrad.addColorStop(0, "#FFFBEB");
-      frontGrad.addColorStop(1, "#FEF3C7");
-    } else if (isCampus) {
-      frontGrad.addColorStop(0, "#F0FDFA");
-      frontGrad.addColorStop(1, "#CCFBF1");
+    } else if (sponsorConfig) {
+      frontGrad.addColorStop(0, "#FFFFFF");
+      frontGrad.addColorStop(1, "#F8FAFC");
     } else {
       frontGrad.addColorStop(0, "#FFFFFF");
       frontGrad.addColorStop(1, "#F8FAFC");
@@ -671,8 +705,8 @@ export class MagicPairsGame extends BaseGame {
     ctx.roundRect(-halfW, -halfH, card.w, card.h, [16]);
     ctx.fill();
 
-    // Borde exterior
-    let strokeColor = isFair || isStar ? "#F59E0B" : (isCampus ? "#06B6D4" : "#D4AF37");
+    // Borde exterior con color temático del patrocinador
+    let strokeColor = sponsorConfig ? sponsorConfig.themeColor : (isStar ? "#F59E0B" : "#D4AF37");
     if (card.isMatched) strokeColor = "#10B981";
     if (isMismatch) strokeColor = "#EF4444";
 
@@ -682,10 +716,21 @@ export class MagicPairsGame extends BaseGame {
 
     // Sprite HD del Juguete o Logo
     const imgToDraw = this.getSpriteForCard(card.pairKey);
-    const iconSize = Math.min(card.w, card.h) * 0.68;
+    const iconSize = Math.min(card.w, card.h) * 0.70;
 
     if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth > 0) {
-      ctx.drawImage(imgToDraw, -iconSize / 2, -iconSize / 2 - 4, iconSize, iconSize);
+      // Si es un logo de patrocinador con relación de aspecto ancha, mantener proporción contain
+      const aspect = imgToDraw.naturalWidth / (imgToDraw.naturalHeight || 1);
+      let drawW = iconSize;
+      let drawH = iconSize;
+      if (aspect > 1.3) {
+        drawW = Math.min(card.w * 0.82, iconSize * 1.35);
+        drawH = drawW / aspect;
+      } else if (aspect < 0.75) {
+        drawH = iconSize;
+        drawW = drawH * aspect;
+      }
+      ctx.drawImage(imgToDraw, -drawW / 2, -drawH / 2 - 4, drawW, drawH);
     } else {
       ctx.fillStyle = strokeColor;
       ctx.beginPath();
@@ -693,19 +738,13 @@ export class MagicPairsGame extends BaseGame {
       ctx.fill();
     }
 
-    // Etiquetas especiales
-    if (isFair) {
-      ctx.fillStyle = "#B45309";
+    // Etiquetas especiales y badge del patrocinador
+    if (sponsorConfig) {
+      ctx.fillStyle = sponsorConfig.accentColor || sponsorConfig.themeColor;
       ctx.font = "900 11px 'Titan One', cursive, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("FERIA x2", 0, halfH - 12);
-    } else if (isCampus) {
-      ctx.fillStyle = "#0F766E";
-      ctx.font = "900 11px 'Titan One', cursive, sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("CAMPUS x2", 0, halfH - 12);
+      ctx.fillText(`${sponsorConfig.shortName.toUpperCase()} x2`, 0, halfH - 12);
     } else if (isStar) {
       ctx.fillStyle = "#B45309";
       ctx.font = "900 11px 'Titan One', cursive, sans-serif";
@@ -718,6 +757,12 @@ export class MagicPairsGame extends BaseGame {
   }
 
   private getSpriteForCard(pairKey: string): HTMLImageElement | null {
+    const sponsorKey = pairKey.replace("_logo", "");
+    const sponsorConfig = BRANDING.sponsors[sponsorKey] || (pairKey === "fair_logo" ? BRANDING.sponsors.feria : null);
+    if (sponsorConfig) {
+      return this.sponsorCardSprites.get(sponsorConfig.id) || this.spriteLogo1;
+    }
+
     switch (pairKey) {
       case "elf_flyer": return this.spriteFlyingElf;
       case "candy_cane": return this.spriteCandyCane;
@@ -730,8 +775,6 @@ export class MagicPairsGame extends BaseGame {
       case "gift_green": return this.spriteGiftGreen;
       case "teddy": return this.spriteTeddy;
       case "robot": return this.spriteRobot;
-      case "fair_logo": return this.spriteLogo1;
-      case "campus_logo": return this.spriteLogo2;
       default: return null;
     }
   }

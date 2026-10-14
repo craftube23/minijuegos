@@ -3562,6 +3562,518 @@ html, body {
 }
 
 /* ==========================================================================
+   TRANSICIÓN DE REGALO MÁGICO 2D STYLIZED CONCEPT ART (Supercell / Disney Klaus)
+   ========================================================================== */
+.gift-transition-overlay.fantasy-gift-mode {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  overflow: hidden;
+  perspective: 1400px;
+  background: rgba(8, 2, 4, 0.4);
+}
+
+/* Solapas de Arte Conceptual 2D de Alta Definición */
+.fantasy-gift-flap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.4%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  will-change: transform, opacity;
+  z-index: 2;
+  box-shadow: 0 10px 45px rgba(0, 0, 0, 0.85);
+  transition: transform 0.38s cubic-bezier(0.18, 1, 0.28, 1), opacity 0.32s ease;
+}
+
+.fantasy-gift-flap.flap-left {
+  left: 0;
+  background-image: url('../public/assets/images/regalo-flap-left.webp');
+  background-position: right center;
+  transform: translateX(-102%);
+  transform-origin: left center;
+}
+
+.fantasy-gift-flap.flap-right {
+  right: 0;
+  background-image: url('../public/assets/images/regalo-flap-right.webp');
+  background-position: left center;
+  transform: translateX(102%);
+  transform-origin: right center;
+}
+
+/* Estado de Envoltura (Cerrado Total Hermético) */
+.gift-transition-overlay.fantasy-gift-mode.is-wrapping .fantasy-gift-flap.flap-left {
+  transform: translateX(0);
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-wrapping .fantasy-gift-flap.flap-right {
+  transform: translateX(0);
+}
+
+/* Estado de Desempaque Mágico (Apertura de Puertas en 3D con Perspectiva) */
+.gift-transition-overlay.fantasy-gift-mode.is-unwrapping .fantasy-gift-flap.flap-left {
+  transform: translate3d(-108%, 0, 150px) rotateY(-26deg);
+  opacity: 0;
+  transition: transform 0.48s cubic-bezier(0.2, 0.9, 0.25, 1), opacity 0.4s ease-out;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-unwrapping .fantasy-gift-flap.flap-right {
+  transform: translate3d(108%, 0, 150px) rotateY(26deg);
+  opacity: 0;
+  transition: transform 0.48s cubic-bezier(0.2, 0.9, 0.25, 1), opacity 0.4s ease-out;
+}
+
+/* Costura de Luz Mágica Central */
+.fantasy-gift-seam-glow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 14px;
+  transform: translateX(-50%) scaleY(0);
+  background: linear-gradient(180deg, transparent 0%, #FFF9C4 18%, #FFD700 50%, #FFF9C4 82%, transparent 100%);
+  box-shadow: 0 0 40px 14px #FFD700, 0 0 70px 24px #FF8F00;
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.18, 1, 0.28, 1), opacity 0.3s ease;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-wrapping .fantasy-gift-seam-glow {
+  transform: translateX(-50%) scaleY(1);
+  opacity: 0.95;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-unwrapping .fantasy-gift-seam-glow {
+  transform: translateX(-50%) scaleX(3.5) scaleY(1.3);
+  opacity: 0;
+  transition: transform 0.35s ease-out, opacity 0.3s ease-out;
+}
+
+/* Partículas Mágicas Flotantes en 3D */
+.fantasy-gift-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-wrapping .fantasy-gift-sparkles {
+  opacity: 1;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-unwrapping .fantasy-gift-sparkles {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.f-sparkle {
+  position: absolute;
+  font-size: 1.8rem;
+  color: #FFD700;
+  filter: drop-shadow(0 0 14px rgba(255, 215, 0, 0.95));
+  animation: fantasySparkleOrbit 2s infinite alternate ease-in-out;
+}
+
+.f-sparkle.s1 { top: 12%; left: 16%; animation-delay: 0s; }
+.f-sparkle.s2 { top: 18%; right: 16%; animation-delay: 0.3s; font-size: 2.2rem; }
+.f-sparkle.s3 { bottom: 22%; left: 18%; animation-delay: 0.6s; }
+.f-sparkle.s4 { bottom: 18%; right: 18%; animation-delay: 0.9s; font-size: 2.4rem; color: #FFFFFF; }
+.f-sparkle.s5 { top: 48%; left: 8%; animation-delay: 1.2s; }
+.f-sparkle.s6 { top: 52%; right: 8%; animation-delay: 1.5s; font-size: 2rem; }
+
+@keyframes fantasySparkleOrbit {
+  0% { transform: translateY(0) scale(0.85) rotate(0deg); opacity: 0.6; }
+  100% { transform: translateY(-14px) scale(1.25) rotate(45deg); opacity: 1; }
+}
+
+/* Medallón Central Tallado en Oro y Fantasía */
+.fantasy-crest-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.2);
+  opacity: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 38px;
+  background: radial-gradient(circle at center, rgba(30, 8, 20, 0.97) 0%, rgba(12, 3, 8, 0.99) 100%);
+  border: 3.5px solid var(--seal-theme-color, #FFD700);
+  border-radius: 32px;
+  box-shadow: 
+    0 18px 50px rgba(0, 0, 0, 0.92),
+    0 0 35px var(--seal-theme-color, rgba(255, 215, 0, 0.65)),
+    inset 0 0 25px rgba(255, 215, 0, 0.22);
+  text-align: center;
+  max-width: min(90vw, 480px);
+  will-change: transform, opacity;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-wrapping .fantasy-crest-badge {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-unwrapping .fantasy-crest-badge {
+  transform: translate(-50%, -50%) scale(1.3) rotate(3deg);
+  opacity: 0;
+  filter: blur(10px);
+  transition: transform 0.38s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.35s ease-out, filter 0.35s ease-out;
+}
+
+.fantasy-crest-glow {
+  position: absolute;
+  inset: -15px;
+  border-radius: 40px;
+  background: radial-gradient(circle, var(--seal-theme-color, rgba(255, 215, 0, 0.4)) 0%, transparent 70%);
+  filter: blur(15px);
+  pointer-events: none;
+  animation: crestGlowPulse 1.4s infinite ease-in-out alternate;
+}
+
+@keyframes crestGlowPulse {
+  from { opacity: 0.6; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1.06); }
+}
+
+.fantasy-crest-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.8));
+}
+
+.fantasy-crest-icon-wrapper svg {
+  filter: drop-shadow(0 0 16px var(--seal-theme-color, #FFD700));
+  animation: crestIconFloat 1.2s infinite ease-in-out alternate;
+}
+
+.fantasy-crest-logo-img {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9));
+  animation: crestIconFloat 1.2s infinite ease-in-out alternate;
+}
+
+@keyframes crestIconFloat {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-6px) scale(1.07); }
+}
+
+.fantasy-crest-title {
+  font-family: var(--font-festive), var(--font-main);
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: 0.8px;
+  text-shadow: 
+    0 3px 12px rgba(0, 0, 0, 0.95),
+    0 0 25px var(--seal-theme-color, #FFD700);
+}
+
+.fantasy-crest-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.25) 0%, rgba(255, 143, 0, 0.35) 100%);
+  border: 1.5px solid #FFD700;
+  padding: 6px 20px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #FFF9C4;
+  letter-spacing: 1.2px;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.4);
+}
+
+.fantasy-pill-star {
+  color: #FFD700;
+  font-size: 0.9rem;
+  animation: pillStarBlink 0.8s infinite alternate;
+}
+
+@keyframes pillStarBlink {
+  from { opacity: 0.5; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1.3); }
+}
+
+/* ==========================================================================
+   EFECTO DE RASGADO Y ZARPAZO 2D STYLIZED GAME ART (.is-tearing-slash)
+   ========================================================================== */
+.fantasy-tear-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('../public/assets/images/regalo-navideno-full.webp');
+  background-size: cover;
+  background-position: center center;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-wrapping .fantasy-tear-bg {
+  opacity: 1;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .fantasy-tear-bg {
+  opacity: 0;
+  transition: opacity 0.3s ease-out 0.2s;
+}
+
+/* Capas Físicas de Papel de Regalo 2D que se Desgarran */
+.fantasy-tear-layer {
+  position: absolute;
+  background-image: url('../public/assets/images/regalo-navideno-full.webp');
+  background-size: cover;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.9);
+  will-change: transform, opacity;
+  z-index: 2;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.18, 1, 0.28, 1);
+}
+
+.fantasy-tear-layer.layer-left {
+  top: 0;
+  left: 0;
+  width: 54%;
+  height: 100%;
+  background-position: left center;
+  transform: translateX(-102%);
+  clip-path: polygon(0% 0%, 100% 0%, 93% 16%, 100% 32%, 89% 50%, 100% 68%, 91% 84%, 100% 100%, 0% 100%);
+  z-index: 3;
+}
+
+.fantasy-tear-layer.layer-right {
+  top: 0;
+  right: 0;
+  width: 54%;
+  height: 100%;
+  background-position: right center;
+  transform: translateX(102%);
+  clip-path: polygon(7% 0%, 100% 0%, 100% 100%, 0% 100%, 9% 84%, 0% 68%, 11% 50%, 0% 32%, 7% 16%);
+  z-index: 3;
+}
+
+.fantasy-tear-layer.layer-center-rip {
+  top: 0;
+  left: 32%;
+  width: 36%;
+  height: 100%;
+  background-position: center center;
+  transform: translateY(-102%);
+  clip-path: polygon(10% 0%, 90% 0%, 100% 18%, 88% 36%, 100% 54%, 86% 72%, 98% 88%, 90% 100%, 10% 100%, 2% 88%, 14% 72%, 0% 54%, 12% 36%, 0% 18%);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.95);
+  z-index: 4;
+}
+
+/* Wrapping (se cierra el regalo antes del rasgado) */
+.gift-transition-overlay.fantasy-gift-mode.is-wrapping .fantasy-tear-layer.layer-left {
+  transform: translateX(0);
+}
+.gift-transition-overlay.fantasy-gift-mode.is-wrapping .fantasy-tear-layer.layer-right {
+  transform: translateX(0);
+}
+.gift-transition-overlay.fantasy-gift-mode.is-wrapping .fantasy-tear-layer.layer-center-rip {
+  transform: translateY(0);
+}
+
+/* Tearing Slash (¡EL EFECTO DE RASGADO EN 3D!) */
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .fantasy-tear-layer.layer-center-rip {
+  transform: translate3d(0, -140%, 200px) rotateX(85deg) scale(1.15);
+  opacity: 0;
+  transition: transform 0.48s cubic-bezier(0.15, 1, 0.25, 1) 0.16s, opacity 0.38s ease-out 0.16s;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .fantasy-tear-layer.layer-left {
+  transform: translate3d(-135%, 0, 160px) rotateY(-80deg) rotateZ(-18deg);
+  opacity: 0;
+  transition: transform 0.52s cubic-bezier(0.15, 1, 0.25, 1) 0.24s, opacity 0.4s ease-out 0.24s;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .fantasy-tear-layer.layer-right {
+  transform: translate3d(135%, 0, 160px) rotateY(80deg) rotateZ(18deg);
+  opacity: 0;
+  transition: transform 0.52s cubic-bezier(0.15, 1, 0.25, 1) 0.24s, opacity 0.4s ease-out 0.24s;
+}
+
+/* Bordes Dentados Luminosos de Papel Rasgado */
+.fantasy-tear-jagged-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFD700 50%, #FF8F00 100%);
+  box-shadow: 0 0 16px 4px rgba(255, 215, 0, 0.95);
+  pointer-events: none;
+}
+.fantasy-tear-jagged-edge.edge-left { left: 0; }
+.fantasy-tear-jagged-edge.edge-right { right: 0; }
+
+/* Cortes de Garras / Cuchilladas de Luz Mágica (Claw Slashes) */
+.fantasy-claw-slash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 140vw;
+  height: 14px;
+  transform: translate(-50%, -50%) rotate(-32deg) scaleX(0);
+  background: linear-gradient(90deg, transparent 0%, #FFFFFF 20%, #FFF9C4 35%, #FFD700 50%, #FF8F00 70%, transparent 100%);
+  box-shadow: 0 0 35px 12px #FFD700, 0 0 70px 24px #FF3D00;
+  border-radius: 10px;
+  z-index: 25;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .slash-1 {
+  animation: clawSlashAnimation 0.38s cubic-bezier(0.1, 1, 0.2, 1) 0.05s forwards;
+  margin-top: -90px;
+}
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .slash-2 {
+  animation: clawSlashAnimation 0.38s cubic-bezier(0.1, 1, 0.2, 1) 0.12s forwards;
+  margin-top: 0px;
+}
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .slash-3 {
+  animation: clawSlashAnimation 0.38s cubic-bezier(0.1, 1, 0.2, 1) 0.20s forwards;
+  margin-top: 90px;
+}
+
+@keyframes clawSlashAnimation {
+  0% { transform: translate(-50%, -50%) rotate(-32deg) scaleX(0) scaleY(0.4); opacity: 0; }
+  35% { transform: translate(-50%, -50%) rotate(-32deg) scaleX(1) scaleY(2.2); opacity: 1; filter: brightness(2.5); }
+  75% { transform: translate(-50%, -50%) rotate(-32deg) scaleX(1.05) scaleY(1); opacity: 0.95; }
+  100% { transform: translate(-50%, -50%) rotate(-32deg) scaleX(1.15) scaleY(0.2); opacity: 0; }
+}
+
+/* Cintas de Satén que Revientan */
+.fantasy-tear-ribbon {
+  position: absolute;
+  background: linear-gradient(135deg, #FFF9C4 0%, #FFD700 40%, #FF8F00 70%, #C97500 100%);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.75), inset 0 2px 4px #FFFFFF;
+  z-index: 5;
+  transition: all 0.35s cubic-bezier(0.18, 1.25, 0.35, 1);
+  overflow: hidden;
+}
+
+.fantasy-tear-ribbon.ribbon-h {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 48px;
+  transform: translateY(-50%) scaleX(1);
+}
+
+.fantasy-tear-ribbon.ribbon-v {
+  left: 50%;
+  top: 0;
+  width: 48px;
+  height: 100%;
+  transform: translateX(-50%) scaleY(1);
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .fantasy-tear-ribbon.ribbon-h {
+  opacity: 0;
+  transform: translateY(-110px) scaleX(1.4) rotate(18deg);
+  transition: transform 0.42s cubic-bezier(0.15, 1, 0.3, 1) 0.12s, opacity 0.32s ease-out 0.12s;
+}
+
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .fantasy-tear-ribbon.ribbon-v {
+  opacity: 0;
+  transform: translateX(110px) scaleY(1.4) rotate(-18deg);
+  transition: transform 0.42s cubic-bezier(0.15, 1, 0.3, 1) 0.12s, opacity 0.32s ease-out 0.12s;
+}
+
+/* Retazos de Papel Ilustrado que Vuelan por los Aires */
+.fantasy-paper-shred {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: linear-gradient(135deg, #C9184A 0%, #FFD700 85%);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.85);
+  opacity: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.fantasy-paper-shred.shred-1 { width: 44px; height: 32px; clip-path: polygon(0% 20%, 90% 0%, 100% 80%, 20% 100%); }
+.fantasy-paper-shred.shred-2 { width: 52px; height: 38px; clip-path: polygon(15% 0%, 100% 25%, 85% 100%, 0% 80%); background: linear-gradient(135deg, #FFF9C4 0%, #FF8F00 100%); }
+.fantasy-paper-shred.shred-3 { width: 36px; height: 44px; clip-path: polygon(0% 0%, 100% 15%, 80% 100%, 10% 85%); }
+.fantasy-paper-shred.shred-4 { width: 56px; height: 28px; clip-path: polygon(25% 0%, 100% 30%, 75% 100%, 0% 70%); background: linear-gradient(135deg, #800F2F 0%, #FFD700 100%); }
+.fantasy-paper-shred.shred-5 { width: 34px; height: 34px; clip-path: polygon(0% 30%, 80% 0%, 100% 70%, 20% 100%); }
+.fantasy-paper-shred.shred-6 { width: 48px; height: 26px; clip-path: polygon(10% 0%, 100% 10%, 90% 100%, 0% 90%); }
+.fantasy-paper-shred.shred-7 { width: 40px; height: 40px; clip-path: polygon(0% 15%, 95% 0%, 100% 85%, 15% 100%); background: linear-gradient(135deg, #FFF9C4 0%, #FFD700 100%); }
+.fantasy-paper-shred.shred-8 { width: 54px; height: 32px; clip-path: polygon(20% 0%, 100% 40%, 70% 100%, 0% 60%); }
+
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .shred-1 { animation: fantasyShred1 0.65s cubic-bezier(0.1, 1, 0.3, 1) 0.16s forwards; }
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .shred-2 { animation: fantasyShred2 0.65s cubic-bezier(0.1, 1, 0.3, 1) 0.20s forwards; }
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .shred-3 { animation: fantasyShred3 0.65s cubic-bezier(0.1, 1, 0.3, 1) 0.24s forwards; }
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .shred-4 { animation: fantasyShred4 0.65s cubic-bezier(0.1, 1, 0.3, 1) 0.28s forwards; }
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .shred-5 { animation: fantasyShred5 0.65s cubic-bezier(0.1, 1, 0.3, 1) 0.32s forwards; }
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .shred-6 { animation: fantasyShred6 0.65s cubic-bezier(0.1, 1, 0.3, 1) 0.36s forwards; }
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .shred-7 { animation: fantasyShred7 0.65s cubic-bezier(0.1, 1, 0.3, 1) 0.40s forwards; }
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .shred-8 { animation: fantasyShred8 0.65s cubic-bezier(0.1, 1, 0.3, 1) 0.44s forwards; }
+
+@keyframes fantasyShred1 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-300px, -240px) scale(0.3) rotate(-380deg); opacity: 0; }
+}
+@keyframes fantasyShred2 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(300px, -260px) scale(0.25) rotate(350deg); opacity: 0; }
+}
+@keyframes fantasyShred3 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-260px, 280px) scale(0.3) rotate(-400deg); opacity: 0; }
+}
+@keyframes fantasyShred4 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(280px, 290px) scale(0.25) rotate(420deg); opacity: 0; }
+}
+@keyframes fantasyShred5 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-160px, -310px) scale(0.2) rotate(260deg); opacity: 0; }
+}
+@keyframes fantasyShred6 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(170px, 310px) scale(0.2) rotate(-260deg); opacity: 0; }
+}
+@keyframes fantasyShred7 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-340px, 120px) scale(0.25) rotate(-320deg); opacity: 0; }
+}
+@keyframes fantasyShred8 {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(340px, -120px) scale(0.25) rotate(320deg); opacity: 0; }
+}
+
+/* Explosión del Medallón al Desgarrar */
+.gift-transition-overlay.fantasy-gift-mode.is-tearing-slash .fantasy-crest-badge {
+  animation: crestTearExplode 0.48s cubic-bezier(0.15, 1, 0.3, 1) 0.12s forwards;
+}
+
+@keyframes crestTearExplode {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  35% { transform: translate(-50%, -58%) scale(1.18) rotate(-4deg); opacity: 1; filter: brightness(2); }
+  100% { transform: translate(-50%, -90%) scale(1.45) rotate(8deg); opacity: 0; filter: blur(14px); }
+}
+
+/* ==========================================================================
    TRANSICIÓN DE PAPEL DE REGALO RASGADO Y DESTAPADO 3D (Paper Rip & Tear)
    ========================================================================== */
 .gift-transition-overlay {
@@ -4431,11 +4943,13 @@ html, body {
    MODO DESEMPAQUE EMOCIONADO DE NIÑO CAPA POR CAPA (Excited Kid Unboxing)
    ========================================================================== */
 
-/* 1. Capas Físicas de Papel de Regalo Navideño */
+/* 1. Capas Físicas de Papel de Regalo Navideño 2D Stylized Game Concept Art */
 .kid-paper-layer {
   position: absolute;
-  background: linear-gradient(135deg, #4A040F 0%, #800F2F 35%, #A4133C 60%, #590D22 85%, #2B020B 100%);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8);
+  background-image: url('../public/assets/images/regalo-navideno-full.webp');
+  background-size: cover;
+  background-position: center center;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.9);
   will-change: transform, opacity;
   z-index: 2;
   overflow: hidden;
@@ -4443,57 +4957,373 @@ html, body {
   transition: transform 0.55s cubic-bezier(0.18, 1.15, 0.32, 1), opacity 0.4s ease;
 }
 
-/* 1.1 Solapa Inferior Base */
-.kid-paper-layer.layer-bottom {
-  inset: 0;
-  z-index: 2;
-  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-}
-
-/* 1.2 Solapa Izquierda */
+/* Capas Físicas Base con Mapeo Unificado */
+.kid-paper-layer.layer-1,
 .kid-paper-layer.layer-left {
   top: 0;
   left: 0;
-  width: 53%;
+  width: 100%;
   height: 100%;
   z-index: 3;
-  transform-origin: center left;
-  clip-path: polygon(0% 0%, 100% 0%, 94% 18%, 100% 36%, 92% 54%, 100% 72%, 93% 88%, 100% 100%, 0% 100%);
 }
 
-/* 1.3 Solapa Derecha */
+.kid-paper-layer.layer-2,
 .kid-paper-layer.layer-right {
   top: 0;
-  right: 0;
-  width: 53%;
+  left: 0;
+  width: 100%;
   height: 100%;
   z-index: 3;
-  transform-origin: center right;
-  clip-path: polygon(7% 0%, 100% 0%, 100% 100%, 0% 100%, 8% 82%, 0% 64%, 8% 46%, 0% 28%, 7% 12%);
 }
 
-/* 1.4 Tira Central de Rasgado Rápido */
+.kid-paper-layer.layer-3,
 .kid-paper-layer.layer-center-strip {
   top: 0;
-  left: 33%;
-  width: 34%;
+  left: 0;
+  width: 100%;
   height: 100%;
   z-index: 4;
-  transform-origin: top center;
-  clip-path: polygon(
-    12% 0%, 88% 0%, 
-    100% 18%, 88% 36%, 100% 54%, 86% 72%, 98% 88%, 90% 100%,
-    10% 100%, 2% 88%, 14% 72%, 0% 54%, 12% 36%, 0% 18%
-  );
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
 }
 
-/* Flecos Dentados y Fibras Blancas de Papel Rasgado */
-.kid-torn-fringe {
+/* ==========================================================================
+   PATRÓN 0: CRUZADO EN X & CENTRO DINÁMICO (Default / Cut Pattern 0)
+   ========================================================================== */
+.gift-transition-overlay.kid-unboxing-mode:not([class*="cut-pattern-"]) .layer-1,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-0 .layer-1 {
+  clip-path: polygon(0% 0%, 43% 0%, 21% 100%, 0% 100%);
+  transform-origin: center left;
+  transform: translate3d(-110%, 0, 100px) rotateY(35deg);
+}
+
+.gift-transition-overlay.kid-unboxing-mode:not([class*="cut-pattern-"]) .layer-2,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-0 .layer-2 {
+  clip-path: polygon(59% 0%, 100% 0%, 100% 100%, 77% 100%);
+  transform-origin: center right;
+  transform: translate3d(110%, 0, 100px) rotateY(-35deg);
+}
+
+.gift-transition-overlay.kid-unboxing-mode:not([class*="cut-pattern-"]) .layer-3,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-0 .layer-3 {
+  clip-path: polygon(41% 0%, 61% 0%, 79% 100%, 19% 100%);
+  transform-origin: top center;
+  transform: translate3d(0, -110%, 140px) scale(0.9);
+}
+
+/* ==========================================================================
+   PATRÓN 1: CORTE RAYO ZIG-ZAG & SOLAPA SUPERIOR TRANSVERSAL (Cut Pattern 1)
+   ========================================================================== */
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-1 .layer-1 {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 49%, 0% 41%);
+  transform-origin: top center;
+  transform: translate3d(0, -110%, 100px) rotateX(35deg);
+}
+
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-1 .layer-2 {
+  clip-path: polygon(47% 43%, 100% 47%, 100% 100%, 69% 100%);
+  transform-origin: bottom right;
+  transform: translate3d(110%, 60%, 100px) rotateZ(15deg);
+}
+
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-1 .layer-3 {
+  clip-path: polygon(0% 39%, 49% 45%, 71% 100%, 0% 100%);
+  transform-origin: bottom left;
+  transform: translate3d(-110%, 60%, 100px) rotateZ(-15deg);
+}
+
+/* ==========================================================================
+   PATRÓN 2: CORTE EN V MÁGICO & SOLAPAS ALADAS (Cut Pattern 2)
+   ========================================================================== */
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-2 .layer-1 {
+  clip-path: polygon(0% 0%, 51% 0%, 0% 86%);
+  transform-origin: top left;
+  transform: translate3d(-110%, -30%, 100px) rotateY(-35deg);
+}
+
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-2 .layer-2 {
+  clip-path: polygon(49% 0%, 100% 0%, 100% 86%);
+  transform-origin: top right;
+  transform: translate3d(110%, -30%, 100px) rotateY(35deg);
+}
+
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-2 .layer-3 {
+  clip-path: polygon(51% 0%, 100% 84%, 100% 100%, 0% 100%, 0% 84%);
+  transform-origin: bottom center;
+  transform: translate3d(0, 110%, 100px) rotateX(-35deg);
+}
+
+/* ==========================================================================
+   PATRÓN 3: CUCHILLADA ASIMÉTRICA DINÁMICA (Cut Pattern 3)
+   ========================================================================== */
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-3 .layer-1 {
+  clip-path: polygon(0% 0%, 36% 0%, 16% 100%, 0% 100%);
+  transform-origin: center left;
+  transform: translate3d(-110%, 0, 100px) rotateY(40deg);
+}
+
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-3 .layer-2 {
+  clip-path: polygon(34% 0%, 100% 0%, 100% 61%, 26% 39%);
+  transform-origin: top right;
+  transform: translate3d(110%, -50%, 100px) rotateZ(20deg);
+}
+
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-3 .layer-3 {
+  clip-path: polygon(28% 41%, 100% 59%, 100% 100%, 14% 100%);
+  transform-origin: bottom right;
+  transform: translate3d(110%, 60%, 100px) rotateZ(-20deg);
+}
+
+/* Fibra Blanca de Papel Rasgado (Textura y borde de pulpa blanca del papel roto) */
+.kid-torn-fiber {
   position: absolute;
-  background: linear-gradient(135deg, #FFFFFF 0%, #FFD700 50%, #C97500 100%);
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.9);
+  top: 0;
+  bottom: 0;
+  width: 7px;
   pointer-events: none;
+  background: repeating-linear-gradient(
+    180deg,
+    #FFFFFF 0px,
+    #F8F9FA 4px,
+    #E9ECEF 8px,
+    #FFF9E6 12px,
+    #FFFFFF 16px
+  );
+  box-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.95),
+    inset 0 0 3px rgba(0, 0, 0, 0.25);
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6));
+}
+
+.kid-torn-fiber.edge-left {
+  left: 0;
+  border-right: 1.5px dashed rgba(255, 215, 0, 0.7);
+}
+
+.kid-torn-fiber.edge-right {
+  right: 0;
+  border-left: 1.5px dashed rgba(255, 215, 0, 0.7);
+}
+
+/* Sombra de Curvatura Física del Papel Rasgado Proyectada sobre la Pantalla */
+.kid-paper-shadow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30px;
+  pointer-events: none;
+}
+
+.kid-paper-shadow.edge-right {
+  right: 7px;
+  background: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.75) 100%);
+}
+
+.kid-paper-shadow.edge-left {
+  left: 7px;
+  background: linear-gradient(to left, transparent 0%, rgba(0, 0, 0, 0.75) 100%);
+}
+
+/* Esquinas Dobladas / Arrugadas en 3D que muestran el Reverso Blanco del Papel */
+.kid-curl-corner {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 50%, #CED4DA 100%);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.75);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.kid-curl-corner.corner-tr {
+  top: 0;
+  right: 0;
+  clip-path: polygon(0% 0%, 100% 100%, 100% 0%);
+}
+
+.kid-curl-corner.corner-br {
+  bottom: 0;
+  right: 0;
+  clip-path: polygon(0% 100%, 100% 0%, 100% 100%);
+}
+
+.kid-curl-corner.corner-tl {
+  top: 0;
+  left: 0;
+  clip-path: polygon(0% 0%, 100% 0%, 0% 100%);
+}
+
+.kid-curl-corner.corner-bl {
+  bottom: 0;
+  left: 0;
+  clip-path: polygon(0% 0%, 100% 100%, 0% 100%);
+}
+
+/* Rayitos de Luz Cortante Sincronizados Coherentemente con la Línea de Corte */
+.kid-claw-cut {
+  position: absolute;
+  height: 12px;
+  background: linear-gradient(
+    90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.3) 6%, 
+    #FFFFFF 24%, 
+    #FFF9C4 44%, 
+    #FFD700 55%, 
+    #FF6B00 76%, 
+    #D90429 90%, 
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 20px 4px #FFFFFF,
+    0 0 45px 12px #FFD700,
+    0 0 85px 24px #FF3D00;
+  border-radius: 8px;
+  z-index: 25;
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: center center;
+  filter: drop-shadow(0 0 10px #FFD700);
+}
+
+.kid-claw-cut .cut-blade-beam {
+  position: absolute;
+  top: 2px;
+  left: 4%;
+  right: 4%;
+  bottom: 2px;
+  background: #FFFFFF;
+  border-radius: 6px;
+  box-shadow: 0 0 16px 4px #FFFFFF, 0 0 30px 8px #FFF9C4;
+}
+
+.kid-claw-cut .cut-burst-sparks {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 140px;
+  height: 28px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center, #FFFFFF 0%, rgba(255, 215, 0, 0.9) 45%, transparent 75%);
+  border-radius: 50%;
+  filter: blur(1.5px);
+  opacity: 0.9;
+}
+
+/* 1er Golpe de Audio (0.22s) */
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .cut-1 {
+  animation: kidClawCutAnim 0.40s cubic-bezier(0.1, 1, 0.2, 1) 0.20s forwards;
+}
+
+/* 2do Golpe de Audio (0.74s) */
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .cut-2 {
+  animation: kidClawCutAnim 0.40s cubic-bezier(0.1, 1, 0.2, 1) 0.72s forwards;
+}
+
+/* 3er Golpe de Audio (1.28s) */
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .cut-3 {
+  animation: kidClawCutAnim 0.44s cubic-bezier(0.1, 1, 0.2, 1) 1.25s forwards;
+}
+
+@keyframes kidClawCutAnim {
+  0% { transform: var(--cut-base-transform, translate(-50%, -50%)) scaleX(0) scaleY(0.3); opacity: 0; }
+  20% { transform: var(--cut-base-transform, translate(-50%, -50%)) scaleX(1.02) scaleY(2.2); opacity: 1; filter: brightness(3.5); }
+  60% { transform: var(--cut-base-transform, translate(-50%, -50%)) scaleX(1.08) scaleY(1); opacity: 0.95; filter: brightness(2); }
+  100% { transform: var(--cut-base-transform, translate(-50%, -50%)) scaleX(1.22) scaleY(0.1); opacity: 0; filter: brightness(1.2); }
+}
+
+/* Posición y Ángulo de Rayos por Patrón (100% Coherentes con la Costura de Corte) */
+/* Patrón 0: Cruzado en X & Centro */
+.gift-transition-overlay.kid-unboxing-mode:not([class*="cut-pattern-"]) .cut-1,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-0 .cut-1 {
+  --cut-base-transform: translate(-50%, -50%) rotate(77.6deg);
+  left: 31%;
+  top: 50%;
+  width: 140vh;
+  transform: translate(-50%, -50%) rotate(77.6deg) scaleX(0);
+}
+.gift-transition-overlay.kid-unboxing-mode:not([class*="cut-pattern-"]) .cut-2,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-0 .cut-2 {
+  --cut-base-transform: translate(-50%, -50%) rotate(-77.6deg);
+  left: 71%;
+  top: 50%;
+  width: 140vh;
+  transform: translate(-50%, -50%) rotate(-77.6deg) scaleX(0);
+}
+.gift-transition-overlay.kid-unboxing-mode:not([class*="cut-pattern-"]) .cut-3,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-0 .cut-3 {
+  --cut-base-transform: translate(-50%, -50%) rotate(90deg);
+  left: 50%;
+  top: 50%;
+  width: 130vh;
+  transform: translate(-50%, -50%) rotate(90deg) scaleX(0);
+}
+
+/* Patrón 1: Transversal Superior y Diagonal Inferior */
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-1 .cut-1 {
+  --cut-base-transform: translate(-50%, -50%) rotate(4.6deg);
+  left: 50%;
+  top: 44%;
+  width: 140vw;
+  transform: translate(-50%, -50%) rotate(4.6deg) scaleX(0);
+}
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-1 .cut-2 {
+  --cut-base-transform: translate(-50%, -50%) rotate(68.6deg);
+  left: 59%;
+  top: 72%;
+  width: 130vh;
+  transform: translate(-50%, -50%) rotate(68.6deg) scaleX(0);
+}
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-1 .cut-3 {
+  --cut-base-transform: translate(-50%, -50%) rotate(-45deg);
+  left: 35%;
+  top: 75%;
+  width: 120vh;
+  transform: translate(-50%, -50%) rotate(-45deg) scaleX(0);
+}
+
+/* Patrón 2: Corte en V Mágico */
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-2 .cut-1 {
+  --cut-base-transform: translate(-50%, -50%) rotate(-59.5deg);
+  left: 25%;
+  top: 42.5%;
+  width: 140vh;
+  transform: translate(-50%, -50%) rotate(-59.5deg) scaleX(0);
+}
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-2 .cut-2 {
+  --cut-base-transform: translate(-50%, -50%) rotate(59.5deg);
+  left: 75%;
+  top: 42.5%;
+  width: 140vh;
+  transform: translate(-50%, -50%) rotate(59.5deg) scaleX(0);
+}
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-2 .cut-3 {
+  --cut-base-transform: translate(-50%, -50%) rotate(0deg);
+  left: 50%;
+  top: 85%;
+  width: 125vw;
+  transform: translate(-50%, -50%) rotate(0deg) scaleX(0);
+}
+
+/* Patrón 3: Cuchillada Asimétrica Dinámica */
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-3 .cut-1 {
+  --cut-base-transform: translate(-50%, -50%) rotate(78.7deg);
+  left: 25%;
+  top: 50%;
+  width: 135vh;
+  transform: translate(-50%, -50%) rotate(78.7deg) scaleX(0);
+}
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-3 .cut-2 {
+  --cut-base-transform: translate(-50%, -50%) rotate(15.3deg);
+  left: 63.5%;
+  top: 50%;
+  width: 135vw;
+  transform: translate(-50%, -50%) rotate(15.3deg) scaleX(0);
+}
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-3 .cut-3 {
+  --cut-base-transform: translate(-50%, -50%) rotate(-35deg);
+  left: 57%;
+  top: 75%;
+  width: 130vh;
+  transform: translate(-50%, -50%) rotate(-35deg) scaleX(0);
 }
 
 .kid-torn-fringe.left { left: 0; top: 0; bottom: 0; width: 3px; }
@@ -4515,7 +5345,9 @@ html, body {
   left: 0;
   width: 100%;
   height: 48px;
-  transform: translateY(-50%) scaleX(1);
+  transform: translateY(-50%) scaleX(0);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.18, 1, 0.28, 1), opacity 0.3s ease;
 }
 
 .kid-ribbon.kid-ribbon-v {
@@ -4523,7 +5355,9 @@ html, body {
   top: 0;
   width: 48px;
   height: 100%;
-  transform: translateX(-50%) scaleY(1);
+  transform: translateX(-50%) scaleY(0);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.18, 1, 0.28, 1), opacity 0.3s ease;
 }
 
 /* 3. Manitas Rápidas que Desgarran con Euforia */
@@ -4597,11 +5431,42 @@ html, body {
   transition: transform 0.45s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.35s ease-out;
 }
 
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-center-box {
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .kid-center-box,
+.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .fantasy-crest-badge {
   transform: translate(-50%, -95%) scale(1.3) rotate(-4deg);
   opacity: 0;
   filter: blur(8px);
   transition: transform 0.45s cubic-bezier(0.15, 1, 0.3, 1), opacity 0.35s ease-out;
+}
+
+.gift-transition-overlay.kid-unboxing-mode .fantasy-crest-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.2);
+  opacity: 0;
+  z-index: 10;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+.gift-transition-overlay.kid-unboxing-mode.is-wrapping .fantasy-crest-badge {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+.gift-transition-overlay.kid-unboxing-mode.is-wrapping .kid-paper-layer {
+  transform: translate3d(0, 0, 0) rotate(0deg) scale(1) !important;
+  opacity: 1 !important;
+}
+
+.gift-transition-overlay.kid-unboxing-mode.is-wrapping .kid-ribbon.kid-ribbon-h {
+  transform: translateY(-50%) scaleX(1);
+  opacity: 1;
+}
+
+.gift-transition-overlay.kid-unboxing-mode.is-wrapping .kid-ribbon.kid-ribbon-v {
+  transform: translateX(-50%) scaleY(1);
+  opacity: 1;
 }
 
 /* Manitas Sincronizadas al Milisegundo con los 3 Golpes de Audio de FL Studio */
@@ -4641,32 +5506,102 @@ html, body {
   100% { transform: translate(240%, -60%) scaleX(-1) rotate(55deg); opacity: 0; }
 }
 
-/* 1. Paso 1: Rasgado Izquierdo (0.22s delay - Coincide con el 1er Golpe de Audio) */
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-left {
-  transform: translate3d(-140%, 0, 130px) rotateY(-80deg) rotateZ(-18deg);
-  opacity: 0;
-  transition: transform 0.45s cubic-bezier(0.15, 1, 0.25, 1) 0.22s, opacity 0.35s ease-out 0.22s;
+/* ==========================================================================
+   DESGARRE EN 3 PASOS SINCRONIZADOS POR PATRÓN (.is-kid-unboxing)
+   ========================================================================== */
+
+/* --- Patrón 0: Cruzado en X & Centro (Default / Pattern 0) --- */
+.gift-transition-overlay.kid-unboxing-mode:not([class*="cut-pattern-"]).is-kid-unboxing .layer-1,
+.gift-transition-overlay.kid-unboxing-mode:not([class*="cut-pattern-"]).is-kid-unboxing .layer-left,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-0.is-kid-unboxing .layer-1,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-0.is-kid-unboxing .layer-left {
+  transform: translate3d(-140%, -20%, 160px) rotateY(-80deg) rotateZ(-18deg) !important;
+  opacity: 0 !important;
+  transition: transform 0.48s cubic-bezier(0.15, 1, 0.25, 1) 0.22s, opacity 0.38s ease-out 0.22s !important;
 }
 
-/* 2. Paso 2: Rasgado Derecho (0.74s delay - Coincide con el 2do Golpe de Audio) */
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-right {
-  transform: translate3d(140%, 0, 130px) rotateY(80deg) rotateZ(18deg);
-  opacity: 0;
-  transition: transform 0.45s cubic-bezier(0.15, 1, 0.25, 1) 0.74s, opacity 0.35s ease-out 0.74s;
+.gift-transition-overlay.kid-unboxing-mode:not([class*="cut-pattern-"]).is-kid-unboxing .layer-2,
+.gift-transition-overlay.kid-unboxing-mode:not([class*="cut-pattern-"]).is-kid-unboxing .layer-right,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-0.is-kid-unboxing .layer-2,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-0.is-kid-unboxing .layer-right {
+  transform: translate3d(140%, 20%, 160px) rotateY(80deg) rotateZ(18deg) !important;
+  opacity: 0 !important;
+  transition: transform 0.48s cubic-bezier(0.15, 1, 0.25, 1) 0.74s, opacity 0.38s ease-out 0.74s !important;
 }
 
-/* 3. Paso 3: Se Abre por la Mitad con las 2 Manos (1.28s delay - Coincide con el 3er Golpe de Audio) */
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-center-strip {
-  transform: translate3d(0, -145%, 170px) rotateX(85deg) scale(1.1);
-  opacity: 0;
-  transition: transform 0.48s cubic-bezier(0.15, 1, 0.25, 1) 1.28s, opacity 0.38s ease-out 1.28s;
+.gift-transition-overlay.kid-unboxing-mode:not([class*="cut-pattern-"]).is-kid-unboxing .layer-3,
+.gift-transition-overlay.kid-unboxing-mode:not([class*="cut-pattern-"]).is-kid-unboxing .layer-center-strip,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-0.is-kid-unboxing .layer-3,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-0.is-kid-unboxing .layer-center-strip {
+  transform: translate3d(0, -155%, 200px) rotateX(85deg) scale(1.15) !important;
+  opacity: 0 !important;
+  transition: transform 0.50s cubic-bezier(0.15, 1, 0.25, 1) 1.28s, opacity 0.40s ease-out 1.28s !important;
 }
 
-/* 4. Fondo Inferior Cae Abriéndose Completamente (1.38s delay) */
-.gift-transition-overlay.kid-unboxing-mode.is-kid-unboxing .layer-bottom {
-  transform: translate3d(0, 135%, 80px) rotateX(-75deg);
-  opacity: 0;
-  transition: transform 0.48s cubic-bezier(0.15, 1, 0.25, 1) 1.38s, opacity 0.38s ease-out 1.38s;
+/* --- Patrón 1: Corte Transversal Superior y Diagonal Inferior --- */
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-1.is-kid-unboxing .layer-1,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-1.is-kid-unboxing .layer-left {
+  transform: translate3d(0, -145%, 170px) rotateX(85deg) !important;
+  opacity: 0 !important;
+  transition: transform 0.48s cubic-bezier(0.15, 1, 0.25, 1) 0.22s, opacity 0.38s ease-out 0.22s !important;
+}
+
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-1.is-kid-unboxing .layer-2,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-1.is-kid-unboxing .layer-right {
+  transform: translate3d(145%, 60%, 160px) rotateZ(25deg) !important;
+  opacity: 0 !important;
+  transition: transform 0.48s cubic-bezier(0.15, 1, 0.25, 1) 0.74s, opacity 0.38s ease-out 0.74s !important;
+}
+
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-1.is-kid-unboxing .layer-3,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-1.is-kid-unboxing .layer-center-strip {
+  transform: translate3d(-140%, 60%, 160px) rotateZ(-30deg) !important;
+  opacity: 0 !important;
+  transition: transform 0.50s cubic-bezier(0.15, 1, 0.25, 1) 1.28s, opacity 0.40s ease-out 1.28s !important;
+}
+
+/* --- Patrón 2: Corte en V Mágico & Solapas Aladas --- */
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-2.is-kid-unboxing .layer-1,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-2.is-kid-unboxing .layer-left {
+  transform: translate3d(-135%, -25%, 160px) rotateY(-75deg) rotateZ(-15deg) !important;
+  opacity: 0 !important;
+  transition: transform 0.48s cubic-bezier(0.15, 1, 0.25, 1) 0.22s, opacity 0.38s ease-out 0.22s !important;
+}
+
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-2.is-kid-unboxing .layer-2,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-2.is-kid-unboxing .layer-right {
+  transform: translate3d(135%, -25%, 160px) rotateY(75deg) rotateZ(15deg) !important;
+  opacity: 0 !important;
+  transition: transform 0.48s cubic-bezier(0.15, 1, 0.25, 1) 0.74s, opacity 0.38s ease-out 0.74s !important;
+}
+
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-2.is-kid-unboxing .layer-3,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-2.is-kid-unboxing .layer-center-strip {
+  transform: translate3d(0, 145%, 160px) rotateX(-80deg) !important;
+  opacity: 0 !important;
+  transition: transform 0.50s cubic-bezier(0.15, 1, 0.25, 1) 1.28s, opacity 0.40s ease-out 1.28s !important;
+}
+
+/* --- Patrón 3: Cuchillada Asimétrica Dinámica --- */
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-3.is-kid-unboxing .layer-1,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-3.is-kid-unboxing .layer-left {
+  transform: translate3d(-145%, 0, 160px) rotateY(-85deg) !important;
+  opacity: 0 !important;
+  transition: transform 0.48s cubic-bezier(0.15, 1, 0.25, 1) 0.22s, opacity 0.38s ease-out 0.22s !important;
+}
+
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-3.is-kid-unboxing .layer-2,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-3.is-kid-unboxing .layer-right {
+  transform: translate3d(130%, -80%, 150px) rotateZ(30deg) !important;
+  opacity: 0 !important;
+  transition: transform 0.48s cubic-bezier(0.15, 1, 0.25, 1) 0.74s, opacity 0.38s ease-out 0.74s !important;
+}
+
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-3.is-kid-unboxing .layer-3,
+.gift-transition-overlay.kid-unboxing-mode.cut-pattern-3.is-kid-unboxing .layer-center-strip {
+  transform: translate3d(140%, 80%, 160px) rotateZ(-25deg) !important;
+  opacity: 0 !important;
+  transition: transform 0.50s cubic-bezier(0.15, 1, 0.25, 1) 1.28s, opacity 0.40s ease-out 1.28s !important;
 }
 
 /* Retazos de Papel Sincronizados con Cada Desgarre */

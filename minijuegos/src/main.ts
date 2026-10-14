@@ -34,6 +34,7 @@ import { NutcrackerDrumsGame } from "./games/NutcrackerDrumsGame";
 import { FlyingElfGame } from "./games/FlyingElfGame";
 import { MagicPairsGame } from "./games/MagicPairsGame";
 import { SantaHillsGame } from "./games/SantaHillsGame";
+import { SnowballTargetGame } from "./games/SnowballTargetGame";
 import { getIconSvg } from "./utils/icons";
 import {
   initKioskNativeMode,
@@ -184,9 +185,10 @@ class KioskApp {
     const game4 = new FlyingElfGame(this.canvas, this.input, this.audio, this.particles);
     const game5 = new MagicPairsGame(this.canvas, this.input, this.audio, this.particles);
     const game6 = new SantaHillsGame(this.canvas, this.input, this.audio, this.particles);
+    const game7 = new SnowballTargetGame(this.canvas, this.input, this.audio, this.particles);
 
     // Conectar callback de Game Over de cada juego
-    [game1, game2, game3, game4, game5, game6].forEach((g) => {
+    [game1, game2, game3, game4, game5, game6, game7].forEach((g) => {
       g.onGameOver = (result: GameResult) => this.handleGameOver(result);
       this.games.set(g.id, g);
     });
@@ -431,7 +433,8 @@ class KioskApp {
       "tree-melody": { title: "Tambores del Cascanueces", icon: getIconSvg("drum", { size: 36, color: "#FFB300" }), themeColor: "#FFB300" },
       "flying-elf": { title: "El Vuelo Mágico del Elfo", icon: getIconSvg("wing", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
       "magic-pairs": { title: "Parejas de Juguetes", icon: getIconSvg("cards", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
-      "santa-hills": { title: "El Descenso de Santa", icon: getIconSvg("gift", { size: 36, color: "#FF2A4D" }), themeColor: "#FF2A4D" }
+      "santa-hills": { title: "El Descenso de Santa", icon: getIconSvg("gift", { size: 36, color: "#FF2A4D" }), themeColor: "#FF2A4D" },
+      "snowball-target": { title: "Tiro al Blanco Navideño", icon: getIconSvg("target", { size: 36, color: "#00E676" }), themeColor: "#00E676" }
     };
     return map[gameId] || { title: "Minijuego Mágico", icon: getIconSvg("tree", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" };
   }
@@ -460,13 +463,14 @@ class KioskApp {
 
     const mainContainer = document.getElementById("kiosk-main") || document.body;
 
-    // Si es Sinfonía de Campanas, ingresar directamente a la selección de canciones sin conteo previo.
-    // El conteo 3-2-1 se ejecutará tras elegir la canción.
-    if (gameId === "bell-symphony") {
+    // Si el juego tiene pantalla de selección previa (Sinfonía de Campanas o El Vuelo del Elfo),
+    // ingresar directamente a su pantalla de selección sin conteo previo.
+    // La única cuenta regresiva se ejecutará tras presionar "Jugar" / "Volar".
+    if (gameId === "bell-symphony" || gameId === "flying-elf") {
       this.currentGame.start(KIOSK_CONFIG.defaultGameDurationSeconds);
       this.isTransitioning = false;
     } else {
-      // Ejecutar cuenta regresiva arcade 3-2-1 antes de activar el tiempo del juego
+      // Ejecutar cuenta regresiva arcade 3-2-1 al presionar Jugar
       ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
         this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
         this.isTransitioning = false;
@@ -503,6 +507,8 @@ class KioskApp {
       () => {
         if (game instanceof BellSymphonyGame) {
           game.replayLastSong();
+        } else if (game instanceof FlyingElfGame) {
+          game.replayWithCountdown();
         } else {
           ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
             game.start(KIOSK_CONFIG.defaultGameDurationSeconds);

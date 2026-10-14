@@ -11,7 +11,6 @@
 
 import { AudioManager } from "./AudioManager";
 import { ParticleSystem } from "./ParticleSystem";
-import { getIconSvg } from "../utils/icons";
 
 export class ScreenTransition {
   private static instance: ScreenTransition;
@@ -179,7 +178,7 @@ export class ScreenTransition {
   }
 
   /**
-   * 4. Transición Landing -> Kiosquito: Manos de Santa/Elfo Desgarrando el Gran Paquete de la Feria
+   * 4. Transición Landing -> Kiosquito: Apertura de Puertas del Gran Regalo Navideño 2D Stylized Art
    */
   public runHandsTearLandingTransition(
     container: HTMLElement,
@@ -188,136 +187,35 @@ export class ScreenTransition {
     onComplete: () => void
   ): void {
     const overlay = document.createElement("div");
-    overlay.className = "gift-transition-overlay hands-mode";
+    overlay.className = "gift-transition-overlay fantasy-gift-mode";
     
     overlay.innerHTML = `
-      <!-- Grieta Mágica de Rasgadura Central -->
-      <div class="gift-tear-crack"></div>
+      <!-- Solapas Izquierda y Derecha de Arte Conceptual 2D -->
+      <div class="fantasy-gift-flap flap-left"></div>
+      <div class="fantasy-gift-flap flap-right"></div>
+      <div class="fantasy-gift-seam-glow"></div>
 
-      <!-- 4 Paneles de Papel de Regalo con Bordes Rasgados 3D -->
-      <div class="gift-tear-piece tear-top-left">
-        <div class="gift-paper-texture"></div>
-        <div class="gift-paper-damask"></div>
-        <div class="gift-tear-edge edge-h"></div>
-        <div class="gift-tear-edge edge-v"></div>
-        <div class="gift-paper-curl curl-tl"></div>
+      <!-- Partículas Mágicas Flotantes -->
+      <div class="fantasy-gift-sparkles">
+        <span class="f-sparkle s1">✦</span>
+        <span class="f-sparkle s2">★</span>
+        <span class="f-sparkle s3">✦</span>
+        <span class="f-sparkle s4">★</span>
+        <span class="f-sparkle s5">✦</span>
+        <span class="f-sparkle s6">★</span>
       </div>
 
-      <div class="gift-tear-piece tear-top-right">
-        <div class="gift-paper-texture"></div>
-        <div class="gift-paper-damask"></div>
-        <div class="gift-tear-edge edge-h"></div>
-        <div class="gift-tear-edge edge-v"></div>
-        <div class="gift-paper-curl curl-tr"></div>
-      </div>
-
-      <div class="gift-tear-piece tear-bottom-left">
-        <div class="gift-paper-texture"></div>
-        <div class="gift-paper-damask"></div>
-        <div class="gift-tear-edge edge-h"></div>
-        <div class="gift-tear-edge edge-v"></div>
-        <div class="gift-paper-curl curl-bl"></div>
-      </div>
-
-      <div class="gift-tear-piece tear-bottom-right">
-        <div class="gift-paper-texture"></div>
-        <div class="gift-paper-damask"></div>
-        <div class="gift-tear-edge edge-h"></div>
-        <div class="gift-tear-edge edge-v"></div>
-        <div class="gift-paper-curl curl-br"></div>
-      </div>
-
-      <!-- Costura Dentada de Rasgado Central -->
-      <div class="gift-rip-seam"></div>
-
-      <!-- Manos Animadas de Santa / Elfo Desgarrando el Paquete con Fuerza -->
-      <div class="gift-tearing-hand hand-left">
-        <div class="hand-sleeve"></div>
-        <div class="hand-cuff"></div>
-        <div class="hand-glove">
-          <div class="hand-finger f1"></div>
-          <div class="hand-finger f2"></div>
-          <div class="hand-finger f3"></div>
-          <div class="hand-thumb"></div>
+      <!-- Medallón Central Tallado en Oro y Fantasía -->
+      <div class="fantasy-crest-badge" style="--seal-theme-color: #FFD700">
+        <div class="fantasy-crest-glow"></div>
+        <div class="fantasy-crest-icon-wrapper">
+          <img src="./assets/images/estrella con logo.png" alt="Feria Mágica" class="fantasy-crest-logo-img" />
         </div>
-      </div>
-
-      <div class="gift-tearing-hand hand-right">
-        <div class="hand-sleeve"></div>
-        <div class="hand-cuff"></div>
-        <div class="hand-glove">
-          <div class="hand-finger f1"></div>
-          <div class="hand-finger f2"></div>
-          <div class="hand-finger f3"></div>
-          <div class="hand-thumb"></div>
-        </div>
-      </div>
-
-      <!-- Virutas de Papel Rasgado Volando en 3D -->
-      <div class="gift-flying-scrap scrap-1"></div>
-      <div class="gift-flying-scrap scrap-2"></div>
-      <div class="gift-flying-scrap scrap-3"></div>
-      <div class="gift-flying-scrap scrap-4"></div>
-      <div class="gift-flying-scrap scrap-5"></div>
-      <div class="gift-flying-scrap scrap-6"></div>
-
-      <!-- Cintas de Satén Dorado 3D con Reflejo -->
-      <div class="gift-ribbon gift-ribbon-horizontal">
-        <div class="gift-ribbon-stitch top"></div>
-        <div class="gift-ribbon-glint"></div>
-        <div class="gift-ribbon-stitch bottom"></div>
-      </div>
-      <div class="gift-ribbon gift-ribbon-vertical">
-        <div class="gift-ribbon-stitch left"></div>
-        <div class="gift-ribbon-glint-v"></div>
-        <div class="gift-ribbon-stitch right"></div>
-      </div>
-
-      <div class="gift-shockwave-ring"></div>
-
-      <!-- Gran Moño 3D y Emblema de la Feria Mágica -->
-      <div class="gift-center-box" style="--seal-theme-color: #FFD700">
-        <div class="gift-floating-particles">
-          <span class="g-sparkle s1">✦</span>
-          <span class="g-sparkle s2">★</span>
-          <span class="g-sparkle s3">✦</span>
-          <span class="g-sparkle s4">◆</span>
-          <span class="g-sparkle s5">✦</span>
-          <span class="g-sparkle s6">★</span>
-        </div>
-
-        <div class="gift-luxury-bow">
-          <div class="gift-bow-tail tail-left"></div>
-          <div class="gift-bow-tail tail-right"></div>
-          <div class="gift-bow-loop loop-back-left"></div>
-          <div class="gift-bow-loop loop-back-right"></div>
-          <div class="gift-bow-loop loop-main-left"></div>
-          <div class="gift-bow-loop loop-main-right"></div>
-
-          <div class="gift-bow-center-knot">
-            <div class="gift-knot-aura"></div>
-            <img src="./assets/images/estrella con logo.png" alt="Feria Mágica" class="gift-bow-star" />
-          </div>
-        </div>
-
-        <div class="gift-game-badge">
-          <div class="gift-badge-corner tl"></div>
-          <div class="gift-badge-corner tr"></div>
-          <div class="gift-badge-corner bl"></div>
-          <div class="gift-badge-corner br"></div>
-
-          <div class="gift-icon-container">
-            <div class="gift-icon-glow"></div>
-            <span class="gift-game-icon">${getIconSvg("tent", { size: 36, color: "#FFD700" })}</span>
-          </div>
-          
-          <h2 class="gift-game-title">FERIA MÁGICA</h2>
-          
-          <div class="gift-unwrapping-pill">
-            <span class="gift-pill-dot"></span>
-            <span class="gift-pill-text">¡ABRIENDO KIOSCO DE JUEGOS!</span>
-            <span class="gift-pill-dot"></span>
-          </div>
+        <h2 class="fantasy-crest-title">FERIA MÁGICA</h2>
+        <div class="fantasy-crest-pill">
+          <span class="fantasy-pill-star">✦</span>
+          <span>¡ABRIENDO KIOSCO DE JUEGOS!</span>
+          <span class="fantasy-pill-star">✦</span>
         </div>
       </div>
     `;
@@ -329,40 +227,35 @@ export class ScreenTransition {
       overlay.classList.add("is-wrapping");
     });
 
+    // 1. A los 380ms: Pantalla 100% cubierta con el arte del regalo. Cambiar vista detrás
     setTimeout(() => {
       onMidpoint();
 
+      // 2. A los 580ms: Desempaque mágico y apertura de puertas en 3D
       setTimeout(() => {
-        overlay.classList.add("is-hands-grabbing");
+        this.audio.playGiftUnwrap();
 
+        const bounds = container.getBoundingClientRect();
+        particles.emitBurst(bounds.width / 2, bounds.height * 0.5, "#FFD700", 45);
+        particles.emitConfetti(bounds.width, 65);
+
+        overlay.classList.remove("is-wrapping");
+        overlay.classList.add("is-unwrapping");
+
+        // 3. A los 550ms tras abrirse: Remover overlay y finalizar
         setTimeout(() => {
-          this.audio.playGiftUnwrap();
+          overlay.remove();
+          onComplete();
+        }, 550);
 
-          const bounds = container.getBoundingClientRect();
-          particles.emitBurst(bounds.width / 2, bounds.height * 0.45, "#FFD700", 45);
-          particles.emitConfetti(bounds.width, 70);
+      }, 200);
 
-          overlay.classList.remove("is-wrapping");
-          overlay.classList.add("is-unwrapping");
-
-          setTimeout(() => {
-            overlay.classList.add("is-finished");
-            setTimeout(() => {
-              overlay.remove();
-              onComplete();
-            }, 450);
-          }, 950);
-
-        }, 220);
-
-      }, 850);
-
-    }, 600);
+    }, 380);
   }
 
   /**
-   * 5. Transición Kiosco -> Minijuegos: ¡DESEMPAQUE EMOCIONADO DE UN NIÑO CAPA POR CAPA!
-   * Enfoque en primer plano del paquete de regalo que es desgarrado con rapidez y euforia capa por capa.
+   * 5. Transición Kiosco <-> Minijuegos: ¡DESEMPAQUE DE 3 RASGADOS SINCRONIZADOS A VELOCIDAD EXACTA!
+   * Sincronizado milimétricamente con los 3 rasgados de audio (0.22s, 0.74s, 1.28s) a 1.85s de duración total.
    */
   public runExcitedKidGiftTransition(
     container: HTMLElement,
@@ -372,68 +265,91 @@ export class ScreenTransition {
     onComplete: () => void
   ): void {
     const overlay = document.createElement("div");
-    overlay.className = "gift-transition-overlay kid-unboxing-mode";
+    // Selección aleatoria entre 4 patrones dinámicos: Cruzado X, Transversal Zig-Zag, Corte en V y Doble Cuchillada
+    const patternIndex = Math.floor(Math.random() * 4);
+    overlay.className = `gift-transition-overlay kid-unboxing-mode cut-pattern-${patternIndex}`;
     const subText = gameData.subtitle || "¡ABRIENDO JUGUETE MÁGICO!";
-    
+    const themeColor = gameData.themeColor || "#FFD700";
+
+    // Puntos de origen geométricos coherentes con los rayos de luz de cada patrón
+    const cutSparkOrigins = [
+      // Patrón 0: Cruzado en X & Centro
+      [
+        { x: 0.31, y: 0.50, color: "#FFD700" },
+        { x: 0.71, y: 0.50, color: "#FF8F00" },
+        { x: 0.50, y: 0.50, color: "#00E5FF" }
+      ],
+      // Patrón 1: Transversal Superior y Diagonal Inferior
+      [
+        { x: 0.50, y: 0.44, color: "#FFD700" },
+        { x: 0.59, y: 0.72, color: "#FF3D00" },
+        { x: 0.35, y: 0.75, color: "#00E5FF" }
+      ],
+      // Patrón 2: Corte en V Mágico
+      [
+        { x: 0.25, y: 0.425, color: "#FFD700" },
+        { x: 0.75, y: 0.425, color: "#FFD700" },
+        { x: 0.50, y: 0.85, color: "#00E5FF" }
+      ],
+      // Patrón 3: Cuchillada Asimétrica
+      [
+        { x: 0.25, y: 0.50, color: "#FFD700" },
+        { x: 0.635, y: 0.50, color: "#FF8F00" },
+        { x: 0.57, y: 0.75, color: "#00E5FF" }
+      ]
+    ];
+    const currentOrigins = cutSparkOrigins[patternIndex] || cutSparkOrigins[0];
+
     overlay.innerHTML = `
-      <!-- Capas de Papel de Regalo Navideño que se Desgarran una a una -->
+      <!-- Capas de Papel de Regalo Navideño 2D que se Desgarran físicamente dejando ver la pantalla debajo -->
       
-      <!-- 1.1 Solapa de Fondo Inferior -->
-      <div class="kid-paper-layer layer-bottom">
-        <div class="gift-paper-texture"></div>
-        <div class="gift-paper-damask"></div>
-        <div class="kid-torn-fringe top"></div>
+      <!-- 1. Capa / Solapa 1 (Paso 1: Se desgarra a los 0.22s y revela el 1er sector de la pantalla) -->
+      <div class="kid-paper-layer layer-1 layer-left">
+        <div class="kid-torn-fiber edge-right"></div>
+        <div class="kid-paper-shadow edge-right"></div>
+        <div class="kid-curl-corner corner-tr"></div>
+        <div class="kid-curl-corner corner-br"></div>
       </div>
 
-      <!-- 1.2 Solapa Izquierda (Se desgasta y arruga a la izquierda) -->
-      <div class="kid-paper-layer layer-left">
-        <div class="gift-paper-texture"></div>
-        <div class="gift-paper-damask"></div>
-        <div class="kid-torn-fringe right"></div>
-        <div class="kid-paper-crease c1"></div>
+      <!-- 2. Capa / Solapa 2 (Paso 2: Se desgarra a los 0.74s y revela el 2do sector de la pantalla) -->
+      <div class="kid-paper-layer layer-2 layer-right">
+        <div class="kid-torn-fiber edge-left"></div>
+        <div class="kid-paper-shadow edge-left"></div>
+        <div class="kid-curl-corner corner-tl"></div>
+        <div class="kid-curl-corner corner-bl"></div>
       </div>
 
-      <!-- 1.3 Solapa Derecha (Se desgasta y arruga a la derecha) -->
-      <div class="kid-paper-layer layer-right">
-        <div class="gift-paper-texture"></div>
-        <div class="gift-paper-damask"></div>
-        <div class="kid-torn-fringe left"></div>
-        <div class="kid-paper-crease c2"></div>
+      <!-- 3. Capa / Solapa 3 (Paso 3: Se arranca a los 1.28s y revela el resto de la pantalla) -->
+      <div class="kid-paper-layer layer-3 layer-center-strip">
+        <div class="kid-torn-fiber edge-left"></div>
+        <div class="kid-torn-fiber edge-right"></div>
+        <div class="kid-paper-shadow edge-left"></div>
+        <div class="kid-paper-shadow edge-right"></div>
       </div>
 
-      <!-- 1.4 Tira Central de Rasgado Rápido (Se arranca primero hacia arriba) -->
-      <div class="kid-paper-layer layer-center-strip">
-        <div class="gift-paper-texture"></div>
-        <div class="gift-paper-damask"></div>
-        <div class="kid-torn-fringe left"></div>
-        <div class="kid-torn-fringe right"></div>
-        <div class="kid-rip-tear-line"></div>
+      <!-- Rayos de Luz Cortante Sincronizados Coherentemente con la Línea de Corte -->
+      <div class="kid-claw-cut cut-1">
+        <div class="cut-blade-beam"></div>
+        <div class="cut-burst-sparks"></div>
+      </div>
+      <div class="kid-claw-cut cut-2">
+        <div class="cut-blade-beam"></div>
+        <div class="cut-burst-sparks"></div>
+      </div>
+      <div class="kid-claw-cut cut-3">
+        <div class="cut-blade-beam"></div>
+        <div class="cut-burst-sparks"></div>
       </div>
 
-      <!-- 1.5 Manitas Rápidas que Desgarran con Emoción -->
-      <div class="kid-rapid-hand hand-left-rip">
-        <div class="kid-glove-shape"></div>
-      </div>
-      <div class="kid-rapid-hand hand-right-rip">
-        <div class="kid-glove-shape"></div>
-      </div>
-
-      <!-- Cintas de Satén que se parten y revientan con el primer tirón -->
+      <!-- Cintas de Satén que se Parten -->
       <div class="kid-ribbon kid-ribbon-h">
-        <div class="gift-ribbon-stitch top"></div>
-        <div class="gift-ribbon-glint"></div>
-        <div class="gift-ribbon-stitch bottom"></div>
         <div class="kid-ribbon-snap-break"></div>
       </div>
-
       <div class="kid-ribbon kid-ribbon-v">
-        <div class="gift-ribbon-stitch left"></div>
-        <div class="gift-ribbon-glint-v"></div>
-        <div class="gift-ribbon-stitch right"></div>
         <div class="kid-ribbon-snap-break"></div>
       </div>
 
-      <!-- Retazos y Tiras de Papel Rasgado que Vuelan por los Aires -->
+      <!-- Retazos de Papel Rasgado Volando en 3D -->
       <div class="kid-paper-shred shred-1"></div>
       <div class="kid-paper-shred shred-2"></div>
       <div class="kid-paper-shred shred-3"></div>
@@ -445,49 +361,17 @@ export class ScreenTransition {
       <div class="kid-paper-shred shred-9"></div>
       <div class="kid-paper-shred shred-10"></div>
 
-      <!-- Moño 3D y Placa con el Título del Minijuego -->
-      <div class="gift-center-box kid-center-box" style="--seal-theme-color: ${gameData.themeColor || '#FFD700'}">
-        <div class="gift-floating-particles">
-          <span class="g-sparkle s1">✦</span>
-          <span class="g-sparkle s2">★</span>
-          <span class="g-sparkle s3">✦</span>
-          <span class="g-sparkle s4">◆</span>
-          <span class="g-sparkle s5">✦</span>
-          <span class="g-sparkle s6">★</span>
+      <!-- Medallón Central Tallado en Oro y Fantasía -->
+      <div class="fantasy-crest-badge" style="--seal-theme-color: ${themeColor}">
+        <div class="fantasy-crest-glow"></div>
+        <div class="fantasy-crest-icon-wrapper">
+          ${gameData.icon}
         </div>
-
-        <div class="gift-luxury-bow">
-          <div class="gift-bow-tail tail-left"></div>
-          <div class="gift-bow-tail tail-right"></div>
-          <div class="gift-bow-loop loop-back-left"></div>
-          <div class="gift-bow-loop loop-back-right"></div>
-          <div class="gift-bow-loop loop-main-left"></div>
-          <div class="gift-bow-loop loop-main-right"></div>
-
-          <div class="gift-bow-center-knot">
-            <div class="gift-knot-aura"></div>
-            <img src="./assets/images/estrella con logo.png" alt="Feria Mágica" class="gift-bow-star" />
-          </div>
-        </div>
-
-        <div class="gift-game-badge">
-          <div class="gift-badge-corner tl"></div>
-          <div class="gift-badge-corner tr"></div>
-          <div class="gift-badge-corner bl"></div>
-          <div class="gift-badge-corner br"></div>
-
-          <div class="gift-icon-container">
-            <div class="gift-icon-glow"></div>
-            <span class="gift-game-icon">${gameData.icon}</span>
-          </div>
-          
-          <h2 class="gift-game-title">${gameData.title}</h2>
-          
-          <div class="gift-unwrapping-pill">
-            <span class="gift-pill-dot"></span>
-            <span class="gift-pill-text">${subText}</span>
-            <span class="gift-pill-dot"></span>
-          </div>
+        <h2 class="fantasy-crest-title">${gameData.title}</h2>
+        <div class="fantasy-crest-pill">
+          <span class="fantasy-pill-star">✦</span>
+          <span>${subText}</span>
+          <span class="fantasy-pill-star">✦</span>
         </div>
       </div>
     `;
@@ -495,12 +379,12 @@ export class ScreenTransition {
     container.appendChild(overlay);
     this.audio.playWhoosh();
 
-    // 1. Envolver el paquete (0 a 700ms)
+    // 1. Envolver el paquete herméticamente
     requestAnimationFrame(() => {
       overlay.classList.add("is-wrapping");
     });
 
-    // 2. Punto medio: Pantalla 100% cubierta por el regalo completo
+    // 2. A los 500ms: Pantalla 100% cubierta. Cambiar pantalla de fondo de forma limpia
     setTimeout(() => {
       onMidpoint();
 
@@ -508,26 +392,40 @@ export class ScreenTransition {
         // 3. Comienza la secuencia de 3 desgarres sincronizados con el audio de FL Studio
         this.audio.playClawTear();
 
-        const bounds = container.getBoundingClientRect();
-        particles.emitBurst(bounds.width / 2, bounds.height * 0.45, gameData.themeColor || "#FFD700", 40);
-        particles.emitConfetti(bounds.width, 60);
-
-        // Desencadenar la animación progresiva capa por capa sincronizada con los 3 desgarres de audio
         overlay.classList.remove("is-wrapping");
         overlay.classList.add("is-kid-unboxing");
 
-        // 4. Finalización suave y limpia revelando el juego tras completarse los 3 rasgados de audio (1.85s)
+        // Partículas en el primer corte sincronizadas con el rayo y el desgarre
+        setTimeout(() => {
+          const bounds = container.getBoundingClientRect();
+          particles.emitBurst(bounds.width * currentOrigins[0].x, bounds.height * currentOrigins[0].y, currentOrigins[0].color, 24);
+        }, 220);
+
+        // Partículas en el segundo corte
+        setTimeout(() => {
+          const bounds = container.getBoundingClientRect();
+          particles.emitBurst(bounds.width * currentOrigins[1].x, bounds.height * currentOrigins[1].y, currentOrigins[1].color, 24);
+        }, 740);
+
+        // Partículas y confeti en el corte de liberación final
+        setTimeout(() => {
+          const bounds = container.getBoundingClientRect();
+          particles.emitBurst(bounds.width * currentOrigins[2].x, bounds.height * currentOrigins[2].y, currentOrigins[2].color, 36);
+          particles.emitConfetti(bounds.width, 55);
+        }, 1280);
+
+        // 4. Finalización suave tras completarse los 3 rasgados de audio (1.85s exactos)
         setTimeout(() => {
           overlay.classList.add("is-finished");
           setTimeout(() => {
             overlay.remove();
             onComplete();
-          }, 320);
+          }, 300);
         }, 1850);
 
       }, 100);
 
-    }, 600);
+    }, 500);
   }
 
   /**
