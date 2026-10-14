@@ -12,10 +12,26 @@
  * Si deseas agregar tus propios archivos MP3 más adelante, puedes usar el método `playFile()`.
  */
 
+import { Howl, Howler } from "howler";
 import { Haptics } from "../utils/haptics";
+
+export interface HowlSfxEntry {
+  howl: Howl;
+  status: "loading" | "loaded" | "error";
+  lastPlayTimeMs: number;
+  playCount: number;
+  skippedBeforeLoadCount: number;
+  errorCount: number;
+  lastError?: string;
+}
 
 export class AudioManager {
   private static instance: AudioManager;
+  public static readonly TOY_CATCH_PILOT_SFX = {
+    catchBag: "./assets/audio/atrapa regalos/atrapar_saco.mp3",
+    obstacleHit: "./assets/audio/elfo/elfo_golpe.mp3"
+  } as const;
+
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
   private isUnlocked: boolean = false;
@@ -24,6 +40,7 @@ export class AudioManager {
   private bgmVolume: number = 0.45;
   private gameBgmAudio: HTMLAudioElement | null = null;
   private gameBgmVolume: number = 0.50;
+  private howlSfxRegistry: Map<string, HowlSfxEntry> = new Map();
   private playlist: string[] = [
     "./assets/audio/jingle-bells.mp3",
     "./assets/audio/Joy to the world.mp3",
@@ -65,6 +82,13 @@ export class AudioManager {
     if (this.ctx && this.ctx.state === "suspended") {
       this.ctx.resume().catch(() => {});
     }
+    try {
+      if (Howler.ctx && Howler.ctx.state === "suspended") {
+        Howler.ctx.resume().catch(() => {});
+      }
+    } catch {
+      // Ignorar si el contexto de Howler aún no ha sido creado
+    }
     this.isUnlocked = true;
   }
 
@@ -85,6 +109,7 @@ export class AudioManager {
       this.stopMenuBGM();
     } else {
       this.stopGameBGM();
+      this.stopHowlSfx();
     }
   }
 
@@ -259,19 +284,7 @@ export class AudioManager {
    * Alterna entre silenciado y con sonido
    */
   public toggleMute(): boolean {
-    this.isMuted = !this.isMuted;
-    if (this.bgmAudio) {
-      this.bgmAudio.muted = this.isMuted;
-      if (!this.isMuted && this.bgmAudio.paused && !this.isGameActive) {
-        this.bgmAudio.play().catch(() => {});
-      }
-    }
-    if (this.gameBgmAudio) {
-      this.gameBgmAudio.muted = this.isMuted;
-      if (!this.isMuted && this.gameBgmAudio.paused && this.isGameActive) {
-        this.gameBgmAudio.play().catch(() => {});
-      }
-    }
+    this.setMuted(!this.isMuted);
     return this.isMuted;
   }
 
@@ -281,6 +294,11 @@ export class AudioManager {
 
   public setMuted(muted: boolean): void {
     this.isMuted = muted;
+    try {
+      Howler.mute(this.isMuted);
+    } catch {
+      // Ignorar de forma segura si Howler aún no está activo
+    }
     if (this.bgmAudio) {
       this.bgmAudio.muted = this.isMuted;
       if (!this.isMuted && this.bgmAudio.paused && !this.isGameActive) {
@@ -293,6 +311,195 @@ export class AudioManager {
         this.gameBgmAudio.play().catch(() => {});
       }
     }
+  }
+
+  // ==========================================================================
+  // PILOTO HOWLER.JS (Fase 3B): Precarga, Pool reutilizable, Control de Estado y Limpieza
+  // ==========================================================================
+
+  /**
+   * Precarga y registra un efecto de sonido en Howler reutilizando una única instancia Howl por ruta.
+   * Gestiona explícitamente los estados 'loading', 'loaded' y 'error'.
+   */
+  public preloadHowlSfx(src: string, poolSize: number = 5): HowlSfxEntry {
+    const existing = this.howlSfxRegistry.get(src);
+    if (existing && existing.howl.state() !== "unloaded") {
+      return existing;
+    }
+
+    const entry: HowlSfxEntry = {
+      howl: null as unknown as Howl,
+      status: "loading",
+      lastPlayTimeMs: -1000,
+      playCount: 0,
+      skippedBeforeLoadCount: 0,
+      errorCount: 0
+    };
+
+    const howlInstance = new Howl({
+      src: [src],
+      preload: true,
+      pool: poolSize,
+      volume: 0.9,
+      onload: () => {
+        entry.status = "loaded";
+      },
+      onloaderror: (_id: number, err: unknown) => {
+        entry.status = "error";
+        entry.errorCount++;
+        entry.lastError = String(err ?? "loaderror");
+        console.warn("[AudioManager][Howler] Error al cargar recurso de audio:", src, err);
+      },
+      onplayerror: (_id: number, err: unknown) => {
+        entry.errorCount++;
+        entry.lastError = String(err ?? "playerror");
+        console.warn("[AudioManager][Howler] Error al reproducir recurso de audio:", src, err);
+      }
+    });
+
+    entry.howl = howlInstance;
+    if (howlInstance.state() === "loaded") {
+      entry.status = "loaded";
+    }
+
+    this.howlSfxRegistry.set(src, entry);
+    return entry;
+  }
+
+  /**
+   * Precarga el clip del piloto de Atrapa-Regalos Mágico (ToyCatchGame)
+   */
+  public preloadToyCatchPilotAudio(): void {
+    this.preloadHowlSfx(AudioManager.TOY_CATCH_PILOT_SFX.catchBag, 5);
+  }
+
+  /**
+   * Reproduce un efecto gestionado por Howler verificando que esté cargado ('loaded'),
+   * respetando el silencio global, aplicando control de tasa/tono y evitando duplicados accidentales en el mismo frame.
+   */
+  public playHowlSfx(
+    src: string,
+    volume: number = 0.85,
+    playbackRate: number = 1.0,
+    minIntervalMs: number = 22
+  ): boolean {
+    if (this.isMuted) return false;
+    this.unlockAudio();
+
+    try {
+      const entry = this.preloadHowlSfx(src);
+      const currentState = entry.howl.state();
+
+      if (entry.status === "error" || currentState === "unloaded") {
+        return false;
+      }
+
+      // Evitar reproducir antes de que el buffer esté completamente decodificado
+      if (currentState !== "loaded") {
+        entry.skippedBeforeLoadCount++;
+        return false;
+      }
+
+      entry.status = "loaded";
+
+      const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+      if (minIntervalMs > 0 && now - entry.lastPlayTimeMs < minIntervalMs) {
+        return false;
+      }
+      entry.lastPlayTimeMs = now;
+
+      const safeVol = Math.max(0, Math.min(1, volume));
+      const safeRate = Math.max(0.5, Math.min(2.0, playbackRate));
+
+      const soundId = entry.howl.play();
+      entry.howl.volume(safeVol, soundId);
+      entry.howl.rate(safeRate, soundId);
+      entry.playCount++;
+      return true;
+    } catch (e) {
+      console.warn("[AudioManager][Howler] Excepción controlada en playHowlSfx:", src, e);
+      return false;
+    }
+  }
+
+  /**
+   * Detiene las voces activas de un efecto Howler específico o de todos los registrados
+   */
+  public stopHowlSfx(src?: string): void {
+    try {
+      if (src) {
+        const entry = this.howlSfxRegistry.get(src);
+        if (entry && entry.howl.state() !== "unloaded") {
+          entry.howl.stop();
+        }
+        return;
+      }
+      this.howlSfxRegistry.forEach((entry) => {
+        if (entry.howl.state() !== "unloaded") {
+          entry.howl.stop();
+        }
+      });
+    } catch {
+      // Ignorar de forma segura
+    }
+  }
+
+  /**
+   * Libera de memoria las instancias Howl y sus buffers decodificados cuando corresponda
+   */
+  public unloadHowlSfx(src?: string): void {
+    try {
+      if (src) {
+        const entry = this.howlSfxRegistry.get(src);
+        if (entry) {
+          entry.howl.stop();
+          entry.howl.unload();
+          this.howlSfxRegistry.delete(src);
+        }
+        return;
+      }
+      this.howlSfxRegistry.forEach((entry) => {
+        entry.howl.stop();
+        entry.howl.unload();
+      });
+      this.howlSfxRegistry.clear();
+    } catch {
+      // Ignorar de forma segura
+    }
+  }
+
+  /**
+   * Devuelve diagnósticos verificables del estado de un recurso Howler
+   */
+  public getHowlSfxDiagnostics(src: string): {
+    exists: boolean;
+    status: "loading" | "loaded" | "error" | "none";
+    howlState: string;
+    playCount: number;
+    skippedBeforeLoadCount: number;
+    errorCount: number;
+    lastError?: string;
+  } {
+    const entry = this.howlSfxRegistry.get(src);
+    if (!entry) {
+      return {
+        exists: false,
+        status: "none",
+        howlState: "none",
+        playCount: 0,
+        skippedBeforeLoadCount: 0,
+        errorCount: 0
+      };
+    }
+    return {
+      exists: true,
+      status: entry.status,
+      howlState: entry.howl.state(),
+      playCount: entry.playCount,
+      skippedBeforeLoadCount: entry.skippedBeforeLoadCount,
+      errorCount: entry.errorCount,
+      lastError: entry.lastError
+    };
   }
 
   // Cache / Pool de Audio para efectos de sonido con baja latencia
@@ -447,11 +654,46 @@ export class AudioManager {
   }
 
   /**
-   * Sonido al atrapar un regalo en el saco de Santa
+   * Sonido al atrapar un regalo en el saco de Santa (Piloto Howler.js con soporte de pitch por combo y fallback seguro)
    */
-  public playCatchItem(_pitchMultiplier: number = 1.0): void {
+  public playCatchItem(pitchMultiplier: number = 1.0): void {
     Haptics.light();
-    this.playSoundEffect("./assets/audio/atrapa regalos/atrapar_saco.mp3", 0.90);
+    if (this.isMuted) return;
+
+    const src = AudioManager.TOY_CATCH_PILOT_SFX.catchBag;
+    const played = this.playHowlSfx(src, 0.90, pitchMultiplier);
+    if (!played) {
+      const entry = this.howlSfxRegistry.get(src);
+      if (entry && (entry.status === "loading" || entry.status === "error")) {
+        this.playSynthesizedCatchFallback(pitchMultiplier);
+      }
+    }
+  }
+
+  /**
+   * Respaldo sintetizado ligero cuando el archivo de captura aún se está cargando o tuvo error de carga
+   */
+  private playSynthesizedCatchFallback(pitchMultiplier: number = 1.0): void {
+    if (this.isMuted) return;
+    this.unlockAudio();
+    if (!this.ctx) return;
+
+    const safePitch = Math.max(0.75, Math.min(1.75, pitchMultiplier));
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(520 * safePitch, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880 * safePitch, this.ctx.currentTime + 0.09);
+
+    gain.gain.setValueAtTime(0.22, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.1);
   }
 
   /**

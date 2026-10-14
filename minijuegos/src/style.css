@@ -410,9 +410,9 @@ html, body {
   width: 100%;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85);
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease;
-  animation: cardStaggerIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
   touch-action: manipulation;
   user-select: none;
+  will-change: transform, opacity;
 }
 
 @keyframes cardStaggerIn {
@@ -1030,10 +1030,10 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: clamp(5px, 1vh, 8px);
-  animation: zoomIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   scrollbar-width: thin;
   scrollbar-color: #D4AF37 rgba(0, 0, 0, 0.35);
   box-sizing: border-box;
+  will-change: transform, opacity;
 }
 
 .modal-card::-webkit-scrollbar {
@@ -1807,6 +1807,7 @@ html, body {
   height: 100%;
   position: relative;
   overflow: hidden;
+  touch-action: pan-y;
 }
 
 .kiosk-swiper .swiper-wrapper {
@@ -1824,36 +1825,62 @@ html, body {
   width: 100% !important;
   height: 100% !important;
   position: relative;
-  transition-property: transform, opacity;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
   overflow: hidden;
-  padding: 4px clamp(12px, 2.4vw, 32px);
+  padding: 4px clamp(12px, 2.4vw, 32px) 10px;
   user-select: none;
   -webkit-user-select: none;
 }
 
-.kiosk-swiper.swiper-fade .swiper-slide {
-  pointer-events: none;
-  transition-property: opacity;
+/* Paginación táctil discreta de Swiper */
+.kiosk-swiper .kiosk-swiper-pagination {
+  position: absolute !important;
+  bottom: 2px !important;
+  left: 50% !important;
+  transform: translateX(-50%);
+  width: auto !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  z-index: 10;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgba(4, 11, 23, 0.55);
+  pointer-events: auto;
 }
 
-.kiosk-swiper.swiper-fade .swiper-slide-active {
-  pointer-events: auto;
+.kiosk-swiper .swiper-pagination-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  opacity: 1;
+  margin: 0 !important;
+  transition: width 0.25s ease, background-color 0.25s ease;
+  cursor: pointer;
+}
+
+.kiosk-swiper .swiper-pagination-bullet-active {
+  width: 18px;
+  border-radius: 4px;
+  background: #FFD700;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.85);
 }
 
 /* ==========================================================================
    PLACAS CORPORATIVAS DE PATROCINADOR (.banner-logo-card)
-   Soporte marfil-dorado no destructivo para proteger contraste y legibilidad
+   Soporte marfil-dorado y azul corporativo no destructivo para logos oficiales
    ========================================================================== */
 .banner-logo-card {
   position: relative;
   background: linear-gradient(180deg, #FFFFFF 0%, #FDFBF7 60%, #F5EEDC 100%);
   border: 2.2px solid #D4AF37;
   border-radius: 13px;
-  height: clamp(62px, 8.4vh, 78px);
+  height: clamp(60px, 8.2vh, 76px);
   width: clamp(140px, 18vw, 195px);
   padding: 4px clamp(8px, 1.2vw, 14px);
   display: flex;
@@ -1865,20 +1892,16 @@ html, body {
     inset 0 1px 2px #FFFFFF;
   flex-shrink: 0;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-sizing: border-box;
 }
 
-.banner-logo-card.plaque-duo {
-  width: clamp(110px, 13vw, 148px);
-  height: clamp(58px, 7.8vh, 72px);
-  padding: 4px clamp(6px, 1vw, 10px);
-}
-
-.banner-duo-logos {
-  display: flex;
-  align-items: center;
-  gap: clamp(8px, 1.2vw, 14px);
-  flex-shrink: 0;
+/* Fondo azul corporativo exacto (#293483) para conservar logo-cajasan.png original */
+.banner-logo-card.fit-corporate-blue {
+  background: #293483;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.65),
+    0 0 10px rgba(255, 215, 0, 0.25),
+    inset 0 1px 2px rgba(255, 255, 255, 0.35);
 }
 
 .plaque-inner-shine {
@@ -1887,9 +1910,32 @@ html, body {
   left: 0;
   right: 0;
   height: 42%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0) 100%);
   pointer-events: none;
   border-radius: 10px 10px 0 0;
+  z-index: 2;
+}
+
+.banner-logo-card.fit-corporate-blue .plaque-inner-shine {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.plaque-glint-sweep {
+  position: absolute;
+  top: -10%;
+  left: 0;
+  width: 36%;
+  height: 120%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 248, 200, 0.65) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-22deg);
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
 }
 
 .banner-logo-img {
@@ -1900,15 +1946,44 @@ html, body {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Compensación no destructiva para Logo-Fundalas-sin-fondo.png (754x209 con margen lateral transparente) */
+.banner-logo-img.fit-trim-horizontal {
+  height: 94%;
+  width: auto;
+  max-width: none;
+  max-height: 94%;
+  object-fit: contain;
+}
+
+/* Compensación no destructiva para logo-imebu-sin-fondo.png (568x439 con margen vertical transparente) */
+.banner-logo-img.fit-trim-vertical {
+  width: 132%;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+}
+
+/* Encuadre proporcional para logo-cajasan.png (447x447 con margen azul alrededor del logo blanco) */
+.banner-logo-img.fit-corporate-blue {
+  height: 122%;
+  width: auto;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  filter: none;
 }
 
 /* ==========================================================================
    TIPOGRAFÍAS Y GRUPOS DE TEXTO
-   Sin truncamiento (Zero Ellipsis) para marcas y slogans
+   Sin truncamiento (Zero Ellipsis) para marcas y denominaciones oficiales
    ========================================================================== */
 .banner-hero-container,
-.banner-duo-container,
 .banner-event-container {
   width: 100%;
   max-width: 1120px;
@@ -1959,6 +2034,13 @@ html, body {
   justify-content: flex-end;
 }
 
+.banner-sponsor-event-cobrand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
 .banner-badge-pill {
   background: linear-gradient(180deg, #FFF9C4 0%, #FDE047 35%, #EAB308 70%, #CA8A04 100%);
   border: 1.8px solid #FFD700;
@@ -1980,7 +2062,7 @@ html, body {
    CARTEL OFICIAL DEL EVENTO (FERIA MÁGICA DEL JUGUETE)
    ========================================================================== */
 .event-logo-emblem {
-  height: clamp(62px, 8.5vh, 80px);
+  height: clamp(60px, 8.2vh, 78px);
   width: clamp(80px, 10vw, 115px);
   display: flex;
   align-items: center;
@@ -2115,33 +2197,21 @@ html, body {
     padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
   }
 
-  .swiper-slide.banner-slide {
-    padding: 3px 8px;
+  .kiosk-swiper .swiper-slide.banner-slide {
+    padding: 3px 8px 9px;
   }
 
   .banner-hero-container,
-  .banner-duo-container,
   .banner-event-container {
     gap: 8px;
   }
 
   .banner-logo-card {
-    height: 58px;
-    width: 82px;
-    padding: 2px 4px;
+    height: 54px;
+    width: 96px;
+    padding: 2px 5px;
     border-radius: 9px;
     border-width: 1.8px;
-  }
-
-  .banner-logo-card.plaque-duo {
-    width: 52px;
-    height: 52px;
-    padding: 2px 3px;
-    border-radius: 8px;
-  }
-
-  .banner-duo-logos {
-    gap: 5px;
   }
 
   .banner-headline {
@@ -2160,7 +2230,7 @@ html, body {
 
   .event-logo-emblem {
     width: 60px;
-    height: 56px;
+    height: 54px;
   }
 
   .event-pill {
@@ -2322,31 +2392,24 @@ html, body {
     min-height: 48px;
   }
 
-  .swiper-slide.banner-slide {
+  .kiosk-swiper .swiper-slide.banner-slide {
     padding: 2px 10px;
   }
 
+  .kiosk-swiper .kiosk-swiper-pagination {
+    display: none;
+  }
+
   .banner-hero-container,
-  .banner-duo-container,
   .banner-event-container {
     gap: 8px;
   }
 
   .banner-logo-card {
     height: 38px;
-    width: 78px;
+    width: 84px;
     padding: 2px 4px;
     border-radius: 8px;
-  }
-
-  .banner-logo-card.plaque-duo {
-    height: 36px;
-    width: 52px;
-    padding: 2px 3px;
-  }
-
-  .banner-duo-logos {
-    gap: 5px;
   }
 
   .event-logo-emblem {
@@ -2620,15 +2683,9 @@ html, body {
 
   .banner-logo-card {
     height: 32px;
-    width: 64px;
+    width: 68px;
     padding: 1px 3px;
     border-radius: 6px;
-  }
-
-  .banner-logo-card.plaque-duo {
-    height: 30px;
-    width: 44px;
-    padding: 1px 2px;
   }
 
   .event-logo-emblem {
@@ -3140,10 +3197,10 @@ html, body {
   padding: clamp(10px, 1.8vh, 18px) clamp(14px, 2.8vw, 24px);
   gap: clamp(8px, 1.3vh, 12px);
   overflow-y: auto;
-  animation: zoomIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   scrollbar-width: thin;
   scrollbar-color: #D4AF37 rgba(0, 0, 0, 0.35);
   box-sizing: border-box;
+  will-change: transform, opacity;
 }
 
 .instructions-card::-webkit-scrollbar {

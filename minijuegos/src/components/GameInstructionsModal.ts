@@ -11,6 +11,7 @@
  * - Botón arcade "¡A JUGAR!" y botón "VOLVER".
  */
 
+import gsap from "gsap";
 import { AudioManager } from "../core/AudioManager";
 import { getIconSvg } from "../utils/icons";
 
@@ -127,6 +128,7 @@ export class GameInstructionsModal {
   public onStartGame?: (gameId: string) => void;
   public onBack?: () => void;
   private currentGameId: string = "";
+  private entranceTl: gsap.core.Timeline | null = null;
 
   constructor(containerId: string, audio: AudioManager) {
     let el = document.getElementById(containerId);
@@ -143,6 +145,7 @@ export class GameInstructionsModal {
   }
 
   public show(gameId: string): void {
+    this.killAnimations();
     this.currentGameId = gameId;
     const data = GAME_INSTRUCTIONS[gameId];
     if (!data) {
@@ -155,14 +158,142 @@ export class GameInstructionsModal {
     this.container.classList.remove("hide");
     this.container.classList.add("show");
     this.setupEvents();
+    this.playEntranceAnimation();
   }
 
   public hide(): void {
+    this.killAnimations();
     this.container.classList.remove("show");
     this.container.classList.add("hide");
-    setTimeout(() => {
-      this.container.style.display = "none";
-    }, 250);
+    this.container.style.display = "none";
+  }
+
+  private playEntranceAnimation(): void {
+    this.killAnimations();
+
+    const card = this.container.querySelector<HTMLElement>(".instructions-card");
+    const headerEls = Array.from(
+      this.container.querySelectorAll<HTMLElement>(
+        ".instructions-emblem-header, .instructions-ribbon-wrapper"
+      )
+    );
+    const goalBox = this.container.querySelector<HTMLElement>(".instructions-goal-box");
+    const boxes = Array.from(this.container.querySelectorAll<HTMLElement>(".instruction-box"));
+    const controls = this.container.querySelector<HTMLElement>(".instructions-controls");
+    const buttons = Array.from(
+      this.container.querySelectorAll<HTMLElement>(".instructions-actions button")
+    );
+
+    const allTargets = [card, ...headerEls, goalBox, ...boxes, controls, ...buttons].filter(
+      (el): el is HTMLElement => el !== null
+    );
+    if (allTargets.length === 0) return;
+
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      gsap.set(allTargets, { autoAlpha: 1, clearProps: "transform" });
+      return;
+    }
+
+    const tl = gsap.timeline({
+      defaults: { overwrite: "auto" }
+    });
+    this.entranceTl = tl;
+
+    if (card) {
+      tl.fromTo(
+        card,
+        { autoAlpha: 0, y: 20, scale: 0.93 },
+        { autoAlpha: 1, y: 0, scale: 1, duration: 0.32, ease: "back.out(1.28)", clearProps: "transform" }
+      );
+    }
+
+    if (headerEls.length > 0) {
+      tl.fromTo(
+        headerEls,
+        { autoAlpha: 0, y: -10, scale: 0.94 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.28,
+          stagger: 0.04,
+          ease: "back.out(1.4)",
+          clearProps: "transform"
+        },
+        "-=0.22"
+      );
+    }
+
+    if (goalBox) {
+      tl.fromTo(
+        goalBox,
+        { autoAlpha: 0, y: 10 },
+        { autoAlpha: 1, y: 0, duration: 0.25, ease: "power2.out", clearProps: "transform" },
+        "-=0.18"
+      );
+    }
+
+    if (boxes.length > 0) {
+      tl.fromTo(
+        boxes,
+        { autoAlpha: 0, y: 12, scale: 0.96 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.28,
+          stagger: 0.055,
+          ease: "power2.out",
+          clearProps: "transform"
+        },
+        "-=0.16"
+      );
+    }
+
+    if (controls) {
+      tl.fromTo(
+        controls,
+        { autoAlpha: 0, y: 8 },
+        { autoAlpha: 1, y: 0, duration: 0.24, ease: "power2.out", clearProps: "transform" },
+        "-=0.16"
+      );
+    }
+
+    if (buttons.length > 0) {
+      tl.fromTo(
+        buttons,
+        { autoAlpha: 0, y: 10, scale: 0.95 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.26,
+          stagger: 0.05,
+          ease: "back.out(1.4)",
+          clearProps: "transform"
+        },
+        "-=0.16"
+      );
+    }
+  }
+
+  public killAnimations(): void {
+    if (this.entranceTl) {
+      this.entranceTl.kill();
+      this.entranceTl = null;
+    }
+
+    const targets = this.container.querySelectorAll<HTMLElement>(
+      ".instructions-card, .instructions-emblem-header, .instructions-ribbon-wrapper, .instructions-goal-box, .instruction-box, .instructions-controls, .instructions-actions button"
+    );
+    if (targets.length > 0) {
+      gsap.killTweensOf(targets);
+    }
   }
 
   private render(data: GameInstructionData): void {
@@ -257,8 +388,34 @@ export class GameInstructionsModal {
   }
 
   private setupEvents(): void {
-    const btnPlay = this.container.querySelector("#btn-instructions-play");
-    const btnBack = this.container.querySelector("#btn-instructions-back");
+    const btnPlay = this.container.querySelector<HTMLElement>("#btn-instructions-play");
+    const btnBack = this.container.querySelector<HTMLElement>("#btn-instructions-back");
+
+    [btnPlay, btnBack].forEach((btn) => {
+      if (!btn) return;
+      btn.addEventListener("pointerdown", () => {
+        gsap.to(btn, {
+          scale: 0.95,
+          duration: 0.09,
+          ease: "power2.out",
+          overwrite: "auto"
+        });
+      });
+
+      const restoreBtn = () => {
+        gsap.to(btn, {
+          scale: 1,
+          duration: 0.16,
+          ease: "back.out(1.5)",
+          clearProps: "transform",
+          overwrite: "auto"
+        });
+      };
+
+      btn.addEventListener("pointerup", restoreBtn);
+      btn.addEventListener("pointerleave", restoreBtn);
+      btn.addEventListener("pointercancel", restoreBtn);
+    });
 
     btnPlay?.addEventListener("click", () => {
       this.hide();

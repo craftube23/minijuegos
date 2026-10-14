@@ -98,9 +98,13 @@ export class ToyCatchGame extends BaseGame {
     // Música temática festiva para Atrapa-Regalos
     this.inGameMusicPath = "./assets/audio/Up on the Housetop.mp3";
     this.inGameMusicVolume = 0.48;
+
+    // Precarga segura del efecto piloto en Howler.js
+    this.audio.preloadToyCatchPilotAudio();
   }
 
   protected onStart(): void {
+    this.audio.preloadToyCatchPilotAudio();
     this.lives = 5;
     this.updateBasketDimensions();
     this.basketX = this.width / 2;
@@ -473,6 +477,11 @@ export class ToyCatchGame extends BaseGame {
     }
 
     ctx.restore();
+  }
+
+  public override destroy(): void {
+    super.destroy();
+    this.audio.stopHowlSfx(AudioManager.TOY_CATCH_PILOT_SFX.catchBag);
   }
 }
 

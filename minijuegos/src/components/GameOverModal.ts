@@ -10,6 +10,8 @@
  * - Botones grandes para jugar revancha o volver al menú.
  */
 
+import gsap from "gsap";
+import confetti from "canvas-confetti";
 import type { GameResult } from "../core/BaseGame";
 import { AudioManager } from "../core/AudioManager";
 import { getIconSvg } from "../utils/icons";
@@ -22,6 +24,13 @@ export class GameOverModal {
   public onChangeSong?: () => void;
   public onEditAgain?: (songFile?: string, customNotes?: any[]) => void;
 
+  private entranceTl: gsap.core.Timeline | null = null;
+  private scoreTween: gsap.core.Tween | null = null;
+  private toastTimerIds: number[] = [];
+  private lastCelebratedSignature: string | null = null;
+  private isConfettiActive: boolean = false;
+  private celebrationCount: number = 0;
+
   constructor(containerId: string, audio: AudioManager) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`No se encontró el contenedor de resultados: #${containerId}`);
@@ -30,6 +39,9 @@ export class GameOverModal {
   }
 
   public show(result: GameResult): void {
+    const wasVisible = this.container.style.display === "flex";
+    this.killAnimations();
+
     const isRecord = result.isNewRecord;
     const isRhythmGame = result.gameId === "bell-symphony";
     const isCustom = !!result.isCustomChart;
@@ -221,14 +233,332 @@ export class GameOverModal {
 
     this.container.style.display = "flex";
     this.setupEvents(result);
+    this.playEntranceAnimation(result);
+
+    const resultSignature = `${result.gameId}:${result.score}:${result.highScore}:${Boolean(result.isNewRecord)}:${rank}`;
+    const isDuplicateRender = wasVisible && this.lastCelebratedSignature === resultSignature;
+    if (!isDuplicateRender) {
+      this.triggerCelebrationConfetti(result, rank, resultSignature);
+    }
+  }
+
+  public shouldCelebrateResult(result: GameResult, resolvedRank: string): boolean {
+    if (!result || result.score <= 0) {
+      return false;
+    }
+    if (result.isNewRecord) {
+      return true;
+    }
+    return resolvedRank === "S+" || resolvedRank === "S";
+  }
+
+  private triggerCelebrationConfetti(result: GameResult, resolvedRank: string, signature: string): void {
+    if (!this.shouldCelebrateResult(result, resolvedRank)) {
+      return;
+    }
+
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    this.lastCelebratedSignature = signature;
+    const particleCount = result.isNewRecord ? 42 : 32; // Límite estricto <= 45 partículas
+
+    try {
+      this.isConfettiActive = true;
+      this.celebrationCount++;
+      confetti({
+        particleCount,
+        spread: 72,
+        startVelocity: 34,
+        ticks: 110,
+        gravity: 1.05,
+        scalar: 0.95,
+        origin: { x: 0.5, y: 0.58 },
+        colors: ["#FFD700", "#FF2A4D", "#00E5FF", "#00E676", "#FFF275"],
+        disableForReducedMotion: true,
+        zIndex: 9999
+      });
+    } catch {
+      this.isConfettiActive = false;
+    }
+  }
+
+  public getCelebrationState(): {
+    celebrationCount: number;
+    isConfettiActive: boolean;
+    lastCelebratedSignature: string | null;
+  } {
+    return {
+      celebrationCount: this.celebrationCount,
+      isConfettiActive: this.isConfettiActive,
+      lastCelebratedSignature: this.lastCelebratedSignature
+    };
+  }
+
+  private playEntranceAnimation(result: GameResult): void {
+    this.killAnimations(false);
+
+    const card = this.container.querySelector<HTMLElement>(".modal-card");
+    const headerEls = Array.from(
+      this.container.querySelectorAll<HTMLElement>(
+        ".modal-emblem-header, .modal-ribbon-wrapper, .modal-game-name"
+      )
+    );
+    const pillAndRank = Array.from(
+      this.container.querySelectorAll<HTMLElement>(
+        ".modal-song-pill, .rank-medallion-badge"
+      )
+    );
+    const accuracyFill = this.container.querySelector<HTMLElement>(".accuracy-bar-fill");
+    const statChips = Array.from(this.container.querySelectorAll<HTMLElement>(".stat-chip"));
+    const scoreBoxes = Array.from(this.container.querySelectorAll<HTMLElement>(".score-box"));
+    const recordBox = this.container.querySelector<HTMLElement>(".record-score.is-new-record");
+    const footerEls = Array.from(
+      this.container.querySelectorAll<HTMLElement>(
+        ".modal-target-score-hint, .modal-branding, .modal-actions .btn-action"
+      )
+    );
+    const mainScoreValEl = this.container.querySelector<HTMLElement>(".main-score .score-value");
+
+    const allTargets = [
+      card,
+      ...headerEls,
+      ...pillAndRank,
+      accuracyFill,
+      ...statChips,
+      ...scoreBoxes,
+      ...footerEls
+    ].filter((el): el is HTMLElement => el !== null);
+
+    if (allTargets.length === 0) return;
+
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      gsap.set(allTargets, { autoAlpha: 1, clearProps: "transform" });
+      if (mainScoreValEl) {
+        mainScoreValEl.textContent = result.score.toLocaleString();
+      }
+      return;
+    }
+
+    const tl = gsap.timeline({
+      defaults: { overwrite: "auto" }
+    });
+    this.entranceTl = tl;
+
+    if (card) {
+      tl.fromTo(
+        card,
+        { autoAlpha: 0, y: 22, scale: 0.92 },
+        { autoAlpha: 1, y: 0, scale: 1, duration: 0.34, ease: "back.out(1.28)", clearProps: "transform" }
+      );
+    }
+
+    if (headerEls.length > 0) {
+      tl.fromTo(
+        headerEls,
+        { autoAlpha: 0, y: -10, scale: 0.94 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.28,
+          stagger: 0.04,
+          ease: "back.out(1.35)",
+          clearProps: "transform"
+        },
+        "-=0.22"
+      );
+    }
+
+    if (pillAndRank.length > 0) {
+      tl.fromTo(
+        pillAndRank,
+        { autoAlpha: 0, y: 12, scale: 0.95 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.28,
+          stagger: 0.05,
+          ease: "back.out(1.35)",
+          clearProps: "transform"
+        },
+        "-=0.18"
+      );
+    }
+
+    if (accuracyFill) {
+      tl.fromTo(
+        accuracyFill,
+        { scaleX: 0, transformOrigin: "left center" },
+        { scaleX: 1, duration: 0.5, ease: "power2.out", clearProps: "transform" },
+        "<0.04"
+      );
+    }
+
+    if (statChips.length > 0) {
+      tl.fromTo(
+        statChips,
+        { autoAlpha: 0, y: 10, scale: 0.94 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.24,
+          stagger: 0.03,
+          ease: "power2.out",
+          clearProps: "transform"
+        },
+        "-=0.3"
+      );
+    }
+
+    if (scoreBoxes.length > 0) {
+      tl.fromTo(
+        scoreBoxes,
+        { autoAlpha: 0, y: 12, scale: 0.95 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.28,
+          stagger: 0.06,
+          ease: "back.out(1.35)",
+          clearProps: "transform"
+        },
+        "-=0.18"
+      );
+    }
+
+    if (recordBox) {
+      tl.fromTo(
+        recordBox,
+        { scale: 1 },
+        {
+          scale: 1.04,
+          duration: 0.18,
+          yoyo: true,
+          repeat: 1,
+          ease: "sine.inOut",
+          clearProps: "transform"
+        },
+        "-=0.05"
+      );
+    }
+
+    if (footerEls.length > 0) {
+      tl.fromTo(
+        footerEls,
+        { autoAlpha: 0, y: 10, scale: 0.96 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.25,
+          stagger: 0.04,
+          ease: "back.out(1.35)",
+          clearProps: "transform"
+        },
+        "-=0.18"
+      );
+    }
+
+    if (mainScoreValEl && result.score > 0) {
+      const counter = { value: 0 };
+      mainScoreValEl.textContent = "0";
+      this.scoreTween = gsap.to(counter, {
+        value: result.score,
+        duration: 0.72,
+        ease: "power2.out",
+        onUpdate: () => {
+          mainScoreValEl.textContent = Math.round(counter.value).toLocaleString();
+        },
+        onComplete: () => {
+          mainScoreValEl.textContent = result.score.toLocaleString();
+        }
+      });
+    }
+  }
+
+  public killAnimations(resetConfetti: boolean = true): void {
+    if (this.entranceTl) {
+      this.entranceTl.kill();
+      this.entranceTl = null;
+    }
+
+    if (this.scoreTween) {
+      this.scoreTween.kill();
+      this.scoreTween = null;
+    }
+
+    if (this.toastTimerIds.length > 0) {
+      this.toastTimerIds.forEach((id) => window.clearTimeout(id));
+      this.toastTimerIds = [];
+    }
+
+    if (resetConfetti && this.isConfettiActive) {
+      try {
+        confetti.reset();
+      } catch {
+        // Ignorar de forma segura si el contexto no está activo
+      }
+      this.isConfettiActive = false;
+    }
+
+    const targets = this.container.querySelectorAll<HTMLElement>(
+      ".modal-card, .modal-emblem-header, .modal-ribbon-wrapper, .modal-game-name, .modal-song-pill, .rank-medallion-badge, .accuracy-bar-fill, .stat-chip, .score-box, .modal-target-score-hint, .modal-branding, .modal-actions .btn-action"
+    );
+    if (targets.length > 0) {
+      gsap.killTweensOf(targets);
+    }
   }
 
   private setupEvents(result: GameResult): void {
-    const btnAgain = this.container.querySelector("#btn-modal-again");
-    const btnChangeSong = this.container.querySelector("#btn-modal-change-song");
-    const btnMenu = this.container.querySelector("#btn-modal-menu");
-    const btnEditor = this.container.querySelector("#btn-modal-editor");
-    const btnCopy = this.container.querySelector("#btn-modal-copy");
+    const btnAgain = this.container.querySelector<HTMLElement>("#btn-modal-again");
+    const btnChangeSong = this.container.querySelector<HTMLElement>("#btn-modal-change-song");
+    const btnMenu = this.container.querySelector<HTMLElement>("#btn-modal-menu");
+    const btnEditor = this.container.querySelector<HTMLElement>("#btn-modal-editor");
+    const btnCopy = this.container.querySelector<HTMLElement>("#btn-modal-copy");
+
+    const actionButtons = [btnAgain, btnChangeSong, btnMenu, btnEditor, btnCopy].filter(
+      (btn): btn is HTMLElement => btn !== null
+    );
+
+    actionButtons.forEach((btn) => {
+      btn.addEventListener("pointerdown", () => {
+        gsap.to(btn, {
+          scale: 0.95,
+          duration: 0.09,
+          ease: "power2.out",
+          overwrite: "auto"
+        });
+      });
+
+      const restoreBtn = () => {
+        gsap.to(btn, {
+          scale: 1,
+          duration: 0.16,
+          ease: "back.out(1.5)",
+          clearProps: "transform",
+          overwrite: "auto"
+        });
+      };
+
+      btn.addEventListener("pointerup", restoreBtn);
+      btn.addEventListener("pointerleave", restoreBtn);
+      btn.addEventListener("pointercancel", restoreBtn);
+    });
 
     btnAgain?.addEventListener("click", () => {
       this.audio.playTap();
@@ -295,19 +625,26 @@ export class GameOverModal {
   private showToast(msg: string): void {
     const toast = this.container.querySelector("#modal-toast") as HTMLElement;
     if (toast) {
+      this.toastTimerIds.forEach((id) => window.clearTimeout(id));
+      this.toastTimerIds = [];
+
       toast.textContent = msg;
       toast.style.display = "block";
       toast.classList.add("show");
-      setTimeout(() => {
+      const t1 = window.setTimeout(() => {
         toast.classList.remove("show");
-        setTimeout(() => {
+        const t2 = window.setTimeout(() => {
           toast.style.display = "none";
         }, 300);
+        this.toastTimerIds.push(t2);
       }, 3000);
+      this.toastTimerIds.push(t1);
     }
   }
 
   public hide(): void {
+    this.killAnimations(true);
+    this.lastCelebratedSignature = null;
     this.container.style.display = "none";
     this.container.innerHTML = "";
   }

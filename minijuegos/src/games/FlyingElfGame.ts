@@ -18,7 +18,170 @@ import { AudioManager } from "../core/AudioManager";
 import { ParticleSystem } from "../core/ParticleSystem";
 import { ScreenTransition } from "../core/ScreenTransition";
 
-export type ElfCharacterId = "feria" | "campus";
+export type ElfCharacterId =
+  | "feria"
+  | "campus"
+  | "cajasan"
+  | "practi"
+  | "mariposa"
+  | "angelus"
+  | "factor"
+  | "fundalas"
+  | "imebu";
+
+export interface ElfCharacterDef {
+  id: ElfCharacterId;
+  name: string;
+  sponsorName: string;
+  subtitle: string;
+  badgeText: string;
+  perkName: string;
+  perkDesc: string;
+  themeColor: string;
+  glowColor: string;
+  accentColor: string;
+  spritePath: string;
+  iconPath: string;
+  soundNote: number;
+}
+
+export const ELF_ROSTER: ElfCharacterDef[] = [
+  {
+    id: "feria",
+    name: "Elfo Feria Mágica",
+    sponsorName: "Feria Mágica del Juguete",
+    subtitle: "Guardián de la Alegría Navideña",
+    badgeText: "EDICIÓN ESPECIAL",
+    perkName: "Vuelo Festivo",
+    perkDesc: "Gran estabilidad y estela dorada de bendiciones",
+    themeColor: "#FFD700",
+    glowColor: "rgba(255, 215, 0, 0.45)",
+    accentColor: "#DC2626",
+    spritePath: "./assets/images/elfo-volador.png",
+    iconPath: "./assets/images/icon-elfo-feria.png",
+    soundNote: 0
+  },
+  {
+    id: "campus",
+    name: "Elfo Campuslands",
+    sponsorName: "Campuslands",
+    subtitle: "Explorador Cósmico del Futuro",
+    badgeText: "PATROCINADOR OFICIAL",
+    perkName: "Vuelo Cósmico",
+    perkDesc: "Turbo estelar y campo de fuerza electromagnético",
+    themeColor: "#00E5FF",
+    glowColor: "rgba(0, 229, 255, 0.45)",
+    accentColor: "#0284C7",
+    spritePath: "./assets/images/elfo-volador-campus.png",
+    iconPath: "./assets/images/icon-elfo-campus.png",
+    soundNote: 2
+  },
+  {
+    id: "cajasan",
+    name: "Elfo Cajasan",
+    sponsorName: "Cajasan",
+    subtitle: "Embajador de Bienestar Familiar",
+    badgeText: "PATROCINADOR OFICIAL",
+    perkName: "Recreación Familiar",
+    perkDesc: "Escudos protectores duraderos y planeo confortable",
+    themeColor: "#38BDF8",
+    glowColor: "rgba(56, 189, 248, 0.45)",
+    accentColor: "#0B4F9C",
+    spritePath: "./assets/images/elfo-volador-cajasan.png",
+    iconPath: "./assets/images/icon-elfo-cajasan.png",
+    soundNote: 4
+  },
+  {
+    id: "practi",
+    name: "Elfo Practi Arepa",
+    sponsorName: "Practi Arepa",
+    subtitle: "Sabor y Energía Tradicional",
+    badgeText: "PATROCINADOR OFICIAL",
+    perkName: "Energía Dorada",
+    perkDesc: "Impulso de vuelo cálido y deliciosa agilidad en giros",
+    themeColor: "#FBBF24",
+    glowColor: "rgba(251, 191, 36, 0.45)",
+    accentColor: "#DC2626",
+    spritePath: "./assets/images/elfo-volador-practi.png",
+    iconPath: "./assets/images/icon-elfo-practi.png",
+    soundNote: 1
+  },
+  {
+    id: "mariposa",
+    name: "Elfo Dulces Mariposa",
+    sponsorName: "Dulces Mariposa",
+    subtitle: "Dulzura y Tradición Santandereana",
+    badgeText: "PATROCINADOR OFICIAL",
+    perkName: "Vuelo de Seda",
+    perkDesc: "Atracción dulce de caramelos y planeo suave",
+    themeColor: "#F472B6",
+    glowColor: "rgba(244, 114, 182, 0.45)",
+    accentColor: "#F59E0B",
+    spritePath: "./assets/images/elfo-volador-mariposa.png",
+    iconPath: "./assets/images/icon-elfo-mariposa.png",
+    soundNote: 3
+  },
+  {
+    id: "angelus",
+    name: "Elfo Ángelus Seguridad",
+    sponsorName: "Ángelus Seguridad Ltda.",
+    subtitle: "Guardián de la Paz y Tranquilidad",
+    badgeText: "PATROCINADOR OFICIAL",
+    perkName: "Escudo Angelical",
+    perkDesc: "Blindaje de titanio y resistencia férrea ante peligros",
+    themeColor: "#94A3B8",
+    glowColor: "rgba(148, 163, 184, 0.45)",
+    accentColor: "#1E3A8A",
+    spritePath: "./assets/images/elfo-volador-angelus.png",
+    iconPath: "./assets/images/icon-elfo-angelus.png",
+    soundNote: 5
+  },
+  {
+    id: "factor",
+    name: "Elfo Factor Humano",
+    sponsorName: "Factor Humano",
+    subtitle: "Talento, Liderazgo y Vigor",
+    badgeText: "PATROCINADOR OFICIAL",
+    perkName: "Impulso Humano",
+    perkDesc: "Capacidad de ascenso veloz y tenacidad heroica",
+    themeColor: "#EF4444",
+    glowColor: "rgba(239, 68, 68, 0.45)",
+    accentColor: "#1E293B",
+    spritePath: "./assets/images/elfo-volador-factor.png",
+    iconPath: "./assets/images/icon-elfo-factor.png",
+    soundNote: 6
+  },
+  {
+    id: "fundalas",
+    name: "Elfo Fundalas",
+    sponsorName: "Fundalas",
+    subtitle: "Alas de Esperanza y Solidaridad",
+    badgeText: "PATROCINADOR OFICIAL",
+    perkName: "Alas Solidarias",
+    perkDesc: "Poderoso radio de atracción magnética para regalos",
+    themeColor: "#38BDF8",
+    glowColor: "rgba(56, 189, 248, 0.45)",
+    accentColor: "#0284C7",
+    spritePath: "./assets/images/elfo-volador-fundalas.png",
+    iconPath: "./assets/images/icon-elfo-fundalas.png",
+    soundNote: 2
+  },
+  {
+    id: "imebu",
+    name: "Elfo IMEBU",
+    sponsorName: "IMEBU & Alcaldía",
+    subtitle: "Orgullo y Emprendimiento Búcaro",
+    badgeText: "PATROCINADOR OFICIAL",
+    perkName: "Impulso Búcaro",
+    perkDesc: "Frecuencia mejorada de medallones y regalos especiales",
+    themeColor: "#4ADE80",
+    glowColor: "rgba(74, 222, 128, 0.45)",
+    accentColor: "#EAB308",
+    spritePath: "./assets/images/elfo-volador-imebu.png",
+    iconPath: "./assets/images/icon-elfo-imebu.png",
+    soundNote: 4
+  }
+];
 
 interface CollectibleItem {
   x: number;
@@ -119,10 +282,11 @@ export class FlyingElfGame extends BaseGame {
   private charSelectAnimTime: number = 0;
 
   // Assets Ilustrados Pre-cargados
+  public elfSprites: Map<ElfCharacterId, HTMLImageElement> = new Map();
+  public elfIcons: Map<ElfCharacterId, HTMLImageElement> = new Map();
+  private keyNavCooldown: number = 0;
+
   private imgElfFeria: HTMLImageElement;
-  private imgElfCampus: HTMLImageElement;
-  private imgIconFeria: HTMLImageElement;
-  private imgIconCampus: HTMLImageElement;
   private imgLogoCampus: HTMLImageElement;
   private imgBgPanorama: HTMLImageElement;
   private imgHouseObstacle: HTMLImageElement;
@@ -153,18 +317,18 @@ export class FlyingElfGame extends BaseGame {
       particles
     );
 
-    // 1. Personajes Elfo con Parapente: Feria Mágica y Campuslands
-    this.imgElfFeria = new Image();
-    this.imgElfFeria.src = "./assets/images/elfo-volador.png";
+    // 1. Pre-cargar el Roster Completo de 9 Elfos de Patrocinadores
+    for (const elfDef of ELF_ROSTER) {
+      const spriteImg = new Image();
+      spriteImg.src = elfDef.spritePath;
+      this.elfSprites.set(elfDef.id, spriteImg);
 
-    this.imgElfCampus = new Image();
-    this.imgElfCampus.src = "./assets/images/elfo-volador-campus.png";
+      const iconImg = new Image();
+      iconImg.src = elfDef.iconPath;
+      this.elfIcons.set(elfDef.id, iconImg);
+    }
 
-    this.imgIconFeria = new Image();
-    this.imgIconFeria.src = "./assets/images/icon-elfo-feria.png";
-
-    this.imgIconCampus = new Image();
-    this.imgIconCampus.src = "./assets/images/icon-elfo-campus.png";
+    this.imgElfFeria = this.elfSprites.get("feria")!;
 
     this.imgLogoCampus = new Image();
     this.imgLogoCampus.src = "./assets/logos/logo-campus-sin-fondo.png";
@@ -313,11 +477,29 @@ export class FlyingElfGame extends BaseGame {
       this.groundScrollX += 65 * dt;
       this.gliderSwayTime += dt * 3.5;
 
-      // Navegación por teclado en la pantalla de selección
-      if (this.input.isKeyDown("Digit1") || this.input.isKeyDown("KeyA") || this.input.isKeyDown("ArrowLeft")) {
-        this.selectCharacter("feria");
-      } else if (this.input.isKeyDown("Digit2") || this.input.isKeyDown("KeyD") || this.input.isKeyDown("ArrowRight")) {
-        this.selectCharacter("campus");
+      // Navegación por teclado en la pantalla de selección con cooldown
+      if (this.keyNavCooldown > 0) {
+        this.keyNavCooldown -= dt;
+      } else {
+        const curIdx = ELF_ROSTER.findIndex((e) => e.id === this.selectedElf);
+        if (this.input.isKeyDown("ArrowLeft") || this.input.isKeyDown("KeyA")) {
+          const prevIdx = (curIdx - 1 + ELF_ROSTER.length) % ELF_ROSTER.length;
+          this.selectCharacter(ELF_ROSTER[prevIdx].id);
+          this.keyNavCooldown = 0.22;
+        } else if (this.input.isKeyDown("ArrowRight") || this.input.isKeyDown("KeyD")) {
+          const nextIdx = (curIdx + 1) % ELF_ROSTER.length;
+          this.selectCharacter(ELF_ROSTER[nextIdx].id);
+          this.keyNavCooldown = 0.22;
+        } else {
+          // Teclas numéricas 1 a 9 para selección instantánea
+          for (let i = 0; i < ELF_ROSTER.length; i++) {
+            if (this.input.isKeyDown(`Digit${i + 1}`)) {
+              this.selectCharacter(ELF_ROSTER[i].id);
+              this.keyNavCooldown = 0.25;
+              break;
+            }
+          }
+        }
       }
 
       if (this.input.isKeyDown("Space") || this.input.isKeyDown("Enter")) {
@@ -413,10 +595,10 @@ export class FlyingElfGame extends BaseGame {
       if (Math.random() < 0.48) {
         const exhaustX = this.elfX - this.elfWidth * 0.28;
         const exhaustY = this.elfY + this.elfHeight * 0.12;
-        const isCampus = this.selectedElf === "campus";
+        const currentDef = ELF_ROSTER.find((e) => e.id === this.selectedElf) || ELF_ROSTER[0];
         const trailColor = this.isLogoPowerUpActive
-          ? (isCampus ? "#00E5FF" : "#FFD700")
-          : (isCampus ? "#80D8FF" : "#FFF59D");
+          ? currentDef.themeColor
+          : currentDef.glowColor;
         this.particles.emitBurst(
           exhaustX,
           exhaustY,
@@ -973,12 +1155,13 @@ export class FlyingElfGame extends BaseGame {
   public selectCharacter(character: ElfCharacterId): void {
     if (this.selectedElf === character) return;
     this.selectedElf = character;
-    this.audio.playBellNote(character === "feria" ? 0 : 2);
+    const def = ELF_ROSTER.find((e) => e.id === character) || ELF_ROSTER[0];
+    this.audio.playBellNote(def.soundNote);
     this.particles.emitBurst(
       this.width / 2,
       this.height * 0.45,
-      character === "campus" ? "#00E5FF" : "#FFD700",
-      16
+      def.themeColor,
+      18
     );
   }
 
@@ -1001,103 +1184,165 @@ export class FlyingElfGame extends BaseGame {
   }
 
   /**
-   * Obtiene la geometría y coordenadas de las tarjetas interactivas de personaje
+   * Obtiene la geometría y coordenadas de la interfaz de selección de 9 personajes
    */
   private getCharacterSelectLayout(): {
     titleY: number;
     subtitleY: number;
-    card1: { x: number; y: number; w: number; h: number };
-    card2: { x: number; y: number; w: number; h: number };
+    heroCard: { x: number; y: number; w: number; h: number };
+    btnLeft: { x: number; y: number; w: number; h: number };
+    btnRight: { x: number; y: number; w: number; h: number };
+    thumbDock: {
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      itemSize: number;
+      gap: number;
+      items: { id: ElfCharacterId; x: number; y: number; w: number; h: number }[];
+    };
     btn: { x: number; y: number; w: number; h: number };
     hintY: number;
-    isTwoCol: boolean;
+    isLandscape: boolean;
   } {
     const isLandscape = this.width > this.height;
-    const isTwoCol = (this.width >= 560 && isLandscape) || (this.width >= 720 && this.width / this.height >= 0.88);
-    const isShortHeight = this.height < 520;
+    const isShortHeight = this.height < 500;
 
-    const titleY = isShortHeight ? Math.max(20, this.height * 0.075) : Math.max(36, this.height * 0.095);
-    const subtitleY = titleY + (isShortHeight ? 18 : 26);
-    const cardStartY = subtitleY + (isShortHeight ? 12 : 20);
+    const titleY = isShortHeight ? Math.max(18, this.height * 0.065) : Math.max(28, this.height * 0.075);
+    const subtitleY = titleY + (isShortHeight ? 16 : 22);
 
-    if (isTwoCol) {
-      const pad = isShortHeight ? 14 : Math.min(32, this.width * 0.035);
-      const cardW = (this.width - pad * 3) / 2;
-      const btnH = isShortHeight ? 40 : Math.min(64, this.height * 0.085);
-      const bottomReserved = btnH + (isShortHeight ? 24 : 44);
-      const maxCardH = isShortHeight ? Math.max(100, this.height - cardStartY - bottomReserved) : 380;
-      const cardH = Math.min(maxCardH, Math.max(100, this.height - cardStartY - bottomReserved));
+    let heroW: number, heroH: number, heroX: number, heroY: number;
+    let btnLeft: { x: number; y: number; w: number; h: number };
+    let btnRight: { x: number; y: number; w: number; h: number };
+    let thumbY: number, thumbH: number, itemSize: number, gap: number, totalThumbW: number, thumbStartX: number;
+    let btnW: number, btnH: number, btnX: number, btnY: number, hintY: number;
 
-      const card1 = { x: pad, y: cardStartY, w: cardW, h: cardH };
-      const card2 = { x: pad * 2 + cardW, y: cardStartY, w: cardW, h: cardH };
+    if (isLandscape) {
+      heroW = Math.min(680, this.width * 0.74);
+      heroH = Math.min(270, Math.max(150, this.height * (isShortHeight ? 0.44 : 0.48)));
+      heroX = (this.width - heroW) / 2;
+      heroY = subtitleY + (isShortHeight ? 8 : 12);
 
-      const btnW = Math.min(360, Math.max(200, this.width * 0.44));
-      const btnY = cardStartY + cardH + (isShortHeight ? 6 : 14);
-      const btn = { x: (this.width - btnW) / 2, y: btnY, w: btnW, h: btnH };
-      const hintY = btnY + btnH + (isShortHeight ? 12 : 18);
+      const btnArrowW = Math.min(46, Math.max(34, this.width * 0.045));
+      btnLeft = { x: Math.max(8, heroX - btnArrowW - 10), y: heroY + (heroH - btnArrowW) / 2, w: btnArrowW, h: btnArrowW };
+      btnRight = { x: Math.min(this.width - btnArrowW - 8, heroX + heroW + 10), y: heroY + (heroH - btnArrowW) / 2, w: btnArrowW, h: btnArrowW };
 
-      return { titleY, subtitleY, card1, card2, btn, hintY, isTwoCol };
+      thumbH = Math.min(50, Math.max(34, this.height * (isShortHeight ? 0.11 : 0.10)));
+      gap = 6;
+      itemSize = Math.min(thumbH, Math.floor((heroW - 8 * gap) / 9));
+      totalThumbW = 9 * itemSize + 8 * gap;
+      thumbStartX = (this.width - totalThumbW) / 2;
+      thumbY = heroY + heroH + (isShortHeight ? 8 : 12);
+
+      btnW = Math.min(320, this.width * 0.42);
+      btnH = Math.min(50, Math.max(36, this.height * (isShortHeight ? 0.11 : 0.09)));
+      btnX = (this.width - btnW) / 2;
+      btnY = thumbY + thumbH + (isShortHeight ? 6 : 10);
+      hintY = btnY + btnH + 14;
     } else {
-      // Single column (Mobile portrait, vertical totems, kiosks)
-      const cardW = Math.min(480, this.width * 0.92);
-      const cardX = (this.width - cardW) / 2;
-      const btnH = isShortHeight ? 42 : Math.min(60, Math.max(44, this.height * 0.065));
-      const gap = Math.max(8, Math.min(14, this.height * 0.015));
-      const bottomReserved = btnH + (isShortHeight ? 26 : 46);
-      const availableH = this.height - cardStartY - bottomReserved;
-      const cardH = Math.min(220, Math.max(76, (availableH - gap) / 2));
+      // Portrait / Totem
+      heroW = Math.min(480, this.width * 0.90);
+      heroH = Math.min(400, Math.max(230, this.height * 0.40));
+      heroX = (this.width - heroW) / 2;
+      heroY = subtitleY + 12;
 
-      const card1Y = cardStartY;
-      const card2Y = card1Y + cardH + gap;
-      const card1 = { x: cardX, y: card1Y, w: cardW, h: cardH };
-      const card2 = { x: cardX, y: card2Y, w: cardW, h: cardH };
+      const btnArrowW = 42;
+      btnLeft = { x: heroX + 8, y: heroY + heroH * 0.32 - btnArrowW / 2, w: btnArrowW, h: btnArrowW };
+      btnRight = { x: heroX + heroW - btnArrowW - 8, y: heroY + heroH * 0.32 - btnArrowW / 2, w: btnArrowW, h: btnArrowW };
 
-      const btnW = Math.min(360, this.width * 0.86);
-      const btnY = card2Y + cardH + Math.max(6, gap);
-      const btn = { x: (this.width - btnW) / 2, y: btnY, w: btnW, h: btnH };
-      const hintY = btnY + btnH + 16;
+      thumbH = Math.min(56, Math.max(38, this.height * 0.075));
+      const availW = Math.min(this.width * 0.94, 520);
+      gap = Math.max(4, Math.min(8, Math.floor((availW - 9 * 36) / 8)));
+      itemSize = Math.min(thumbH, Math.floor((availW - 8 * gap) / 9));
+      totalThumbW = 9 * itemSize + 8 * gap;
+      thumbStartX = (this.width - totalThumbW) / 2;
+      thumbY = heroY + heroH + 12;
 
-      return { titleY, subtitleY, card1, card2, btn, hintY, isTwoCol };
+      btnW = Math.min(360, this.width * 0.85);
+      btnH = Math.min(58, Math.max(44, this.height * 0.065));
+      btnX = (this.width - btnW) / 2;
+      btnY = thumbY + thumbH + 14;
+      hintY = btnY + btnH + 16;
     }
+
+    const thumbItems = ELF_ROSTER.map((def, i) => ({
+      id: def.id,
+      x: thumbStartX + i * (itemSize + gap),
+      y: thumbY,
+      w: itemSize,
+      h: itemSize
+    }));
+
+    return {
+      titleY,
+      subtitleY,
+      heroCard: { x: heroX, y: heroY, w: heroW, h: heroH },
+      btnLeft,
+      btnRight,
+      thumbDock: {
+        x: thumbStartX,
+        y: thumbY,
+        w: totalThumbW,
+        h: thumbH,
+        itemSize,
+        gap,
+        items: thumbItems
+      },
+      btn: { x: btnX, y: btnY, w: btnW, h: btnH },
+      hintY,
+      isLandscape
+    };
   }
 
   /**
-   * Procesa toques y clics en la pantalla de selección de personaje
+   * Procesa toques y clics en la pantalla de selección de personaje (9 patrocinadores)
    */
   private handleCharacterSelectTouch(x: number, y: number): void {
     const layout = this.getCharacterSelectLayout();
+    const curIdx = ELF_ROSTER.findIndex((e) => e.id === this.selectedElf);
 
-    // Tocar Tarjeta 1 (Feria Mágica)
+    // 1. Tocar Flecha Izquierda (Anterior Elfo)
     if (
-      x >= layout.card1.x &&
-      x <= layout.card1.x + layout.card1.w &&
-      y >= layout.card1.y &&
-      y <= layout.card1.y + layout.card1.h
+      x >= layout.btnLeft.x &&
+      x <= layout.btnLeft.x + layout.btnLeft.w &&
+      y >= layout.btnLeft.y &&
+      y <= layout.btnLeft.y + layout.btnLeft.h
     ) {
-      if (this.selectedElf === "feria") {
-        this.startGameWithCountdown();
-      } else {
-        this.selectCharacter("feria");
-      }
+      const prevIdx = (curIdx - 1 + ELF_ROSTER.length) % ELF_ROSTER.length;
+      this.selectCharacter(ELF_ROSTER[prevIdx].id);
       return;
     }
 
-    // Tocar Tarjeta 2 (Campuslands)
+    // 2. Tocar Flecha Derecha (Siguiente Elfo)
     if (
-      x >= layout.card2.x &&
-      x <= layout.card2.x + layout.card2.w &&
-      y >= layout.card2.y &&
-      y <= layout.card2.y + layout.card2.h
+      x >= layout.btnRight.x &&
+      x <= layout.btnRight.x + layout.btnRight.w &&
+      y >= layout.btnRight.y &&
+      y <= layout.btnRight.y + layout.btnRight.h
     ) {
-      if (this.selectedElf === "campus") {
-        this.startGameWithCountdown();
-      } else {
-        this.selectCharacter("campus");
-      }
+      const nextIdx = (curIdx + 1) % ELF_ROSTER.length;
+      this.selectCharacter(ELF_ROSTER[nextIdx].id);
       return;
     }
 
-    // Tocar Botón "¡A VOLAR!"
+    // 3. Tocar miniaturas en la barra de selección (9 Elfos)
+    for (const item of layout.thumbDock.items) {
+      if (
+        x >= item.x &&
+        x <= item.x + item.w &&
+        y >= item.y &&
+        y <= item.y + item.h
+      ) {
+        if (this.selectedElf === item.id) {
+          this.startGameWithCountdown();
+        } else {
+          this.selectCharacter(item.id);
+        }
+        return;
+      }
+    }
+
+    // 4. Tocar Botón "¡A VOLAR! ▶"
     if (
       x >= layout.btn.x &&
       x <= layout.btn.x + layout.btn.w &&
@@ -1105,14 +1350,27 @@ export class FlyingElfGame extends BaseGame {
       y <= layout.btn.y + layout.btn.h
     ) {
       this.startGameWithCountdown();
+      return;
+    }
+
+    // 5. Tocar la tarjeta de personaje principal para iniciar
+    if (
+      x >= layout.heroCard.x &&
+      x <= layout.heroCard.x + layout.heroCard.w &&
+      y >= layout.heroCard.y &&
+      y <= layout.heroCard.y + layout.heroCard.h
+    ) {
+      this.startGameWithCountdown();
     }
   }
 
   /**
-   * Renderiza la interfaz de selección de personaje (Stylized 2D Fantasy Art)
+   * Renderiza la interfaz de selección de personaje con los 9 elfos de patrocinadores oficiales
    */
   private renderCharacterSelect(ctx: CanvasRenderingContext2D): void {
     const layout = this.getCharacterSelectLayout();
+    const curDef = ELF_ROSTER.find((e) => e.id === this.selectedElf) || ELF_ROSTER[0];
+    const elfSprite = this.elfSprites.get(curDef.id) || this.imgElfFeria;
 
     ctx.save();
 
@@ -1120,72 +1378,48 @@ export class FlyingElfGame extends BaseGame {
     ctx.fillStyle = "rgba(4, 12, 28, 0.88)";
     ctx.fillRect(0, 0, this.width, this.height);
 
-    // 2. Resplandor central decorativo
+    // 2. Resplandor central con el color temático del elfo activo
     const centerGlow = ctx.createRadialGradient(
       this.width / 2,
-      this.height * 0.45,
+      layout.heroCard.y + layout.heroCard.h * 0.45,
       20,
       this.width / 2,
-      this.height * 0.45,
-      this.width * 0.7
+      layout.heroCard.y + layout.heroCard.h * 0.45,
+      this.width * 0.65
     );
-    centerGlow.addColorStop(0, "rgba(255, 215, 0, 0.08)");
-    centerGlow.addColorStop(0.5, "rgba(0, 229, 255, 0.05)");
+    centerGlow.addColorStop(0, curDef.glowColor);
+    centerGlow.addColorStop(0.5, "rgba(255, 215, 0, 0.04)");
     centerGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
     ctx.fillStyle = centerGlow;
     ctx.fillRect(0, 0, this.width, this.height);
 
     // 3. Título y Subtítulo Cinemático
     ctx.textAlign = "center";
-    const titleSize = Math.max(16, Math.min(34, this.width * 0.042));
-
-    // Título con contorno nítido (sin shadowBlur)
+    const titleSize = Math.max(16, Math.min(32, this.width * 0.040));
     ctx.font = `900 ${titleSize}px 'Outfit', sans-serif`;
     ctx.strokeStyle = "#4A2600";
     ctx.lineWidth = 4;
     ctx.strokeText("🧝‍♂️ ELIGE A TU ELFO MÁGICO", this.width / 2, layout.titleY);
     ctx.fillStyle = "#FFD700";
     ctx.fillText("🧝‍♂️ ELIGE A TU ELFO MÁGICO", this.width / 2, layout.titleY);
+
     ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-    const subtitleSize = Math.max(10, Math.min(15, titleSize * 0.5));
+    const subtitleSize = Math.max(10, Math.min(14, titleSize * 0.48));
     ctx.font = `600 ${subtitleSize}px 'Outfit', sans-serif`;
-    ctx.fillText("Selecciona a tu mensajero navideño para volar", this.width / 2, layout.subtitleY);
+    ctx.fillText("9 Mensajeros Navideños Oficiales • Selecciona tu elfo para volar", this.width / 2, layout.subtitleY);
 
-    // 4. Renderizado de Tarjetas de Personaje
-    const isTwoCol = layout.isTwoCol;
+    // 4. Botones de Navegación Flechas [<] y [>]
+    this.renderNavArrowButton(ctx, layout.btnLeft, "<", curDef.themeColor);
+    this.renderNavArrowButton(ctx, layout.btnRight, ">", curDef.themeColor);
 
-    // === TARJETA 1: ELFO FERIA MÁGICA ===
-    const isFeriaSelected = this.selectedElf === "feria";
-    this.renderElfCard(
-      ctx,
-      layout.card1,
-      "feria",
-      "ELFO FERIA MÁGICA",
-      "Logo Oficial Feria Mágica • Vuelo Festivo",
-      "#FFD700",
-      "rgba(255, 215, 0, 0.4)",
-      this.imgElfFeria,
-      isFeriaSelected,
-      isTwoCol
-    );
+    // 5. Tarjeta Hero Showcase del Personaje Activo
+    this.renderHeroShowcaseCard(ctx, layout.heroCard, curDef, elfSprite, layout.isLandscape);
 
-    // === TARJETA 2: ELFO CAMPUSLANDS ===
-    const isCampusSelected = this.selectedElf === "campus";
-    this.renderElfCard(
-      ctx,
-      layout.card2,
-      "campus",
-      "ELFO CAMPUSLANDS",
-      "Logo Oficial Campuslands • Vuelo Cósmico",
-      "#00E5FF",
-      "rgba(0, 229, 255, 0.4)",
-      this.imgElfCampus,
-      isCampusSelected,
-      isTwoCol
-    );
+    // 6. Barra Dock de Miniaturas de los 9 Elfos
+    this.renderThumbnailDock(ctx, layout.thumbDock);
 
-    // === BOTÓN DE ACCIÓN: ¡A VOLAR! ===
-    const btnPulse = Math.sin(this.charSelectAnimTime * 4.5) * 0.03;
+    // 7. Botón de Acción Principal: ¡A VOLAR!
+    const btnPulse = Math.sin(this.charSelectAnimTime * 4.5) * 0.025;
     ctx.save();
     ctx.translate(layout.btn.x + layout.btn.w / 2, layout.btn.y + layout.btn.h / 2);
     ctx.scale(1.0 + btnPulse, 1.0 + btnPulse);
@@ -1194,24 +1428,17 @@ export class FlyingElfGame extends BaseGame {
     const btnH = layout.btn.h;
 
     // Bisel inferior 3D
-    ctx.fillStyle = isCampusSelected ? "#064E3B" : "#7F1D1D";
+    ctx.fillStyle = "#7F1D1D";
     ctx.beginPath();
     ctx.roundRect(-btnW / 2, -btnH / 2 + 5, btnW, btnH, 18);
     ctx.fill();
 
-    // Cuerpo del botón con degradado festivo esmeralda / dorado
+    // Cuerpo del botón con degradado festivo dorado / esmeralda
     const btnGrad = ctx.createLinearGradient(0, -btnH / 2, 0, btnH / 2);
-    if (isCampusSelected) {
-      btnGrad.addColorStop(0, "#34D399");
-      btnGrad.addColorStop(0.35, "#10B981");
-      btnGrad.addColorStop(0.7, "#059669");
-      btnGrad.addColorStop(1, "#047857");
-    } else {
-      btnGrad.addColorStop(0, "#FBBF24");
-      btnGrad.addColorStop(0.35, "#F59E0B");
-      btnGrad.addColorStop(0.7, "#D97706");
-      btnGrad.addColorStop(1, "#B45309");
-    }
+    btnGrad.addColorStop(0, "#FBBF24");
+    btnGrad.addColorStop(0.35, "#F59E0B");
+    btnGrad.addColorStop(0.7, "#D97706");
+    btnGrad.addColorStop(1, "#B45309");
 
     ctx.fillStyle = btnGrad;
     ctx.beginPath();
@@ -1224,7 +1451,7 @@ export class FlyingElfGame extends BaseGame {
     ctx.stroke();
 
     // Texto del botón
-    ctx.fillStyle = isCampusSelected ? "#FFFFFF" : "#3B1B04";
+    ctx.fillStyle = "#3B1B04";
     const btnFontSize = Math.max(14, Math.min(24, btnH * 0.44));
     ctx.font = `900 ${btnFontSize}px 'Titan One', 'Fredoka', cursive, sans-serif`;
     ctx.textAlign = "center";
@@ -1232,61 +1459,92 @@ export class FlyingElfGame extends BaseGame {
     ctx.fillText("¡A VOLAR! ▶", 0, 1);
     ctx.restore();
 
-    // Atajos de teclado en la parte inferior (si hay espacio vertical)
-    if (layout.hintY < this.height - 8) {
+    // 8. Atajos de teclado en la parte inferior
+    if (layout.hintY < this.height - 6) {
       ctx.textAlign = "center";
       ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
-      ctx.font = "600 12px 'Outfit', sans-serif";
-      ctx.fillText("[1] Elfo Feria   [2] Elfo Campuslands   [ESPACIO / ENTER] Iniciar", this.width / 2, layout.hintY);
+      ctx.font = "600 11.5px 'Outfit', sans-serif";
+      ctx.fillText("[← / →] Cambiar   [1..9] Selección rápida   [ESPACIO / ENTER] Iniciar", this.width / 2, layout.hintY);
     }
 
     ctx.restore();
   }
 
   /**
-   * Renderiza una tarjeta individual de personaje con preview animado
+   * Dibuja los botones de flecha < y > con estilo festivo 3D
    */
-  private renderElfCard(
+  private renderNavArrowButton(
     ctx: CanvasRenderingContext2D,
     box: { x: number; y: number; w: number; h: number },
-    charId: ElfCharacterId,
-    title: string,
-    desc: string,
-    themeColor: string,
-    glowColor: string,
-    img: HTMLImageElement,
-    isSelected: boolean,
-    isTwoCol: boolean
+    symbol: string,
+    accentColor: string
   ): void {
     ctx.save();
+    const cx = box.x + box.w / 2;
+    const cy = box.y + box.h / 2;
+    const r = box.w / 2;
 
-    const isHorizontalLayout = !isTwoCol || box.w > box.h * 1.35;
+    // Sombra
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.beginPath();
+    ctx.arc(cx, cy + 3, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Fondo botón circular
+    const grad = ctx.createLinearGradient(cx, cy - r, cx, cy + r);
+    grad.addColorStop(0, "rgba(30, 41, 59, 0.95)");
+    grad.addColorStop(1, "rgba(15, 23, 42, 0.98)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Borde brillante con color temático
+    ctx.strokeStyle = accentColor;
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
+
+    // Flecha
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = `900 ${Math.max(16, r * 0.9)}px 'Titan One', sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(symbol, cx, cy + (symbol === "<" || symbol === ">" ? -1 : 0));
+    ctx.restore();
+  }
+
+  /**
+   * Renderiza la tarjeta principal Showcase del Elfo seleccionado
+   */
+  private renderHeroShowcaseCard(
+    ctx: CanvasRenderingContext2D,
+    box: { x: number; y: number; w: number; h: number },
+    def: ElfCharacterDef,
+    spriteImg: HTMLImageElement,
+    isLandscape: boolean
+  ): void {
+    ctx.save();
     const cornerRadius = 18;
 
     // 1. Fondo de la tarjeta con estilo madera noble / metal pulido
     const cardGrad = ctx.createLinearGradient(box.x, box.y, box.x, box.y + box.h);
-    if (isSelected) {
-      cardGrad.addColorStop(0, "rgba(18, 38, 68, 0.96)");
-      cardGrad.addColorStop(0.5, "rgba(10, 24, 46, 0.98)");
-      cardGrad.addColorStop(1, "rgba(5, 12, 25, 0.98)");
-    } else {
-      cardGrad.addColorStop(0, "rgba(14, 26, 46, 0.78)");
-      cardGrad.addColorStop(1, "rgba(7, 14, 26, 0.82)");
-    }
+    cardGrad.addColorStop(0, "rgba(18, 38, 68, 0.96)");
+    cardGrad.addColorStop(0.5, "rgba(10, 24, 46, 0.98)");
+    cardGrad.addColorStop(1, "rgba(5, 12, 25, 0.98)");
 
     ctx.fillStyle = cardGrad;
     ctx.beginPath();
     ctx.roundRect(box.x, box.y, box.w, box.h, cornerRadius);
     ctx.fill();
 
-    // 2. Bisel y Borde dorado / cian
-    ctx.strokeStyle = isSelected ? themeColor : "rgba(255, 255, 255, 0.25)";
-    ctx.lineWidth = isSelected ? 3.0 : 1.5;
+    // 2. Bisel y Borde temático
+    ctx.strokeStyle = def.themeColor;
+    ctx.lineWidth = 3.0;
     ctx.stroke();
 
-    // Adornos de esquina dorados (estilo fantasía)
+    // Adornos de esquina dorados
     const ornSize = 10;
-    ctx.fillStyle = isSelected ? themeColor : "rgba(255, 255, 255, 0.35)";
+    ctx.fillStyle = def.themeColor;
     // TL
     ctx.beginPath();
     ctx.moveTo(box.x + 4, box.y + 4);
@@ -1312,52 +1570,35 @@ export class FlyingElfGame extends BaseGame {
     ctx.lineTo(box.x + box.w - 4, box.y + box.h - 4 - ornSize);
     ctx.fill();
 
-    // 3. Insignia de Estado (ELEGIDO / SELECCIONAR) en la esquina superior derecha
-    const pillW = Math.max(85, Math.min(115, box.w * 0.24));
+    // 3. Insignia de Estado (PATROCINADOR OFICIAL / EDICIÓN ESPECIAL)
+    const pillW = Math.max(120, Math.min(180, box.w * 0.32));
     const pillH = Math.max(20, Math.min(26, box.h * 0.11));
-    const pillX = box.x + box.w - pillW - 12;
-    const pillY = box.y + 10;
+    const pillX = box.x + box.w - pillW - 14;
+    const pillY = box.y + 12;
 
-    ctx.save();
-    if (isSelected) {
-      ctx.fillStyle = themeColor;
-      ctx.beginPath();
-      ctx.roundRect(pillX, pillY, pillW, pillH, 12);
-      ctx.fill();
-      ctx.fillStyle = "#0A192F";
-      ctx.font = `900 ${Math.max(9, pillH * 0.46)}px 'Outfit', sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("✓ ELEGIDO", pillX + pillW / 2, pillY + pillH / 2);
-    } else {
-      ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
-      ctx.beginPath();
-      ctx.roundRect(pillX, pillY, pillW, pillH, 12);
-      ctx.fill();
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-      ctx.font = `700 ${Math.max(8.5, pillH * 0.44)}px 'Outfit', sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("SELECCIONAR", pillX + pillW / 2, pillY + pillH / 2);
-    }
-    ctx.restore();
+    ctx.fillStyle = def.themeColor;
+    ctx.beginPath();
+    ctx.roundRect(pillX, pillY, pillW, pillH, 12);
+    ctx.fill();
+    ctx.fillStyle = "#0A192F";
+    ctx.font = `900 ${Math.max(9, pillH * 0.44)}px 'Outfit', sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(def.badgeText, pillX + pillW / 2, pillY + pillH / 2);
 
     // 4. Preview Ilustrado en Vivo del Elfo + Pedestal de Nieve Flotante
-    const sway = Math.sin(this.charSelectAnimTime * 3.2 + (isSelected ? 0 : 1.5)) * 5;
-    let previewX = 0;
-    let previewY = 0;
-    let previewSize = 0;
+    const sway = Math.sin(this.charSelectAnimTime * 3.2) * 5;
+    let previewX: number, previewY: number, previewSize: number;
 
-    if (!isHorizontalLayout) {
-      previewSize = Math.min(box.w * 0.60, box.h * 0.44);
+    if (!isLandscape) {
+      // Disposición vertical (Portrait)
+      previewSize = Math.min(box.w * 0.62, box.h * 0.46);
       previewX = box.x + box.w / 2;
-      previewY = box.y + box.h * 0.34 + sway;
+      previewY = box.y + box.h * 0.32 + sway;
     } else {
-      previewSize = Math.min(box.h * 0.72, box.w * 0.36);
-      previewX = box.x + previewSize / 2 + 16;
+      // Disposición horizontal (Landscape)
+      previewSize = Math.min(box.h * 0.78, box.w * 0.38);
+      previewX = box.x + previewSize / 2 + 20;
       previewY = box.y + box.h / 2 + sway;
     }
 
@@ -1365,7 +1606,7 @@ export class FlyingElfGame extends BaseGame {
     ctx.save();
     ctx.translate(previewX, previewY + previewSize * 0.42);
     const pedGrad = ctx.createRadialGradient(0, 0, 4, 0, 0, previewSize * 0.42);
-    pedGrad.addColorStop(0, isSelected ? themeColor : "rgba(255, 255, 255, 0.3)");
+    pedGrad.addColorStop(0, def.themeColor);
     pedGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
     ctx.fillStyle = pedGrad;
     ctx.beginPath();
@@ -1373,111 +1614,133 @@ export class FlyingElfGame extends BaseGame {
     ctx.fill();
     ctx.restore();
 
-    // Dibujar el Elfo flotante
+    // Aura mágica del personaje
     ctx.save();
     ctx.translate(previewX, previewY);
+    const aura = ctx.createRadialGradient(0, 0, 6, 0, 0, previewSize * 0.55);
+    aura.addColorStop(0, def.glowColor);
+    aura.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = aura;
+    ctx.beginPath();
+    ctx.arc(0, 0, previewSize * 0.55, 0, Math.PI * 2);
+    ctx.fill();
 
-    if (isSelected) {
-      const aura = ctx.createRadialGradient(0, 0, 6, 0, 0, previewSize * 0.55);
-      aura.addColorStop(0, glowColor);
-      aura.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = aura;
-      ctx.beginPath();
-      ctx.arc(0, 0, previewSize * 0.55, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    if (img.complete && img.naturalWidth > 0) {
-      ctx.drawImage(img, -previewSize / 2, -previewSize / 2, previewSize, previewSize);
+    // Dibujar Sprite del Elfo
+    if (spriteImg && spriteImg.complete && spriteImg.naturalWidth > 0) {
+      ctx.drawImage(spriteImg, -previewSize / 2, -previewSize / 2, previewSize, previewSize);
     } else {
-      ctx.fillStyle = themeColor;
+      ctx.fillStyle = def.themeColor;
       ctx.beginPath();
-      ctx.arc(0, 0, previewSize * 0.4, 0, Math.PI * 2);
+      ctx.arc(0, 0, previewSize * 0.35, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
 
-    // 5. Columna de Información, Habilidades y Estadísticas Arcade
-    ctx.save();
-    if (!isHorizontalLayout) {
+    // 5. Textos y Atributos del Personaje
+    if (!isLandscape) {
+      // Vertical / Portrait Text Block (debajo del elfo)
       ctx.textAlign = "center";
       const textCenter = box.x + box.w / 2;
-      const titleFont = Math.max(12, Math.min(18, box.h * 0.08));
-      const titleTextY = box.y + box.h - titleFont * 2.3;
+      const curY = box.y + box.h * 0.58;
 
-      ctx.fillStyle = isSelected ? themeColor : "#FFFFFF";
-      ctx.font = `800 ${titleFont}px 'Outfit', sans-serif`;
-      ctx.fillText(title, textCenter, titleTextY, box.w - 20);
+      const nameFont = Math.max(16, Math.min(22, box.h * 0.065));
+      ctx.font = `900 ${nameFont}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+      ctx.strokeStyle = "#051124";
+      ctx.lineWidth = 3.5;
+      ctx.strokeText(def.name, textCenter, curY, box.w - 30);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillText(def.name, textCenter, curY, box.w - 30);
 
-      const descFont = Math.max(9, Math.min(12, titleFont * 0.65));
-      ctx.fillStyle = "rgba(255, 255, 255, 0.70)";
-      ctx.font = `500 ${descFont}px 'Outfit', sans-serif`;
-      ctx.fillText(desc, textCenter, titleTextY + titleFont + 4, box.w - 16);
+      // Sponsor y Subtítulo
+      ctx.fillStyle = def.themeColor;
+      ctx.font = `700 ${Math.max(11, nameFont * 0.60)}px 'Outfit', sans-serif`;
+      ctx.fillText(`${def.sponsorName} • ${def.subtitle}`, textCenter, curY + 20, box.w - 30);
+
+      // Tarjeta de Habilidad Especial
+      const perkBoxY = curY + 34;
+      const perkBoxW = Math.min(box.w - 36, 420);
+      const perkBoxH = Math.min(48, box.h - (perkBoxY - box.y) - 12);
+      if (perkBoxH > 24) {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+        ctx.beginPath();
+        ctx.roundRect(textCenter - perkBoxW / 2, perkBoxY, perkBoxW, perkBoxH, 10);
+        ctx.fill();
+        ctx.strokeStyle = def.themeColor;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        ctx.fillStyle = "#FDE68A";
+        ctx.font = "800 11.5px 'Outfit', sans-serif";
+        ctx.fillText(`🌟 ${def.perkName}`, textCenter, perkBoxY + 16, perkBoxW - 16);
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+        ctx.font = "500 10.5px 'Outfit', sans-serif";
+        ctx.fillText(def.perkDesc, textCenter, perkBoxY + 34, perkBoxW - 16);
+      }
     } else {
-      // Disposición Horizontal con Ficha de Personaje Completa
-      const contentX = box.x + previewSize + 26;
-      const titleAvailW = pillX - contentX - 10;
-      const fullAvailW = box.x + box.w - contentX - 14;
-      let curY = box.y + 18;
+      // Horizontal / Landscape Text Block (a la derecha del elfo)
+      const contentX = box.x + previewSize + 28;
+      const contentAvailW = pillX - contentX - 10;
+      const fullAvailW = box.x + box.w - contentX - 18;
+      let curY = box.y + 20;
 
       // Tag de categoría / rol
       ctx.textAlign = "left";
-      ctx.fillStyle = isSelected ? themeColor : "#94A3B8";
-      ctx.font = "800 10.5px 'Outfit', sans-serif";
-      const roleText = charId === "feria" ? "👑 MENSAJERO DE LA FERIA" : "🚀 PILOTO CÓSMICO";
-      ctx.fillText(roleText, contentX, curY);
-      curY += 20;
-
-      // Nombre del Personaje con contorno nítido (sin shadowBlur)
-      const nameFont = Math.max(15, Math.min(21, box.h * 0.095));
-      ctx.font = `900 ${nameFont}px 'Titan One', 'Fredoka', cursive, sans-serif`;
-      ctx.strokeStyle = "#051124";
-      ctx.lineWidth = 3;
-      ctx.strokeText(title, contentX, curY, titleAvailW);
-      ctx.fillStyle = isSelected ? "#FFFFFF" : "#E2E8F0";
-      ctx.fillText(title, contentX, curY, titleAvailW);
-      curY += 18;
-
-      // Subtítulo / Descripción
-      ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-      ctx.font = "500 11.5px 'Outfit', sans-serif";
-      ctx.fillText(desc, contentX, curY, fullAvailW);
+      ctx.fillStyle = def.themeColor;
+      ctx.font = "800 11px 'Outfit', sans-serif";
+      ctx.fillText(`PATROCINIO: ${def.sponsorName.toUpperCase()}`, contentX, curY);
       curY += 22;
 
-      // Habilidad Especial (Tarjeta pequeña)
-      const abilityH = Math.max(28, Math.min(36, box.h * 0.14));
-      ctx.fillStyle = isSelected ? "rgba(255, 215, 0, 0.12)" : "rgba(255, 255, 255, 0.06)";
+      // Nombre del Personaje con contorno nítido
+      const nameFont = Math.max(16, Math.min(23, box.h * 0.10));
+      ctx.font = `900 ${nameFont}px 'Titan One', 'Fredoka', cursive, sans-serif`;
+      ctx.strokeStyle = "#051124";
+      ctx.lineWidth = 3.5;
+      ctx.strokeText(def.name, contentX, curY, contentAvailW);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillText(def.name, contentX, curY, contentAvailW);
+      curY += 20;
+
+      // Subtítulo
+      ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+      ctx.font = "500 11.5px 'Outfit', sans-serif";
+      ctx.fillText(def.subtitle, contentX, curY, fullAvailW);
+      curY += 22;
+
+      // Habilidad Especial (Tarjeta destacada)
+      const abilityH = Math.max(34, Math.min(46, box.h * 0.18));
+      ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
       ctx.beginPath();
-      ctx.roundRect(contentX, curY, Math.min(fullAvailW, 300), abilityH, 8);
+      ctx.roundRect(contentX, curY, Math.min(fullAvailW, 360), abilityH, 10);
       ctx.fill();
-      ctx.strokeStyle = isSelected ? "rgba(255, 215, 0, 0.35)" : "rgba(255, 255, 255, 0.15)";
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = def.themeColor;
+      ctx.lineWidth = 1.2;
       ctx.stroke();
 
-      const abilityTitle = charId === "feria" ? "🎁 DON NAVIDEÑO:" : "⚡ IMPULSO CÓSMICO:";
-      const abilityDesc = charId === "feria" ? "Mayor radio de imán y puntos x2" : "Planeo ligero y mayor velocidad";
-      ctx.fillStyle = isSelected ? "#FDE68A" : "#E2E8F0";
-      ctx.font = "800 11px 'Outfit', sans-serif";
-      ctx.fillText(abilityTitle, contentX + 8, curY + 14);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.fillStyle = "#FDE68A";
+      ctx.font = "800 11.5px 'Outfit', sans-serif";
+      ctx.fillText(`🌟 HABILIDAD: ${def.perkName}`, contentX + 10, curY + 16);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.88)";
       ctx.font = "500 10.5px 'Outfit', sans-serif";
-      ctx.fillText(abilityDesc, contentX + 8, curY + abilityH - 7);
+      ctx.fillText(def.perkDesc, contentX + 10, curY + abilityH - 8, fullAvailW - 20);
       curY += abilityH + 16;
 
-      // Barras de Estadísticas Arcade (Velocidad, Planeo, Maniobra)
-      const stats = charId === "feria" 
-        ? [{ label: "Velocidad", val: 4 }, { label: "Planeo Mágico", val: 5 }, { label: "Imán Regalos", val: 5 }]
-        : [{ label: "Velocidad", val: 5 }, { label: "Planeo Mágico", val: 4 }, { label: "Turbo Cósmico", val: 5 }];
+      // Barras de Estadísticas Arcade
+      const stats = [
+        { label: "Velocidad", val: 5 },
+        { label: "Planeo Mágico", val: 5 },
+        { label: "Energía Navideña", val: 5 }
+      ];
 
-      const barW = Math.min(fullAvailW * 0.85, 220);
+      const barW = Math.min(fullAvailW * 0.85, 240);
       stats.forEach((st) => {
-        if (curY > box.y + box.h - 18) return; // Evitar desbordar
+        if (curY > box.y + box.h - 16) return;
         ctx.fillStyle = "#94A3B8";
         ctx.font = "700 10px 'Outfit', sans-serif";
         ctx.fillText(st.label, contentX, curY + 8);
 
-        const meterX = contentX + 88;
-        const meterW = Math.max(70, barW - 88);
+        const meterX = contentX + 96;
+        const meterW = Math.max(70, barW - 96);
         const meterH = 7;
 
         // Fondo del medidor
@@ -1489,8 +1752,8 @@ export class FlyingElfGame extends BaseGame {
         // Relleno del medidor con degradado
         const fillW = (meterW * st.val) / 5;
         const fillGrad = ctx.createLinearGradient(meterX, 0, meterX + fillW, 0);
-        fillGrad.addColorStop(0, themeColor);
-        fillGrad.addColorStop(1, isSelected ? "#FFFFFF" : themeColor);
+        fillGrad.addColorStop(0, def.themeColor);
+        fillGrad.addColorStop(1, "#FFFFFF");
         ctx.fillStyle = fillGrad;
         ctx.beginPath();
         ctx.roundRect(meterX, curY + 2, fillW, meterH, 4);
@@ -1499,7 +1762,92 @@ export class FlyingElfGame extends BaseGame {
         curY += 16;
       });
     }
+
     ctx.restore();
+  }
+
+  /**
+   * Renderiza la fila dock de miniaturas de los 9 elfos
+   */
+  private renderThumbnailDock(
+    ctx: CanvasRenderingContext2D,
+    dock: {
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      itemSize: number;
+      gap: number;
+      items: { id: ElfCharacterId; x: number; y: number; w: number; h: number }[];
+    }
+  ): void {
+    ctx.save();
+
+    for (let i = 0; i < dock.items.length; i++) {
+      const item = dock.items[i];
+      const def = ELF_ROSTER[i];
+      const isSelected = this.selectedElf === item.id;
+      const iconImg = this.elfIcons.get(item.id);
+
+      ctx.save();
+      const cx = item.x + item.w / 2;
+      const cy = item.y + item.h / 2;
+
+      // Escalar ligeramente la miniatura activa
+      if (isSelected) {
+        ctx.translate(cx, cy);
+        ctx.scale(1.08, 1.08);
+        ctx.translate(-cx, -cy);
+      }
+
+      // Fondo de la miniatura
+      ctx.fillStyle = isSelected ? "rgba(30, 58, 102, 0.95)" : "rgba(15, 23, 42, 0.80)";
+      ctx.beginPath();
+      ctx.roundRect(item.x, item.y, item.w, item.h, 10);
+      ctx.fill();
+
+      // Borde dorado si está seleccionado
+      ctx.strokeStyle = isSelected ? def.themeColor : "rgba(255, 255, 255, 0.20)";
+      ctx.lineWidth = isSelected ? 2.5 : 1.2;
+      ctx.stroke();
+
+      // Dibujar icono recortado con máscara circular / bordes redondeados
+      if (iconImg && iconImg.complete && iconImg.naturalWidth > 0) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(item.x + 2, item.y + 2, item.w - 4, item.h - 4, 8);
+        ctx.clip();
+        ctx.drawImage(iconImg, item.x + 2, item.y + 2, item.w - 4, item.h - 4);
+        ctx.restore();
+      }
+
+      // Insignia ✓ si está seleccionado
+      if (isSelected) {
+        const checkR = Math.max(7, item.w * 0.18);
+        const checkX = item.x + item.w - checkR - 1;
+        const checkY = item.y + checkR + 1;
+
+        ctx.fillStyle = def.themeColor;
+        ctx.beginPath();
+        ctx.arc(checkX, checkY, checkR, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#0A192F";
+        ctx.font = `900 ${Math.max(8, checkR * 1.1)}px 'Outfit', sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("✓", checkX, checkY);
+      }
+
+      // Número de tecla [1..9] en la esquina superior izquierda
+      ctx.fillStyle = isSelected ? def.themeColor : "rgba(255, 255, 255, 0.65)";
+      ctx.font = `800 ${Math.max(7.5, item.w * 0.20)}px 'Outfit', sans-serif`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.fillText(`${i + 1}`, item.x + 4, item.y + 3);
+
+      ctx.restore();
+    }
 
     ctx.restore();
   }
@@ -1999,27 +2347,21 @@ export class FlyingElfGame extends BaseGame {
 
     // Balanceo suave del parapente
     const sway = Math.sin(this.gliderSwayTime) * 2.5;
-    const isCampus = this.selectedElf === "campus";
-    const elfSprite = isCampus ? this.imgElfCampus : this.imgElfFeria;
+    const curElfDef = ELF_ROSTER.find((e) => e.id === this.selectedElf) || ELF_ROSTER[0];
+    const elfSprite = this.elfSprites.get(this.selectedElf) || this.imgElfFeria;
 
-    // Escudo de Burbuja Mágica durante Turbo/Imán activo (Gradiente puro sin shadowBlur)
+    // Escudo de Burbuja Mágica durante Turbo/Imán activo (Gradiente temático del patrocinador)
     if (this.isLogoPowerUpActive) {
       ctx.save();
       const shieldGrad = ctx.createRadialGradient(0, 0, 30, 0, 0, 95);
-      if (isCampus) {
-        shieldGrad.addColorStop(0, "rgba(0, 229, 255, 0.15)");
-        shieldGrad.addColorStop(0.85, "rgba(0, 229, 255, 0.40)");
-        shieldGrad.addColorStop(1, "rgba(255, 255, 255, 0.90)");
-      } else {
-        shieldGrad.addColorStop(0, "rgba(255, 215, 0, 0.12)");
-        shieldGrad.addColorStop(0.85, "rgba(255, 235, 59, 0.35)");
-        shieldGrad.addColorStop(1, "rgba(255, 255, 255, 0.85)");
-      }
+      shieldGrad.addColorStop(0, curElfDef.glowColor);
+      shieldGrad.addColorStop(0.75, curElfDef.glowColor);
+      shieldGrad.addColorStop(1, "rgba(255, 255, 255, 0.92)");
       ctx.fillStyle = shieldGrad;
       ctx.beginPath();
       ctx.arc(0, 0, 95, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = isCampus ? "#80D8FF" : "#FFF59D";
+      ctx.strokeStyle = curElfDef.themeColor;
       ctx.lineWidth = 2.5;
       ctx.stroke();
       ctx.restore();
@@ -2035,7 +2377,7 @@ export class FlyingElfGame extends BaseGame {
         this.elfHeight
       );
     } else {
-      ctx.fillStyle = isCampus ? "#00E5FF" : "#4CAF50";
+      ctx.fillStyle = curElfDef.themeColor;
       ctx.beginPath();
       ctx.arc(0, 0, 35, 0, Math.PI * 2);
       ctx.fill();

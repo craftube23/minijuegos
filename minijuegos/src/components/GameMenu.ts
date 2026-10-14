@@ -11,6 +11,7 @@
  * - Entrada escalonada (Staggered entrance: 0ms, 70ms, 140ms, 210ms).
  */
 
+import gsap from "gsap";
 import { StorageManager } from "../core/StorageManager";
 import { AudioManager } from "../core/AudioManager";
 import { getIconSvg } from "../utils/icons";
@@ -32,6 +33,7 @@ export class GameMenu {
   public onSelectGame?: (gameId: string, cardElement: HTMLElement) => void;
   public onBackToLanding?: () => void;
   private lastShowTime: number = 0;
+  private entranceTl: gsap.core.Timeline | null = null;
 
   private gamesList: GameMenuItem[] = [
     {
@@ -104,6 +106,8 @@ export class GameMenu {
   }
 
   public render(): void {
+    this.killAnimations();
+
     this.container.innerHTML = `
       <!-- Decoración Superior de Fantasía Navideña -->
       <div class="menu-header">
@@ -130,14 +134,12 @@ export class GameMenu {
       <!-- Cuadrícula 2D Fantasy Game UI -->
       <div class="menu-grid" id="menu-grid-cards">
         ${this.gamesList
-          .map((g, index) => {
+          .map((g) => {
             const record = StorageManager.getHighScore(g.id);
-            const animDelay = index * 70; // Escalado 0ms, 70ms, 140ms, 210ms
             return `
             <div 
               class="game-card-fantasy ${g.themeClass}" 
               data-game-id="${g.id}"
-              style="animation-delay: ${animDelay}ms;"
             >
               <!-- Marco Físico Ilustrado HD -->
               <img src="${g.frameImageSrc}" alt="Marco ${g.title}" class="card-fantasy-frame-bg" />
@@ -187,15 +189,40 @@ export class GameMenu {
   }
 
   private setupEvents(): void {
-    const btnBackLanding = this.container.querySelector("#btn-back-to-landing");
-    btnBackLanding?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      this.audio.playTap();
-      if (this.onBackToLanding) {
-        this.onBackToLanding();
-      }
-    });
+    const btnBackLanding = this.container.querySelector<HTMLElement>("#btn-back-to-landing");
+    if (btnBackLanding) {
+      btnBackLanding.addEventListener("pointerdown", () => {
+        gsap.to(btnBackLanding, {
+          scale: 0.95,
+          duration: 0.1,
+          ease: "power2.out",
+          overwrite: "auto"
+        });
+      });
+
+      const restoreBackBtn = () => {
+        gsap.to(btnBackLanding, {
+          scale: 1,
+          duration: 0.16,
+          ease: "back.out(1.5)",
+          clearProps: "transform",
+          overwrite: "auto"
+        });
+      };
+
+      btnBackLanding.addEventListener("pointerup", restoreBackBtn);
+      btnBackLanding.addEventListener("pointerleave", restoreBackBtn);
+      btnBackLanding.addEventListener("pointercancel", restoreBackBtn);
+
+      btnBackLanding.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.audio.playTap();
+        if (this.onBackToLanding) {
+          this.onBackToLanding();
+        }
+      });
+    }
 
     const cards = this.container.querySelectorAll<HTMLElement>(".game-card-fantasy");
     cards.forEach((card) => {
@@ -203,9 +230,9 @@ export class GameMenu {
       card.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        
-        // Evitar doble pulsación accidental durante la apertura
-        if (Date.now() - this.lastShowTime < 350) {
+
+        // Evitar doble pulsación fantasma en el mismo frame de apertura
+        if (Date.now() - this.lastShowTime < 60) {
           return;
         }
 
@@ -216,16 +243,124 @@ export class GameMenu {
         }
       });
 
-      // Feedback háptico/táctil en 'pointerdown'
+      // Feedback háptico/táctil en 'pointerdown' coordinado con GSAP
       card.addEventListener("pointerdown", () => {
         card.classList.add("is-pressed");
+        gsap.to(card, {
+          scale: 0.96,
+          y: 2,
+          duration: 0.1,
+          ease: "power2.out",
+          overwrite: "auto"
+        });
       });
 
-      const clearPressed = () => card.classList.remove("is-pressed");
+      const clearPressed = () => {
+        card.classList.remove("is-pressed");
+        gsap.to(card, {
+          scale: 1,
+          y: 0,
+          duration: 0.18,
+          ease: "back.out(1.5)",
+          clearProps: "transform",
+          overwrite: "auto"
+        });
+      };
       card.addEventListener("pointerup", clearPressed);
       card.addEventListener("pointercancel", clearPressed);
       card.addEventListener("pointerleave", clearPressed);
     });
+  }
+
+  private playEntranceAnimation(): void {
+    this.killAnimations();
+
+    const headerItems = Array.from(
+      this.container.querySelectorAll<HTMLElement>(
+        "#btn-back-to-landing, .menu-ribbon-top, .menu-title"
+      )
+    );
+    const cards = Array.from(this.container.querySelectorAll<HTMLElement>(".game-card-fantasy"));
+    const artImages = Array.from(this.container.querySelectorAll<HTMLElement>(".card-art-image"));
+
+    const allTargets = [...headerItems, ...cards, ...artImages];
+    if (allTargets.length === 0) return;
+
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      gsap.set(allTargets, { autoAlpha: 1, clearProps: "transform" });
+      return;
+    }
+
+    const tl = gsap.timeline({
+      defaults: { overwrite: "auto" }
+    });
+    this.entranceTl = tl;
+
+    if (headerItems.length > 0) {
+      tl.fromTo(
+        headerItems,
+        { autoAlpha: 0, y: -14 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.34,
+          stagger: 0.045,
+          ease: "power2.out",
+          clearProps: "transform"
+        }
+      );
+    }
+
+    if (cards.length > 0) {
+      tl.fromTo(
+        cards,
+        { autoAlpha: 0, y: 24, scale: 0.94 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.38,
+          stagger: 0.045,
+          ease: "back.out(1.25)",
+          clearProps: "transform"
+        },
+        "-=0.2"
+      );
+    }
+
+    if (artImages.length > 0) {
+      tl.fromTo(
+        artImages,
+        { scale: 0.88 },
+        {
+          scale: 1,
+          duration: 0.4,
+          stagger: 0.045,
+          ease: "back.out(1.5)",
+          clearProps: "transform"
+        },
+        "<0.04"
+      );
+    }
+  }
+
+  public killAnimations(): void {
+    if (this.entranceTl) {
+      this.entranceTl.kill();
+      this.entranceTl = null;
+    }
+
+    const targets = this.container.querySelectorAll<HTMLElement>(
+      "#btn-back-to-landing, .menu-ribbon-top, .menu-title, .game-card-fantasy, .card-art-image"
+    );
+    if (targets.length > 0) {
+      gsap.killTweensOf(targets);
+    }
   }
 
   public show(): void {
@@ -234,9 +369,11 @@ export class GameMenu {
     this.container.style.display = "flex";
     this.container.classList.remove("menu-exit-anim");
     this.container.classList.add("menu-enter-anim");
+    this.playEntranceAnimation();
   }
 
   public hide(): void {
+    this.killAnimations();
     this.container.style.display = "none";
     this.container.classList.remove("menu-enter-anim");
   }

@@ -35,6 +35,11 @@ import { FlyingElfGame } from "./games/FlyingElfGame";
 import { MagicPairsGame } from "./games/MagicPairsGame";
 import { SantaHillsGame } from "./games/SantaHillsGame";
 import { getIconSvg } from "./utils/icons";
+import {
+  initKioskNativeMode,
+  getKioskNativeDiagnostics,
+  runIsolatedNativeResilienceCheck
+} from "./utils/kioskNative";
 
 class KioskApp {
   private canvas: HTMLCanvasElement;
@@ -49,6 +54,10 @@ class KioskApp {
   public gameMenu: GameMenu;
   public gameOverModal: GameOverModal;
   public instructionsModal: GameInstructionsModal;
+
+  // Diagnóstico de modo kiosco nativo (Fase 4)
+  public getKioskNativeStatus = getKioskNativeDiagnostics;
+  public testNativeResilience = runIsolatedNativeResilienceCheck;
 
   // Colección de Minijuegos
   private games: Map<string, BaseGame> = new Map();
@@ -65,6 +74,10 @@ class KioskApp {
   private lastFrameTime: number = performance.now();
 
   constructor() {
+    // 0. Inicializar modo kiosco nativo (Capacitor Android: KeepAwake + StatusBar)
+    // En navegador web es un no-op seguro e idempotente.
+    void initKioskNativeMode();
+
     // 1. Obtener y configurar el Canvas responsive
     const canvasEl = document.getElementById("game-canvas") as HTMLCanvasElement;
     if (!canvasEl) throw new Error("No se encontró el elemento #game-canvas");
@@ -120,9 +133,13 @@ class KioskApp {
   private cachedCanvasRect: DOMRect | null = null;
 
   /**
-   * Intento seguro de activar Pantalla Completa tras interacción del usuario
+   * Intento seguro de activar Pantalla Completa en navegador tras interacción del usuario.
+   * En plataforma nativa Android se delega a StatusBar.hide() mediante kioskNative.
    */
   private tryEnterFullscreen(): void {
+    if (getKioskNativeDiagnostics().isNative) {
+      return;
+    }
     try {
       if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(() => {

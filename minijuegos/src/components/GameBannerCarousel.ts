@@ -2,17 +2,22 @@
  * ==============================================================================
  * COMPONENTE: CARRUSEL PUBLICITARIO INFERIOR CON SWIPER 14 + GSAP 3
  * ==============================================================================
- * 
- * Arquitectura publicitaria profesional:
- * - Swiper 14: Manejo nativo de slides, navegación cíclica, transiciones fade,
- *   autoplay continuo (~5.5s) y pausas seguras por toque / cursor.
- * - GSAP 3: Micro-animaciones escalonadas de entrada para logos oficiales, titulares,
- *   eslóganes e insignias comerciales, con limpieza de timelines para evitar fugas.
- * - Anti-truncamiento: Diseño responsivo para 360x740, 412x915, 844x390, 1080x1920 y desktop.
+ *
+ * Arquitectura controlada para modo Kiosco y Web:
+ * - Swiper 14 (`Autoplay`, `Pagination`): Gestiona exclusivamente el desplazamiento
+ *   horizontal de `.swiper-wrapper`, el bucle continuo, los gestos táctiles (swipe)
+ *   y los indicadores de paginación interactivos.
+ * - GSAP 3: Anima exclusivamente los nodos hijos internos del slide activo
+ *   (`.js-banner-card`, `.js-banner-title`, `.js-banner-subtitle`, `.js-banner-badge`,
+ *   `.js-plaque-shine`), evitando cualquier conflicto de propiedades con Swiper.
+ * - Gestión de ciclo de vida: Limpieza estricta de timelines, tweens y listeners
+ *   DOM en cambios de slide, cambios de visibilidad de pestaña y `destroy()`.
  */
 
 import Swiper from "swiper";
-import { Autoplay, EffectFade } from "swiper/modules";
+import { Autoplay, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
 import gsap from "gsap";
 import { BANNER_CONFIG, type BannerSlide } from "../config/banners";
 
@@ -20,7 +25,31 @@ export class GameBannerCarousel {
   private container: HTMLElement;
   private swiper: Swiper | null = null;
   private activeTimeline: gsap.core.Timeline | null = null;
+  private animatedTargets: Element[] = [];
   private slides: BannerSlide[] = BANNER_CONFIG.slides;
+  private listenersAttached: boolean = false;
+
+  private readonly handleTouchStart = (): void => {
+    if (this.swiper?.autoplay) {
+      this.swiper.autoplay.stop();
+    }
+  };
+
+  private readonly handleTouchEnd = (): void => {
+    if (!document.hidden && this.swiper?.autoplay) {
+      this.swiper.autoplay.start();
+    }
+  };
+
+  private readonly handleVisibilityChange = (): void => {
+    if (document.hidden) {
+      this.swiper?.autoplay?.stop();
+      this.activeTimeline?.pause();
+    } else {
+      this.swiper?.autoplay?.start();
+      this.activeTimeline?.resume();
+    }
+  };
 
   constructor(containerId: string) {
     const el = document.getElementById(containerId);
@@ -28,11 +57,11 @@ export class GameBannerCarousel {
     this.container = el;
     this.render();
     this.initSwiper();
-    this.setupTouchSafety();
+    this.setupLifecycleListeners();
   }
 
   /**
-   * Renderiza el esqueleto HTML compatible con Swiper
+   * Renderiza la estructura DOM compatible con Swiper 14
    */
   private render(): void {
     this.container.innerHTML = `
@@ -41,37 +70,59 @@ export class GameBannerCarousel {
         <div class="swiper-wrapper">
           ${this.slides.map((slide, idx) => this.renderSlide(slide, idx)).join("")}
         </div>
+        <div class="swiper-pagination kiosk-swiper-pagination" aria-label="Indicadores de patrocinadores"></div>
       </div>
     `;
   }
 
   /**
-   * Genera el marcado de cada slide según su tipo publicitario
+   * Genera el marcado de cada slide respetando archivos y proporciones oficiales
    */
   private renderSlide(slide: BannerSlide, idx: number): string {
-    // 1. HERO BILLBOARD (PATROCINADOR INDIVIDUAL DE GALA)
     if (slide.type === "hero-billboard") {
-      const logo = slide.logos[0] || { src: "", alt: "", name: "" };
+      const logo = slide.logos[0] || {
+        src: "",
+        alt: "",
+        name: "",
+        fitMode: "standard" as const
+      };
+      const fitClass = `fit-${logo.fitMode || "standard"}`;
+
       return `
-        <div class="swiper-slide banner-slide banner-slide-hero" data-index="${idx}" style="background: ${slide.bgGradient};">
+        <div class="swiper-slide banner-slide banner-slide-hero" data-index="${idx}" data-slide-id="${slide.id}" style="background: ${slide.bgGradient};">
           <div class="banner-hero-container">
-            <div class="banner-logo-card" title="${logo.name}">
+            <div class="banner-logo-card ${fitClass} js-banner-card" title="${logo.name}">
               <div class="plaque-inner-shine"></div>
-              <img src="${logo.src}" alt="${logo.alt}" class="banner-logo-img" loading="eager" />
+              <div class="plaque-glint-sweep js-plaque-shine"></div>
+              <img
+                src="${logo.src}"
+                alt="${logo.alt}"
+                class="banner-logo-img ${fitClass}"
+                loading="eager"
+                decoding="async"
+                draggable="false"
+              />
             </div>
 
             <div class="banner-text-content">
-              <div class="banner-headline">${slide.title}</div>
-              <div class="banner-subline">${slide.subtitle}</div>
+              <div class="banner-headline js-banner-title">${slide.title}</div>
+              <div class="banner-subline js-banner-subtitle">${slide.subtitle}</div>
             </div>
 
             ${
               slide.badgeText
                 ? `
             <div class="banner-badge-wrapper">
-              <span class="banner-badge-pill" style="border-color: ${slide.accentColor};">
-                ${slide.badgeText}
-              </span>
+              <div class="banner-sponsor-event-cobrand js-banner-badge">
+                <span class="banner-badge-pill" style="border-color: ${slide.accentColor};">
+                  ${slide.badgeText}
+                </span>
+                ${
+                  slide.eventReminder
+                    ? `<span class="event-social-tag">${slide.eventReminder}</span>`
+                    : ""
+                }
+              </div>
             </div>
             `
                 : ""
@@ -81,70 +132,48 @@ export class GameBannerCarousel {
       `;
     }
 
-    // 2. DUO SPOTLIGHT (ALIANZA DE PRESTIGIO ENTRE DOS PATROCINADORES)
-    if (slide.type === "duo-spotlight") {
-      return `
-        <div class="swiper-slide banner-slide banner-slide-duo" data-index="${idx}" style="background: ${slide.bgGradient};">
-          <div class="banner-duo-container">
-            <div class="banner-duo-logos">
-              ${slide.logos
-                .map(
-                  (logo) => `
-                <div class="banner-logo-card plaque-duo" title="${logo.name}">
-                  <div class="plaque-inner-shine"></div>
-                  <img src="${logo.src}" alt="${logo.alt}" class="banner-logo-img" loading="eager" />
-                </div>
-              `
-                )
-                .join("")}
-            </div>
+    // CARTEL INSTITUCIONAL DEL EVENTO (FERIA MÁGICA DEL JUGUETE)
+    const eventLogo = slide.logos[0] || {
+      src: "./assets/logos/Feria-magica-del-jugete-sin-fondo.png",
+      alt: "Feria Mágica del Juguete",
+      name: "FERIA MÁGICA DEL JUGUETE",
+      fitMode: "standard" as const
+    };
 
-            <div class="banner-text-content">
-              <div class="banner-headline">${slide.title}</div>
-              <div class="banner-subline">${slide.subtitle}</div>
-            </div>
-
-            ${
-              slide.badgeText
-                ? `
-            <div class="banner-badge-wrapper">
-              <span class="banner-badge-pill" style="border-color: ${slide.accentColor};">
-                ${slide.badgeText}
-              </span>
-            </div>
-            `
-                : ""
-            }
-          </div>
-        </div>
-      `;
-    }
-
-    // 3. CARTEL OFICIAL DEL EVENTO (FERIA MÁGICA DEL JUGUETE)
-    const eventLogo = slide.logos[0] || { src: "./assets/logos/clean-feria-magica.png", alt: "Feria Mágica", name: "Feria Mágica" };
     return `
-      <div class="swiper-slide banner-slide banner-slide-event" data-index="${idx}" style="background: ${slide.bgGradient};">
+      <div class="swiper-slide banner-slide banner-slide-event" data-index="${idx}" data-slide-id="${slide.id}" style="background: ${slide.bgGradient};">
         <div class="banner-event-container">
-          <div class="event-logo-emblem">
-            <img src="${eventLogo.src}" alt="${eventLogo.alt}" class="event-logo-img" loading="eager" />
+          <div class="event-logo-emblem js-banner-card">
+            <img
+              src="${eventLogo.src}"
+              alt="${eventLogo.alt}"
+              class="event-logo-img"
+              loading="eager"
+              decoding="async"
+              draggable="false"
+            />
           </div>
 
           <div class="event-info-block">
-            <div class="event-pill event-pill-date">
-              <span class="event-pill-icon">📅</span>
+            <div class="event-pill event-pill-date js-banner-title">
+              <span class="event-pill-icon" aria-hidden="true">${slide.topIcon || "📅"}</span>
               <span class="event-pill-text">${slide.title}</span>
             </div>
-            <div class="event-pill event-pill-place">
-              <span class="event-pill-icon">📍</span>
+            <div class="event-pill event-pill-place js-banner-subtitle">
+              <span class="event-pill-icon" aria-hidden="true">${slide.bottomIcon || "📍"}</span>
               <span class="event-pill-text">${slide.subtitle}</span>
             </div>
           </div>
 
-          <div class="event-cta-block">
+          <div class="event-cta-block js-banner-badge">
             <span class="banner-badge-pill event-badge-crimson">
               ${slide.badgeText || "¡NOS VEMOS EN LA FERIA!"}
             </span>
-            <span class="event-social-tag">@FeriaMagicaJuguete</span>
+            ${
+              slide.socialTag
+                ? `<span class="event-social-tag">${slide.socialTag}</span>`
+                : ""
+            }
           </div>
         </div>
       </div>
@@ -152,29 +181,46 @@ export class GameBannerCarousel {
   }
 
   /**
-   * Inicializa la instancia de Swiper con módulo Autoplay y EffectFade
+   * Inicializa Swiper 14 con navegación táctil horizontal y paginación
    */
   private initSwiper(): void {
+    this.killActiveAnimation();
     if (this.swiper) {
       this.swiper.destroy(true, true);
       this.swiper = null;
     }
 
     const swiperEl = this.container.querySelector<HTMLElement>(".kiosk-swiper");
+    const paginationEl = this.container.querySelector<HTMLElement>(".kiosk-swiper-pagination");
     if (!swiperEl) return;
 
     this.swiper = new Swiper(swiperEl, {
-      modules: [Autoplay, EffectFade],
-      effect: "fade",
-      fadeEffect: { crossFade: true },
-      loop: true,
-      speed: 600,
+      modules: [Autoplay, Pagination],
+      direction: "horizontal",
+      slidesPerView: 1,
+      spaceBetween: 0,
+      loop: this.slides.length > 1,
+      speed: 520,
+      grabCursor: true,
+      allowTouchMove: true,
+      simulateTouch: true,
+      touchRatio: 1,
+      threshold: 6,
+      resistanceRatio: 0.85,
+      observer: true,
+      observeParents: true,
+      watchSlidesProgress: true,
       autoplay: {
         delay: BANNER_CONFIG.rotationIntervalMs,
         disableOnInteraction: false,
         pauseOnMouseEnter: true
       },
-      allowTouchMove: true,
+      pagination: paginationEl
+        ? {
+            el: paginationEl,
+            clickable: true
+          }
+        : false,
       on: {
         init: (sw) => {
           const activeSlide = sw.slides[sw.activeIndex] as HTMLElement | undefined;
@@ -189,22 +235,42 @@ export class GameBannerCarousel {
   }
 
   /**
-   * Anima los elementos internos del slide activo con GSAP de forma escalonada
+   * Limpia de forma segura cualquier animación GSAP en curso para evitar fugas
    */
-  private animateSlide(slideEl: HTMLElement): void {
+  private killActiveAnimation(): void {
     if (this.activeTimeline) {
       this.activeTimeline.kill();
       this.activeTimeline = null;
     }
+    if (this.animatedTargets.length > 0) {
+      gsap.killTweensOf(this.animatedTargets);
+      this.animatedTargets = [];
+    }
+  }
 
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const logoCards = slideEl.querySelectorAll(".banner-logo-card, .event-logo-emblem");
-    const headline = slideEl.querySelector(".banner-headline, .event-pill-date");
-    const subline = slideEl.querySelector(".banner-subline, .event-pill-place");
-    const badge = slideEl.querySelector(".banner-badge-pill, .event-cta-block");
+  /**
+   * Anima únicamente los elementos hijos del slide activo sin tocar las propiedades de Swiper
+   */
+  private animateSlide(slideEl: HTMLElement): void {
+    this.killActiveAnimation();
+
+    const card = slideEl.querySelector(".js-banner-card");
+    const title = slideEl.querySelector(".js-banner-title");
+    const subtitle = slideEl.querySelector(".js-banner-subtitle");
+    const badge = slideEl.querySelector(".js-banner-badge");
+    const shine = slideEl.querySelector(".js-plaque-shine");
+
+    const targets = [card, title, subtitle, badge, shine].filter(
+      (el): el is Element => el !== null
+    );
+    this.animatedTargets = targets;
+
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (prefersReducedMotion) {
-      gsap.set([...logoCards, headline, subline, badge].filter(Boolean), {
+      gsap.set([card, title, subtitle, badge].filter(Boolean), {
         opacity: 1,
         x: 0,
         y: 0,
@@ -214,68 +280,76 @@ export class GameBannerCarousel {
       return;
     }
 
-    this.activeTimeline = gsap.timeline({ defaults: { ease: "power2.out" } });
+    this.activeTimeline = gsap.timeline({
+      defaults: { ease: "power2.out", overwrite: "auto" }
+    });
 
-    if (logoCards.length > 0) {
+    if (card) {
       this.activeTimeline.fromTo(
-        logoCards,
-        { scale: 0.9, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.48, ease: "back.out(1.35)", stagger: 0.08 }
+        card,
+        { scale: 0.92, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.38, ease: "back.out(1.3)" }
       );
     }
 
-    if (headline) {
+    if (shine) {
+      this.activeTimeline
+        .fromTo(
+          shine,
+          { xPercent: -140, opacity: 0 },
+          { xPercent: 120, opacity: 0.75, duration: 0.3, ease: "power1.in" },
+          "-=0.25"
+        )
+        .to(shine, { xPercent: 340, opacity: 0, duration: 0.32, ease: "power1.out" });
+    }
+
+    if (title) {
       this.activeTimeline.fromTo(
-        headline,
-        { y: 9, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.42 },
-        "-=0.32"
+        title,
+        { y: 8, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.34 },
+        "-=0.45"
       );
     }
 
-    if (subline) {
+    if (subtitle) {
       this.activeTimeline.fromTo(
-        subline,
-        { y: 7, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.4 },
-        "-=0.28"
+        subtitle,
+        { y: 6, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.32 },
+        "-=0.26"
       );
     }
 
     if (badge) {
       this.activeTimeline.fromTo(
         badge,
-        { scale: 0.84, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(1.4)" },
+        { scale: 0.88, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.35)" },
         "-=0.22"
       );
     }
   }
 
   /**
-   * Garantiza que los toques en el banner no interfieran con los juegos
-   * y que el autoplay pause para permitir la lectura y se reanude tras interactuar
+   * Registra listeners de ciclo de vida y seguridad táctil con referencias limpiables
    */
-  private setupTouchSafety(): void {
-    this.container.addEventListener(
-      "touchstart",
-      () => {
-        if (this.swiper?.autoplay) {
-          this.swiper.autoplay.stop();
-        }
-      },
-      { passive: true }
-    );
+  private setupLifecycleListeners(): void {
+    if (this.listenersAttached) return;
+    this.container.addEventListener("touchstart", this.handleTouchStart, { passive: true });
+    this.container.addEventListener("touchend", this.handleTouchEnd, { passive: true });
+    this.container.addEventListener("touchcancel", this.handleTouchEnd, { passive: true });
+    document.addEventListener("visibilitychange", this.handleVisibilityChange);
+    this.listenersAttached = true;
+  }
 
-    this.container.addEventListener(
-      "touchend",
-      () => {
-        if (this.swiper?.autoplay) {
-          this.swiper.autoplay.start();
-        }
-      },
-      { passive: true }
-    );
+  private removeLifecycleListeners(): void {
+    if (!this.listenersAttached) return;
+    this.container.removeEventListener("touchstart", this.handleTouchStart);
+    this.container.removeEventListener("touchend", this.handleTouchEnd);
+    this.container.removeEventListener("touchcancel", this.handleTouchEnd);
+    document.removeEventListener("visibilitychange", this.handleVisibilityChange);
+    this.listenersAttached = false;
   }
 
   public nextSlide(): void {
@@ -286,14 +360,26 @@ export class GameBannerCarousel {
     this.swiper?.slidePrev();
   }
 
+  /**
+   * Reinicializa el carrusel de forma segura liberando recursos previos
+   */
+  public reinit(): void {
+    this.destroy();
+    this.render();
+    this.initSwiper();
+    this.setupLifecycleListeners();
+  }
+
+  /**
+   * Libera todas las instancias de Swiper, timelines GSAP y event listeners
+   */
   public destroy(): void {
-    if (this.activeTimeline) {
-      this.activeTimeline.kill();
-      this.activeTimeline = null;
-    }
+    this.removeLifecycleListeners();
+    this.killActiveAnimation();
     if (this.swiper) {
       this.swiper.destroy(true, true);
       this.swiper = null;
     }
   }
 }
+
