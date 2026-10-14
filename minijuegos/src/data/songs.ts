@@ -52,7 +52,8 @@ export function sanitizeChartNotes(
   const minAfterSustainSameLane = 0.32;
   const minRealSustainDuration = 0.45;
   const minSustainCooldown = 1.50;
-  const maxSimultaneous = diff === "hard" || diff === "expert" ? 2 : 1;
+  // Dificultad Leyenda / Experto: Permite hasta 3 notas simultáneas (acordes triples)
+  const maxSimultaneous = diff === "expert" ? 3 : diff === "hard" ? 2 : 1;
 
   interface WorkingNote {
     lane: number;
@@ -7864,7 +7865,7 @@ export const RHYTHM_SONG_LIST: SongDef[] = [
     speed: 530,
     durationSeconds: 153,
     stars: 5,
-    difficultyLabel: "EXPERTO",
+    difficultyLabel: "LEYENDA",
     tagColor: "#FF9100",
     audioFile: "juego campanas/God Rest Ye Merry Metalmen.mp3",
     icon: "guitar"
@@ -7909,7 +7910,7 @@ export const RHYTHM_SONG_LIST: SongDef[] = [
     speed: 540,
     durationSeconds: 103,
     stars: 5,
-    difficultyLabel: "EXPERTO",
+    difficultyLabel: "LEYENDA",
     tagColor: "#FF1744",
     audioFile: "juego campanas/Joy to the World.mp3",
     icon: "flame"

@@ -129,8 +129,8 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
   },
   expert: {
     id: "expert",
-    label: "EXPERTO",
-    shortLabel: "EXPERTO",
+    label: "LEYENDA",
+    shortLabel: "LEYENDA",
     icon: "🔥",
     color: "#D500F9",
     glowColor: "rgba(213, 0, 249, 0.5)",
@@ -141,7 +141,7 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     missWindow: 0.270,
     scoreMultiplier: 2.00,
     lives: 5,
-    description: "Desafío total: alta velocidad y notas sostenidas"
+    description: "Nivel Leyenda: ¡Acordes triples, velocidad extrema y shredding total!"
   }
 };
 
@@ -970,8 +970,63 @@ export class BellSymphonyGame extends BaseGame {
     let adaptedChart: ChartNoteRecord[] = [];
 
     if (isHandcrafted) {
-      // Usar partitura artesanal exacta sin alteraciones automáticas
+      // Usar partitura artesanal exacta
       adaptedChart = sourceChart.map((n) => ({ ...n }));
+      if (diff === "expert") {
+        // En dificultad LEYENDA: Olvidar la regla de 2 dedos e inyectar acordes triples en pulsos y acordes clave
+        const chordsByTime = new Map<number, number[]>();
+        for (const note of adaptedChart) {
+          const t = Number(note.time.toFixed(2));
+          let matchedKey: number | null = null;
+          for (const key of chordsByTime.keys()) {
+            if (Math.abs(key - t) <= 0.04) {
+              matchedKey = key;
+              break;
+            }
+          }
+          if (matchedKey !== null) {
+            chordsByTime.get(matchedKey)!.push(note.lane);
+          } else {
+            chordsByTime.set(t, [note.lane]);
+          }
+        }
+
+        const tripleChords: ChartNoteRecord[] = [];
+        let chordIdx = 0;
+        for (const [t, lanes] of chordsByTime.entries()) {
+          // Si ya hay 2 notas simultáneas (acorde existente) o en acentos rítmicos fuertes sin sustain
+          if (lanes.length >= 2 || (lanes.length === 1 && chordIdx % 3 === 0)) {
+            chordIdx++;
+            const usedLanes = new Set(lanes);
+            const freeLanes = [0, 1, 2, 3].filter((l) => !usedLanes.has(l));
+            // Si tiene 2 notas, añadir una 3ª para formar un acorde triple completo
+            if (lanes.length === 2 && freeLanes.length > 0) {
+              const thirdLane = freeLanes[chordIdx % freeLanes.length];
+              tripleChords.push({
+                lane: thirdLane,
+                time: t,
+                duration: 0,
+                type: "normal"
+              });
+            } else if (lanes.length === 1 && freeLanes.length >= 2 && chordIdx % 5 === 0) {
+              // En compases clave adicionales, promover a acorde triple
+              tripleChords.push({
+                lane: freeLanes[0],
+                time: t,
+                duration: 0,
+                type: "normal"
+              });
+              tripleChords.push({
+                lane: freeLanes[1],
+                time: t,
+                duration: 0,
+                type: "normal"
+              });
+            }
+          }
+        }
+        adaptedChart = [...adaptedChart, ...tripleChords].sort((a, b) => a.time - b.time);
+      }
     } else if (diff === "easy") {
       // Modo Fácil: Simplifica secuencias muy densas manteniendo notas clave y estrellas
       let lastNoteTime = -1;
@@ -1007,15 +1062,22 @@ export class BellSymphonyGame extends BaseGame {
       }
       adaptedChart.sort((a, b) => a.time - b.time);
     } else if (diff === "expert") {
-      // Modo Experto: Notas dobles simultáneas (acordes de campanas) en pulsos clave
+      // Modo Leyenda: Notas triples simultáneas (acordes de 3 campanas) en pulsos clave
       adaptedChart = sourceChart.map((n) => ({ ...n }));
       const chords: ChartNoteRecord[] = [];
       for (let i = 0; i < sourceChart.length; i++) {
         const cur = sourceChart[i];
         if (i % 3 === 0 && (!cur.duration || cur.duration === 0)) {
-          const chordLane = (cur.lane + 1) % 4;
+          const chordLane1 = (cur.lane + 1) % 4;
+          const chordLane2 = (cur.lane + 2) % 4;
           chords.push({
-            lane: chordLane,
+            lane: chordLane1,
+            time: cur.time,
+            duration: 0,
+            type: "normal"
+          });
+          chords.push({
+            lane: chordLane2,
             time: cur.time,
             duration: 0,
             type: "normal"
