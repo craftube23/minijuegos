@@ -26,6 +26,7 @@ import { AttractScreen } from "./components/AttractScreen";
 import { GameMenu } from "./components/GameMenu";
 import { GameOverModal } from "./components/GameOverModal";
 import { GameInstructionsModal } from "./components/GameInstructionsModal";
+import { GameStoryCinemaModal } from "./components/GameStoryCinemaModal";
 
 // Los Minijuegos Navideños
 import { ToyCatchGame } from "./games/ToyCatchGame";
@@ -56,6 +57,7 @@ class KioskApp {
   public gameMenu: GameMenu;
   public gameOverModal: GameOverModal;
   public instructionsModal: GameInstructionsModal;
+  public storyModal: GameStoryCinemaModal;
 
   // Diagnóstico de modo kiosco nativo (Fase 4)
   public getKioskNativeStatus = getKioskNativeDiagnostics;
@@ -97,6 +99,7 @@ class KioskApp {
     this.gameMenu = new GameMenu("menu-screen", this.audio);
     this.gameOverModal = new GameOverModal("gameover-modal", this.audio);
     this.instructionsModal = new GameInstructionsModal("instructions-modal", this.audio);
+    this.storyModal = new GameStoryCinemaModal("story-modal", this.audio);
 
     // 4. Instanciar los 4 Minijuegos
     this.registerGames();
@@ -233,7 +236,7 @@ class KioskApp {
       this.goToAttractScreen();
     };
 
-    // 3. Al seleccionar un juego en el Menú → ¡ZARPAZO DE GARRAS TIPO GAROU DESGARRANDO EL PAQUETE!
+    // 3. Al seleccionar un juego en el Menú → ¡ZARPAZO DE GARRAS Y MINI-HISTORIA CINEMÁTICA!
     this.gameMenu.onSelectGame = (gameId: string) => {
       if (this.isTransitioning) return;
       this.isTransitioning = true;
@@ -247,15 +250,41 @@ class KioskApp {
         gameInfo,
         this.particles,
         () => {
-          // Punto medio: Pantalla cubierta. Cambiar pantalla de fondo
+          // Punto medio: Pantalla cubierta. Revelar la mini-historia animada en formato cómic
           this.gameMenu.hide();
-          this.instructionsModal.show(gameId);
+          this.storyModal.show(gameId);
         },
         () => {
-          // Las garras terminan de desgarrar y revelan las instrucciones
+          // Las garras terminan de desgarrar
           this.isTransitioning = false;
         }
       );
+    };
+
+    // Al terminar la mini-historia animada → Mostrar el modal de instrucciones rápidas
+    this.storyModal.onComplete = () => {
+      const activeStory = (this.storyModal as any).currentStory;
+      const gameId = activeStory?.gameId || "";
+      if (gameId) {
+        this.instructionsModal.show(gameId);
+      }
+    };
+
+    // Si el jugador presiona "¡A JUGAR!" directamente en la historia
+    this.storyModal.onSkipToPlay = () => {
+      const activeStory = (this.storyModal as any).currentStory;
+      const gameId = activeStory?.gameId || "";
+      if (gameId) {
+        this.isTransitioning = true;
+        this.audio.stopMenuBGM();
+        this.launchGameWithCountdown(gameId);
+      }
+    };
+
+    // Si desde el modal de instrucciones el usuario quiere volver a ver la historia
+    this.instructionsModal.onWatchStory = (gameId: string) => {
+      this.instructionsModal.hide();
+      this.storyModal.show(gameId);
     };
 
     // 4. Cuando el usuario confirma "¡A JUGAR! ▶" en el modal de instrucciones
@@ -405,6 +434,7 @@ class KioskApp {
           this.attractScreen.hide();
           this.gameOverModal.hide();
           this.instructionsModal.hide();
+          this.storyModal.hide();
           this.gameMenu.show();
           this.resetInactivity();
         },
@@ -423,6 +453,7 @@ class KioskApp {
       this.attractScreen.hide();
       this.gameOverModal.hide();
       this.instructionsModal.hide();
+      this.storyModal.hide();
       this.gameMenu.show();
       this.resetInactivity();
     }
@@ -436,7 +467,8 @@ class KioskApp {
       "flying-elf": { title: "El Vuelo Mágico del Elfo", icon: getIconSvg("wing", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
       "magic-pairs": { title: "Parejas de Juguetes", icon: getIconSvg("cards", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
       "santa-hills": { title: "El Descenso de Santa", icon: getIconSvg("gift", { size: 36, color: "#FF2A4D" }), themeColor: "#FF2A4D" },
-      "snowball-target": { title: "Tiro al Blanco Navideño", icon: getIconSvg("target", { size: 36, color: "#00E676" }), themeColor: "#00E676" }
+      "snowball-target": { title: "Tiro al Blanco Navideño", icon: getIconSvg("target", { size: 36, color: "#00E676" }), themeColor: "#00E676" },
+      "gift-tower": { title: "Torre de Regalos Mágica", icon: getIconSvg("gift", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" }
     };
     return map[gameId] || { title: "Minijuego Mágico", icon: getIconSvg("tree", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" };
   }

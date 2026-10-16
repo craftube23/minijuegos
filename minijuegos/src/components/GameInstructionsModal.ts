@@ -161,6 +161,7 @@ export class GameInstructionsModal {
   private container: HTMLElement;
   private audio: AudioManager;
   public onStartGame?: (gameId: string) => void;
+  public onWatchStory?: (gameId: string) => void;
   public onBack?: () => void;
   private currentGameId: string = "";
   private entranceTl: gsap.core.Timeline | null = null;
@@ -413,6 +414,9 @@ export class GameInstructionsModal {
             ${getIconSvg("arrowLeft", { size: 18, color: "#FFFFFF" })}
             <span>VOLVER</span>
           </button>
+          <button id="btn-instructions-story" class="btn-instruction-story btn-action-story" title="Ver cómic animado de la historia">
+            🎬 <span>VER HISTORIA</span>
+          </button>
           <button id="btn-instructions-play" class="btn-instruction-primary btn-action-play">
             <span>¡A JUGAR!</span>
             ${getIconSvg("play", { size: 20, color: "#FFFFFF", fill: "#FFFFFF" })}
@@ -424,9 +428,10 @@ export class GameInstructionsModal {
 
   private setupEvents(): void {
     const btnPlay = this.container.querySelector<HTMLElement>("#btn-instructions-play");
+    const btnStory = this.container.querySelector<HTMLElement>("#btn-instructions-story");
     const btnBack = this.container.querySelector<HTMLElement>("#btn-instructions-back");
 
-    [btnPlay, btnBack].forEach((btn) => {
+    [btnPlay, btnStory, btnBack].forEach((btn) => {
       if (!btn) return;
       btn.addEventListener("pointerdown", () => {
         gsap.to(btn, {
@@ -456,6 +461,14 @@ export class GameInstructionsModal {
       this.hide();
       if (this.onStartGame) {
         this.onStartGame(this.currentGameId);
+      }
+    });
+
+    btnStory?.addEventListener("click", () => {
+      this.audio.playTap();
+      this.hide();
+      if (this.onWatchStory) {
+        this.onWatchStory(this.currentGameId);
       }
     });
 

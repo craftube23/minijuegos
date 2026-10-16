@@ -24,6 +24,7 @@ import {
   JINGLE_BELLS_ROCK_CHART,
   TWELVE_DAYS_CHART,
   JOY_TO_WORLD_POWER_CHART,
+  JOY_TO_WORLD_ULTRA_CHART,
   DECK_THE_HALLS_CHART,
   WE_WISH_YOU_CHART,
   sanitizeChartNotes,
@@ -635,6 +636,8 @@ export class ChartEditorModal {
       this.recordedNotes = [...JINGLE_BELLS_ROCK_CHART];
     } else if (this.selectedSongFile.includes("Twelve")) {
       this.recordedNotes = [...TWELVE_DAYS_CHART];
+    } else if (this.selectedSongFile.toLowerCase().includes("ultra")) {
+      this.recordedNotes = [...JOY_TO_WORLD_ULTRA_CHART];
     } else if (this.selectedSongFile.includes("Joy")) {
       this.recordedNotes = [...JOY_TO_WORLD_POWER_CHART];
     } else if (this.selectedSongFile.includes("Deck")) {

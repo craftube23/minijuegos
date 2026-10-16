@@ -5677,3 +5677,435 @@ html, body {
   30%, 50%, 70% { transform: translate3d(-3px, 1px, 0); }
   40%, 60% { transform: translate3d(3px, -1px, 0); }
 }
+
+/* ==========================================================================
+   MINI-HISTORIAS CINEMÁTICAS 2D (CÓMIC ANIMADO / VIDEO CORTO FESTIVO)
+   ========================================================================== */
+.game-story-cinema-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(3, 8, 16, 0.95);
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.game-story-cinema-modal.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.game-story-cinema-modal.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.cinema-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(16, 44, 87, 0.6) 0%, rgba(4, 9, 18, 0.98) 100%);
+  z-index: 1;
+}
+
+/* Marco del Teatro de Cine Cinemático */
+.cinema-theater-frame {
+  position: relative;
+  z-index: 2;
+  width: 95%;
+  max-width: 960px;
+  height: 92%;
+  max-height: 560px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 20px;
+  border: 3.5px solid #FFD700;
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.95), 0 0 35px rgba(255, 215, 0, 0.35), inset 0 0 20px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  background: #000000;
+}
+
+/* Barra Superior de Cine: Segmentos de Progreso & Título */
+.cinema-bar-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  padding: 12px 18px 25px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 60%, rgba(0, 0, 0, 0) 100%);
+}
+
+.story-progress-bar-container {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.story-progress-segment {
+  flex: 1;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.story-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #FFD700, #FFF9C4);
+  box-shadow: 0 0 10px #FFD700;
+  border-radius: 999px;
+}
+
+.cinema-header-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cinema-film-badge {
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  color: #FFD700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.cinema-game-title {
+  margin: 0;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  font-weight: 900;
+  color: #FFFFFF;
+  font-family: 'Fredoka', 'Montserrat', sans-serif;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+/* Escenario Viewport de la Animación */
+.cinema-stage-viewport {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.cinema-scene-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.comic-bg-layer {
+  position: absolute;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  background-size: cover;
+  background-position: center;
+  transition: transform 2.4s ease-out;
+  will-change: transform;
+}
+
+.comic-bg-layer.zoom-in {
+  transform: scale(1.14);
+}
+
+.comic-bg-layer.pan-right {
+  transform: translateX(4.5%) scale(1.04);
+}
+
+.comic-bg-layer.pan-left {
+  transform: translateX(-4.5%) scale(1.04);
+}
+
+.comic-bg-layer.dramatic-shake {
+  animation: comicCamShake 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes comicCamShake {
+  0% { transform: scale(1.08) translate(0, 0); }
+  50% { transform: scale(1.09) translate(-4px, 3px); }
+  100% { transform: scale(1.08) translate(4px, -3px); }
+}
+
+/* Badge de Capítulo Flotante */
+.comic-chapter-badge {
+  position: absolute;
+  top: 54px;
+  left: 18px;
+  z-index: 5;
+  background: linear-gradient(135deg, rgba(255, 42, 77, 0.95), rgba(183, 28, 28, 0.98));
+  border: 2px solid #FFD700;
+  border-radius: 30px;
+  padding: 5px 14px;
+  color: #FFFFFF;
+  font-weight: 900;
+  font-size: clamp(0.72rem, 1.6vw, 0.85rem);
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.comic-badge-spark {
+  color: #FFD700;
+  animation: sparkPulse 1.2s infinite alternate;
+}
+
+@keyframes sparkPulse {
+  0% { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.3); opacity: 1; filter: drop-shadow(0 0 6px #FFD700); }
+}
+
+/* Onomatopeya Gigante Estilo Cómic */
+.comic-onomatopoeia-pop {
+  position: absolute;
+  top: 70px;
+  right: 24px;
+  z-index: 8;
+  font-family: 'Fredoka', 'Impact', sans-serif;
+  font-size: clamp(2.4rem, 6.5vw, 4.4rem);
+  font-weight: 900;
+  color: #FFEB3B;
+  -webkit-text-stroke: 3.5px #D50000;
+  text-shadow: 5px 5px 0 #880E4F, 0 10px 25px rgba(0, 0, 0, 0.9);
+  transform: rotate(-9deg);
+  animation: onomatopoeiaBoom 0.45s cubic-bezier(0.18, 1.35, 0.32, 1) both;
+}
+
+@keyframes onomatopoeiaBoom {
+  0% { transform: rotate(-9deg) scale(0.2); opacity: 0; }
+  65% { transform: rotate(-9deg) scale(1.18); opacity: 1; }
+  100% { transform: rotate(-9deg) scale(1); opacity: 1; }
+}
+
+/* Elemento de Primer Plano Animado */
+.comic-fg-wrapper {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.comic-fg-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.85));
+}
+
+.comic-fg-wrapper.anim-float {
+  animation: fgFloat 2.2s ease-in-out infinite alternate;
+}
+
+.comic-fg-wrapper.anim-drop {
+  animation: fgDrop 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.comic-fg-wrapper.anim-shake {
+  animation: fgShake 0.28s ease-in-out infinite alternate;
+}
+
+.comic-fg-wrapper.anim-zoom {
+  animation: fgZoom 0.5s cubic-bezier(0.18, 1.25, 0.3, 1) both;
+}
+
+@keyframes fgFloat {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(-14px) rotate(2deg); }
+}
+
+@keyframes fgDrop {
+  0% { transform: translateY(-120px) rotate(-15deg); opacity: 0; }
+  100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes fgShake {
+  0% { transform: translate(-3px, -2px) rotate(-3deg); }
+  100% { transform: translate(3px, 2px) rotate(3deg); }
+}
+
+@keyframes fgZoom {
+  0% { transform: scale(0.4) rotate(-5deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* Posiciones específicas para cada viñeta */
+.story-fg-sleigh { top: 22%; right: 12%; width: clamp(200px, 34vw, 320px); }
+.story-fg-bag-burst { top: 24%; left: 36%; width: clamp(150px, 26vw, 240px); }
+.story-fg-gifts-scatter { top: 18%; left: 38%; width: clamp(140px, 24vw, 210px); }
+.story-fg-santa-ready { top: 18%; right: 14%; width: clamp(200px, 32vw, 300px); }
+.story-fg-workshop-gift { top: 24%; left: 40%; width: clamp(130px, 22vw, 190px); }
+.story-fg-chimney { top: 20%; left: 35%; width: clamp(150px, 26vw, 230px); }
+.story-fg-teddy-fall { top: 20%; left: 38%; width: clamp(140px, 24vw, 200px); }
+.story-fg-sack-hero { top: 18%; left: 35%; width: clamp(160px, 28vw, 250px); }
+.story-fg-high-star { top: 14%; right: 18%; width: clamp(90px, 16vw, 150px); }
+.story-fg-pedestal { bottom: 15%; left: 25%; width: clamp(220px, 38vw, 360px); }
+.story-fg-hanging-box { top: 22%; left: 38%; width: clamp(130px, 22vw, 180px); }
+.story-fg-tower-stack { top: 18%; left: 38%; width: clamp(150px, 25vw, 220px); }
+.story-fg-elf-ground { top: 24%; left: 35%; width: clamp(150px, 25vw, 220px); }
+.story-fg-icicle-wind { top: 18%; right: 24%; width: clamp(140px, 24vw, 200px); }
+.story-fg-elf-flying { top: 20%; left: 30%; width: clamp(180px, 30vw, 260px); }
+.story-fg-candy-star { top: 24%; left: 38%; width: clamp(140px, 24vw, 190px); }
+.story-fg-snowman { top: 18%; left: 35%; width: clamp(150px, 26vw, 220px); }
+.story-fg-slingshot { top: 20%; left: 38%; width: clamp(140px, 24vw, 200px); }
+.story-fg-target-gold { top: 20%; left: 38%; width: clamp(140px, 24vw, 200px); }
+.story-fg-bell-tower { top: 20%; left: 38%; width: clamp(140px, 24vw, 200px); }
+.story-fg-arrow-notes { top: 20%; left: 40%; width: clamp(120px, 20vw, 170px); }
+.story-fg-star-music { top: 20%; left: 38%; width: clamp(130px, 22vw, 180px); }
+.story-fg-bell-climax { top: 18%; left: 36%; width: clamp(150px, 26vw, 220px); }
+.story-fg-nutcracker-intro { top: 18%; left: 35%; width: clamp(160px, 27vw, 230px); }
+.story-fg-drums { top: 24%; left: 38%; width: clamp(150px, 25vw, 210px); }
+.story-fg-drummer-pose { top: 18%; left: 35%; width: clamp(160px, 27vw, 230px); }
+.story-fg-drums-final { top: 20%; left: 38%; width: clamp(150px, 25vw, 220px); }
+.story-fg-pairs-box { top: 20%; left: 38%; width: clamp(140px, 24vw, 190px); }
+.story-fg-cards-mess { top: 20%; left: 38%; width: clamp(150px, 25vw, 210px); }
+.story-fg-gem-gift { top: 20%; left: 40%; width: clamp(130px, 22vw, 180px); }
+.story-fg-cards-climax { top: 18%; left: 38%; width: clamp(150px, 25vw, 220px); }
+
+/* Barra Inferior: Globo de Diálogo & Controles */
+.cinema-bar-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  padding: 20px 18px 12px;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.72) 70%, rgba(0, 0, 0, 0) 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Globo de Diálogo Estilo Historieta / Cómic */
+.cinema-comic-dialogue-box {
+  position: relative;
+  background: rgba(12, 25, 48, 0.94);
+  border: 2.5px solid #FFD700;
+  border-radius: 14px;
+  padding: 12px 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+}
+
+.comic-speaker-tag {
+  position: absolute;
+  top: -12px;
+  left: 16px;
+  background: linear-gradient(135deg, #FF2A4D, #C2185B);
+  color: #FFFFFF;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: 3px 12px;
+  border-radius: 12px;
+  border: 1.5px solid #FFD700;
+  text-transform: uppercase;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+.comic-dialogue-text {
+  margin: 0;
+  font-size: clamp(0.92rem, 1.8vw, 1.15rem);
+  line-height: 1.38;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-family: 'Fredoka', 'Montserrat', sans-serif;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+/* Fila de Controles Cinemáticos */
+.cinema-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-cinema-nav {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1.5px solid rgba(255, 215, 0, 0.5);
+  border-radius: 12px;
+  color: #FFFFFF;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.15s ease;
+}
+
+.btn-cinema-nav:active {
+  transform: scale(0.92);
+  background: rgba(255, 215, 0, 0.3);
+}
+
+.cinema-spacer {
+  flex: 1;
+}
+
+/* Botón Destacado: ¡A JUGAR! / SALTAR */
+.btn-cinema-skip {
+  background: linear-gradient(135deg, #00E676 0%, #00B248 100%);
+  border: 2.5px solid #FFD700;
+  border-radius: 25px;
+  padding: 8px 22px;
+  color: #FFFFFF;
+  font-size: clamp(0.92rem, 1.8vw, 1.05rem);
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 230, 118, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.15s ease, filter 0.15s ease;
+  animation: pulsePlayNow 2s infinite ease-in-out;
+}
+
+.btn-cinema-skip:active {
+  transform: scale(0.94);
+}
+
+@keyframes pulsePlayNow {
+  0% { transform: scale(1); box-shadow: 0 6px 20px rgba(0, 230, 118, 0.6); }
+  50% { transform: scale(1.04); box-shadow: 0 8px 26px rgba(0, 230, 118, 0.85); }
+  100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0, 230, 118, 0.6); }
+}
+
+/* Botón "🎬 VER HISTORIA" en el Modal de Instrucciones */
+.btn-instruction-story {
+  background: linear-gradient(135deg, #8E24AA 0%, #5E177E 100%);
+  border: 2px solid #FFD700;
+  border-radius: 25px;
+  padding: 10px 18px;
+  color: #FFFFFF;
+  font-size: 0.92rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(142, 36, 170, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.15s ease;
+}
+
+.btn-instruction-story:active {
+  transform: scale(0.94);
+}
+

@@ -99,9 +99,8 @@ export class GiftTowerGame extends BaseGame {
   private nextGiftId: number = 1;
 
   // Configuración de tamaño de cajas
-  private maxBoxWidth: number = 190;
-  private currentBoxWidth: number = 190;
-  private boxHeight: number = 96;
+  private baseBoxWidth: number = 190;
+  private boxHeight: number = 133;
 
   // Próximo regalo en la grúa
   private currentGiftSprite: BoxSpriteType = "rojo";
@@ -112,8 +111,8 @@ export class GiftTowerGame extends BaseGame {
 
   // Base / Pedestal
   private basePlatformY: number = 0;
-  private basePlatformWidth: number = 320;
-  private basePlatformHeight: number = 110;
+  private basePlatformWidth: number = 360;
+  private basePlatformHeight: number = 120;
 
   // Cámara suave y Altitud
   private cameraY: number = 0;
@@ -242,13 +241,14 @@ export class GiftTowerGame extends BaseGame {
     this.towerSwayIntensity = 0;
     this.maxAltitudeMeters = 0;
 
-    // Dimensionamiento adaptativo
-    this.maxBoxWidth = Math.min(210, Math.max(160, this.width * 0.36));
-    this.currentBoxWidth = this.maxBoxWidth;
-    this.boxHeight = Math.round(this.maxBoxWidth * 0.58);
-    this.basePlatformWidth = Math.min(360, Math.max(260, this.width * 0.52));
-    this.basePlatformHeight = Math.round(this.basePlatformWidth * 0.38);
-    this.basePlatformY = this.height - 130;
+    // Dimensionamiento adaptativo proporcional al arte estilizado 2D
+    this.baseBoxWidth = Math.min(220, Math.max(165, this.width * 0.36));
+    this.boxHeight = Math.round(this.baseBoxWidth * 0.70); // Proporción natural ~0.9 de los regalos con moño
+    this.basePlatformWidth = Math.min(380, Math.max(260, this.width * 0.50));
+    this.basePlatformHeight = Math.round(this.basePlatformWidth * 0.36);
+    this.basePlatformY = this.height - this.basePlatformHeight - 12; // Base firme visible por encima de la barra inferior
+    this.ropeLength = Math.min(180, Math.max(130, this.height * 0.22));
+    this.swingAmplitude = 0.82; // Arco de balanceo amplio y generoso para apuntar con precisión
 
     this.cameraY = 0;
     this.targetCameraY = 0;
@@ -264,11 +264,12 @@ export class GiftTowerGame extends BaseGame {
 
   public resize(width: number, height: number): void {
     super.resize(width, height);
-    this.maxBoxWidth = Math.min(210, Math.max(160, this.width * 0.36));
-    this.boxHeight = Math.round(this.maxBoxWidth * 0.58);
-    this.basePlatformWidth = Math.min(360, Math.max(260, this.width * 0.52));
-    this.basePlatformHeight = Math.round(this.basePlatformWidth * 0.38);
-    this.basePlatformY = this.height - 130;
+    this.baseBoxWidth = Math.min(220, Math.max(165, this.width * 0.36));
+    this.boxHeight = Math.round(this.baseBoxWidth * 0.70);
+    this.basePlatformWidth = Math.min(380, Math.max(260, this.width * 0.50));
+    this.basePlatformHeight = Math.round(this.basePlatformWidth * 0.36);
+    this.basePlatformY = this.height - this.basePlatformHeight - 12;
+    this.ropeLength = Math.min(180, Math.max(130, this.height * 0.22));
   }
 
   private prepareNextCraneBox(): void {
@@ -293,7 +294,7 @@ export class GiftTowerGame extends BaseGame {
     }
 
     const speedBonus = Math.min(1.1, this.stackedGifts.length * 0.04);
-    this.swingSpeed = 2.3 + speedBonus;
+    this.swingSpeed = 2.4 + speedBonus;
   }
 
   private handlePlayerDrop(): void {
@@ -306,8 +307,6 @@ export class GiftTowerGame extends BaseGame {
     const hookScreenX = craneAnchorScreenX + Math.sin(this.swingAngle) * this.ropeLength;
     const hookScreenY = craneAnchorScreenY + Math.cos(this.swingAngle) * this.ropeLength;
 
-    const tangentialVel = Math.cos(this.swingAngle) * this.swingSpeed * this.ropeLength * 0.65;
-
     // Convertir de pantalla a mundo restando cameraY
     const spawnWorldX = hookScreenX;
     const spawnWorldY = hookScreenY - this.cameraY;
@@ -315,12 +314,12 @@ export class GiftTowerGame extends BaseGame {
     this.activeDroppingGift = {
       x: spawnWorldX,
       y: spawnWorldY,
-      width: this.currentBoxWidth,
+      width: this.baseBoxWidth,
       height: this.boxHeight,
       spriteType: this.currentGiftSprite,
-      vx: tangentialVel,
-      vy: 140,
-      rotation: this.swingAngle * 0.35,
+      vx: 0, // Caída vertical limpia y directa exactamente donde apuntó el jugador
+      vy: 200, // Aceleración inicial limpia hacia abajo
+      rotation: 0,
       hasMissed: false,
       isSponsor: this.nextIsSponsor,
       sponsorId: this.nextSponsorId,
@@ -365,18 +364,20 @@ export class GiftTowerGame extends BaseGame {
         box.rotation += (box.vRot || 4) * dt;
       }
 
-      // Superficie de aterrizaje
+      // Superficie de aterrizaje en el mundo
       let targetY: number;
       let topBoxWidth: number;
       let topBoxCenterX: number;
 
       if (this.stackedGifts.length === 0) {
-        targetY = this.basePlatformY - box.height + 15;
-        topBoxWidth = this.basePlatformWidth * 0.72;
+        // Aterriza directamente sobre el cojín de nieve del pedestal de caoba
+        targetY = this.basePlatformY + this.basePlatformHeight * 0.18 - box.height;
+        topBoxWidth = this.basePlatformWidth * 0.76;
         topBoxCenterX = this.width / 2;
       } else {
         const topBox = this.stackedGifts[this.stackedGifts.length - 1];
-        targetY = topBox.y - box.height + 8;
+        // Se asienta sobre la tapa y el moño del regalo inferior con perspectiva natural
+        targetY = topBox.y - box.height + (box.height * 0.16);
         topBoxWidth = topBox.width;
         topBoxCenterX = topBox.x;
       }
@@ -392,8 +393,12 @@ export class GiftTowerGame extends BaseGame {
         const overlapRight = Math.min(boxRight, topBoxRight);
         const overlapWidth = overlapRight - overlapLeft;
 
-        // CASO 1: NO HAY APOYO (El regalo cayó fuera y no tiene base)
-        if (overlapWidth <= 0) {
+        // ¿Suficiente apoyo para mantenerse en pie?
+        // En física de cajas de regalo, requiere al menos 48% de solapamiento para no volcar
+        const minRequiredSupport = box.width * 0.48;
+
+        if (overlapWidth < minRequiredSupport) {
+          // CASO 1: SIN APOYO SUFICIENTE - ¡EL REGALO SE INCLINA Y CAE AL VACÍO!
           if (!box.hasMissed) {
             box.hasMissed = true;
             this.lives--;
@@ -402,25 +407,27 @@ export class GiftTowerGame extends BaseGame {
             this.triggerShake(9, 0.35);
             this.audio.playError();
             Haptics.impact();
-            this.addFloatingText("¡FALLÓ! -1 VIDA", box.x, targetY - 20, "#FF2A4D", 1.3);
+            this.addFloatingText("¡SE CAYÓ! -1 VIDA", box.x, targetY - 20, "#FF2A4D", 1.35);
 
-            // Inercia de caída libre con giro
-            box.vx = box.x > topBoxCenterX ? 140 : -140;
-            box.vRot = box.x > topBoxCenterX ? 4.8 : -4.8;
+            // Inercia angular realista hacia el lado del abismo
+            const dir = box.x >= topBoxCenterX ? 1 : -1;
+            box.vx = dir * 160;
+            box.vRot = dir * 5.2;
 
             if (this.lives <= 0) {
               this.timeRemaining = 0;
+              this.endGame();
             } else {
-              setTimeout(() => this.prepareNextCraneBox(), 400);
+              setTimeout(() => this.prepareNextCraneBox(), 420);
             }
           }
 
           // Continúa cayendo hacia el fondo de la pantalla sin detenerse
-          if (box.y > this.basePlatformY + 450) {
+          if (box.y > this.basePlatformY + 500) {
             this.activeDroppingGift = null;
           }
         } else if (!box.hasMissed) {
-          // CASO 2: ATERRIZAJE CON CORTE LIMPIO EN LA TORRE
+          // CASO 2: ATERRIZAJE EXITOSO EN LA TORRE (Perfecto o Corte Limpio con Soporte Sólido)
           this.handleBoxLanding(box, targetY, topBoxCenterX, topBoxWidth, overlapLeft, overlapRight, overlapWidth);
         }
       }
@@ -448,16 +455,22 @@ export class GiftTowerGame extends BaseGame {
       }
     }
 
-    // 7. Seguimiento de Cámara
+    // 7. Seguimiento Suave de Cámara: Mantiene el pedestal a la vista y acompaña el crecimiento
     if (this.stackedGifts.length > 0) {
-      const highestY = this.stackedGifts[this.stackedGifts.length - 1].y;
-      const desiredScreenY = this.height * 0.55;
-      this.targetCameraY = Math.max(0, desiredScreenY - highestY);
+      const highestBox = this.stackedGifts[this.stackedGifts.length - 1];
+      const highestY = highestBox.y;
+      // Solo desplaza hacia abajo cuando la torre supera la mitad superior de la pantalla
+      const targetViewingY = this.height * 0.48;
+      if (highestY < targetViewingY) {
+        this.targetCameraY = targetViewingY - highestY;
+      } else {
+        this.targetCameraY = 0;
+      }
     } else {
       this.targetCameraY = 0;
     }
 
-    this.cameraY += (this.targetCameraY - this.cameraY) * Math.min(1.0, dt * 5.0);
+    this.cameraY += (this.targetCameraY - this.cameraY) * Math.min(1.0, dt * 4.0);
 
     const currentMeters = Math.max(0, Math.round(this.stackedGifts.length * 2.5));
     if (currentMeters > this.maxAltitudeMeters) {
@@ -475,7 +488,7 @@ export class GiftTowerGame extends BaseGame {
     overlapWidth: number
   ): void {
     const deltaX = box.x - topBoxCenterX;
-    const isPerfect = Math.abs(deltaX) <= 8;
+    const isPerfect = Math.abs(deltaX) <= 14;
 
     let finalX: number;
     let finalWidth: number;
@@ -483,7 +496,7 @@ export class GiftTowerGame extends BaseGame {
     let srcNormW = 1.0;
 
     if (isPerfect) {
-      // ¡PERFECTO! No se corta nada, alineación impecable
+      // ¡PERFECTO! Alineación impecable en el centro
       finalX = topBoxCenterX;
       finalWidth = box.width;
       this.combo++;
@@ -498,7 +511,7 @@ export class GiftTowerGame extends BaseGame {
       this.addScore(points);
 
       this.addFloatingText(`¡PERFECTO! +${points}`, finalX, targetY - 25, "#FFD700", 1.4);
-      this.particles.emitBurst(finalX, targetY + box.height / 2, "#FFD700", 22);
+      this.particles.emitBurst(finalX, targetY + box.height / 2, "#FFD700", 24);
 
       // Fiebre Navideña tras 3 perfectos seguidos
       if (this.combo >= 3 && !this.isFeverActive) {
@@ -508,79 +521,52 @@ export class GiftTowerGame extends BaseGame {
         this.addFloatingText("¡FIEBRE NAVIDEÑA x2!", this.width / 2, this.height * 0.35, "#FF4081", 1.6);
         this.particles.emitConfetti(this.width, 40);
       }
-
-      // Expansión mágica de ancho tras combo de 3 perfectos
-      if (this.combo % 3 === 0 && this.currentBoxWidth < this.maxBoxWidth) {
-        this.currentBoxWidth = Math.min(this.maxBoxWidth, this.currentBoxWidth + 20);
-        this.addFloatingText("¡EXPANSIÓN MÁGICA!", finalX, targetY - 50, "#00E5FF", 1.3);
-      }
     } else {
-      // ¡CORTE LIMPIO (SLICING)! El desborde se rebana y cae
-      finalWidth = Math.max(30, overlapWidth);
-      finalX = overlapLeft + overlapWidth / 2;
+      // ¡CORTE LIMPIO Y EQUILIBRIO!
+      // El desborde se rebana limpiamente, manteniendo una presencia de regalo sólida (mínimo 75% de ancho)
+      const rawOverhang = box.width - overlapWidth;
+      const sliceWidth = Math.min(box.width * 0.22, Math.max(6, rawOverhang));
+      finalWidth = Math.max(this.baseBoxWidth * 0.75, box.width - sliceWidth);
 
-      // Calcular proporción exacta de corte en la textura
-      const boxLeft = box.x - box.width / 2;
-      const normOverlapStart = Math.max(0, Math.min(1, (overlapLeft - boxLeft) / box.width));
-      const normOverlapEnd = Math.max(0, Math.min(1, (overlapRight - boxLeft) / box.width));
+      const sliceDir = deltaX > 0 ? 1 : -1;
+      finalX = box.x - (sliceDir * sliceWidth * 0.4);
 
-      srcNormX = normOverlapStart;
-      srcNormW = Math.max(0.1, normOverlapEnd - normOverlapStart);
-
-      // Trozo rebanado que cae al abismo
-      const sliceWidth = box.width - overlapWidth;
-      if (sliceWidth > 6) {
-        let sliceCenterX: number;
-        let sliceNormX: number;
-        let sliceNormW: number;
-        let sliceDir: number;
-
-        if (box.x > topBoxCenterX) {
-          // Desborde hacia la derecha
-          sliceCenterX = overlapRight + sliceWidth / 2;
-          sliceNormX = normOverlapEnd;
-          sliceNormW = 1.0 - normOverlapEnd;
-          sliceDir = 1;
-        } else {
-          // Desborde hacia la izquierda
-          sliceCenterX = overlapLeft - sliceWidth / 2;
-          sliceNormX = 0;
-          sliceNormW = normOverlapStart;
-          sliceDir = -1;
-        }
+      // Trozo rebanado que cae al abismo con física y rotación
+      if (sliceWidth >= 6) {
+        const sliceX = deltaX > 0 ? overlapRight + sliceWidth * 0.5 : overlapLeft - sliceWidth * 0.5;
 
         this.tumblingGifts.push({
-          x: sliceCenterX,
+          x: sliceX,
           y: targetY,
           width: sliceWidth,
           height: box.height,
           spriteType: box.spriteType,
-          srcNormX: sliceNormX,
-          srcNormW: sliceNormW,
-          vx: sliceDir * 110,
-          vy: -70,
+          srcNormX: deltaX > 0 ? 0.75 : 0,
+          srcNormW: 0.25,
+          vx: sliceDir * 120,
+          vy: -80,
           rotation: 0,
-          vRot: sliceDir * 4.5,
+          vRot: sliceDir * 4.8,
           alpha: 1.0,
           isSponsor: box.isSponsor,
           sponsorId: box.sponsorId
         });
 
-        // Partículas en el corte
-        const cutX = box.x > topBoxCenterX ? overlapRight : overlapLeft;
-        this.particles.emitBurst(cutX, targetY + box.height / 2, "#FFFFFF", 14);
+        // Partículas en el borde del corte
+        const cutX = deltaX > 0 ? overlapRight : overlapLeft;
+        this.particles.emitBurst(cutX, targetY + box.height / 2, "#FFFFFF", 16);
       }
 
-      this.currentBoxWidth = finalWidth;
       this.combo = 0;
       this.audio.playTap();
       Haptics.light();
 
-      const points = 120;
+      const points = 150;
       this.addScore(points);
-      this.addFloatingText(`¡CORTE! +${points}`, finalX, targetY - 20, "#FFFFFF", 1.15);
+      this.addFloatingText(`¡CORTE LIMPIO! +${points}`, finalX, targetY - 20, "#FFFFFF", 1.2);
 
-      this.towerSwayIntensity = Math.min(1.0, this.towerSwayIntensity + 0.35);
+      // El descentrado produce un balanceo armónico en la torre
+      this.towerSwayIntensity = Math.min(1.0, this.towerSwayIntensity + 0.28);
     }
 
     // Bonificación de Patrocinador Oficial
@@ -596,11 +582,9 @@ export class GiftTowerGame extends BaseGame {
         1.5
       );
       this.particles.emitBurst(finalX, targetY + box.height / 2, "#00E676", 30);
-      // Como recompensa, restaura el ancho completo para el siguiente regalo
-      this.currentBoxWidth = this.maxBoxWidth;
     }
 
-    // Registrar en la pila (alineado con la base, nunca flotando)
+    // Registrar en la pila (siempre con apoyo firme)
     const stackedGift: StackedGift = {
       id: this.nextGiftId++,
       x: finalX,
@@ -621,7 +605,7 @@ export class GiftTowerGame extends BaseGame {
     this.stackedGifts.push(stackedGift);
     this.activeDroppingGift = null;
 
-    setTimeout(() => this.prepareNextCraneBox(), 220);
+    setTimeout(() => this.prepareNextCraneBox(), 240);
   }
 
   // ==========================================================================
@@ -677,10 +661,16 @@ export class GiftTowerGame extends BaseGame {
 
   private drawParallaxBackground(ctx: CanvasRenderingContext2D): void {
     if (this.bgVillaImage.complete && this.bgVillaImage.naturalWidth > 0) {
-      const bgW = this.width;
-      const bgH = this.height * 1.5;
-      const parallaxY = -(this.cameraY * 0.22);
-      ctx.drawImage(this.bgVillaImage, 0, parallaxY, bgW, bgH);
+      const img = this.bgVillaImage;
+      const imgAspect = img.naturalWidth / img.naturalHeight;
+      let drawW = this.width;
+      let drawH = this.height * 1.35;
+      if (drawW / drawH < imgAspect) {
+        drawW = drawH * imgAspect;
+      }
+      const drawX = (this.width - drawW) / 2;
+      const parallaxY = -(this.cameraY * 0.15);
+      ctx.drawImage(img, drawX, parallaxY, drawW, drawH);
     } else {
       const grad = ctx.createLinearGradient(0, 0, 0, this.height);
       grad.addColorStop(0, "#080E21");
@@ -918,7 +908,7 @@ export class GiftTowerGame extends BaseGame {
         ctx,
         hookScreenX,
         hookScreenY,
-        this.currentBoxWidth,
+        this.baseBoxWidth,
         this.boxHeight,
         this.currentGiftSprite,
         0,

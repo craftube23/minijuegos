@@ -43,6 +43,11 @@ import {
   JOY_TO_WORLD_POWER_CHART_NORMAL,
   JOY_TO_WORLD_POWER_CHART_HARD,
   JOY_TO_WORLD_POWER_CHART_EXPERT,
+  JOY_TO_WORLD_ULTRA_CHART,
+  JOY_TO_WORLD_ULTRA_CHART_EASY,
+  JOY_TO_WORLD_ULTRA_CHART_NORMAL,
+  JOY_TO_WORLD_ULTRA_CHART_HARD,
+  JOY_TO_WORLD_ULTRA_CHART_EXPERT,
   DECK_THE_HALLS_CHART,
   DECK_THE_HALLS_CHART_EASY,
   DECK_THE_HALLS_CHART_NORMAL,
@@ -728,7 +733,7 @@ export class BellSymphonyGame extends BaseGame {
     const bottomReserved = isShort ? 34 : (isLandscape ? 44 : Math.max(48, Math.min(68, this.height * 0.065)));
     const availableSongArea = Math.max(160, this.height - startY - bottomReserved);
     const gap = isShort ? 2 : (isLandscape ? 3 : Math.max(4, Math.min(6, this.height * 0.007)));
-    const cardH = Math.min(50, Math.max(isShort ? 26 : (isLandscape ? 30 : 38), (availableSongArea - (count - 1) * gap) / (count + 0.95)));
+    const cardH = Math.min(50, Math.max(isShort ? 24 : (isLandscape ? 28 : 34), (availableSongArea - (count - 1) * gap) / (count + 0.95)));
 
     const editorBtnY = startY + count * (cardH + gap) + (isShort ? 3 : (isLandscape ? 4 : 8));
     const editorBtnH = Math.min(40, Math.max(isShort ? 22 : (isLandscape ? 26 : 34), cardH * 0.88));
@@ -822,6 +827,7 @@ export class BellSymphonyGame extends BaseGame {
         else if (e.key === "4") this.startSong(3);
         else if (e.key === "5") this.startSong(4);
         else if (e.key === "6") this.startSong(5);
+        else if (e.key === "7" && this.songList.length >= 7) this.startSong(6);
         else if (e.key === "x" || e.key === "X") this.openChartEditor();
         else if (e.key === "Enter" || e.key === " ") this.startSong(this.selectedSongIndex);
         return;
@@ -913,6 +919,14 @@ export class BellSymphonyGame extends BaseGame {
     let isHandcrafted = false;
 
     switch (song.id) {
+      case "joy-to-world-ultra":
+        if (diff === "easy") sourceChart = JOY_TO_WORLD_ULTRA_CHART_EASY;
+        else if (diff === "normal") sourceChart = JOY_TO_WORLD_ULTRA_CHART_NORMAL;
+        else if (diff === "hard") sourceChart = JOY_TO_WORLD_ULTRA_CHART_HARD;
+        else if (diff === "expert") sourceChart = JOY_TO_WORLD_ULTRA_CHART_EXPERT;
+        else sourceChart = JOY_TO_WORLD_ULTRA_CHART;
+        isHandcrafted = true;
+        break;
       case "god-rest-metal":
         if (diff === "easy") sourceChart = GOD_REST_METAL_CHART_EASY;
         else if (diff === "normal") sourceChart = GOD_REST_METAL_CHART_NORMAL;
@@ -974,6 +988,11 @@ export class BellSymphonyGame extends BaseGame {
       adaptedChart = sourceChart.map((n) => ({ ...n }));
       if (diff === "expert") {
         // En dificultad LEYENDA: Olvidar la regla de 2 dedos e inyectar acordes triples en pulsos y acordes clave
+        // sin interrumpir ni pisar notas sostenidas (sustains)
+        const sustainWindows = adaptedChart
+          .filter((n) => n.duration && n.duration > 0)
+          .map((n) => [n.time - 0.08, n.time + (n.duration || 0) + 0.16] as const);
+
         const chordsByTime = new Map<number, number[]>();
         for (const note of adaptedChart) {
           const t = Number(note.time.toFixed(2));
@@ -994,6 +1013,9 @@ export class BellSymphonyGame extends BaseGame {
         const tripleChords: ChartNoteRecord[] = [];
         let chordIdx = 0;
         for (const [t, lanes] of chordsByTime.entries()) {
+          const insideSustain = sustainWindows.some(([s0, s1]) => t >= s0 && t <= s1);
+          if (insideSustain) continue;
+
           // Si ya hay 2 notas simultáneas (acorde existente) o en acentos rítmicos fuertes sin sustain
           if (lanes.length >= 2 || (lanes.length === 1 && chordIdx % 3 === 0)) {
             chordIdx++;
@@ -1596,8 +1618,14 @@ export class BellSymphonyGame extends BaseGame {
       }
     }
 
-    // Fin de canción
-    if (this.currentTime >= this.songDuration) {
+    // Fin de canción (o tras completar la última nota + margen cuando el MP3 tiene cola de silencio)
+    const lastChartNote = this.notes.length > 0 ? this.notes[this.notes.length - 1] : null;
+    const lastNoteEndTime = lastChartNote ? lastChartNote.targetTime + (lastChartNote.duration || 0) : this.songDuration;
+    const allNotesResolved =
+      this.notes.length > 0 &&
+      this.notes.every((n) => n.missed || (n.hit && (!n.isHolding || n.sustainCompleted || n.sustainFailed)));
+
+    if (this.currentTime >= this.songDuration || (allNotesResolved && this.currentTime >= lastNoteEndTime + 2.0)) {
       this.endGame();
     }
   }
