@@ -137,6 +137,23 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
       { iconName: "skull", label: "Muñeco Gruñón (¡Te arrojará nieve a la lente si no lo abates!)" }
     ],
     controls: "Toca o haz clic en cualquier diana para disparar tu resortera"
+  },
+  "gift-tower": {
+    id: "gift-tower",
+    title: "Torre de Regalos Mágica",
+    iconName: "gift",
+    themeColor: "#FFD700",
+    goal: "Suelta los paquetes en el momento exacto para construir la torre más alta hacia el cielo.",
+    positiveItems: [
+      { iconName: "gift", label: "Alineación Perfecta (+300 pts, Combo y Escala Musical)" },
+      { iconName: "star", label: "Cajas de Patrocinador (¡+500 pts y Expansión Mágica!)" },
+      { iconName: "sparkles", label: "Fiebre Navideña (¡Puntos dobles tras 3 Perfectos!)" }
+    ],
+    negativeItems: [
+      { iconName: "flame", label: "Desbordes (Rebanan la caja haciéndola más estrecha)" },
+      { iconName: "skull", label: "Caer fuera de la torre (-1 Vida)" }
+    ],
+    controls: "Toca la pantalla o usa [ Espacio / Enter / ▼ ] para soltar la caja"
   }
 };
 

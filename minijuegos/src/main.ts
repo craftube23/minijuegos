@@ -35,6 +35,7 @@ import { FlyingElfGame } from "./games/FlyingElfGame";
 import { MagicPairsGame } from "./games/MagicPairsGame";
 import { SantaHillsGame } from "./games/SantaHillsGame";
 import { SnowballTargetGame } from "./games/SnowballTargetGame";
+import { GiftTowerGame } from "./games/GiftTowerGame";
 import { getIconSvg } from "./utils/icons";
 import {
   initKioskNativeMode,
@@ -186,9 +187,10 @@ class KioskApp {
     const game5 = new MagicPairsGame(this.canvas, this.input, this.audio, this.particles);
     const game6 = new SantaHillsGame(this.canvas, this.input, this.audio, this.particles);
     const game7 = new SnowballTargetGame(this.canvas, this.input, this.audio, this.particles);
+    const game8 = new GiftTowerGame(this.canvas, this.input, this.audio, this.particles);
 
     // Conectar callback de Game Over de cada juego
-    [game1, game2, game3, game4, game5, game6, game7].forEach((g) => {
+    [game1, game2, game3, game4, game5, game6, game7, game8].forEach((g) => {
       g.onGameOver = (result: GameResult) => this.handleGameOver(result);
       this.games.set(g.id, g);
     });

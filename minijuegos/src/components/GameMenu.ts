@@ -105,6 +105,16 @@ export class GameMenu {
       category: "PUNTERÍA & ARCADE",
       tagline: "¡Apunta con bolas de nieve a las dianas y regalos!",
       gemColor: "#00E676"
+    },
+    {
+      id: "gift-tower",
+      title: "Torre de Regalos Mágica",
+      imageSrc: "./assets/images/icon-torre-regalos.png",
+      frameImageSrc: "./assets/images/marco-juego-morado.png",
+      themeClass: "theme-magic-purple",
+      category: "EQUILIBRIO & FÍSICA",
+      tagline: "¡Apila los paquetes y construye la torre más alta hacia el cielo!",
+      gemColor: "#FFD700"
     }
   ];
 
