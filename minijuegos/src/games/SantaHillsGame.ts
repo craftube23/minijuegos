@@ -1561,4 +1561,17 @@ export class SantaHillsGame extends BaseGame {
     this.logoPowerUpTimer = 0;
     super.endGame(extraData);
   }
+
+  public override destroy(): void {
+    super.destroy();
+    this.collectibles = [];
+    this.obstacles = [];
+    this.scenic = [];
+    this.distantProps = [];
+    this.spray = [];
+    this.tracks = [];
+    this.terrain = [];
+    this.occupied = [];
+    this.flakes = [];
+  }
 }

@@ -18,6 +18,7 @@ import { ParticleSystem } from "./core/ParticleSystem";
 import { ScreenTransition } from "./core/ScreenTransition";
 import { BaseGame, type GameResult } from "./core/BaseGame";
 import { KIOSK_CONFIG } from "./config/kiosk";
+import { applyCanvasSize } from "./core/Viewport";
 
 // Componentes de Interfaz
 import { KioskHeader } from "./components/KioskHeader";
@@ -81,6 +82,9 @@ class KioskApp {
 
   // Game Loop
   private lastFrameTime: number = performance.now();
+  private logicalWidth: number = 0;
+  private logicalHeight: number = 0;
+  private isPageHidden: boolean = false;
 
   constructor() {
     // 0. Inicializar modo kiosco nativo (Capacitor Android: KeepAwake + StatusBar)
@@ -111,6 +115,8 @@ class KioskApp {
 
     // 5. Adaptar resolución nativa al tamaño del contenedor
     this.handleResize();
+    this.setupContainerResizeObserver();
+    this.setupVisibilityHandling();
     window.addEventListener("resize", () => this.handleResize());
     window.addEventListener("orientationchange", () => setTimeout(() => this.handleResize(), 100));
 
@@ -170,11 +176,13 @@ class KioskApp {
     const height = container && container.clientHeight > 0 ? container.clientHeight : (window.innerHeight - 130);
 
     if (width > 0 && height > 0) {
-      this.canvas.width = width;
-      this.canvas.height = height;
+      // Buffer físico = lógico × DPR (máx. 2). Los juegos y los toques usan coordenadas lógicas.
+      this.logicalWidth = width;
+      this.logicalHeight = height;
+      applyCanvasSize(this.canvas, width, height);
 
       this.cachedCanvasRect = this.canvas.getBoundingClientRect();
-      this.input.updateBounds();
+      this.input.setLogicalSize(width, height);
 
       this.particles.initSnow(width, height);
 
@@ -182,6 +190,49 @@ class KioskApp {
         game.resize(width, height);
       });
     }
+  }
+
+  /**
+   * Observa cambios de tamaño del contenedor (no solo de la ventana), con throttle por frame.
+   */
+  private setupContainerResizeObserver(): void {
+    const container = this.canvas.parentElement;
+    if (!container || typeof ResizeObserver === "undefined") return;
+    let pending = false;
+    const observer = new ResizeObserver(() => {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(() => {
+        pending = false;
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        if (w > 0 && h > 0 && (w !== this.logicalWidth || h !== this.logicalHeight)) {
+          this.handleResize();
+        }
+      });
+    });
+    observer.observe(container);
+  }
+
+  /**
+   * Pausa el juego (sin acumular tiempo ni notas) cuando la pestaña/WebView queda oculta.
+   */
+  private setupVisibilityHandling(): void {
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        this.isPageHidden = true;
+        this.audio.onPageHidden();
+        this.currentGame?.onPageHidden();
+      } else {
+        this.isPageHidden = false;
+        // Evita un salto de delta tras la suspensión y limpia toques/teclas atascados
+        this.lastFrameTime = performance.now();
+        this.input.reset();
+        this.audio.onPageVisible();
+        this.currentGame?.onPageVisible();
+        this.resetInactivity();
+      }
+    });
   }
 
   /**
@@ -479,6 +530,11 @@ class KioskApp {
       "santa-hills": { title: "El Descenso de Santa", icon: getIconSvg("gift", { size: 36, color: "#FF2A4D" }), themeColor: "#FF2A4D" },
       "snowball-target": { title: "Tiro al Blanco Navideño", icon: getIconSvg("target", { size: 36, color: "#00E676" }), themeColor: "#00E676" },
       "workshop-chaos": { title: "¡El Caos del Taller Mágico!", icon: getIconSvg("sparkles", { size: 36, color: "#FF9100" }), themeColor: "#FF9100" },
+      "magic-jump": { title: "¡Salto Mágico Navideño!", icon: getIconSvg("sparkles", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" },
+      "elf-whack": { title: "¡Golpea al Duende!", icon: getIconSvg("target", { size: 36, color: "#FF1744" }), themeColor: "#FF1744" },
+      "gift-slash": { title: "¡Corta-Regalos Navideño!", icon: getIconSvg("sparkles", { size: 36, color: "#00E676" }), themeColor: "#00E676" },
+      "sleigh-toss": { title: "¡Lanza-Regalos al Trineo!", icon: getIconSvg("gift", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" },
+      "christmas-snake": { title: "¡Serpiente de Luces!", icon: getIconSvg("sparkles", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" },
       "polar-express": { title: "¡El Expreso Polar Mágico!", icon: getIconSvg("sparkles", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" }
     };
     return map[gameId] || { title: "Minijuego Mágico", icon: getIconSvg("tree", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" };
@@ -492,6 +548,10 @@ class KioskApp {
     if (!game) {
       this.isTransitioning = false;
       return;
+    }
+
+    if (this.currentGame && this.currentGame !== game) {
+      this.currentGame.destroy();
     }
 
     this.audio.pauseMenuBGM();
@@ -517,6 +577,10 @@ class KioskApp {
     } else {
       // Ejecutar cuenta regresiva arcade 3-2-1 al presionar Jugar
       ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+        if (this.appState !== "playing" || this.currentGame !== game) {
+          this.isTransitioning = false;
+          return;
+        }
         this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
         this.isTransitioning = false;
       });
@@ -529,6 +593,10 @@ class KioskApp {
   public launchGameDirect(gameId: string): void {
     const game = this.games.get(gameId);
     if (!game) return;
+
+    if (this.currentGame && this.currentGame !== game) {
+      this.currentGame.destroy();
+    }
 
     this.audio.pauseMenuBGM();
     const mainContainer = document.getElementById("kiosk-main") || document.body;
@@ -550,12 +618,18 @@ class KioskApp {
         this.resetInactivity();
       },
       () => {
+        if (this.appState !== "playing" || this.currentGame !== game) {
+          return;
+        }
         if (game instanceof BellSymphonyGame) {
           game.replayLastSong();
         } else if (game instanceof FlyingElfGame) {
           game.replayWithCountdown();
         } else {
           ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+            if (this.appState !== "playing" || this.currentGame !== game) {
+              return;
+            }
             game.start(KIOSK_CONFIG.defaultGameDurationSeconds);
           });
         }
@@ -633,7 +707,14 @@ class KioskApp {
    */
   private startMainLoop(): void {
     const loop = (currentTime: number) => {
-      const dt = Math.min((currentTime - this.lastFrameTime) / 1000, 0.1);
+      if (this.isPageHidden) {
+        this.lastFrameTime = currentTime;
+        requestAnimationFrame(loop);
+        return;
+      }
+
+      // Delta time acotado para evitar saltos bruscos tras microbloqueos o cambios de pestaña
+      const dt = Math.min((currentTime - this.lastFrameTime) / 1000, 1 / 30);
       this.lastFrameTime = currentTime;
 
       // Actualizar y dibujar el juego si está activo
@@ -641,11 +722,13 @@ class KioskApp {
         this.currentGame.update(dt);
         this.currentGame.draw();
       } else {
-        // Dibujar partículas de nieve ambiente y chispas táctiles de fondo
+        // Dibujar partículas de nieve ambiente y chispas táctiles de fondo con HiDPI
         const ctx = this.canvas.getContext("2d");
         if (ctx) {
-          ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-          this.particles.update(this.canvas.width, this.canvas.height);
+          const dpr = this.logicalWidth > 0 ? this.canvas.width / this.logicalWidth : 1;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.clearRect(0, 0, this.logicalWidth, this.logicalHeight);
+          this.particles.update(this.logicalWidth, this.logicalHeight);
           this.particles.draw(ctx, true);
         }
       }

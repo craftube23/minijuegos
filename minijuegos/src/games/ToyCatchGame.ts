@@ -72,26 +72,13 @@ export class ToyCatchGame extends BaseGame {
       particles
     );
 
-    this.bagImage = new Image();
-    this.bagImage.src = "./assets/images/bolsa de regalos.png";
-
-    this.imgGiftRed = new Image();
-    this.imgGiftRed.src = "./assets/images/regalo-rojo.png";
-
-    this.imgGiftGreen = new Image();
-    this.imgGiftGreen.src = "./assets/images/regalo-verde.png";
-
-    this.imgTeddy = new Image();
-    this.imgTeddy.src = "./assets/images/osito.png";
-
-    this.imgRobot = new Image();
-    this.imgRobot.src = "./assets/images/robot.png";
-
-    this.imgCoal = new Image();
-    this.imgCoal.src = "./assets/images/carbon.png";
-
-    this.imgIce = new Image();
-    this.imgIce.src = "./assets/images/hielo.png";
+    this.bagImage = this.getImage("./assets/images/bolsa de regalos.png");
+    this.imgGiftRed = this.getImage("./assets/images/regalo-rojo.png");
+    this.imgGiftGreen = this.getImage("./assets/images/regalo-verde.png");
+    this.imgTeddy = this.getImage("./assets/images/osito.png");
+    this.imgRobot = this.getImage("./assets/images/robot.png");
+    this.imgCoal = this.getImage("./assets/images/carbon.png");
+    this.imgIce = this.getImage("./assets/images/hielo.png");
 
     this.showLives = true;
     this.lives = 5;
@@ -172,10 +159,8 @@ export class ToyCatchGame extends BaseGame {
       this.spawnFallingItem();
       // En la segunda mitad del juego, probabilidad moderada de drop doble
       if (progress > 0.45 && Math.random() < 0.22) {
-        setTimeout(() => {
-          if (this.isRunning && !this.isGameOver) {
-            this.spawnFallingItem();
-          }
+        this.setGameTimeout(() => {
+          this.spawnFallingItem();
         }, 180);
       }
     }
@@ -474,6 +459,7 @@ export class ToyCatchGame extends BaseGame {
   public override destroy(): void {
     super.destroy();
     this.audio.stopHowlSfx(AudioManager.TOY_CATCH_PILOT_SFX.catchBag);
+    this.items = [];
   }
 }
 

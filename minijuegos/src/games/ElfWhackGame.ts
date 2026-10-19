@@ -49,6 +49,11 @@ export class ElfWhackGame extends BaseGame {
   // Animaciones
   private animClock: number = 0;
 
+  // Sprites Stylized 2D
+  private spriteElf: HTMLImageElement;
+  private spriteHazardSnowman: HTMLImageElement;
+  private spriteChimney: HTMLImageElement;
+
   constructor(
     canvas: HTMLCanvasElement,
     input: InputManager,
@@ -78,13 +83,16 @@ export class ElfWhackGame extends BaseGame {
       { name: "Feria Mágica", logo: this.fairLogo }
     ];
 
+    // Carga de sprites estilizados HD
+    this.spriteElf = this.getImage("./assets/images/icon-aldea-elfos.png");
+    this.spriteHazardSnowman = this.getImage("./assets/images/obstaculo-muneco.png");
+    this.spriteChimney = this.getImage("./assets/images/chimenea-obstaculo.png");
+
     this.computeHolesLayout();
   }
 
   private loadImage(src: string): HTMLImageElement {
-    const img = new Image();
-    img.src = src;
-    return img;
+    return this.getImage(src);
   }
 
   protected onStart(): void {
@@ -358,103 +366,143 @@ export class ElfWhackGame extends BaseGame {
       const elfX = h.x + h.w * 0.5;
 
       if (h.elfType === "hazard") {
-        // Muñeco de nieve gruñón con ceño fruncido
-        ctx.fillStyle = "#ECEFF1";
-        ctx.beginPath();
-        ctx.arc(elfX, elfY, h.w * 0.35, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "#90A4AE";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Ojos de carbón y ceño
-        ctx.fillStyle = "#212121";
-        ctx.fillRect(elfX - 12, elfY - 6, 6, 6);
-        ctx.fillRect(elfX + 6, elfY - 6, 6, 6);
-        ctx.strokeStyle = "#D50000";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(elfX - 14, elfY - 10);
-        ctx.lineTo(elfX - 6, elfY - 6);
-        ctx.moveTo(elfX + 14, elfY - 10);
-        ctx.lineTo(elfX + 6, elfY - 6);
-        ctx.stroke();
-      } else {
-        // Duende sonriente (Verde o Dorado)
-        const isGold = h.elfType === "gold";
-
-        // Gorro navideño
-        ctx.fillStyle = isGold ? "#FFD700" : "#D50000";
-        ctx.beginPath();
-        ctx.moveTo(elfX - h.w * 0.32, elfY - h.h * 0.1);
-        ctx.lineTo(elfX + h.w * 0.32, elfY - h.h * 0.1);
-        ctx.quadraticCurveTo(elfX, elfY - h.h * 0.65, elfX - h.w * 0.35, elfY - h.h * 0.55);
-        ctx.closePath();
-        ctx.fill();
-
-        // Cara
-        ctx.fillStyle = isGold ? "#FFF8E1" : "#FFE0B2";
-        ctx.beginPath();
-        ctx.arc(elfX, elfY, h.w * 0.32, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Orejas puntiagudas
-        ctx.fillStyle = isGold ? "#FFF8E1" : "#FFE0B2";
-        ctx.beginPath();
-        ctx.moveTo(elfX - h.w * 0.28, elfY - 2);
-        ctx.lineTo(elfX - h.w * 0.44, elfY - 8);
-        ctx.lineTo(elfX - h.w * 0.28, elfY + 4);
-        ctx.moveTo(elfX + h.w * 0.28, elfY - 2);
-        ctx.lineTo(elfX + h.w * 0.44, elfY - 8);
-        ctx.lineTo(elfX + h.w * 0.28, elfY + 4);
-        ctx.fill();
-
-        // Ojos y sonrisa
-        ctx.fillStyle = "#3E2723";
-        ctx.beginPath();
-        ctx.arc(elfX - 8, elfY - 2, 2.5, 0, Math.PI * 2);
-        ctx.arc(elfX + 8, elfY - 2, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Medallón de patrocinador si es dorado
-        if (isGold && h.sponsorLogo && h.sponsorLogo.complete) {
-          const logoR = 14;
-          ctx.fillStyle = "#FFFFFF";
+        if (this.spriteHazardSnowman && this.spriteHazardSnowman.complete && this.spriteHazardSnowman.naturalWidth > 0) {
+          const snowW = h.w * 0.88;
+          const snowH = h.w * 1.05;
+          ctx.drawImage(this.spriteHazardSnowman, elfX - snowW / 2, elfY - snowH * 0.72, snowW, snowH);
+        } else {
+          // Muñeco de nieve gruñón con ceño fruncido
+          ctx.fillStyle = "#ECEFF1";
           ctx.beginPath();
-          ctx.arc(elfX, elfY + h.w * 0.28, logoR, 0, Math.PI * 2);
+          ctx.arc(elfX, elfY, h.w * 0.35, 0, Math.PI * 2);
           ctx.fill();
-          ctx.strokeStyle = "#FFD700";
-          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = "#90A4AE";
+          ctx.lineWidth = 2;
           ctx.stroke();
-          ctx.drawImage(h.sponsorLogo, elfX - 10, elfY + h.w * 0.28 - 10, 20, 20);
+
+          // Ojos de carbón y ceño
+          ctx.fillStyle = "#212121";
+          ctx.fillRect(elfX - 12, elfY - 6, 6, 6);
+          ctx.fillRect(elfX + 6, elfY - 6, 6, 6);
+          ctx.strokeStyle = "#D50000";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(elfX - 14, elfY - 10);
+          ctx.lineTo(elfX - 6, elfY - 6);
+          ctx.moveTo(elfX + 14, elfY - 10);
+          ctx.lineTo(elfX + 6, elfY - 6);
+          ctx.stroke();
+        }
+      } else {
+        const isGold = h.elfType === "gold";
+        if (this.spriteElf && this.spriteElf.complete && this.spriteElf.naturalWidth > 0) {
+          const elfSize = h.w * 0.95;
+          ctx.drawImage(this.spriteElf, elfX - elfSize / 2, elfY - elfSize * 0.72, elfSize, elfSize);
+
+          if (isGold) {
+            // Corona/Aura dorada
+            ctx.save();
+            ctx.strokeStyle = "#FFD700";
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.ellipse(elfX, elfY - elfSize * 0.7, elfSize * 0.3, elfSize * 0.1, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Medallón de patrocinador
+            if (h.sponsorLogo && h.sponsorLogo.complete) {
+              const logoR = 14;
+              ctx.fillStyle = "#FFFFFF";
+              ctx.beginPath();
+              ctx.arc(elfX, elfY + h.w * 0.12, logoR, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = "#FFD700";
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+              ctx.drawImage(h.sponsorLogo, elfX - 10, elfY + h.w * 0.12 - 10, 20, 20);
+            }
+            ctx.restore();
+          }
+        } else {
+          // Gorro navideño
+          ctx.fillStyle = isGold ? "#FFD700" : "#D50000";
+          ctx.beginPath();
+          ctx.moveTo(elfX - h.w * 0.32, elfY - h.h * 0.1);
+          ctx.lineTo(elfX + h.w * 0.32, elfY - h.h * 0.1);
+          ctx.quadraticCurveTo(elfX, elfY - h.h * 0.65, elfX - h.w * 0.35, elfY - h.h * 0.55);
+          ctx.closePath();
+          ctx.fill();
+
+          // Cara
+          ctx.fillStyle = isGold ? "#FFF8E1" : "#FFE0B2";
+          ctx.beginPath();
+          ctx.arc(elfX, elfY, h.w * 0.32, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Orejas puntiagudas
+          ctx.fillStyle = isGold ? "#FFF8E1" : "#FFE0B2";
+          ctx.beginPath();
+          ctx.moveTo(elfX - h.w * 0.28, elfY - 2);
+          ctx.lineTo(elfX - h.w * 0.44, elfY - 8);
+          ctx.lineTo(elfX - h.w * 0.28, elfY + 4);
+          ctx.moveTo(elfX + h.w * 0.28, elfY - 2);
+          ctx.lineTo(elfX + h.w * 0.44, elfY - 8);
+          ctx.lineTo(elfX + h.w * 0.28, elfY + 4);
+          ctx.fill();
+
+          // Ojos y sonrisa
+          ctx.fillStyle = "#3E2723";
+          ctx.beginPath();
+          ctx.arc(elfX - 8, elfY - 2, 2.5, 0, Math.PI * 2);
+          ctx.arc(elfX + 8, elfY - 2, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Medallón de patrocinador si es dorado
+          if (isGold && h.sponsorLogo && h.sponsorLogo.complete) {
+            const logoR = 14;
+            ctx.fillStyle = "#FFFFFF";
+            ctx.beginPath();
+            ctx.arc(elfX, elfY + h.w * 0.28, logoR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#FFD700";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.drawImage(h.sponsorLogo, elfX - 10, elfY + h.w * 0.28 - 10, 20, 20);
+          }
         }
       }
 
       ctx.restore();
     }
 
-    // 2. Chimenea rústica de ladrillo rojo
-    ctx.fillStyle = "#B71C1C";
-    ctx.strokeStyle = "#3E2723";
-    ctx.lineWidth = 2.5;
-    this.roundRect(ctx, h.x, h.y, h.w, h.h, 6);
-    ctx.fill();
-    ctx.stroke();
+    // 2. Chimenea rústica
+    if (this.spriteChimney && this.spriteChimney.complete && this.spriteChimney.naturalWidth > 0) {
+      const chimW = h.w * 1.16;
+      const chimH = h.h * 1.25;
+      ctx.drawImage(this.spriteChimney, h.x - (chimW - h.w) / 2, h.y - 8, chimW, chimH);
+    } else {
+      // Chimenea rústica de ladrillo rojo
+      ctx.fillStyle = "#B71C1C";
+      ctx.strokeStyle = "#3E2723";
+      ctx.lineWidth = 2.5;
+      this.roundRect(ctx, h.x, h.y, h.w, h.h, 6);
+      ctx.fill();
+      ctx.stroke();
 
-    // Líneas decorativas de ladrillo
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(h.x + 4, h.y + h.h * 0.5);
-    ctx.lineTo(h.x + h.w - 4, h.y + h.h * 0.5);
-    ctx.stroke();
+      // Líneas decorativas de ladrillo
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(h.x + 4, h.y + h.h * 0.5);
+      ctx.lineTo(h.x + h.w - 4, h.y + h.h * 0.5);
+      ctx.stroke();
 
-    // Manto grueso de nieve en la corona de la chimenea
-    ctx.fillStyle = "#FFFFFF";
-    ctx.strokeStyle = "#CFD8DC";
-    ctx.lineWidth = 1.5;
-    this.roundRect(ctx, h.x - 4, h.y - 6, h.w + 8, 12, 6);
-    ctx.fill();
+      // Manto grueso de nieve en la corona de la chimenea
+      ctx.fillStyle = "#FFFFFF";
+      ctx.strokeStyle = "#CFD8DC";
+      ctx.lineWidth = 1.5;
+      this.roundRect(ctx, h.x - 4, h.y - 6, h.w + 8, 12, 6);
+      ctx.fill();
+    }
     ctx.stroke();
 
     ctx.restore();

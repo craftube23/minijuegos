@@ -112,9 +112,7 @@ export class MagicPairsGame extends BaseGame {
   }
 
   private createImage(src: string): HTMLImageElement {
-    const img = new Image();
-    img.src = src;
-    return img;
+    return this.getImage(src);
   }
 
   // ============================================================================
@@ -461,11 +459,9 @@ export class MagicPairsGame extends BaseGame {
     this.particles.emitConfetti(this.width, 45);
 
     this.level++;
-    setTimeout(() => {
-      if (this.timeRemaining > 0 && this.isRunning) {
-        this.pairsFound = 0;
-        this.setupDeck();
-      }
+    this.setGameTimeout(() => {
+      this.pairsFound = 0;
+      this.setupDeck();
     }, 900);
   }
 
@@ -777,5 +773,13 @@ export class MagicPairsGame extends BaseGame {
       case "robot": return this.spriteRobot;
       default: return null;
     }
+  }
+
+  public override destroy(): void {
+    super.destroy();
+    this.firstSelectedCard = null;
+    this.secondSelectedCard = null;
+    this.isCheckingMatch = false;
+    this.cards = [];
   }
 }

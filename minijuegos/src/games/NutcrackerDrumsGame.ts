@@ -105,7 +105,6 @@ export class NutcrackerDrumsGame extends BaseGame {
   // Sprites
   private bgRoom: HTMLImageElement;
   private elfSprite: HTMLImageElement;
-  private drumsIcon: HTMLImageElement;
 
   // Teclado
   private prevKeyStates: Record<string, boolean> = {};
@@ -135,15 +134,9 @@ export class NutcrackerDrumsGame extends BaseGame {
     this.inGameMusicPath = "./assets/audio/Dance of the Sugar Plum Fairy.mp3";
     this.inGameMusicVolume = 0.32;
 
-    // Carga de Sprites de alta definición
-    this.bgRoom = new Image();
-    this.bgRoom.src = "./assets/images/fondo-habitacion.webp";
-
-    this.elfSprite = new Image();
-    this.elfSprite.src = "./assets/images/elfo-baterista.png";
-
-    this.drumsIcon = new Image();
-    this.drumsIcon.src = "./assets/images/icon-tambores.png";
+    // Carga de Sprites de alta definición reutilizando caché
+    this.bgRoom = this.getImage("./assets/images/fondo-habitacion.webp");
+    this.elfSprite = this.getImage("./assets/images/elfo-baterista.png");
   }
 
   public override resize(width: number, height: number): void {
@@ -1395,5 +1388,15 @@ export class NutcrackerDrumsGame extends BaseGame {
     ctx.restore();
 
     ctx.restore();
+  }
+
+  public override destroy(): void {
+    super.destroy();
+    this.sequence = [];
+    this.ripples = [];
+    this.musicalNotes = [];
+    this.drums.forEach((d) => {
+      d.isPressed = false;
+    });
   }
 }

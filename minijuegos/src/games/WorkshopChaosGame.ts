@@ -162,9 +162,7 @@ export class WorkshopChaosGame extends BaseGame {
   }
 
   private loadImage(src: string): HTMLImageElement {
-    const img = new Image();
-    img.src = src;
-    return img;
+    return this.getImage(src);
   }
 
   /**
@@ -836,32 +834,38 @@ export class WorkshopChaosGame extends BaseGame {
       const sprite = this.getSpriteForType(obj.type);
       const size = obj.radius * 2;
 
-      // Resplandor para regalos dorados o carbón/defectuoso
+      // Resplandor optimizado para regalos dorados o carbón/defectuoso (halo rápido sin GPU blur stall)
       if (obj.type === "gold_gift") {
         ctx.save();
-        ctx.shadowColor = "#FFD700";
-        ctx.shadowBlur = 20;
-        ctx.fillStyle = "rgba(255, 215, 0, 0.25)";
+        ctx.fillStyle = "rgba(255, 215, 0, 0.22)";
         ctx.beginPath();
-        ctx.arc(0, 0, obj.radius * 1.15, 0, Math.PI * 2);
+        ctx.arc(0, 0, obj.radius * 1.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255, 215, 0, 0.40)";
+        ctx.beginPath();
+        ctx.arc(0, 0, obj.radius * 1.10, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       } else if (obj.type === "hazard_coal") {
         ctx.save();
-        ctx.shadowColor = "#FF1744";
-        ctx.shadowBlur = 18;
-        ctx.fillStyle = "rgba(255, 23, 68, 0.26)";
+        ctx.fillStyle = "rgba(255, 23, 68, 0.22)";
         ctx.beginPath();
-        ctx.arc(0, 0, obj.radius * 1.08, 0, Math.PI * 2);
+        ctx.arc(0, 0, obj.radius * 1.20, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255, 23, 68, 0.45)";
+        ctx.beginPath();
+        ctx.arc(0, 0, obj.radius * 1.05, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       } else if (obj.type === "hazard_defective") {
         ctx.save();
-        ctx.shadowColor = "#FF9100";
-        ctx.shadowBlur = 16;
-        ctx.fillStyle = "rgba(255, 145, 0, 0.24)";
+        ctx.fillStyle = "rgba(255, 145, 0, 0.20)";
         ctx.beginPath();
-        ctx.arc(0, 0, obj.radius * 1.08, 0, Math.PI * 2);
+        ctx.arc(0, 0, obj.radius * 1.20, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255, 145, 0, 0.40)";
+        ctx.beginPath();
+        ctx.arc(0, 0, obj.radius * 1.05, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       }

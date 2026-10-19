@@ -83,6 +83,12 @@ export class MagicJumpGame extends BaseGame {
   // Animaciones
   private animTimer: number = 0;
 
+  // Sprites Stylized 2D
+  private spriteStar: HTMLImageElement;
+  private spriteGift: HTMLImageElement;
+  private spriteArrowLeft: HTMLImageElement;
+  private spriteArrowRight: HTMLImageElement;
+
   constructor(
     canvas: HTMLCanvasElement,
     input: InputManager,
@@ -112,13 +118,17 @@ export class MagicJumpGame extends BaseGame {
       { name: "Feria Mágica", logo: this.fairLogo }
     ];
 
+    // Carga de sprites estilizados HD
+    this.spriteStar = this.getImage("./assets/images/estrella con logo.png");
+    this.spriteGift = this.getImage("./assets/images/regalo-estilizado-rojo.png");
+    this.spriteArrowLeft = this.getImage("./assets/images/flecha-izq.png");
+    this.spriteArrowRight = this.getImage("./assets/images/flecha-der.png");
+
     this.computeGameLayout();
   }
 
   private loadImage(src: string): HTMLImageElement {
-    const img = new Image();
-    img.src = src;
-    return img;
+    return this.getImage(src);
   }
 
   protected onStart(): void {
@@ -141,25 +151,27 @@ export class MagicJumpGame extends BaseGame {
     this.cameraY = 0;
 
     // Controles táctiles continuos de arrastre y toque
-    this.input.onPointerDown = (x: number, _y: number) => {
+    this.input.onPointerDown = (_pointerId: number, x: number, _y: number) => {
       this.isPointerActive = true;
       this.handlePointerInput(x);
     };
 
-    this.input.onPointerMove = (x: number, _y: number) => {
+    this.input.onPointerMove = (_pointerId: number, x: number, _y: number) => {
       if (this.isPointerActive) {
         this.handlePointerInput(x);
       }
     };
 
-    this.input.onPointerUp = (_x: number, _y: number) => {
+    this.input.onPointerUp = (_pointerId: number, _x: number, _y: number) => {
       this.isPointerActive = false;
       this.isMovingLeft = false;
       this.isMovingRight = false;
       this.targetPlayerX = null;
     };
 
-    // Soporte para teclado (flechas o A/D)
+    // Soporte para teclado (flechas o A/D) con eliminación previa para evitar duplicados
+    window.removeEventListener("keydown", this.handleKeyDown);
+    window.removeEventListener("keyup", this.handleKeyUp);
     window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("keyup", this.handleKeyUp);
 
@@ -170,9 +182,11 @@ export class MagicJumpGame extends BaseGame {
     super.destroy();
     window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("keyup", this.handleKeyUp);
-    this.input.onPointerDown = undefined;
-    this.input.onPointerMove = undefined;
-    this.input.onPointerUp = undefined;
+    this.isPointerActive = false;
+    this.isMovingLeft = false;
+    this.isMovingRight = false;
+    this.targetPlayerX = null;
+    this.platforms = [];
   }
 
   public override resize(width: number, height: number): void {
@@ -188,10 +202,10 @@ export class MagicJumpGame extends BaseGame {
     this.playerW = Math.max(38, Math.min(52, w * 0.08));
     this.playerH = this.playerW * 1.25;
 
-    // Botones táctiles inferiores para kiosco táctil
-    const btnW = Math.min(130, Math.max(96, w * 0.26));
-    const btnH = 44;
-    const btnY = Math.min(h - btnH - 12, h * 0.92);
+    // Botones táctiles inferiores para kiosco táctil y móviles
+    const btnW = Math.min(160, Math.max(104, Math.round(w * 0.28)));
+    const btnH = Math.max(52, Math.min(68, Math.round(h * 0.048)));
+    const btnY = Math.min(h - btnH - 14, h * 0.91);
 
     this.btnLeftRect = {
       x: 16,
@@ -709,17 +723,29 @@ export class MagicJumpGame extends BaseGame {
         const itemY = plat.y - 14 + Math.sin(this.animTimer * 4) * 3;
 
         if (plat.hasItem === "star") {
-          ctx.fillStyle = "#FFD700";
-          ctx.font = "900 16px 'Fredoka', sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText("★", itemX, itemY);
+          const itemSize = 24;
+          if (this.spriteStar && this.spriteStar.complete && this.spriteStar.naturalWidth > 0) {
+            ctx.drawImage(this.spriteStar, itemX - itemSize / 2, itemY - itemSize / 2, itemSize, itemSize);
+          } else {
+            ctx.fillStyle = "#FFD700";
+            ctx.font = "900 16px 'Fredoka', sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("★", itemX, itemY);
+          }
         } else {
-          ctx.fillStyle = "#FF1744";
-          ctx.font = "900 15px 'Fredoka', sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText("🎁", itemX, itemY);
+          const itemSize = 22;
+          if (this.spriteGift && this.spriteGift.complete && this.spriteGift.naturalWidth > 0) {
+            ctx.drawImage(this.spriteGift, itemX - itemSize / 2, itemY - itemSize / 2, itemSize, itemSize);
+          } else {
+            ctx.fillStyle = "#FF1744";
+            ctx.beginPath();
+            ctx.arc(itemX, itemY, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
         }
       }
 
@@ -838,11 +864,20 @@ export class MagicJumpGame extends BaseGame {
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "900 13px 'Fredoka', sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("◀ IZQUIERDA", btnL.x + btnL.w / 2, btnL.y + btnL.h / 2);
+    if (this.spriteArrowLeft && this.spriteArrowLeft.complete && this.spriteArrowLeft.naturalWidth > 0) {
+      ctx.drawImage(this.spriteArrowLeft, btnL.x + 8, btnL.y + (btnL.h - 18) / 2, 18, 18);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "900 12px 'Fredoka', sans-serif";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText("IZQUIERDA", btnL.x + 30, btnL.y + btnL.h / 2);
+    } else {
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "900 13px 'Fredoka', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("◀ IZQUIERDA", btnL.x + btnL.w / 2, btnL.y + btnL.h / 2);
+    }
 
     // 2. Botón Derecha
     const btnR = this.btnRightRect;
@@ -853,11 +888,20 @@ export class MagicJumpGame extends BaseGame {
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "900 13px 'Fredoka', sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("DERECHA ▶", btnR.x + btnR.w / 2, btnR.y + btnR.h / 2);
+    if (this.spriteArrowRight && this.spriteArrowRight.complete && this.spriteArrowRight.naturalWidth > 0) {
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "900 12px 'Fredoka', sans-serif";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      ctx.fillText("DERECHA", btnR.x + btnR.w - 30, btnR.y + btnR.h / 2);
+      ctx.drawImage(this.spriteArrowRight, btnR.x + btnR.w - 26, btnR.y + (btnR.h - 18) / 2, 18, 18);
+    } else {
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "900 13px 'Fredoka', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("DERECHA ▶", btnR.x + btnR.w / 2, btnR.y + btnR.h / 2);
+    }
 
     // 3. Indicador de Altura
     const altW = 140;

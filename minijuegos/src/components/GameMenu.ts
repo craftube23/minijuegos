@@ -296,8 +296,61 @@ export class GameMenu {
 
     const cards = this.container.querySelectorAll<HTMLElement>(".game-card-fantasy");
     cards.forEach((card) => {
-      // Evento de toque y selección de tarjeta
+      let startX = 0;
+      let startY = 0;
+      let isDragging = false;
+
+      const clearPressed = () => {
+        card.classList.remove("is-pressed");
+        gsap.to(card, {
+          scale: 1,
+          y: 0,
+          duration: 0.18,
+          ease: "back.out(1.5)",
+          clearProps: "transform",
+          overwrite: "auto"
+        });
+      };
+
+      // Feedback háptico/táctil en 'pointerdown' coordinado con GSAP
+      card.addEventListener("pointerdown", (e: PointerEvent) => {
+        startX = e.clientX;
+        startY = e.clientY;
+        isDragging = false;
+
+        card.classList.add("is-pressed");
+        gsap.to(card, {
+          scale: 0.96,
+          y: 2,
+          duration: 0.1,
+          ease: "power2.out",
+          overwrite: "auto"
+        });
+      });
+
+      card.addEventListener("pointermove", (e: PointerEvent) => {
+        if (!isDragging) {
+          const dx = Math.abs(e.clientX - startX);
+          const dy = Math.abs(e.clientY - startY);
+          if (dx > 14 || dy > 14) {
+            isDragging = true;
+            clearPressed();
+          }
+        }
+      });
+
+      card.addEventListener("pointerup", clearPressed);
+      card.addEventListener("pointercancel", clearPressed);
+      card.addEventListener("pointerleave", clearPressed);
+
+      // Evento de toque y selección de tarjeta (solo si no fue arrastre de scroll)
       card.addEventListener("click", (e) => {
+        if (isDragging) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+
         e.preventDefault();
         e.stopPropagation();
 
@@ -312,33 +365,6 @@ export class GameMenu {
           this.onSelectGame(gameId, card);
         }
       });
-
-      // Feedback háptico/táctil en 'pointerdown' coordinado con GSAP
-      card.addEventListener("pointerdown", () => {
-        card.classList.add("is-pressed");
-        gsap.to(card, {
-          scale: 0.96,
-          y: 2,
-          duration: 0.1,
-          ease: "power2.out",
-          overwrite: "auto"
-        });
-      });
-
-      const clearPressed = () => {
-        card.classList.remove("is-pressed");
-        gsap.to(card, {
-          scale: 1,
-          y: 0,
-          duration: 0.18,
-          ease: "back.out(1.5)",
-          clearProps: "transform",
-          overwrite: "auto"
-        });
-      };
-      card.addEventListener("pointerup", clearPressed);
-      card.addEventListener("pointercancel", clearPressed);
-      card.addEventListener("pointerleave", clearPressed);
     });
   }
 

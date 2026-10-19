@@ -243,7 +243,6 @@ export class BellSymphonyGame extends BaseGame {
   private imgArrowRight: HTMLImageElement;
   private imgLogoFair: HTMLImageElement;
   private imgLogoCampus: HTMLImageElement;
-  private imgStarWithLogo: HTMLImageElement;
 
   // Estado del juego de ritmo
   private bpm: number = 138;
@@ -287,6 +286,7 @@ export class BellSymphonyGame extends BaseGame {
 
   // Sistema de Audio
   private bgAudioElement: HTMLAudioElement | null = null;
+  private songAudioPausedByVisibility: boolean = false;
 
   // Editor y Grabador de notas en tiempo real
   private chartEditor: ChartEditorModal;
@@ -314,30 +314,14 @@ export class BellSymphonyGame extends BaseGame {
       particles
     );
 
-    // Carga de Sprites HD
-    this.bgImage = new Image();
-    this.bgImage.src = "./assets/images/fondo-habitacion.webp";
-
-    this.imgArrowLeft = new Image();
-    this.imgArrowLeft.src = "./assets/images/flecha-izq.png";
-
-    this.imgArrowDown = new Image();
-    this.imgArrowDown.src = "./assets/images/flecha-abajo.png";
-
-    this.imgArrowUp = new Image();
-    this.imgArrowUp.src = "./assets/images/flecha-arriba.png";
-
-    this.imgArrowRight = new Image();
-    this.imgArrowRight.src = "./assets/images/flecha-der.png";
-
-    this.imgLogoFair = new Image();
-    this.imgLogoFair.src = "./assets/logos/Feria-magica-del-jugete-sin-fondo.png";
-
-    this.imgLogoCampus = new Image();
-    this.imgLogoCampus.src = "./assets/logos/logo-campus-sin-fondo.png";
-
-    this.imgStarWithLogo = new Image();
-    this.imgStarWithLogo.src = "./assets/images/estrella con logo.png";
+    // Carga de Sprites HD reutilizando caché
+    this.bgImage = this.getImage("./assets/images/fondo-habitacion.webp");
+    this.imgArrowLeft = this.getImage("./assets/images/flecha-izq.png");
+    this.imgArrowDown = this.getImage("./assets/images/flecha-abajo.png");
+    this.imgArrowUp = this.getImage("./assets/images/flecha-arriba.png");
+    this.imgArrowRight = this.getImage("./assets/images/flecha-der.png");
+    this.imgLogoFair = this.getImage("./assets/logos/Feria-magica-del-jugete-sin-fondo.png");
+    this.imgLogoCampus = this.getImage("./assets/logos/logo-campus-sin-fondo.png");
 
     // Editor de partituras
     this.chartEditor = new ChartEditorModal("chart-editor-modal");
@@ -416,6 +400,7 @@ export class BellSymphonyGame extends BaseGame {
     this.songIntroTimer = 0;
 
     this.recalculateLayout();
+    this.setupKeyboard();
 
     // Multitouch en pantalla
     this.input.onPointerDown = (pointerId: number, x: number, y: number) => {
@@ -514,7 +499,7 @@ export class BellSymphonyGame extends BaseGame {
         if (this.gameState === "playing" && !this.isGameOver) {
           const hasPendingNotes = this.notes.some(n => !n.hit && !n.missed && n.targetTime >= this.currentTime - 0.2);
           const delay = hasPendingNotes ? 1400 : 500;
-          setTimeout(() => {
+          this.setGameTimeout(() => {
             if (this.gameState === "playing" && !this.isGameOver) {
               this.endGame();
             }
@@ -632,7 +617,7 @@ export class BellSymphonyGame extends BaseGame {
         if (this.gameState === "playing" && !this.isGameOver) {
           const hasPendingNotes = this.notes.some(n => !n.hit && !n.missed && n.targetTime >= this.currentTime - 0.2);
           const delay = hasPendingNotes ? 1400 : 500;
-          setTimeout(() => {
+          this.setGameTimeout(() => {
             if (this.gameState === "playing" && !this.isGameOver) {
               this.endGame();
             }
@@ -859,6 +844,12 @@ export class BellSymphonyGame extends BaseGame {
       }
     };
 
+    if (this.keydownHandler) {
+      window.removeEventListener("keydown", this.keydownHandler);
+    }
+    if (this.keyupHandler) {
+      window.removeEventListener("keyup", this.keyupHandler);
+    }
     window.addEventListener("keydown", this.keydownHandler);
     window.addEventListener("keyup", this.keyupHandler);
   }
@@ -1595,7 +1586,7 @@ export class BellSymphonyGame extends BaseGame {
 
           if (this.lives <= 0) {
             this.addFloatingText("¡SIN CAMPANAS!", this.width / 2, this.height * 0.45, "#FF1744", 1.8);
-            setTimeout(() => {
+            this.setGameTimeout(() => {
               this.endGame();
             }, 300);
             return;
@@ -2550,6 +2541,26 @@ export class BellSymphonyGame extends BaseGame {
       missCount: finalMissCount,
       totalNotes: totalNotesCount
     });
+  }
+
+  /**
+   * La canción es la referencia de tiempo del ritmo: si la página se oculta hay que
+   * pausarla también, o al volver las notas habrían avanzado sin el jugador.
+   */
+  public override onPageHidden(): void {
+    super.onPageHidden();
+    if (this.bgAudioElement && !this.bgAudioElement.paused) {
+      this.bgAudioElement.pause();
+      this.songAudioPausedByVisibility = true;
+    }
+  }
+
+  public override onPageVisible(): void {
+    super.onPageVisible();
+    if (this.songAudioPausedByVisibility && this.bgAudioElement && this.isRunning && !this.isGameOver) {
+      this.bgAudioElement.play().catch(() => {});
+    }
+    this.songAudioPausedByVisibility = false;
   }
 
   public override destroy(): void {

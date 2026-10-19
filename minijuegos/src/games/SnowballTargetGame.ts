@@ -1429,10 +1429,24 @@ export class SnowballTargetGame extends BaseGame {
       ctx.fill();
     }
 
-    ctx.font = "bold 15px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("❄️", 0, -size * 0.45);
+    // Insignia estilizada de hielo
+    ctx.save();
+    ctx.fillStyle = "rgba(128, 222, 234, 0.90)";
+    ctx.beginPath();
+    ctx.arc(0, -size * 0.45, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = "#FFFFFF";
+    ctx.beginPath();
+    ctx.moveTo(0, -size * 0.45 - 5);
+    ctx.lineTo(4, -size * 0.45);
+    ctx.lineTo(0, -size * 0.45 + 5);
+    ctx.lineTo(-4, -size * 0.45);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
   }
 
   private drawGrumpySnowmanTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
@@ -1449,10 +1463,21 @@ export class SnowballTargetGame extends BaseGame {
       ctx.fill();
     }
 
-    // Emoji de enfado cómico
-    ctx.font = "bold 14px sans-serif";
+    // Insignia estilizada de enfado/peligro
+    ctx.save();
+    ctx.fillStyle = "#D50000";
+    ctx.beginPath();
+    ctx.arc(0, -h * 0.50, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "900 11px 'Fredoka', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("😠", 0, -h * 0.52);
+    ctx.textBaseline = "middle";
+    ctx.fillText("!", 0, -h * 0.50);
+    ctx.restore();
   }
 
   private drawMischievousElfTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
@@ -1472,9 +1497,26 @@ export class SnowballTargetGame extends BaseGame {
       this.drawBullseyeTarget(ctx, target);
     }
 
-    ctx.font = "bold 13px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("⚡", 0, -size * 0.50);
+    // Insignia estilizada de velocidad
+    ctx.save();
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.arc(0, -size * 0.48, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = "#E65100";
+    ctx.beginPath();
+    ctx.moveTo(1, -size * 0.48 - 5);
+    ctx.lineTo(-3, -size * 0.48);
+    ctx.lineTo(0, -size * 0.48);
+    ctx.lineTo(-1, -size * 0.48 + 5);
+    ctx.lineTo(3, -size * 0.48);
+    ctx.lineTo(0, -size * 0.48);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
   }
 
   private drawSponsorTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
@@ -1539,7 +1581,7 @@ export class SnowballTargetGame extends BaseGame {
       ctx.fillStyle = sponsor.themeColor;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("⭐", 0, 0);
+      ctx.fillText("★", 0, 0);
     }
 
     ctx.fillStyle = sponsor.themeColor;
@@ -1567,10 +1609,21 @@ export class SnowballTargetGame extends BaseGame {
       ctx.stroke();
     }
 
-    ctx.font = "bold 18px sans-serif";
+    // Insignia estilizada de peligro
+    ctx.save();
+    ctx.fillStyle = "#FF3D00";
+    ctx.beginPath();
+    ctx.arc(0, -size * 0.42, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "900 12px 'Fredoka', sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("⚠️", 0, -size * 0.42);
+    ctx.fillText("✕", 0, -size * 0.42);
+    ctx.restore();
   }
 
   private drawFlyingSnowballs(ctx: CanvasRenderingContext2D): void {
@@ -1711,10 +1764,10 @@ export class SnowballTargetGame extends BaseGame {
       ctx.stroke();
 
       ctx.fillStyle = "#E0F7FA";
-      ctx.font = "bold 20px sans-serif";
+      ctx.font = "900 13px 'Fredoka', sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("❄️", 0, -22);
+      ctx.fillText("¡CONGELADO!", 0, -22);
     }
 
     ctx.restore();
@@ -1857,7 +1910,7 @@ export class SnowballTargetGame extends BaseGame {
 
       ctx.font = "900 15px 'Outfit', sans-serif";
       ctx.fillStyle = "#FFD700";
-      ctx.fillText(`🔥 ¡FIEBRE! (x${this.getComboMultiplier()}) - ${Math.ceil(this.feverTimer)}s`, 0, 0);
+      ctx.fillText(`★ ¡FIEBRE! (x${this.getComboMultiplier()}) - ${Math.ceil(this.feverTimer)}s ★`, 0, 0);
       ctx.restore();
       return;
     }
@@ -1882,5 +1935,13 @@ export class SnowballTargetGame extends BaseGame {
     }
 
     ctx.restore();
+  }
+
+  public override destroy(): void {
+    super.destroy();
+    this.targets = [];
+    this.flyingSnowballs = [];
+    this.snowSplats = [];
+    this.crosshairVisible = false;
   }
 }

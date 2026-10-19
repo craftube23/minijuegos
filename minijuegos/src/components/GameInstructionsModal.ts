@@ -219,7 +219,7 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
     negativeItems: [
       { iconName: "flame", label: "Tiro Fallido (Reinicia la racha)" }
     ],
-    controls: "Desliza hacia arriba para lanzar con impulso o pulsa el botón [ 🚀 LANZAR AL TRINEO ]"
+    controls: "Desliza hacia arriba para lanzar con impulso o pulsa el botón [ ¡LANZAR AL TRINEO! ]"
   },
   "christmas-snake": {
     id: "christmas-snake",
@@ -234,7 +234,7 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
     negativeItems: [
       { iconName: "flame", label: "Choque con la Cola (Pierdes 2 bombillas pero continúas jugando)" }
     ],
-    controls: "Usa el D-Pad táctil [ ▲ / ▼ / ◀ / ▶ ], toques directos o las flechas del teclado"
+    controls: "Desliza el dedo en la pantalla, usa el D-Pad táctil [ ▲ / ▼ / ◀ / ▶ ] o flechas del teclado"
   }
 };
 

@@ -67,6 +67,12 @@ export class GiftSlashGame extends BaseGame {
   private maxCombo: number = 0;
   private sliceInSingleSwipe: number = 0;
 
+  // Sprites Stylized 2D
+  private spriteGiftRed: HTMLImageElement;
+  private spriteGiftGreen: HTMLImageElement;
+  private spriteGiftGold: HTMLImageElement;
+  private spriteCoal: HTMLImageElement;
+
   constructor(
     canvas: HTMLCanvasElement,
     input: InputManager,
@@ -95,12 +101,16 @@ export class GiftSlashGame extends BaseGame {
       { name: "IMEBU", logo: this.loadImage("./assets/logos/clean-imebu.png") },
       { name: "Feria Mágica", logo: this.fairLogo }
     ];
+
+    // Carga de sprites estilizados HD
+    this.spriteGiftRed = this.getImage("./assets/images/regalo-estilizado-rojo.png");
+    this.spriteGiftGreen = this.getImage("./assets/images/regalo-estilizado-verde.png");
+    this.spriteGiftGold = this.getImage("./assets/images/regalo-estilizado-dorado.png");
+    this.spriteCoal = this.getImage("./assets/images/carbon.png");
   }
 
   private loadImage(src: string): HTMLImageElement {
-    const img = new Image();
-    img.src = src;
-    return img;
+    return this.getImage(src);
   }
 
   protected onStart(): void {
@@ -113,14 +123,14 @@ export class GiftSlashGame extends BaseGame {
     this.spawnTimer = 0;
 
     // Controles de deslizamiento continuo
-    this.input.onPointerDown = (x: number, y: number) => {
+    this.input.onPointerDown = (_pointerId: number, x: number, y: number) => {
       this.isTouching = true;
       this.lastTouchPos = { x, y };
       this.bladeTrail = [{ x, y, time: performance.now() }];
       this.sliceInSingleSwipe = 0;
     };
 
-    this.input.onPointerMove = (x: number, y: number) => {
+    this.input.onPointerMove = (_pointerId: number, x: number, y: number) => {
       if (this.isTouching) {
         const now = performance.now();
         this.checkBladeSlice(this.lastTouchPos.x, this.lastTouchPos.y, x, y);
@@ -129,7 +139,7 @@ export class GiftSlashGame extends BaseGame {
       }
     };
 
-    this.input.onPointerUp = (_x: number, _y: number) => {
+    this.input.onPointerUp = (_pointerId: number, _x: number, _y: number) => {
       this.isTouching = false;
       if (this.sliceInSingleSwipe >= 3) {
         this.addFloatingText(`★ ¡CORTE TRIPLE! +150 ★`, this.lastTouchPos.x, this.lastTouchPos.y - 20, "#FFD700", 1.5);
@@ -143,9 +153,9 @@ export class GiftSlashGame extends BaseGame {
 
   public override destroy(): void {
     super.destroy();
-    this.input.onPointerDown = undefined;
-    this.input.onPointerMove = undefined;
-    this.input.onPointerUp = undefined;
+    this.isTouching = false;
+    this.bladeTrail = [];
+    this.items = [];
   }
 
   // ==========================================================================
@@ -390,38 +400,56 @@ export class GiftSlashGame extends BaseGame {
       ctx.restore();
     } else {
       // Objeto entero
-      if (it.type === "coal") {
-        // Carbón ardiente
-        ctx.fillStyle = "#212121";
-        ctx.strokeStyle = "#FF3D00";
-        ctx.lineWidth = 2.5;
-        this.roundRect(ctx, -r, -r, r * 2, r * 2, 8);
-        ctx.fill();
-        ctx.stroke();
+      const sprite = it.type === "coal"
+        ? this.spriteCoal
+        : it.type === "gift_gold"
+        ? this.spriteGiftGold
+        : it.type === "gift_green"
+        ? this.spriteGiftGreen
+        : this.spriteGiftRed;
 
-        ctx.fillStyle = "#FF3D00";
-        ctx.font = "900 18px 'Fredoka', sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("🔥", 0, 0);
-      } else {
-        // Regalo festivo
-        ctx.fillStyle = it.type === "gift_gold" ? "#FFD700" : it.type === "gift_green" ? "#2E7D32" : "#D50000";
-        ctx.strokeStyle = "#FFFFFF";
-        ctx.lineWidth = 2;
-        this.roundRect(ctx, -r, -r, r * 2, r * 2, 8);
-        ctx.fill();
-        ctx.stroke();
+      if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+        ctx.drawImage(sprite, -r, -r, r * 2, r * 2);
 
-        // Cinta dorada cruzada
-        ctx.fillStyle = it.type === "gift_gold" ? "#D50000" : "#FFD700";
-        ctx.fillRect(-r * 0.2, -r, r * 0.4, r * 2);
-        ctx.fillRect(-r, -r * 0.2, r * 2, r * 0.4);
-
-        // Logo si es patrocinador
+        // Logo centrado si es patrocinador
         if (it.type === "gift_gold" && it.sponsorLogo && it.sponsorLogo.complete) {
-          const logoSize = r * 1.1;
+          const badgeR = r * 0.52;
+          ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+          ctx.beginPath();
+          ctx.arc(0, 0, badgeR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#FFD700";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          const logoSize = badgeR * 1.45;
           ctx.drawImage(it.sponsorLogo, -logoSize / 2, -logoSize / 2, logoSize, logoSize);
+        }
+      } else {
+        // Respaldo geométrico de emergencia
+        if (it.type === "coal") {
+          ctx.fillStyle = "#212121";
+          ctx.strokeStyle = "#FF3D00";
+          ctx.lineWidth = 2.5;
+          this.roundRect(ctx, -r, -r, r * 2, r * 2, 8);
+          ctx.fill();
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = it.type === "gift_gold" ? "#FFD700" : it.type === "gift_green" ? "#2E7D32" : "#D50000";
+          ctx.strokeStyle = "#FFFFFF";
+          ctx.lineWidth = 2;
+          this.roundRect(ctx, -r, -r, r * 2, r * 2, 8);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = it.type === "gift_gold" ? "#D50000" : "#FFD700";
+          ctx.fillRect(-r * 0.2, -r, r * 0.4, r * 2);
+          ctx.fillRect(-r, -r * 0.2, r * 2, r * 0.4);
+
+          if (it.type === "gift_gold" && it.sponsorLogo && it.sponsorLogo.complete) {
+            const logoSize = r * 1.1;
+            ctx.drawImage(it.sponsorLogo, -logoSize / 2, -logoSize / 2, logoSize, logoSize);
+          }
         }
       }
     }
@@ -431,18 +459,39 @@ export class GiftSlashGame extends BaseGame {
 
   private drawHalfItem(ctx: CanvasRenderingContext2D, it: FlyingItem, side: number): void {
     const r = it.radius;
-    ctx.fillStyle = it.type === "gift_gold" ? "#FFD700" : it.type === "gift_green" ? "#2E7D32" : "#D50000";
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 1.5;
+    const sprite = it.type === "coal"
+      ? this.spriteCoal
+      : it.type === "gift_gold"
+      ? this.spriteGiftGold
+      : it.type === "gift_green"
+      ? this.spriteGiftGreen
+      : this.spriteGiftRed;
 
+    ctx.save();
     ctx.beginPath();
     if (side === -1) {
-      ctx.rect(-r, -r, r, r * 2);
+      ctx.rect(-r - 4, -r - 4, r + 4, (r + 4) * 2);
     } else {
-      ctx.rect(0, -r, r, r * 2);
+      ctx.rect(0, -r - 4, r + 4, (r + 4) * 2);
     }
-    ctx.fill();
-    ctx.stroke();
+    ctx.clip();
+
+    if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+      ctx.drawImage(sprite, -r, -r, r * 2, r * 2);
+    } else {
+      ctx.fillStyle = it.type === "gift_gold" ? "#FFD700" : it.type === "gift_green" ? "#2E7D32" : "#D50000";
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      if (side === -1) {
+        ctx.rect(-r, -r, r, r * 2);
+      } else {
+        ctx.rect(0, -r, r, r * 2);
+      }
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   /**

@@ -70,6 +70,19 @@ export class ChristmasSnakeGame extends BaseGame {
   // Animaciones
   private animClock: number = 0;
 
+  // Gestos de deslizamiento táctil
+  private touchStartX: number = 0;
+  private touchStartY: number = 0;
+  private isPointerDown: boolean = false;
+
+  // Sprites Stylized 2D
+  private spriteStar: HTMLImageElement;
+  private spriteCandy: HTMLImageElement;
+  private spriteArrowUp: HTMLImageElement;
+  private spriteArrowDown: HTMLImageElement;
+  private spriteArrowLeft: HTMLImageElement;
+  private spriteArrowRight: HTMLImageElement;
+
   constructor(
     canvas: HTMLCanvasElement,
     input: InputManager,
@@ -99,13 +112,19 @@ export class ChristmasSnakeGame extends BaseGame {
       { name: "Feria Mágica", logo: this.fairLogo }
     ];
 
+    // Carga de sprites estilizados HD
+    this.spriteStar = this.getImage("./assets/images/estrella con logo.png");
+    this.spriteCandy = this.getImage("./assets/images/baston-caramelo.png");
+    this.spriteArrowUp = this.getImage("./assets/images/flecha-arriba.png");
+    this.spriteArrowDown = this.getImage("./assets/images/flecha-abajo.png");
+    this.spriteArrowLeft = this.getImage("./assets/images/flecha-izq.png");
+    this.spriteArrowRight = this.getImage("./assets/images/flecha-der.png");
+
     this.computeBoardLayout();
   }
 
   private loadImage(src: string): HTMLImageElement {
-    const img = new Image();
-    img.src = src;
-    return img;
+    return this.getImage(src);
   }
 
   protected onStart(): void {
@@ -118,11 +137,51 @@ export class ChristmasSnakeGame extends BaseGame {
     this.initSnake();
     this.spawnFood();
 
-    // Controles táctiles
+    // Gestos táctiles de deslizamiento (swipe) para tótems y móviles
+    this.input.onPointerDown = (_pointerId: number, x: number, y: number) => {
+      this.touchStartX = x;
+      this.touchStartY = y;
+      this.isPointerDown = true;
+    };
+
+    this.input.onPointerUp = (_pointerId: number, x: number, y: number) => {
+      if (!this.isPointerDown) return;
+      this.isPointerDown = false;
+      const dx = x - this.touchStartX;
+      const dy = y - this.touchStartY;
+      const dist = Math.hypot(dx, dy);
+      if (dist >= 24) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+          if (dx > 0 && this.dirX !== -1) {
+            this.nextDirX = 1;
+            this.nextDirY = 0;
+            this.audio.playTap();
+          } else if (dx < 0 && this.dirX !== 1) {
+            this.nextDirX = -1;
+            this.nextDirY = 0;
+            this.audio.playTap();
+          }
+        } else {
+          if (dy > 0 && this.dirY !== -1) {
+            this.nextDirX = 0;
+            this.nextDirY = 1;
+            this.audio.playTap();
+          } else if (dy < 0 && this.dirY !== 1) {
+            this.nextDirX = 0;
+            this.nextDirY = -1;
+            this.audio.playTap();
+          }
+        }
+      }
+    };
+
+    // Controles táctiles por toque (D-Pad y casillas)
     this.input.onTap = (x: number, y: number) => {
       this.handleTouchTap(x, y);
     };
 
+    // Soporte de teclado (evitando listeners duplicados)
+    window.removeEventListener("keydown", this.handleKeyDown);
     window.addEventListener("keydown", this.handleKeyDown);
 
     this.addFloatingText("¡ENCIENDE LAS LUCES!", this.width * 0.5, this.height * 0.4, "#FFD700", 1.5);
@@ -131,7 +190,9 @@ export class ChristmasSnakeGame extends BaseGame {
   public override destroy(): void {
     super.destroy();
     window.removeEventListener("keydown", this.handleKeyDown);
-    this.input.onTap = undefined;
+    this.isPointerDown = false;
+    this.snake = [];
+    this.food = null;
   }
 
   public override resize(width: number, height: number): void {
@@ -157,15 +218,19 @@ export class ChristmasSnakeGame extends BaseGame {
     this.boardX = (w - boardTotalW) / 2;
     this.boardY = Math.max(86, h * 0.16 + (availableH - boardTotalH) / 2);
 
-    // D-Pad virtual inferior
+    // D-Pad virtual inferior adaptado para tótems táctiles (1080x1920) y móviles
+    const btnSize = isLandscape
+      ? Math.min(56, Math.max(44, w * 0.08))
+      : Math.min(76, Math.max(54, w * 0.14));
     const dpadCenterX = w * 0.5;
-    const dpadCenterY = Math.min(h - 48, this.boardY + boardTotalH + 52);
-    const btnSize = Math.min(52, Math.max(40, w * 0.12));
+    const dpadCenterY = isLandscape
+      ? Math.min(h - btnSize * 0.8, this.boardY + boardTotalH + btnSize + 10)
+      : Math.min(h - btnSize - 20, this.boardY + boardTotalH + btnSize * 1.35);
 
-    this.btnUp = { x: dpadCenterX - btnSize / 2, y: dpadCenterY - btnSize - 6, w: btnSize, h: btnSize };
-    this.btnDown = { x: dpadCenterX - btnSize / 2, y: dpadCenterY + 6, w: btnSize, h: btnSize };
-    this.btnLeft = { x: dpadCenterX - btnSize * 1.5 - 6, y: dpadCenterY - btnSize / 2, w: btnSize, h: btnSize };
-    this.btnRight = { x: dpadCenterX + btnSize * 0.5 + 6, y: dpadCenterY - btnSize / 2, w: btnSize, h: btnSize };
+    this.btnUp = { x: dpadCenterX - btnSize / 2, y: dpadCenterY - btnSize - 8, w: btnSize, h: btnSize };
+    this.btnDown = { x: dpadCenterX - btnSize / 2, y: dpadCenterY + 8, w: btnSize, h: btnSize };
+    this.btnLeft = { x: dpadCenterX - btnSize * 1.5 - 8, y: dpadCenterY - btnSize / 2, w: btnSize, h: btnSize };
+    this.btnRight = { x: dpadCenterX + btnSize * 0.5 + 8, y: dpadCenterY - btnSize / 2, w: btnSize, h: btnSize };
   }
 
   private initSnake(): void {
@@ -248,8 +313,9 @@ export class ChristmasSnakeGame extends BaseGame {
   };
 
   private handleTouchTap(x: number, y: number): void {
+    const pad = 12;
     const checkBtn = (btn: { x: number; y: number; w: number; h: number }) => {
-      return x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h;
+      return x >= btn.x - pad && x <= btn.x + btn.w + pad && y >= btn.y - pad && y <= btn.y + btn.h + pad;
     };
 
     if (checkBtn(this.btnUp) && this.dirY !== 1) {
@@ -485,19 +551,31 @@ export class ChristmasSnakeGame extends BaseGame {
         ctx.drawImage(this.food.sponsorLogo, -logoSize / 2, -logoSize / 2, logoSize, logoSize);
       }
     } else if (this.food.type === "star") {
-      // Estrella dorada resplandeciente
-      ctx.fillStyle = "#FFD700";
-      ctx.font = `900 ${Math.max(14, s)}px 'Fredoka', sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("★", 0, 0);
+      // Estrella dorada resplandeciente Stylized 2D
+      const itemSize = s * 1.35;
+      if (this.spriteStar && this.spriteStar.complete && this.spriteStar.naturalWidth > 0) {
+        ctx.drawImage(this.spriteStar, -itemSize / 2, -itemSize / 2, itemSize, itemSize);
+      } else {
+        ctx.fillStyle = "#FFD700";
+        ctx.font = `900 ${Math.max(14, s)}px 'Fredoka', sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("★", 0, 0);
+      }
     } else {
-      // Galleta de jengibre navideña
-      ctx.fillStyle = "#D7CCC8";
-      ctx.font = `900 ${Math.max(13, s * 0.9)}px 'Fredoka', sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("🍪", 0, 0);
+      // Bastón de caramelo festivo Stylized 2D
+      const itemSize = s * 1.3;
+      if (this.spriteCandy && this.spriteCandy.complete && this.spriteCandy.naturalWidth > 0) {
+        ctx.drawImage(this.spriteCandy, -itemSize / 2, -itemSize / 2, itemSize, itemSize);
+      } else {
+        ctx.fillStyle = "#BCAAA4";
+        ctx.beginPath();
+        ctx.arc(0, 0, s * 0.45, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#5D4037";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
     }
 
     ctx.restore();
@@ -573,8 +651,8 @@ export class ChristmasSnakeGame extends BaseGame {
   private drawDPadAndHUD(ctx: CanvasRenderingContext2D): void {
     ctx.save();
 
-    // D-Pad botones
-    const drawBtn = (btn: { x: number; y: number; w: number; h: number }, label: string) => {
+    // D-Pad botones con flechas ilustradas
+    const drawBtn = (btn: { x: number; y: number; w: number; h: number }, icon: HTMLImageElement, fallbackLabel: string) => {
       ctx.fillStyle = "rgba(30, 45, 75, 0.92)";
       ctx.strokeStyle = "#FFD700";
       ctx.lineWidth = 2;
@@ -582,17 +660,22 @@ export class ChristmasSnakeGame extends BaseGame {
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = "900 16px 'Fredoka', sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(label, btn.x + btn.w / 2, btn.y + btn.h / 2);
+      if (icon && icon.complete && icon.naturalWidth > 0) {
+        const iconSize = Math.min(btn.w, btn.h) * 0.58;
+        ctx.drawImage(icon, btn.x + (btn.w - iconSize) / 2, btn.y + (btn.h - iconSize) / 2, iconSize, iconSize);
+      } else {
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "900 16px 'Fredoka', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(fallbackLabel, btn.x + btn.w / 2, btn.y + btn.h / 2);
+      }
     };
 
-    drawBtn(this.btnUp, "▲");
-    drawBtn(this.btnDown, "▼");
-    drawBtn(this.btnLeft, "◀");
-    drawBtn(this.btnRight, "▶");
+    drawBtn(this.btnUp, this.spriteArrowUp, "▲");
+    drawBtn(this.btnDown, this.spriteArrowDown, "▼");
+    drawBtn(this.btnLeft, this.spriteArrowLeft, "◀");
+    drawBtn(this.btnRight, this.spriteArrowRight, "▶");
 
     // HUD de Longitud y Racha
     if (this.combo >= 2) {

@@ -70,6 +70,12 @@ export class SleighTossGame extends BaseGame {
   // Animaciones
   private animClock: number = 0;
 
+  // Sprites Ilustrados Stylized 2D
+  private spriteSleigh: HTMLImageElement;
+  private spriteGiftRed: HTMLImageElement;
+  private spriteGiftGold: HTMLImageElement;
+  private spritePedestal: HTMLImageElement;
+
   constructor(
     canvas: HTMLCanvasElement,
     input: InputManager,
@@ -99,13 +105,17 @@ export class SleighTossGame extends BaseGame {
       { name: "Feria Mágica", logo: this.fairLogo }
     ];
 
+    // Carga de sprites ilustrados Stylized 2D
+    this.spriteSleigh = this.getImage("./assets/images/santa-trineo.png");
+    this.spriteGiftRed = this.getImage("./assets/images/regalo-estilizado-rojo.png");
+    this.spriteGiftGold = this.getImage("./assets/images/regalo-estilizado-dorado.png");
+    this.spritePedestal = this.getImage("./assets/images/pedestal-torre-regalos.png");
+
     this.computeLayout();
   }
 
   private loadImage(src: string): HTMLImageElement {
-    const img = new Image();
-    img.src = src;
-    return img;
+    return this.getImage(src);
   }
 
   protected onStart(): void {
@@ -120,7 +130,7 @@ export class SleighTossGame extends BaseGame {
     this.computeLayout();
 
     // Controles de deslizamiento (swipe up) o toque directo
-    this.input.onPointerDown = (x: number, y: number) => {
+    this.input.onPointerDown = (_pointerId: number, x: number, y: number) => {
       // ¿Tocó el botón de lanzamiento directo?
       if (
         x >= this.btnTossRect.x &&
@@ -137,7 +147,7 @@ export class SleighTossGame extends BaseGame {
       this.aimStartY = y;
     };
 
-    this.input.onPointerUp = (x: number, y: number) => {
+    this.input.onPointerUp = (_pointerId: number, x: number, y: number) => {
       if (this.isAiming) {
         this.isAiming = false;
         const dy = y - this.aimStartY;
@@ -160,8 +170,8 @@ export class SleighTossGame extends BaseGame {
 
   public override destroy(): void {
     super.destroy();
-    this.input.onPointerDown = undefined;
-    this.input.onPointerUp = undefined;
+    this.isAiming = false;
+    this.gifts = [];
   }
 
   public override resize(width: number, height: number): void {
@@ -181,11 +191,11 @@ export class SleighTossGame extends BaseGame {
     this.readyGiftX = w * 0.5;
     this.readyGiftY = h * 0.82;
 
-    const btnW = Math.min(220, w * 0.48);
-    const btnH = 46;
+    const btnW = Math.min(260, Math.max(160, Math.round(w * 0.52)));
+    const btnH = Math.max(52, Math.min(64, Math.round(h * 0.045)));
     this.btnTossRect = {
       x: (w - btnW) / 2,
-      y: Math.min(h - btnH - 12, h * 0.91),
+      y: Math.min(h - btnH - 14, h * 0.91),
       w: btnW,
       h: btnH
     };
@@ -354,40 +364,45 @@ export class SleighTossGame extends BaseGame {
 
     ctx.translate(0, sway);
 
-    // Patines dorados del trineo
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 3.5;
-    ctx.beginPath();
-    ctx.moveTo(w * 0.1, h * 0.95);
-    ctx.lineTo(w * 0.9, h * 0.95);
-    ctx.arcTo(w * 1.05, h * 0.95, w * 1.05, h * 0.7, 10);
-    ctx.stroke();
+    if (this.spriteSleigh && this.spriteSleigh.complete && this.spriteSleigh.naturalWidth > 0) {
+      // Sprite HD Stylized 2D de Papá Noel en su Trineo Mágico
+      ctx.drawImage(this.spriteSleigh, 0, 0, w, h);
+    } else {
+      // Patines dorados del trineo
+      ctx.strokeStyle = "#FFD700";
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(w * 0.1, h * 0.95);
+      ctx.lineTo(w * 0.9, h * 0.95);
+      ctx.arcTo(w * 1.05, h * 0.95, w * 1.05, h * 0.7, 10);
+      ctx.stroke();
 
-    // Cuerpo de madera caoba del trineo
-    ctx.fillStyle = "#B71C1C";
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 2.5;
-    this.roundRect(ctx, w * 0.15, h * 0.2, w * 0.7, h * 0.65, 12);
-    ctx.fill();
-    ctx.stroke();
+      // Cuerpo de madera caoba del trineo
+      ctx.fillStyle = "#B71C1C";
+      ctx.strokeStyle = "#FFD700";
+      ctx.lineWidth = 2.5;
+      this.roundRect(ctx, w * 0.15, h * 0.2, w * 0.7, h * 0.65, 12);
+      ctx.fill();
+      ctx.stroke();
 
-    // Saco de regalos asomándose
-    ctx.fillStyle = "#2E7D32";
-    ctx.beginPath();
-    ctx.arc(w * 0.38, h * 0.35, w * 0.18, 0, Math.PI * 2);
-    ctx.fill();
+      // Saco de regalos asomándose
+      ctx.fillStyle = "#2E7D32";
+      ctx.beginPath();
+      ctx.arc(w * 0.38, h * 0.35, w * 0.18, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Santa Claus saludando
-    ctx.fillStyle = "#D50000";
-    ctx.beginPath();
-    ctx.arc(w * 0.62, h * 0.28, w * 0.16, 0, Math.PI * 2);
-    ctx.fill();
+      // Santa Claus saludando
+      ctx.fillStyle = "#D50000";
+      ctx.beginPath();
+      ctx.arc(w * 0.62, h * 0.28, w * 0.16, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Barba blanca
-    ctx.fillStyle = "#FFFFFF";
-    ctx.beginPath();
-    ctx.arc(w * 0.62, h * 0.36, w * 0.12, 0, Math.PI);
-    ctx.fill();
+      // Barba blanca
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.arc(w * 0.62, h * 0.36, w * 0.12, 0, Math.PI);
+      ctx.fill();
+    }
 
     ctx.restore();
   }
@@ -409,25 +424,45 @@ export class SleighTossGame extends BaseGame {
     ctx.rotate(rot);
     ctx.scale(scale, scale);
 
-    const s = 34;
+    const s = 38;
+    const sprite = isSponsored ? this.spriteGiftGold : this.spriteGiftRed;
 
-    // Caja
-    ctx.fillStyle = isSponsored ? "#FFD700" : "#D50000";
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 2;
-    this.roundRect(ctx, -s / 2, -s / 2, s, s, 6);
-    ctx.fill();
-    ctx.stroke();
+    if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+      ctx.drawImage(sprite, -s / 2, -s / 2, s, s);
 
-    // Cintas cruzadas
-    ctx.fillStyle = isSponsored ? "#D50000" : "#FFD700";
-    ctx.fillRect(-s * 0.15, -s / 2, s * 0.3, s);
-    ctx.fillRect(-s / 2, -s * 0.15, s, s * 0.3);
+      // Logo si es patrocinador (con medallón blanco translúcido de soporte)
+      if (isSponsored && logo && logo.complete) {
+        const badgeR = s * 0.28;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+        ctx.beginPath();
+        ctx.arc(0, 0, badgeR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#FFD700";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
 
-    // Logo si es patrocinador
-    if (isSponsored && logo && logo.complete) {
-      const logoSize = s * 0.9;
-      ctx.drawImage(logo, -logoSize / 2, -logoSize / 2, logoSize, logoSize);
+        const logoSize = badgeR * 1.5;
+        ctx.drawImage(logo, -logoSize / 2, -logoSize / 2, logoSize, logoSize);
+      }
+    } else {
+      // Caja
+      ctx.fillStyle = isSponsored ? "#FFD700" : "#D50000";
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 2;
+      this.roundRect(ctx, -s / 2, -s / 2, s, s, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      // Cintas cruzadas
+      ctx.fillStyle = isSponsored ? "#D50000" : "#FFD700";
+      ctx.fillRect(-s * 0.15, -s / 2, s * 0.3, s);
+      ctx.fillRect(-s / 2, -s * 0.15, s, s * 0.3);
+
+      // Logo si es patrocinador
+      if (isSponsored && logo && logo.complete) {
+        const logoSize = s * 0.9;
+        ctx.drawImage(logo, -logoSize / 2, -logoSize / 2, logoSize, logoSize);
+      }
     }
 
     ctx.restore();
@@ -439,18 +474,24 @@ export class SleighTossGame extends BaseGame {
   private drawLaunchPedestal(ctx: CanvasRenderingContext2D): void {
     ctx.save();
 
-    // Pedestal de nieve y madera
-    ctx.fillStyle = "#3E2723";
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 2;
-    this.roundRect(ctx, this.readyGiftX - 45, this.readyGiftY + 22, 90, 16, 8);
-    ctx.fill();
-    ctx.stroke();
+    if (this.spritePedestal && this.spritePedestal.complete && this.spritePedestal.naturalWidth > 0) {
+      const pedW = 104;
+      const pedH = 34;
+      ctx.drawImage(this.spritePedestal, this.readyGiftX - pedW / 2, this.readyGiftY + 14, pedW, pedH);
+    } else {
+      // Pedestal de nieve y madera
+      ctx.fillStyle = "#3E2723";
+      ctx.strokeStyle = "#FFD700";
+      ctx.lineWidth = 2;
+      this.roundRect(ctx, this.readyGiftX - 45, this.readyGiftY + 22, 90, 16, 8);
+      ctx.fill();
+      ctx.stroke();
 
-    // Manto de nieve
-    ctx.fillStyle = "#FFFFFF";
-    this.roundRect(ctx, this.readyGiftX - 42, this.readyGiftY + 18, 84, 8, 4);
-    ctx.fill();
+      // Manto de nieve
+      ctx.fillStyle = "#FFFFFF";
+      this.roundRect(ctx, this.readyGiftX - 42, this.readyGiftY + 18, 84, 8, 4);
+      ctx.fill();
+    }
 
     // Regalo preparado flotando ligeramente
     const floatY = this.readyGiftY + Math.sin(this.animClock * 4) * 3;
@@ -482,7 +523,7 @@ export class SleighTossGame extends BaseGame {
     ctx.font = "900 13px 'Fredoka', sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("🚀 ¡LANZAR AL TRINEO!", btn.x + btn.w / 2, btn.y + btn.h / 2);
+    ctx.fillText("¡LANZAR AL TRINEO!", btn.x + btn.w / 2, btn.y + btn.h / 2);
 
     // 2. HUD de Combo
     if (this.combo >= 2) {

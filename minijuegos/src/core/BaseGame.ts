@@ -16,6 +16,7 @@ import { ParticleSystem } from "./ParticleSystem";
 import { StorageManager } from "./StorageManager";
 import { GameHUD, type HUDState } from "./GameHUD";
 import { FloatingTextSystem } from "./FloatingTextSystem";
+import { AssetCache } from "./AssetCache";
 import { BRANDING, type LogoConfig } from "../config/branding";
 import { Haptics } from "../utils/haptics";
 import type { GameResult, FloatingText } from "../types/game";
@@ -71,6 +72,8 @@ export abstract class BaseGame {
   protected logoImage1: HTMLImageElement | null = null;
   protected logoImage2: HTMLImageElement | null = null;
   protected sponsorImages: Map<string, HTMLImageElement> = new Map();
+  // Temporizadores gestionados del juego (para cancelación limpia en destroy/restart)
+  protected activeTimeouts: Set<ReturnType<typeof setTimeout>> = new Set();
 
   // Callback al terminar partida
   public onGameOver?: (result: GameResult) => void;
@@ -101,17 +104,18 @@ export abstract class BaseGame {
     this.loadLogos();
   }
 
+  protected getImage(src: string): HTMLImageElement {
+    return AssetCache.getInstance().getImage(src);
+  }
+
   private loadLogos(): void {
-    this.logoImage1 = new Image();
-    this.logoImage1.src = BRANDING.getLogoPath(1);
+    const cache = AssetCache.getInstance();
+    this.logoImage1 = cache.getImage(BRANDING.getLogoPath(1));
+    this.logoImage2 = cache.getImage(BRANDING.getLogoPath(2));
 
-    this.logoImage2 = new Image();
-    this.logoImage2.src = BRANDING.getLogoPath(2);
-
-    // Precargar imágenes de todos los patrocinadores oficiales
+    // Reutilizar instancias compartidas de todos los patrocinadores oficiales desde la caché
     for (const [key, sponsor] of Object.entries(BRANDING.sponsors)) {
-      const img = new Image();
-      img.src = sponsor.path;
+      const img = cache.getImage(sponsor.path);
       this.sponsorImages.set(sponsor.id, img);
       this.sponsorImages.set(sponsor.shortName.toLowerCase(), img);
       this.sponsorImages.set(key.toLowerCase(), img);
@@ -146,6 +150,10 @@ export abstract class BaseGame {
     this.floatingTextSystem.clear();
     this.highScore = StorageManager.getHighScore(this.id, this.currentSubKey);
     this.particles.clear();
+    this.clearAllTimeouts();
+
+    // Evita callbacks fantasma de partidas anteriores antes de que el juego registre los suyos
+    this.input.clearHandlers();
 
     this.onStart();
   }
@@ -218,6 +226,9 @@ export abstract class BaseGame {
   protected abstract onUpdate(dt: number): void;
 
   public draw(): void {
+    // HiDPI: el buffer del canvas es (ancho lógico × DPR). Se dibuja siempre en coordenadas lógicas.
+    const dpr = this.width > 0 ? this.canvas.width / this.width : 1;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     this.ctx.save();
     this.ctx.clearRect(0, 0, this.width, this.height);
 
@@ -357,10 +368,55 @@ export abstract class BaseGame {
     return this.isRunning;
   }
 
+  /**
+   * Hooks de ciclo de vida de la página (pestaña/WebView oculta o visible).
+   * Los juegos con audio sincronizado al tiempo (p. ej. ritmo) pueden sobrescribirlos.
+   */
+  public onPageHidden(): void {
+    if (this.isRunning && !this.isGameOver) {
+      this.audio.pauseGameBGM();
+    }
+  }
+
+  public onPageVisible(): void {
+    if (this.isRunning && !this.isGameOver) {
+      this.audio.resumeGameBGM();
+    }
+  }
+
+  /**
+   * Registra un temporizador en el juego que se cancela automáticamente si el juego se destruye o reinicia.
+   */
+  protected setGameTimeout(callback: () => void, delayMs: number): ReturnType<typeof setTimeout> {
+    const id = setTimeout(() => {
+      this.activeTimeouts.delete(id);
+      if (this.isRunning && !this.isGameOver) {
+        callback();
+      }
+    }, delayMs);
+    this.activeTimeouts.add(id);
+    return id;
+  }
+
+  protected clearGameTimeout(id: ReturnType<typeof setTimeout>): void {
+    clearTimeout(id);
+    this.activeTimeouts.delete(id);
+  }
+
+  protected clearAllTimeouts(): void {
+    for (const id of this.activeTimeouts) {
+      clearTimeout(id);
+    }
+    this.activeTimeouts.clear();
+  }
+
   public destroy(): void {
     this.isRunning = false;
     this.isGameOver = true;
+    this.isFinishing = false;
+    this.clearAllTimeouts();
     this.floatingTextSystem.clear();
+    this.input.clearHandlers();
     if (this.inGameMusicPath) {
       this.audio.stopGameBGM();
     }

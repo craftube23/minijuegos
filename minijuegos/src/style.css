@@ -302,6 +302,9 @@ html, body {
               url('../public/assets/images/fondo-empresas.webp') center center / cover no-repeat #060e1a;
   padding: clamp(14px, 2vh, 28px) clamp(12px, 2vw, 24px);
   overflow-y: auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
   align-items: center;
   justify-content: flex-start;
   transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1003,6 +1006,8 @@ html, body {
   justify-content: center;
   padding: clamp(6px, 1.5vh, 16px);
   overflow-y: auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   box-sizing: border-box;
 }
@@ -1026,6 +1031,8 @@ html, body {
   width: min(94vw, 480px);
   max-height: 94vh;
   overflow-y: auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -1660,9 +1667,9 @@ html, body {
 .btn-action {
   flex: 1;
   min-width: 120px;
-  padding: clamp(6px, 1vh, 9px) 10px;
+  padding: clamp(8px, 1.2vh, 12px) 14px;
   border-radius: 14px;
-  font-size: clamp(0.78rem, 1.4vw, 0.9rem);
+  font-size: clamp(0.82rem, 1.5vw, 0.95rem);
   font-weight: 900;
   cursor: pointer;
   display: flex;
@@ -1671,7 +1678,7 @@ html, body {
   gap: 5px;
   font-family: 'Titan One', 'Fredoka', cursive, sans-serif;
   letter-spacing: 0.5px;
-  min-height: 38px;
+  min-height: 48px;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
   user-select: none;
   touch-action: manipulation;
@@ -3197,6 +3204,9 @@ html, body {
   padding: clamp(10px, 1.8vh, 18px) clamp(14px, 2.8vw, 24px);
   gap: clamp(8px, 1.3vh, 12px);
   overflow-y: auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
   scrollbar-width: thin;
   scrollbar-color: #D4AF37 rgba(0, 0, 0, 0.35);
   box-sizing: border-box;
@@ -5788,7 +5798,7 @@ html, body {
 .btn-popup-skip-arcade {
   pointer-events: auto;
   min-width: 124px;
-  min-height: 46px;
+  min-height: 48px;
   background: linear-gradient(135deg, #00E676 0%, #00B248 100%);
   border: 2.5px solid #FFD700;
   border-radius: 25px;
