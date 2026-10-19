@@ -107,13 +107,63 @@ export class GameMenu {
       gemColor: "#00E676"
     },
     {
-      id: "gift-tower",
-      title: "Torre de Regalos Mágica",
-      imageSrc: "./assets/images/icon-torre-regalos.png",
-      frameImageSrc: "./assets/images/marco-juego-morado.png",
-      themeClass: "theme-magic-purple",
-      category: "EQUILIBRIO & FÍSICA",
-      tagline: "¡Apila los paquetes y construye la torre más alta hacia el cielo!",
+      id: "workshop-chaos",
+      title: "¡El Caos del Taller Mágico!",
+      imageSrc: "./assets/images/icon-caos-taller.png",
+      frameImageSrc: "./assets/images/marco-juego-rojo.png",
+      themeClass: "theme-wood-red",
+      category: "REFLEJOS & ACCIÓN",
+      tagline: "¡Salva los juguetes que salen disparados de la máquina!",
+      gemColor: "#FF9100"
+    },
+    {
+      id: "christmas-jump",
+      title: "¡Salto Mágico Navideño!",
+      imageSrc: "./assets/images/icon-salto-magico.png",
+      frameImageSrc: "./assets/images/marco-juego-azul.png",
+      themeClass: "theme-stone-blue",
+      category: "ARCADE & SALTO",
+      tagline: "¡Salta sobre plataformas nevadas y vuela con cohetes!",
+      gemColor: "#00E5FF"
+    },
+    {
+      id: "elf-whack",
+      title: "¡Golpea al Duende!",
+      imageSrc: "./assets/images/icon-aldea-elfos.png",
+      frameImageSrc: "./assets/images/marco-juego-rojo.png",
+      themeClass: "theme-wood-red",
+      category: "REFLEJOS & ACCIÓN",
+      tagline: "¡Atrapa a los duendes traviesos en las chimeneas!",
+      gemColor: "#FF1744"
+    },
+    {
+      id: "gift-slash",
+      title: "¡Corta-Regalos Navideño!",
+      imageSrc: "./assets/images/icon-regalos-magicos.png",
+      frameImageSrc: "./assets/images/marco-juego-verde.png",
+      themeClass: "theme-forest-green",
+      category: "CORTE & REFLEJOS",
+      tagline: "¡Rebana los paquetes en el aire y evita el carbón!",
+      gemColor: "#00E676"
+    },
+    {
+      id: "sleigh-toss",
+      title: "¡Lanza-Regalos al Trineo!",
+      imageSrc: "./assets/images/icon-lanza-regalos.png",
+      frameImageSrc: "./assets/images/marco-juego-rojo.png",
+      themeClass: "theme-wood-red",
+      category: "PUNTERÍA & CANASTA",
+      tagline: "¡Encesta los regalos en el trineo volador de Santa!",
+      gemColor: "#FFD700"
+    },
+    {
+      id: "christmas-snake",
+      title: "¡Serpiente de Luces!",
+      imageSrc: "./assets/images/icon-serpiente-luces.png",
+      frameImageSrc: "./assets/images/marco-juego-azul.png",
+      themeClass: "theme-stone-blue",
+      category: "CLÁSICO ARCADE",
+      tagline: "¡Guía la guirnalda de luces y come galletas!",
       gemColor: "#FFD700"
     }
   ];

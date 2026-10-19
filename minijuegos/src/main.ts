@@ -36,7 +36,12 @@ import { FlyingElfGame } from "./games/FlyingElfGame";
 import { MagicPairsGame } from "./games/MagicPairsGame";
 import { SantaHillsGame } from "./games/SantaHillsGame";
 import { SnowballTargetGame } from "./games/SnowballTargetGame";
-import { GiftTowerGame } from "./games/GiftTowerGame";
+import { WorkshopChaosGame } from "./games/WorkshopChaosGame";
+import { MagicJumpGame } from "./games/MagicJumpGame";
+import { ElfWhackGame } from "./games/ElfWhackGame";
+import { GiftSlashGame } from "./games/GiftSlashGame";
+import { SleighTossGame } from "./games/SleighTossGame";
+import { ChristmasSnakeGame } from "./games/ChristmasSnakeGame";
 import { getIconSvg } from "./utils/icons";
 import {
   initKioskNativeMode,
@@ -101,7 +106,7 @@ class KioskApp {
     this.instructionsModal = new GameInstructionsModal("instructions-modal", this.audio);
     this.storyModal = new GameStoryCinemaModal("story-modal", this.audio);
 
-    // 4. Instanciar los 4 Minijuegos
+    // 4. Instanciar los minijuegos disponibles
     this.registerGames();
 
     // 5. Adaptar resolución nativa al tamaño del contenedor
@@ -190,10 +195,15 @@ class KioskApp {
     const game5 = new MagicPairsGame(this.canvas, this.input, this.audio, this.particles);
     const game6 = new SantaHillsGame(this.canvas, this.input, this.audio, this.particles);
     const game7 = new SnowballTargetGame(this.canvas, this.input, this.audio, this.particles);
-    const game8 = new GiftTowerGame(this.canvas, this.input, this.audio, this.particles);
+    const game8 = new WorkshopChaosGame(this.canvas, this.input, this.audio, this.particles);
+    const game9 = new MagicJumpGame(this.canvas, this.input, this.audio, this.particles);
+    const game10 = new ElfWhackGame(this.canvas, this.input, this.audio, this.particles);
+    const game11 = new GiftSlashGame(this.canvas, this.input, this.audio, this.particles);
+    const game12 = new SleighTossGame(this.canvas, this.input, this.audio, this.particles);
+    const game13 = new ChristmasSnakeGame(this.canvas, this.input, this.audio, this.particles);
 
     // Conectar callback de Game Over de cada juego
-    [game1, game2, game3, game4, game5, game6, game7, game8].forEach((g) => {
+    [game1, game2, game3, game4, game5, game6, game7, game8, game9, game10, game11, game12, game13].forEach((g) => {
       g.onGameOver = (result: GameResult) => this.handleGameOver(result);
       this.games.set(g.id, g);
     });
@@ -250,9 +260,9 @@ class KioskApp {
         gameInfo,
         this.particles,
         () => {
-          // Punto medio: Pantalla cubierta. Revelar la mini-historia animada en formato cómic
+          // Punto medio: Pantalla cubierta. Revelar directamente el modal de instrucciones rápidas
           this.gameMenu.hide();
-          this.storyModal.show(gameId);
+          this.instructionsModal.show(gameId);
         },
         () => {
           // Las garras terminan de desgarrar
@@ -468,7 +478,8 @@ class KioskApp {
       "magic-pairs": { title: "Parejas de Juguetes", icon: getIconSvg("cards", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
       "santa-hills": { title: "El Descenso de Santa", icon: getIconSvg("gift", { size: 36, color: "#FF2A4D" }), themeColor: "#FF2A4D" },
       "snowball-target": { title: "Tiro al Blanco Navideño", icon: getIconSvg("target", { size: 36, color: "#00E676" }), themeColor: "#00E676" },
-      "gift-tower": { title: "Torre de Regalos Mágica", icon: getIconSvg("gift", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" }
+      "workshop-chaos": { title: "¡El Caos del Taller Mágico!", icon: getIconSvg("sparkles", { size: 36, color: "#FF9100" }), themeColor: "#FF9100" },
+      "polar-express": { title: "¡El Expreso Polar Mágico!", icon: getIconSvg("sparkles", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" }
     };
     return map[gameId] || { title: "Minijuego Mágico", icon: getIconSvg("tree", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" };
   }
@@ -576,6 +587,8 @@ class KioskApp {
     this.appState = "attract";
     this.gameMenu.hide();
     this.gameOverModal.hide();
+    this.instructionsModal.hide();
+    this.storyModal.hide();
     this.attractScreen.show();
   }
 
