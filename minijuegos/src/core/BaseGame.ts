@@ -48,6 +48,7 @@ export abstract class BaseGame {
   protected lives: number = 5;
   protected maxLives: number = 5;
   protected showLives: boolean = false;
+  protected showTimer: boolean = true;
 
   // Sistema de Screen Shake (Feedback de impacto)
   protected shakeTimer: number = 0;
@@ -175,7 +176,9 @@ export abstract class BaseGame {
     }
 
     // Actualizar temporizador de partida
-    this.timeRemaining -= dt;
+    if (this.showTimer) {
+      this.timeRemaining -= dt;
+    }
 
     // Alerta sonora en los últimos 5 segundos (5, 4, 3, 2, 1)
     if (this.timeRemaining <= 5 && this.timeRemaining > 0) {
@@ -290,6 +293,7 @@ export abstract class BaseGame {
       lives: this.lives,
       maxLives: this.maxLives,
       showLives: this.showLives,
+      showTimer: this.showTimer,
       isLogoPowerUpActive: this.isLogoPowerUpActive,
       logoPowerUpTimer: this.logoPowerUpTimer,
       activeLogo: this.activeLogo

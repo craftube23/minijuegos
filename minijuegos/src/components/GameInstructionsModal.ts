@@ -174,67 +174,105 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
     ],
     controls: "Arrastra el dedo hacia los lados, usa los botones táctiles [ ◀ IZQUIERDA / DERECHA ▶ ] o usa [ ◄ / ► / A / D ]"
   },
-  "elf-whack": {
-    id: "elf-whack",
-    title: "¡Golpea al Duende!",
-    iconName: "target",
-    themeColor: "#FF1744",
-    goal: "¡Atrapa a los duendes traviesos! Toca las chimeneas cuando los duendes se asomen con regalos, y evita golpear al muñeco de nieve gruñón.",
-    positiveItems: [
-      { iconName: "gift", label: "Duende con Regalo (+100 pts)" },
-      { iconName: "star", label: "Duende Dorado Patrocinador (¡+250 pts y estrellas!)" }
-    ],
-    negativeItems: [
-      { iconName: "skull", label: "Muñeco Gruñón (-50 pts y rompe la racha)" }
-    ],
-    controls: "Toca directamente sobre la chimenea cuando asome el duende"
-  },
-  "gift-slash": {
-    id: "gift-slash",
-    title: "¡Corta-Regalos Navideño!",
-    iconName: "sparkles",
-    themeColor: "#00E676",
-    goal: "¡Corta los regalos en el aire! Desliza el dedo como una espada mágica para rebanar cajas y paquetes navideños. Corta varios de un solo trazo para combos.",
-    positiveItems: [
-      { iconName: "gift", label: "Cajas de Regalo (+100 pts)" },
-      { iconName: "star", label: "Regalo Dorado de Patrocinador (¡+250 pts!)" },
-      { iconName: "sparkles", label: "Corte Múltiple (¡Bonus x3 al rebanar varios juntos!)" }
-    ],
-    negativeItems: [
-      { iconName: "flame", label: "Carbón Ardiente (-50 pts y rompe la racha)" }
-    ],
-    controls: "Desliza el dedo o el ratón a través de los regalos voladores"
-  },
-  "sleigh-toss": {
-    id: "sleigh-toss",
-    title: "¡Lanza-Regalos al Trineo!",
+  "gift-tower": {
+    id: "gift-tower",
+    title: "¡Torre de Regalos Mágica!",
     iconName: "gift",
     themeColor: "#FFD700",
-    goal: "¡Encesta los regalos en el trineo de Santa! Apunta y desliza hacia arriba con precisión o pulsa el botón de lanzamiento para llenar el trineo.",
+    goal: "¡Suelta los paquetes en el momento exacto para construir la torre más alta hacia el cielo!",
     positiveItems: [
-      { iconName: "gift", label: "Canasta Exitosa (+150 pts)" },
-      { iconName: "star", label: "Regalo Dorado Oficial (¡+300 pts y confeti!)" },
-      { iconName: "target", label: "Racha Consecutiva (Multiplicador de canastas)" }
+      { iconName: "gift", label: "Alineación Perfecta (+300 pts y combo musical)" },
+      { iconName: "star", label: "Cajas de Patrocinador (¡+500 pts y expansión mágica!)" },
+      { iconName: "sparkles", label: "Fiebre Navideña (¡Puntos dobles tras 3 perfectos!)" }
     ],
     negativeItems: [
-      { iconName: "flame", label: "Tiro Fallido (Reinicia la racha)" }
+      { iconName: "flame", label: "Desbordes (Rebanan la caja haciéndola más estrecha)" },
+      { iconName: "skull", label: "Caer fuera de la torre (-1 Vida)" }
     ],
-    controls: "Desliza hacia arriba para lanzar con impulso o pulsa el botón [ ¡LANZAR AL TRINEO! ]"
+    controls: "Toca la pantalla o usa [ Espacio / Enter / ▼ ] para soltar la caja"
   },
-  "christmas-snake": {
-    id: "christmas-snake",
-    title: "¡Serpiente de Luces!",
+  "polar-express": {
+    id: "polar-express",
+    title: "¡El Expreso Polar Mágico!",
+    iconName: "sparkles",
+    themeColor: "#FF2A4D",
+    goal: "¡Conduce la locomotora mágica por tres vías! Cambia de carril para recoger regalos y estrellas y esquivar muñecos de nieve, cristales de hielo, troncos y carbón.",
+    positiveItems: [
+      { iconName: "gift", label: "Regalos (+50 pts)" },
+      { iconName: "star", label: "Estrella Brillante (+150 pts)" },
+      { iconName: "sparkles", label: "Regalo de Patrocinador (¡Turbo Vapor: invencible y +300 pts!)" }
+    ],
+    negativeItems: [
+      { iconName: "snowflake", label: "Muñecos, cristales y troncos (pierdes una vida)" },
+      { iconName: "flame", label: "Carbón en la vía (pierdes una vida)" }
+    ],
+    controls: "Toca o arrastra hacia la vía a la que quieres ir, o usa [ ▲ / ▼ ] / [ W / S ]"
+  },
+  "ice-breaker": {
+    id: "ice-breaker",
+    title: "¡Rompe-Hielos Mágico!",
+    iconName: "snowflake",
+    themeColor: "#D500F9",
+    goal: "¡Mueve la paleta de bastón de caramelo para rebotar la esfera dorada y destruir los bloques de hielo y regalos congelados!",
+    positiveItems: [
+      { iconName: "gift", label: "Bloques de cristal y regalos (+60 a +140 pts)" },
+      { iconName: "star", label: "Cápsulas mágicas (¡Multi-Esfera x3, Paleta Gigante y Fuego!)" },
+      { iconName: "sparkles", label: "Cofre de Patrocinador (+250 pts y Esfera de Fuego)" }
+    ],
+    negativeItems: [
+      { iconName: "flame", label: "Dejar caer todas las esferas (pierdes una de tus 3 vidas)" }
+    ],
+    controls: "Desliza el dedo / ratón a los lados o usa [ ◄ / ► ] y [ Espacio ] para lanzar"
+  },
+  "ornament-pop": {
+    id: "ornament-pop",
+    title: "¡Burbujas de Adornos!",
+    iconName: "star",
+    themeColor: "#00E5FF",
+    goal: "¡Revienta los adornos del árbol! Apunta el cañón de caramelo y junta 3 o más adornos del mismo color. Los que queden colgando caerán como una lluvia de puntos.",
+    positiveItems: [
+      { iconName: "gift", label: "Grupo de 3 o más adornos (+50 pts por adorno)" },
+      { iconName: "sparkles", label: "Adornos que caen (+80 pts cada uno)" },
+      { iconName: "star", label: "Bola Patrocinadora (¡Explota todo a su alrededor!)" }
+    ],
+    negativeItems: [
+      { iconName: "flame", label: "Disparos sin acierto (bajan nuevas filas de adornos)" },
+      { iconName: "skull", label: "Adornos en la línea roja (fin de la partida)" }
+    ],
+    controls: "Arrastra para apuntar y suelta para disparar, o usa [ ◄ / ► ] y [ Espacio ]"
+  },
+  "toy-match": {
+    id: "toy-match",
+    title: "¡Juguetería Mágica!",
     iconName: "sparkles",
     themeColor: "#FFD700",
-    goal: "¡Guía la guirnalda de luces navideñas! Recoge galletas de jengibre y estrellas doradas para hacer crecer la guirnalda sin chocar contra tu cuerpo.",
+    goal: "¡Intercambia juguetes vecinos en la vitrina mágica para formar líneas de 3, 4 o 5 iguales! Unir 4 o más crea una Estrella Explosiva de Patrocinador.",
     positiveItems: [
-      { iconName: "gift", label: "Galletas de Jengibre (+100 pts y alarga la guirnalda)" },
-      { iconName: "star", label: "Estrellas de Patrocinador (¡+250 pts y brillo arcoíris!)" }
+      { iconName: "gift", label: "Línea de 3 juguetes iguales (+135 pts + multiplicador)" },
+      { iconName: "star", label: "Unir 4 o más crea una Estrella Explosiva (+450 pts)" },
+      { iconName: "sparkles", label: "Botón Mezclar Vitrina (renueva el tablero al instante)" }
     ],
     negativeItems: [
-      { iconName: "flame", label: "Choque con la Cola (Pierdes 2 bombillas pero continúas jugando)" }
+      { iconName: "flame", label: "Movimiento sin combinación (reinicia tu racha de combo)" }
     ],
-    controls: "Desliza el dedo en la pantalla, usa el D-Pad táctil [ ▲ / ▼ / ◀ / ▶ ] o flechas del teclado"
+    controls: "Toca o desliza dos juguetes contiguos para intercambiarlos, o toca una Estrella Explosiva"
+  },
+  "santa-ski": {
+    id: "santa-ski",
+    title: "¡Esquí Alpino de Santa!",
+    iconName: "sparkles",
+    themeColor: "#00E5FF",
+    goal: "¡Desciende por la montaña en un mundo abierto alpino infinito! Esquiva pinos, muñecos y rocas, salta en rampas doradas y huye del temible Yeti de Nieve.",
+    positiveItems: [
+      { iconName: "star", label: "Puerta de Eslalon (+150 pts y combo x2/x3)" },
+      { iconName: "sparkles", label: "Rampa de Salto (+300 pts y acrobacia aérea 360°)" },
+      { iconName: "gift", label: "Estrella de Patrocinador (¡Super Turbo Dorado que arrasa todo!)" }
+    ],
+    negativeItems: [
+      { iconName: "snowflake", label: "Pinos, Rocas y Muñecos (Pierdes 1 vida)" },
+      { iconName: "flame", label: "El Yeti de Nieve te persigue (¡Salta en rampas o usa turbo para escapar!)" }
+    ],
+    controls: "Desliza el dedo hacia los lados o usa las flechas [ ◄ / ► / A / D ] para tallar en el mundo abierto"
   }
 };
 
@@ -495,6 +533,10 @@ export class GameInstructionsModal {
             ${getIconSvg("arrowLeft", { size: 18, color: "#FFFFFF" })}
             <span>VOLVER</span>
           </button>
+          <button id="btn-instructions-story" class="btn-instruction-story">
+            ${getIconSvg("sparkles", { size: 18, color: "#FFD700" })}
+            <span>🎬 HISTORIA & TUTORIAL</span>
+          </button>
           <button id="btn-instructions-play" class="btn-instruction-primary btn-action-play">
             <span>¡A JUGAR!</span>
             ${getIconSvg("play", { size: 20, color: "#FFFFFF", fill: "#FFFFFF" })}
@@ -532,6 +574,15 @@ export class GameInstructionsModal {
       btn.addEventListener("pointerup", restoreBtn);
       btn.addEventListener("pointerleave", restoreBtn);
       btn.addEventListener("pointercancel", restoreBtn);
+    });
+
+    const btnStory = this.container.querySelector<HTMLElement>("#btn-instructions-story");
+    btnStory?.addEventListener("click", () => {
+      this.audio.playTap();
+      this.hide();
+      if (this.onWatchStory) {
+        this.onWatchStory(this.currentGameId);
+      }
     });
 
     btnPlay?.addEventListener("click", () => {

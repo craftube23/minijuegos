@@ -239,22 +239,148 @@ export class GameStoryCinemaModal {
     this.stories.set("tree-melody", drumsStory);
     this.stories.set("nutcracker-drums", { ...drumsStory, gameId: "nutcracker-drums" });
 
-    // 8. TORRE DE REGALOS MÁGICA (GiftTowerGame)
+    // 8. VISTE AL MUÑECO DE NIEVE (HolidayDressUpGame)
     this.stories.set("gift-tower", {
       gameId: "gift-tower",
-      gameTitle: "TORRE DE REGALOS MÁGICA",
-      subTag: "¡CONSTRUCCIÓN Y EQUILIBRIO!",
-      headline: "¡CONSTRUYE LA TORRE!",
-      tagline: "¡Apila los paquetes balanceados hasta tocar las estrellas!",
-      pageIllustrationBg: "./assets/images/fondo-villa-seamless.jpg",
-      sceneryLayerImg: "./assets/images/pedestal-torre-regalos.png",
+      gameTitle: "¡TORRE DE REGALOS MÁGICA!",
+      subTag: "¡CONSTRUYE HACIA LA ESTRELLA!",
+      headline: "¡APILA HASTA LAS ESTRELLAS!",
+      tagline: "¡La grúa mágica de Santa balancea los paquetes! Apílalos con precisión milimétrica.",
+      pageIllustrationBg: "./assets/images/fondo-nieve.webp",
       heroLayerImg: "./assets/images/icon-torre-regalos.png",
       heroLayerScale: 1.2,
-      heroLayerOffsetY: -12,
+      heroLayerOffsetY: 0,
       props: [
-        { src: "./assets/images/regalo-estilizado-dorado.png", className: "prop-tower-box", xPercent: 0, yPercent: -75, delayOffset: 0.2, scale: 1.05 }
+        { src: "./assets/images/regalo-estilizado-dorado.png", className: "prop-tower-gold", xPercent: -36, yPercent: -30, delayOffset: 0.15, scale: 0.85 },
+        { src: "./assets/images/estrella con logo.png", className: "prop-tower-star", xPercent: 36, yPercent: -45, delayOffset: 0.28, scale: 0.95 }
       ],
-      playHeroSound: (a) => a.playCatchItem(1.4)
+      playHeroSound: (a) => a.playPowerUp()
+    });
+
+    // 9. EL CAOS DEL TALLER MÁGICO (WorkshopChaosGame)
+    this.stories.set("workshop-chaos", {
+      gameId: "workshop-chaos",
+      gameTitle: "¡EL CAOS DEL TALLER MÁGICO!",
+      subTag: "¡MÁQUINA FUERA DE CONTROL!",
+      headline: "¡RESCATA LOS JUGUETES!",
+      tagline: "¡La máquina mágica escupe juguetes al aire! Tócalos antes de que caigan.",
+      pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
+      heroLayerImg: "./assets/images/icon-caos-taller.png",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 0,
+      props: [
+        { src: "./assets/images/cochecito-juguete.png", className: "prop-chaos-car", xPercent: -35, yPercent: -35, delayOffset: 0.14, scale: 0.9, rotateDeg: -15 },
+        { src: "./assets/images/robot.png", className: "prop-chaos-robot", xPercent: 35, yPercent: -38, delayOffset: 0.26, scale: 0.9, rotateDeg: 18 }
+      ],
+      playHeroSound: (a) => a.playCatchItem(1.2)
+    });
+
+    // 10. SALTO MÁGICO NAVIDEÑO (MagicJumpGame)
+    this.stories.set("magic-jump", {
+      gameId: "magic-jump",
+      gameTitle: "¡SALTO MÁGICO NAVIDEÑO!",
+      subTag: "¡ASCENSO A LAS NUBES!",
+      headline: "¡SALTA SIN PARAR!",
+      tagline: "¡Impúlsate de plataforma en plataforma hasta alcanzar la aurora boreal!",
+      pageIllustrationBg: "./assets/images/fondo-villa-montanas.jpg",
+      heroLayerImg: "./assets/images/elfo-saltador.png",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: -8,
+      props: [
+        { src: "./assets/images/regalo-estilizado-rojo.png", className: "prop-jump-gift", xPercent: -36, yPercent: -40, delayOffset: 0.15, scale: 0.85 },
+        { src: "./assets/images/estrella con logo.png", className: "prop-jump-star", xPercent: 36, yPercent: -55, delayOffset: 0.28, scale: 0.95 }
+      ],
+      playHeroSound: (a) => a.playElfFly()
+    });
+
+    // 11. EL EXPRESO POLAR MÁGICO (PolarExpressGame)
+    this.stories.set("polar-express", {
+      gameId: "polar-express",
+      gameTitle: "¡EL EXPRESO POLAR MÁGICO!",
+      subTag: "¡A TODA MÁQUINA POR LA NIEVE!",
+      headline: "¡CAMBIA DE VÍA!",
+      tagline: "¡Guía la locomotora navideña, recoge regalos y esquiva los obstáculos!",
+      pageIllustrationBg: "./assets/images/fondo-nieve.webp",
+      heroLayerImg: "./assets/images/icon-expreso-polar.png",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 4,
+      props: [
+        { src: "./assets/images/regalo-estilizado-dorado.png", className: "prop-train-gift", xPercent: 38, yPercent: -30, delayOffset: 0.16, scale: 0.9 },
+        { src: "./assets/images/obstaculo-muneco.png", className: "prop-train-snow", xPercent: -38, yPercent: -20, delayOffset: 0.28, scale: 0.85 }
+      ],
+      playHeroSound: (a) => a.playPowerUp()
+    });
+
+    // 12. ROMPE-HIELOS MÁGICO (IceBreakerGame)
+    this.stories.set("ice-breaker", {
+      gameId: "ice-breaker",
+      gameTitle: "¡ROMPE-HIELOS MÁGICO!",
+      subTag: "¡CRISTALES Y REGALOS!",
+      headline: "¡ROMPE EL HIELO!",
+      tagline: "¡Rebota la esfera dorada y libera los regalos congelados en el hielo!",
+      pageIllustrationBg: "./assets/images/fondo-villa-montanas.jpg",
+      heroLayerImg: "./assets/images/icon-rompe-hielos.png",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 2,
+      props: [
+        { src: "./assets/images/bola-amarilla.png", className: "prop-pin-ball1", xPercent: -35, yPercent: -42, delayOffset: 0.14, scale: 0.85 },
+        { src: "./assets/images/estrella con logo.png", className: "prop-pin-star", xPercent: 35, yPercent: -48, delayOffset: 0.26, scale: 0.95 }
+      ],
+      playHeroSound: (a) => a.playCatchItem(1.3)
+    });
+
+    // 13. BURBUJAS DE ADORNOS (OrnamentPopGame)
+    this.stories.set("ornament-pop", {
+      gameId: "ornament-pop",
+      gameTitle: "¡BURBUJAS DE ADORNOS!",
+      subTag: "¡CAÑÓN DE CARAMELO!",
+      headline: "¡JUNTA 3 ADORNOS!",
+      tagline: "¡Apunta y dispara adornos brillantes para despejar el árbol mágico!",
+      pageIllustrationBg: "./assets/images/fondo-villa-seamless.jpg",
+      heroLayerImg: "./assets/images/icon-burbujas-adornos.png",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 2,
+      props: [
+        { src: "./assets/images/bola-roja.png", className: "prop-pop-red", xPercent: -36, yPercent: -38, delayOffset: 0.14, scale: 0.85 },
+        { src: "./assets/images/bola-azul.png", className: "prop-pop-blue", xPercent: 36, yPercent: -38, delayOffset: 0.26, scale: 0.85 }
+      ],
+      playHeroSound: (a) => a.playCatchItem(1.25)
+    });
+
+    // 14. JUGUETERÍA MÁGICA (ToyMatchGame)
+    this.stories.set("toy-match", {
+      gameId: "toy-match",
+      gameTitle: "¡JUGUETERÍA MÁGICA!",
+      subTag: "¡VITRINA DE INGENIO!",
+      headline: "¡UNE 3 JUGUETES!",
+      tagline: "¡Intercambia juguetes iguales en la vitrina y desata combos brillantes!",
+      pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
+      heroLayerImg: "./assets/images/icon-jugueteria-magica.png",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 0,
+      props: [
+        { src: "./assets/images/osito.png", className: "prop-claw-gift1", xPercent: -35, yPercent: -30, delayOffset: 0.15, scale: 0.9 },
+        { src: "./assets/images/regalo-estilizado-dorado.png", className: "prop-claw-gift2", xPercent: 35, yPercent: -35, delayOffset: 0.28, scale: 0.95 }
+      ],
+      playHeroSound: (a) => a.playCatchItem(1.15)
+    });
+
+    // 15. ENTREGA POR LA CHIMENEA (ChimneyDropGame)
+    this.stories.set("santa-ski", {
+      gameId: "santa-ski",
+      gameTitle: "¡ESQUÍ ALPINO DE SANTA!",
+      subTag: "¡DESCENSO A TODA VELOCIDAD!",
+      headline: "¡DESLÍZATE POR LA NIEVE!",
+      tagline: "¡Santa compite en el gran eslalon de alta montaña! Cruza las banderas y salta en las rampas.",
+      pageIllustrationBg: "./assets/images/fondo-nieve.webp",
+      heroLayerImg: "./assets/images/icon-esqui-alpino.png",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 0,
+      props: [
+        { src: "./assets/images/rampa-esqui.png", className: "prop-ski-ramp", xPercent: -36, yPercent: -30, delayOffset: 0.15, scale: 0.85 },
+        { src: "./assets/images/puerta-eslalon.png", className: "prop-ski-gate", xPercent: 36, yPercent: -45, delayOffset: 0.28, scale: 0.95 }
+      ],
+      playHeroSound: (a) => a.playRunnerJump()
     });
   }
 

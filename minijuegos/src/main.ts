@@ -28,6 +28,18 @@ import { GameMenu } from "./components/GameMenu";
 import { GameOverModal } from "./components/GameOverModal";
 import { GameInstructionsModal } from "./components/GameInstructionsModal";
 import { GameStoryCinemaModal } from "./components/GameStoryCinemaModal";
+import { SantaSkiStoryTutorialModal } from "./components/SantaSkiStoryTutorialModal";
+import { ToyCatchStoryTutorialModal } from "./components/ToyCatchStoryTutorialModal";
+import { BellSymphonyStoryTutorialModal } from "./components/BellSymphonyStoryTutorialModal";
+import { FlyingElfStoryTutorialModal } from "./components/FlyingElfStoryTutorialModal";
+import { MagicPairsStoryTutorialModal } from "./components/MagicPairsStoryTutorialModal";
+import { SantaHillsStoryTutorialModal } from "./components/SantaHillsStoryTutorialModal";
+import { NutcrackerDrumsStoryTutorialModal } from "./components/NutcrackerDrumsStoryTutorialModal";
+import { SnowballTargetStoryTutorialModal } from "./components/SnowballTargetStoryTutorialModal";
+import { WorkshopChaosStoryTutorialModal } from "./components/WorkshopChaosStoryTutorialModal";
+import { PolarExpressStoryTutorialModal } from "./components/PolarExpressStoryTutorialModal";
+import { IceBreakerStoryTutorialModal } from "./components/IceBreakerStoryTutorialModal";
+import { OrnamentPopStoryTutorialModal } from "./components/OrnamentPopStoryTutorialModal";
 
 // Los Minijuegos Navideños
 import { ToyCatchGame } from "./games/ToyCatchGame";
@@ -39,10 +51,12 @@ import { SantaHillsGame } from "./games/SantaHillsGame";
 import { SnowballTargetGame } from "./games/SnowballTargetGame";
 import { WorkshopChaosGame } from "./games/WorkshopChaosGame";
 import { MagicJumpGame } from "./games/MagicJumpGame";
-import { ElfWhackGame } from "./games/ElfWhackGame";
-import { GiftSlashGame } from "./games/GiftSlashGame";
-import { SleighTossGame } from "./games/SleighTossGame";
-import { ChristmasSnakeGame } from "./games/ChristmasSnakeGame";
+import { GiftTowerGame } from "./games/GiftTowerGame";
+import { PolarExpressGame } from "./games/PolarExpressGame";
+import { IceBreakerGame } from "./games/IceBreakerGame";
+import { OrnamentPopGame } from "./games/OrnamentPopGame";
+import { ToyMatchGame } from "./games/ToyMatchGame";
+import { SantaSkiGame } from "./games/SantaSkiGame";
 import { getIconSvg } from "./utils/icons";
 import {
   initKioskNativeMode,
@@ -64,6 +78,18 @@ class KioskApp {
   public gameOverModal: GameOverModal;
   public instructionsModal: GameInstructionsModal;
   public storyModal: GameStoryCinemaModal;
+  public skiTutorialModal: SantaSkiStoryTutorialModal;
+  public toyCatchTutorialModal: ToyCatchStoryTutorialModal;
+  public bellTutorialModal: BellSymphonyStoryTutorialModal;
+  public elfTutorialModal: FlyingElfStoryTutorialModal;
+  public pairsTutorialModal: MagicPairsStoryTutorialModal;
+  public hillsTutorialModal: SantaHillsStoryTutorialModal;
+  public drumsTutorialModal: NutcrackerDrumsStoryTutorialModal;
+  public targetTutorialModal: SnowballTargetStoryTutorialModal;
+  public workshopTutorialModal: WorkshopChaosStoryTutorialModal;
+  public polarTutorialModal: PolarExpressStoryTutorialModal;
+  public iceTutorialModal: IceBreakerStoryTutorialModal;
+  public ornamentTutorialModal: OrnamentPopStoryTutorialModal;
 
   // Diagnóstico de modo kiosco nativo (Fase 4)
   public getKioskNativeStatus = getKioskNativeDiagnostics;
@@ -109,6 +135,18 @@ class KioskApp {
     this.gameOverModal = new GameOverModal("gameover-modal", this.audio);
     this.instructionsModal = new GameInstructionsModal("instructions-modal", this.audio);
     this.storyModal = new GameStoryCinemaModal("story-modal", this.audio);
+    this.skiTutorialModal = new SantaSkiStoryTutorialModal("santa-ski-tutorial-modal", this.audio);
+    this.toyCatchTutorialModal = new ToyCatchStoryTutorialModal("toy-catch-tutorial-modal", this.audio);
+    this.bellTutorialModal = new BellSymphonyStoryTutorialModal("bell-symphony-tutorial-modal", this.audio);
+    this.elfTutorialModal = new FlyingElfStoryTutorialModal("flying-elf-tutorial-modal", this.audio);
+    this.pairsTutorialModal = new MagicPairsStoryTutorialModal("magic-pairs-tutorial-modal", this.audio);
+    this.hillsTutorialModal = new SantaHillsStoryTutorialModal("santa-hills-tutorial-modal", this.audio);
+    this.drumsTutorialModal = new NutcrackerDrumsStoryTutorialModal("nutcracker-drums-tutorial-modal", this.audio);
+    this.targetTutorialModal = new SnowballTargetStoryTutorialModal("snowball-target-tutorial-modal", this.audio);
+    this.workshopTutorialModal = new WorkshopChaosStoryTutorialModal("workshop-chaos-tutorial-modal", this.audio);
+    this.polarTutorialModal = new PolarExpressStoryTutorialModal("polar-express-tutorial-modal", this.audio);
+    this.iceTutorialModal = new IceBreakerStoryTutorialModal("ice-breaker-tutorial-modal", this.audio);
+    this.ornamentTutorialModal = new OrnamentPopStoryTutorialModal("ornament-pop-tutorial-modal", this.audio);
 
     // 4. Instanciar los minijuegos disponibles
     this.registerGames();
@@ -248,16 +286,23 @@ class KioskApp {
     const game7 = new SnowballTargetGame(this.canvas, this.input, this.audio, this.particles);
     const game8 = new WorkshopChaosGame(this.canvas, this.input, this.audio, this.particles);
     const game9 = new MagicJumpGame(this.canvas, this.input, this.audio, this.particles);
-    const game10 = new ElfWhackGame(this.canvas, this.input, this.audio, this.particles);
-    const game11 = new GiftSlashGame(this.canvas, this.input, this.audio, this.particles);
-    const game12 = new SleighTossGame(this.canvas, this.input, this.audio, this.particles);
-    const game13 = new ChristmasSnakeGame(this.canvas, this.input, this.audio, this.particles);
+    const game10 = new GiftTowerGame(this.canvas, this.input, this.audio, this.particles);
+    const game11 = new PolarExpressGame(this.canvas, this.input, this.audio, this.particles);
+    const game12 = new IceBreakerGame(this.canvas, this.input, this.audio, this.particles);
+    const game13 = new OrnamentPopGame(this.canvas, this.input, this.audio, this.particles);
+    const game14 = new ToyMatchGame(this.canvas, this.input, this.audio, this.particles);
+    const game15 = new SantaSkiGame(this.canvas, this.input, this.audio, this.particles);
 
     // Conectar callback de Game Over de cada juego
-    [game1, game2, game3, game4, game5, game6, game7, game8, game9, game10, game11, game12, game13].forEach((g) => {
+    [game1, game2, game3, game4, game5, game6, game7, game8, game9, game10, game11, game12, game13, game14, game15].forEach((g) => {
       g.onGameOver = (result: GameResult) => this.handleGameOver(result);
       this.games.set(g.id, g);
     });
+
+    const skiGame = game15 as SantaSkiGame;
+    skiGame.onOpenTutorial = () => {
+      this.skiTutorialModal.show(0);
+    };
   }
 
   /**
@@ -311,15 +356,246 @@ class KioskApp {
         gameInfo,
         this.particles,
         () => {
-          // Punto medio: Pantalla cubierta. Revelar directamente el modal de instrucciones rápidas
+          // Punto medio: Pantalla cubierta.
           this.gameMenu.hide();
-          this.instructionsModal.show(gameId);
+          if (gameId === "toy-catch") {
+            if (!this.toyCatchTutorialModal.hasSeenTutorial()) {
+              this.toyCatchTutorialModal.show(0);
+            } else {
+              this.instructionsModal.show(gameId);
+            }
+          } else if (gameId === "santa-ski") {
+            const hasSeenSki = localStorage.getItem("santa_ski_story_tutorial_seen") === "true";
+            if (!hasSeenSki) {
+              this.skiTutorialModal.show(0);
+            } else {
+              this.instructionsModal.show(gameId);
+            }
+          } else if (gameId === "bell-symphony") {
+            if (!this.bellTutorialModal.hasSeenTutorial()) {
+              this.bellTutorialModal.show(0);
+            } else {
+              this.instructionsModal.show(gameId);
+            }
+          } else if (gameId === "flying-elf") {
+            if (!this.elfTutorialModal.hasSeenTutorial()) {
+              this.elfTutorialModal.show(0);
+            } else {
+              this.instructionsModal.show(gameId);
+            }
+          } else if (gameId === "magic-pairs") {
+            if (!this.pairsTutorialModal.hasSeenTutorial()) {
+              this.pairsTutorialModal.show(0);
+            } else {
+              this.instructionsModal.show(gameId);
+            }
+          } else if (gameId === "santa-hills") {
+            if (!this.hillsTutorialModal.hasSeenTutorial()) {
+              this.hillsTutorialModal.show(0);
+            } else {
+              this.instructionsModal.show(gameId);
+            }
+          } else if (gameId === "tree-melody") {
+            if (!this.drumsTutorialModal.hasSeenTutorial()) {
+              this.drumsTutorialModal.show(0);
+            } else {
+              this.instructionsModal.show(gameId);
+            }
+          } else if (gameId === "snowball-target") {
+            if (!this.targetTutorialModal.hasSeenTutorial()) {
+              this.targetTutorialModal.show(0);
+            } else {
+              this.instructionsModal.show(gameId);
+            }
+          } else if (gameId === "ice-breaker") {
+            if (!this.iceTutorialModal.hasSeenTutorial()) {
+              this.iceTutorialModal.show(0);
+            } else {
+              this.instructionsModal.show(gameId);
+            }
+          } else if (gameId === "ornament-pop") {
+            if (!this.ornamentTutorialModal.hasSeenTutorial()) {
+              this.ornamentTutorialModal.show(0);
+            } else {
+              this.instructionsModal.show(gameId);
+            }
+          } else if (gameId === "polar-express") {
+            if (!this.polarTutorialModal.hasSeenTutorial()) {
+              this.polarTutorialModal.show(0);
+            } else {
+              this.instructionsModal.show(gameId);
+            }
+          } else if (gameId === "workshop-chaos") {
+            if (!this.workshopTutorialModal.hasSeenTutorial()) {
+              this.workshopTutorialModal.show(0);
+            } else {
+              this.instructionsModal.show(gameId);
+            }
+          } else {
+            this.instructionsModal.show(gameId);
+          }
         },
         () => {
           // Las garras terminan de desgarrar
           this.isTransitioning = false;
         }
       );
+    };
+
+    // Callbacks del Tutorial Animado de Atrapa-Regalos Mágico
+    this.toyCatchTutorialModal.onPlayGame = () => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown("toy-catch");
+    };
+
+    this.toyCatchTutorialModal.onClose = () => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show("toy-catch");
+      }
+    };
+
+    // Callbacks del Tutorial Animado de Esquí Alpino de Santa
+    this.skiTutorialModal.onPlayGame = () => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown("santa-ski");
+    };
+
+    this.skiTutorialModal.onClose = () => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show("santa-ski");
+      }
+    };
+
+    // Callbacks del Tutorial Animado de Sinfonía de Campanas
+    this.bellTutorialModal.onPlayGame = () => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown("bell-symphony");
+    };
+
+    this.bellTutorialModal.onClose = () => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show("bell-symphony");
+      }
+    };
+
+    // Callbacks del Tutorial Animado de El Vuelo Mágico del Elfo
+    this.elfTutorialModal.onPlayGame = () => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown("flying-elf");
+    };
+
+    this.elfTutorialModal.onClose = () => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show("flying-elf");
+      }
+    };
+
+    // Callbacks del Tutorial Animado de Parejas Mágicas de Juguetes
+    this.pairsTutorialModal.onPlayGame = () => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown("magic-pairs");
+    };
+
+    this.pairsTutorialModal.onClose = () => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show("magic-pairs");
+      }
+    };
+
+    // Callbacks del Tutorial Animado de El Descenso de Santa
+    this.hillsTutorialModal.onPlayGame = () => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown("santa-hills");
+    };
+
+    this.hillsTutorialModal.onClose = () => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show("santa-hills");
+      }
+    };
+
+    // Callbacks del Tutorial Animado de Tambores del Cascanueces
+    this.drumsTutorialModal.onPlayGame = () => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown("tree-melody");
+    };
+
+    this.drumsTutorialModal.onClose = () => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show("tree-melody");
+      }
+    };
+
+    // Callbacks del Tutorial Animado de Tiro al Blanco Navideño
+    this.targetTutorialModal.onPlayGame = () => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown("snowball-target");
+    };
+
+    this.targetTutorialModal.onClose = () => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show("snowball-target");
+      }
+    };
+
+    // Callbacks del Tutorial Animado de ¡Rompe-Hielos Mágico!
+    this.iceTutorialModal.onPlayGame = () => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown("ice-breaker");
+    };
+
+    this.iceTutorialModal.onClose = () => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show("ice-breaker");
+      }
+    };
+
+    // Callbacks del Tutorial Animado de ¡Burbujas de Adornos!
+    this.ornamentTutorialModal.onPlayGame = () => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown("ornament-pop");
+    };
+
+    this.ornamentTutorialModal.onClose = () => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show("ornament-pop");
+      }
+    };
+
+    // Callbacks del Tutorial Animado de ¡El Expreso Polar Mágico!
+    this.polarTutorialModal.onPlayGame = () => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown("polar-express");
+    };
+
+    this.polarTutorialModal.onClose = () => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show("polar-express");
+      }
+    };
+
+    // Callbacks del Tutorial Animado de ¡El Caos del Taller Mágico!
+    this.workshopTutorialModal.onPlayGame = () => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown("workshop-chaos");
+    };
+
+    this.workshopTutorialModal.onClose = () => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show("workshop-chaos");
+      }
     };
 
     // Al terminar la mini-historia animada → Mostrar el modal de instrucciones rápidas
@@ -342,10 +618,36 @@ class KioskApp {
       }
     };
 
-    // Si desde el modal de instrucciones el usuario quiere volver a ver la historia
+    // Si desde el modal de instrucciones el usuario quiere volver a ver la historia o tutorial animado
     this.instructionsModal.onWatchStory = (gameId: string) => {
       this.instructionsModal.hide();
-      this.storyModal.show(gameId);
+      if (gameId === "toy-catch") {
+        this.toyCatchTutorialModal.show(0);
+      } else if (gameId === "santa-ski") {
+        this.skiTutorialModal.show(0);
+      } else if (gameId === "bell-symphony") {
+        this.bellTutorialModal.show(0);
+      } else if (gameId === "flying-elf") {
+        this.elfTutorialModal.show(0);
+      } else if (gameId === "magic-pairs") {
+        this.pairsTutorialModal.show(0);
+      } else if (gameId === "santa-hills") {
+        this.hillsTutorialModal.show(0);
+      } else if (gameId === "tree-melody") {
+        this.drumsTutorialModal.show(0);
+      } else if (gameId === "snowball-target") {
+        this.targetTutorialModal.show(0);
+      } else if (gameId === "ice-breaker") {
+        this.iceTutorialModal.show(0);
+      } else if (gameId === "ornament-pop") {
+        this.ornamentTutorialModal.show(0);
+      } else if (gameId === "polar-express") {
+        this.polarTutorialModal.show(0);
+      } else if (gameId === "workshop-chaos") {
+        this.workshopTutorialModal.show(0);
+      } else {
+        this.storyModal.show(gameId);
+      }
     };
 
     // 4. Cuando el usuario confirma "¡A JUGAR! ▶" en el modal de instrucciones
@@ -531,11 +833,12 @@ class KioskApp {
       "snowball-target": { title: "Tiro al Blanco Navideño", icon: getIconSvg("target", { size: 36, color: "#00E676" }), themeColor: "#00E676" },
       "workshop-chaos": { title: "¡El Caos del Taller Mágico!", icon: getIconSvg("sparkles", { size: 36, color: "#FF9100" }), themeColor: "#FF9100" },
       "magic-jump": { title: "¡Salto Mágico Navideño!", icon: getIconSvg("sparkles", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" },
-      "elf-whack": { title: "¡Golpea al Duende!", icon: getIconSvg("target", { size: 36, color: "#FF1744" }), themeColor: "#FF1744" },
-      "gift-slash": { title: "¡Corta-Regalos Navideño!", icon: getIconSvg("sparkles", { size: 36, color: "#00E676" }), themeColor: "#00E676" },
-      "sleigh-toss": { title: "¡Lanza-Regalos al Trineo!", icon: getIconSvg("gift", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" },
-      "christmas-snake": { title: "¡Serpiente de Luces!", icon: getIconSvg("sparkles", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" },
-      "polar-express": { title: "¡El Expreso Polar Mágico!", icon: getIconSvg("sparkles", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" }
+      "gift-tower": { title: "¡Torre de Regalos Mágica!", icon: getIconSvg("gift", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" },
+      "polar-express": { title: "¡El Expreso Polar Mágico!", icon: getIconSvg("sparkles", { size: 36, color: "#FF2A4D" }), themeColor: "#FF2A4D" },
+      "ice-breaker": { title: "¡Rompe-Hielos Mágico!", icon: getIconSvg("snowflake", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
+      "ornament-pop": { title: "¡Burbujas de Adornos!", icon: getIconSvg("star", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" },
+      "toy-match": { title: "¡Juguetería Mágica!", icon: getIconSvg("sparkles", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" },
+      "santa-ski": { title: "¡Esquí Alpino de Santa!", icon: getIconSvg("sparkles", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" }
     };
     return map[gameId] || { title: "Minijuego Mágico", icon: getIconSvg("tree", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" };
   }

@@ -127,44 +127,64 @@ export class GameMenu {
       gemColor: "#00E5FF"
     },
     {
-      id: "elf-whack",
-      title: "¡Golpea al Duende!",
-      imageSrc: "./assets/images/icon-aldea-elfos.png",
+      id: "gift-tower",
+      title: "¡Torre de Regalos Mágica!",
+      imageSrc: "./assets/images/icon-torre-regalos.png",
       frameImageSrc: "./assets/images/marco-juego-rojo.png",
       themeClass: "theme-wood-red",
-      category: "REFLEJOS & ACCIÓN",
-      tagline: "¡Atrapa a los duendes traviesos en las chimeneas!",
-      gemColor: "#FF1744"
+      category: "EQUILIBRIO & APILADO",
+      tagline: "¡Apila los regalos con la grúa mágica y crea la torre más alta!",
+      gemColor: "#FFD700"
     },
     {
-      id: "gift-slash",
-      title: "¡Corta-Regalos Navideño!",
-      imageSrc: "./assets/images/icon-regalos-magicos.png",
+      id: "polar-express",
+      title: "¡El Expreso Polar Mágico!",
+      imageSrc: "./assets/images/icon-expreso-polar.png",
       frameImageSrc: "./assets/images/marco-juego-verde.png",
       themeClass: "theme-forest-green",
-      category: "CORTE & REFLEJOS",
-      tagline: "¡Rebana los paquetes en el aire y evita el carbón!",
+      category: "CARRERA & REFLEJOS",
+      tagline: "¡Cambia de vía, recoge regalos y esquiva obstáculos!",
       gemColor: "#00E676"
     },
     {
-      id: "sleigh-toss",
-      title: "¡Lanza-Regalos al Trineo!",
-      imageSrc: "./assets/images/icon-lanza-regalos.png",
+      id: "ice-breaker",
+      title: "¡Rompe-Hielos Mágico!",
+      imageSrc: "./assets/images/icon-rompe-hielos.png",
+      frameImageSrc: "./assets/images/marco-juego-morado.png",
+      themeClass: "theme-magic-purple",
+      category: "ARCADE & BLOQUES",
+      tagline: "¡Rebota la esfera dorada y rompe los bloques de cristal!",
+      gemColor: "#D500F9"
+    },
+    {
+      id: "ornament-pop",
+      title: "¡Burbujas de Adornos!",
+      imageSrc: "./assets/images/icon-burbujas-adornos.png",
+      frameImageSrc: "./assets/images/marco-juego-azul.png",
+      themeClass: "theme-stone-blue",
+      category: "PUZZLE & PUNTERÍA",
+      tagline: "¡Junta 3 adornos del mismo color para reventarlos!",
+      gemColor: "#00E5FF"
+    },
+    {
+      id: "toy-match",
+      title: "¡Juguetería Mágica!",
+      imageSrc: "./assets/images/icon-jugueteria-magica.png",
       frameImageSrc: "./assets/images/marco-juego-rojo.png",
       themeClass: "theme-wood-red",
-      category: "PUNTERÍA & CANASTA",
-      tagline: "¡Encesta los regalos en el trineo volador de Santa!",
+      category: "PUZZLE & COMBOS",
+      tagline: "¡Intercambia juguetes y une 3 o más en la vitrina!",
       gemColor: "#FFD700"
     },
     {
-      id: "christmas-snake",
-      title: "¡Serpiente de Luces!",
-      imageSrc: "./assets/images/icon-serpiente-luces.png",
+      id: "santa-ski",
+      title: "¡Esquí Alpino de Santa!",
+      imageSrc: "./assets/images/icon-esqui-alpino.png",
       frameImageSrc: "./assets/images/marco-juego-azul.png",
       themeClass: "theme-stone-blue",
-      category: "CLÁSICO ARCADE",
-      tagline: "¡Guía la guirnalda de luces y come galletas!",
-      gemColor: "#FFD700"
+      category: "VELOCIDAD & DESTREZA",
+      tagline: "¡Desciende por las pistas alpinas, cruza eslalons y salta en rampas!",
+      gemColor: "#00E5FF"
     }
   ];
 

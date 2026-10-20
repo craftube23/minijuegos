@@ -24,6 +24,7 @@ export interface HUDState {
   lives: number;
   maxLives: number;
   showLives: boolean;
+  showTimer?: boolean;
   isLogoPowerUpActive: boolean;
   logoPowerUpTimer: number;
   activeLogo: LogoConfig;
@@ -166,7 +167,8 @@ export class GameHUD {
       // Record en extremo derecho
       const recordPlaqueX = Math.round(state.width - paddingX - recordPlaqueW);
       // Clock a la izquierda de Record
-      const clockPlaqueX = Math.round(recordPlaqueX - 6 - clockPlaqueW);
+      const hasTimer = state.showTimer !== false && state.timeRemaining <= 3600;
+      const clockPlaqueX = hasTimer ? Math.round(recordPlaqueX - 6 - clockPlaqueW) : recordPlaqueX;
 
       // El centro de vidas se ubica centrado en el espacio restante entre Score y Clock
       const spaceBetween = clockPlaqueX - (scorePlaqueX + scorePlaqueW);
@@ -200,6 +202,7 @@ export class GameHUD {
       }
 
       // 4. CRONÓMETRO CON ICONO VECTORIAL (Sin emojis para evitar Skia GPU atlas fallback)
+      if (hasTimer) {
       ctx.save();
       ctx.fillStyle = isUrgent ? "rgba(127, 29, 29, 0.70)" : "rgba(0, 0, 0, 0.45)";
       ctx.beginPath();
@@ -222,6 +225,7 @@ export class GameHUD {
       ctx.fillText(timeFormatted, clockIconX + clockIconR + 4, plaqueY + plaqueH / 2);
       ctx.restore();
 
+      }
       // 5. RÉCORD / TOP (Derecha - Placa de Honor Esmeralda)
       ctx.save();
       ctx.fillStyle = "rgba(6, 78, 59, 0.65)";
