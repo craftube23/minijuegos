@@ -98,19 +98,11 @@ export class PolarExpressStoryTutorialModal {
   }
 
   public hasSeenTutorial(): boolean {
-    try {
-      return localStorage.getItem("polar_express_story_tutorial_seen") === "true";
-    } catch {
-      return false;
-    }
+    return false;
   }
 
   public markTutorialSeen(): void {
-    try {
-      localStorage.setItem("polar_express_story_tutorial_seen", "true");
-    } catch {
-      // Ignorar si hay restricciones
-    }
+    // Siempre mostrar
   }
 
   public show(step: number = 0): void {
@@ -182,13 +174,7 @@ export class PolarExpressStoryTutorialModal {
         <div class="ski-tutorial-body" id="polar-tutorial-body"></div>
 
         <div class="ski-tutorial-footer">
-          <div class="ski-remember-box">
-            <label class="ski-checkbox-container">
-              <input type="checkbox" id="chk-polar-dont-show-again" />
-              <span class="ski-checkmark"></span>
-              <span class="ski-chk-label">No mostrar automáticamente</span>
-            </label>
-          </div>
+          
 
           <div class="ski-nav-buttons">
             <button id="btn-polar-prev" class="btn-ski-nav btn-ski-prev" disabled>

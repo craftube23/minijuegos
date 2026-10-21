@@ -107,19 +107,11 @@ export class SantaSkiStoryTutorialModal {
   }
 
   public hasSeenTutorial(): boolean {
-    try {
-      return localStorage.getItem("santa_ski_story_tutorial_seen") === "true";
-    } catch {
-      return false;
-    }
+    return false;
   }
 
   public markTutorialSeen(): void {
-    try {
-      localStorage.setItem("santa_ski_story_tutorial_seen", "true");
-    } catch {
-      // Ignorar si hay restricciones
-    }
+    // Siempre mostrar
   }
 
   public show(step: number = 0): void {
@@ -194,13 +186,7 @@ export class SantaSkiStoryTutorialModal {
 
         <!-- Pie de navegación y acción -->
         <div class="ski-tutorial-footer">
-          <div class="ski-remember-box">
-            <label class="ski-checkbox-container">
-              <input type="checkbox" id="chk-ski-dont-show-again" />
-              <span class="ski-checkmark"></span>
-              <span class="ski-chk-label">No mostrar automáticamente</span>
-            </label>
-          </div>
+          
 
           <div class="ski-nav-buttons">
             <button id="btn-ski-prev" class="btn-ski-nav btn-ski-prev" disabled>

@@ -771,12 +771,6 @@ export class BellSymphonyGame extends BaseGame {
         return;
       }
     }
-
-    // Botón de Modo Grabador / Editor de Canción
-    if (x >= layout.cardX && x <= layout.cardX + layout.cardW && y >= layout.editorBtnY && y <= layout.editorBtnY + layout.editorBtnH) {
-      this.audio.playTap();
-      this.openChartEditor();
-    }
   }
 
   private setupKeyboard(): void {
@@ -813,7 +807,6 @@ export class BellSymphonyGame extends BaseGame {
         else if (e.key === "5") this.startSong(4);
         else if (e.key === "6") this.startSong(5);
         else if (e.key === "7" && this.songList.length >= 7) this.startSong(6);
-        else if (e.key === "x" || e.key === "X") this.openChartEditor();
         else if (e.key === "Enter" || e.key === " ") this.startSong(this.selectedSongIndex);
         return;
       }
@@ -2379,34 +2372,6 @@ export class BellSymphonyGame extends BaseGame {
         ctx.restore();
       }
     }
-
-    // Botón Modo Grabador / Editor
-    const editorBtnY = layout.editorBtnY;
-    const editorBtnH = layout.editorBtnH;
-
-    const btnGrad = ctx.createLinearGradient(cardX, editorBtnY, cardX + cardW, editorBtnY);
-    btnGrad.addColorStop(0, "#FF8F00");
-    btnGrad.addColorStop(0.5, "#FFD700");
-    btnGrad.addColorStop(1, "#FF8F00");
-
-    ctx.fillStyle = btnGrad;
-    ctx.beginPath();
-    ctx.roundRect(cardX, editorBtnY, cardW, editorBtnH, 12);
-    ctx.fill();
-
-    ctx.lineWidth = 2.0;
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.stroke();
-
-    ctx.font = `900 ${Math.max(10, Math.min(13, editorBtnH * 0.35))}px 'Outfit', sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#041424";
-    ctx.fillText("MODO GRABADOR / EDITOR DE RITMO", cx, editorBtnY + editorBtnH * 0.38);
-
-    ctx.font = `700 ${Math.max(8, Math.min(10, editorBtnH * 0.25))}px 'Outfit', sans-serif`;
-    ctx.fillStyle = "#041424";
-    ctx.fillText("Graba notas normales y sostenidas • Pulsa [ X ]", cx, editorBtnY + editorBtnH * 0.74);
 
     ctx.restore();
   }

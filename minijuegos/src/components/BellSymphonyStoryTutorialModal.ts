@@ -99,19 +99,11 @@ export class BellSymphonyStoryTutorialModal {
   }
 
   public hasSeenTutorial(): boolean {
-    try {
-      return localStorage.getItem("feria_tutorial_seen_bell-symphony") === "true";
-    } catch {
-      return false;
-    }
+    return false;
   }
 
   public markTutorialSeen(): void {
-    try {
-      localStorage.setItem("feria_tutorial_seen_bell-symphony", "true");
-    } catch {
-      // Ignorar si hay restricciones de almacenamiento
-    }
+    // Siempre mostrar
   }
 
   public show(step: number = 0): void {
@@ -197,13 +189,7 @@ export class BellSymphonyStoryTutorialModal {
 
         <!-- Pie de navegación y acción -->
         <div class="ski-tutorial-footer">
-          <div class="ski-remember-box">
-            <label class="ski-checkbox-container">
-              <input type="checkbox" id="chk-bell-dont-show-again" />
-              <span class="ski-checkmark"></span>
-              <span class="ski-chk-label">No mostrar automáticamente</span>
-            </label>
-          </div>
+          
 
           <div class="ski-nav-buttons">
             <button id="btn-bell-prev" class="btn-ski-nav btn-ski-prev" disabled>

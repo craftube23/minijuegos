@@ -66,20 +66,12 @@ export class UniversalStoryTutorialModal {
     this.setupEvents();
   }
 
-  public hasSeenTutorial(gameId: string): boolean {
-    try {
-      return localStorage.getItem(`feria_tutorial_seen_${gameId}`) === "true";
-    } catch {
-      return false;
-    }
+  public hasSeenTutorial(_gameId: string): boolean {
+    return false;
   }
 
-  public markTutorialSeen(gameId: string): void {
-    try {
-      localStorage.setItem(`feria_tutorial_seen_${gameId}`, "true");
-    } catch {
-      // Ignorar
-    }
+  public markTutorialSeen(_gameId: string): void {
+    // Siempre mostrar
   }
 
   public show(gameId: string, initialStep: number = 0): void {
@@ -167,13 +159,7 @@ export class UniversalStoryTutorialModal {
 
         <!-- Pie de navegación y acción -->
         <div class="ski-tutorial-footer">
-          <div class="ski-remember-box">
-            <label class="ski-checkbox-container">
-              <input type="checkbox" id="chk-tut-dont-show-again" />
-              <span class="ski-checkmark"></span>
-              <span class="ski-chk-label">No mostrar automáticamente</span>
-            </label>
-          </div>
+          
 
           <div class="ski-nav-buttons">
             <button id="btn-tut-prev" class="btn-ski-nav btn-ski-prev" disabled>

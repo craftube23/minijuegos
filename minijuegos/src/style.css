@@ -11339,3 +11339,13 @@ html, body {
 
 
 
+
+/* Ocultar definitivamente la opción de no volver a mostrar tutorial */
+.ski-remember-box, .ski-checkbox-container {
+  display: none !important;
+}
+
+/* Ocultar permanentemente la opción de no volver a mostrar tutorial */
+.ski-remember-box, .ski-checkbox-container {
+  display: none !important;
+}

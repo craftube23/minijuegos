@@ -40,6 +40,7 @@ import { WorkshopChaosStoryTutorialModal } from "./components/WorkshopChaosStory
 import { PolarExpressStoryTutorialModal } from "./components/PolarExpressStoryTutorialModal";
 import { IceBreakerStoryTutorialModal } from "./components/IceBreakerStoryTutorialModal";
 import { OrnamentPopStoryTutorialModal } from "./components/OrnamentPopStoryTutorialModal";
+import { UniversalStoryTutorialModal } from "./components/UniversalStoryTutorialModal";
 
 // Los Minijuegos Navideños
 import { ToyCatchGame } from "./games/ToyCatchGame";
@@ -90,6 +91,7 @@ class KioskApp {
   public polarTutorialModal: PolarExpressStoryTutorialModal;
   public iceTutorialModal: IceBreakerStoryTutorialModal;
   public ornamentTutorialModal: OrnamentPopStoryTutorialModal;
+  public universalTutorialModal: UniversalStoryTutorialModal;
 
   // Diagnóstico de modo kiosco nativo (Fase 4)
   public getKioskNativeStatus = getKioskNativeDiagnostics;
@@ -147,6 +149,7 @@ class KioskApp {
     this.polarTutorialModal = new PolarExpressStoryTutorialModal("polar-express-tutorial-modal", this.audio);
     this.iceTutorialModal = new IceBreakerStoryTutorialModal("ice-breaker-tutorial-modal", this.audio);
     this.ornamentTutorialModal = new OrnamentPopStoryTutorialModal("ornament-pop-tutorial-modal", this.audio);
+    this.universalTutorialModal = new UniversalStoryTutorialModal("universal-story-tutorial-modal", this.audio);
 
     // 4. Instanciar los minijuegos disponibles
     this.registerGames();
@@ -364,80 +367,31 @@ class KioskApp {
           // Punto medio: Pantalla cubierta.
           this.gameMenu.hide();
           if (gameId === "toy-catch") {
-            if (!this.toyCatchTutorialModal.hasSeenTutorial()) {
-              this.toyCatchTutorialModal.show(0);
-            } else {
-              this.instructionsModal.show(gameId);
-            }
+            this.toyCatchTutorialModal.show(0);
           } else if (gameId === "santa-ski") {
-            const hasSeenSki = localStorage.getItem("santa_ski_story_tutorial_seen") === "true";
-            if (!hasSeenSki) {
-              this.skiTutorialModal.show(0);
-            } else {
-              this.instructionsModal.show(gameId);
-            }
+            this.skiTutorialModal.show(0);
           } else if (gameId === "bell-symphony") {
-            if (!this.bellTutorialModal.hasSeenTutorial()) {
-              this.bellTutorialModal.show(0);
-            } else {
-              this.instructionsModal.show(gameId);
-            }
+            this.bellTutorialModal.show(0);
           } else if (gameId === "flying-elf") {
-            if (!this.elfTutorialModal.hasSeenTutorial()) {
-              this.elfTutorialModal.show(0);
-            } else {
-              this.instructionsModal.show(gameId);
-            }
+            this.elfTutorialModal.show(0);
           } else if (gameId === "magic-pairs") {
-            if (!this.pairsTutorialModal.hasSeenTutorial()) {
-              this.pairsTutorialModal.show(0);
-            } else {
-              this.instructionsModal.show(gameId);
-            }
+            this.pairsTutorialModal.show(0);
           } else if (gameId === "santa-hills") {
-            if (!this.hillsTutorialModal.hasSeenTutorial()) {
-              this.hillsTutorialModal.show(0);
-            } else {
-              this.instructionsModal.show(gameId);
-            }
+            this.hillsTutorialModal.show(0);
           } else if (gameId === "tree-melody") {
-            if (!this.drumsTutorialModal.hasSeenTutorial()) {
-              this.drumsTutorialModal.show(0);
-            } else {
-              this.instructionsModal.show(gameId);
-            }
+            this.drumsTutorialModal.show(0);
           } else if (gameId === "snowball-target") {
-            if (!this.targetTutorialModal.hasSeenTutorial()) {
-              this.targetTutorialModal.show(0);
-            } else {
-              this.instructionsModal.show(gameId);
-            }
+            this.targetTutorialModal.show(0);
           } else if (gameId === "ice-breaker") {
-            if (!this.iceTutorialModal.hasSeenTutorial()) {
-              this.iceTutorialModal.show(0);
-            } else {
-              this.instructionsModal.show(gameId);
-            }
+            this.iceTutorialModal.show(0);
           } else if (gameId === "ornament-pop") {
-            if (!this.ornamentTutorialModal.hasSeenTutorial()) {
-              this.ornamentTutorialModal.show(0);
-            } else {
-              this.instructionsModal.show(gameId);
-            }
+            this.ornamentTutorialModal.show(0);
           } else if (gameId === "polar-express") {
-            if (!this.polarTutorialModal.hasSeenTutorial()) {
-              this.polarTutorialModal.show(0);
-            } else {
-              this.instructionsModal.show(gameId);
-            }
+            this.polarTutorialModal.show(0);
           } else if (gameId === "workshop-chaos") {
-            if (!this.workshopTutorialModal.hasSeenTutorial()) {
-              this.workshopTutorialModal.show(0);
-            } else {
-              this.instructionsModal.show(gameId);
-            }
+            this.workshopTutorialModal.show(0);
           } else {
-            this.instructionsModal.show(gameId);
+            this.universalTutorialModal.show(gameId, 0);
           }
         },
         () => {
@@ -571,6 +525,19 @@ class KioskApp {
       this.launchGameWithCountdown("ornament-pop");
     };
 
+        // Callbacks del Tutorial Universal
+    this.universalTutorialModal.onPlayGame = (gameId: string) => {
+      this.isTransitioning = true;
+      this.audio.stopMenuBGM();
+      this.launchGameWithCountdown(gameId);
+    };
+
+    this.universalTutorialModal.onClose = (gameId: string) => {
+      if (this.appState === "menu") {
+        this.instructionsModal.show(gameId);
+      }
+    };
+
     this.ornamentTutorialModal.onClose = () => {
       if (this.appState === "menu") {
         this.instructionsModal.show("ornament-pop");
@@ -651,7 +618,7 @@ class KioskApp {
       } else if (gameId === "workshop-chaos") {
         this.workshopTutorialModal.show(0);
       } else {
-        this.storyModal.show(gameId);
+        this.universalTutorialModal.show(gameId, 0);
       }
     };
 
