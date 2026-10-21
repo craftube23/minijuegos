@@ -229,7 +229,7 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
     title: "¡Burbujas de Adornos!",
     iconName: "star",
     themeColor: "#00E5FF",
-    goal: "¡Revienta los adornos del árbol! Apunta el cañón de caramelo y junta 3 o más adornos del mismo color. Los que queden colgando caerán como una lluvia de puntos.",
+    goal: "¡Supera los 8 Niveles Navideños sin reloj! Apunta con la silueta fantasma y junta 3 o más adornos del mismo color para reventarlos.",
     positiveItems: [
       { iconName: "gift", label: "Grupo de 3 o más adornos (+50 pts por adorno)" },
       { iconName: "sparkles", label: "Adornos que caen (+80 pts cada uno)" },
@@ -239,7 +239,7 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
       { iconName: "flame", label: "Disparos sin acierto (bajan nuevas filas de adornos)" },
       { iconName: "skull", label: "Adornos en la línea roja (fin de la partida)" }
     ],
-    controls: "Arrastra para apuntar y suelta para disparar, o usa [ ◄ / ► ] y [ Espacio ]"
+    controls: "Arrastra para apuntar con la silueta fantasma y suelta para disparar. Toca la canasta o pulsa [ C ] para cambiar esfera."
   },
   "toy-match": {
     id: "toy-match",

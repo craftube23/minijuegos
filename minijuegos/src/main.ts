@@ -299,6 +299,11 @@ class KioskApp {
       this.games.set(g.id, g);
     });
 
+    const ornamentGame = game13 as OrnamentPopGame;
+    ornamentGame.onOpenTutorial = () => {
+      this.ornamentTutorialModal.show(0);
+    };
+
     const skiGame = game15 as SantaSkiGame;
     skiGame.onOpenTutorial = () => {
       this.skiTutorialModal.show(0);

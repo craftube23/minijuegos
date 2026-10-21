@@ -4,22 +4,33 @@
  * ==============================================================================
  * Dirección de Arte: Stylized 2D Game Art / Fantasy Game Concept Art
  *
- * Novedades de la Reestructuración Deluxe:
- * - Cañón Lanzador Mágico articulado con sprites dedicados ('canon-adornos-tubo.png'
- *   y 'canon-adornos-base.png'), retroceso físico y fogonazo estelar al disparar.
+ * Características Deluxe:
+ * - SIN LÍMITE DE TIEMPO (showTimer = false): ¡Juega a tu ritmo por niveles!
+ * - 8 NIVELES CON DISEÑOS NAVIDEÑOS ÚNICOS:
+ *   1. El Gran Pino Navideño
+ *   2. La Campana Dorada
+ *   3. La Estrella de Belén
+ *   4. El Bastón de Caramelo
+ *   5. El Muñeco de Nieve
+ *   6. La Corona Real de Adviento
+ *   7. El Regalo Sorpresa de Santa
+ *   8. El Copo Glacial Mágico
+ * - Cañón Lanzador Mágico articulado con retroceso físico ('canon-adornos-tubo.png'
+ *   y 'canon-adornos-base.png').
  * - 5 Colores de Adornos Navideños ('bola-roja', 'bola-azul', 'bola-verde',
- *   'bola-amarilla' y la nueva 'bola-morada' Amatista Real).
- * - 4 Esferas de Poder Especiales:
+ *   'bola-amarilla' y 'bola-morada' Amatista Real).
+ * - 4 Esferas Especiales:
  *   1. Esfera Estrella Arcoíris ('bola-arcoiris.png'): Comodín que revienta todos
- *      los colores adyacentes al punto de impacto.
- *   2. Bola Bomba de Confeti ('bola-bomba.png'): Detona un radio de 2 anillos.
- *   3. Esfera Rayo Boreal ('bola-rayo.png'): Electrocuta toda la fila horizontal.
- *   4. Esfera Dorada de Patrocinador: Súper explosión solar (+400 pts).
- * - Canasta Interactiva "CAMBIAR" con Elfo Ayudante: toca la canasta o presiona
- *   [C / Shift / Abajo] para intercambiar el adorno actual con el siguiente.
- * - Mira Láser Predictiva con Silueta Fantasma del hexágono exacto de aterrizaje.
- * - 5 Cajas Colectoras de Regalos en la base (x2, x3, x5, x3, x2) que atrapan
- *   los adornos que caen colgando para otorgar súper bonificaciones.
+ *      los colores vecinos.
+ *   2. Bola Bomba de Confeti ('bola-bomba.png'): Detona en radio de 2 anillos.
+ *   3. Esfera Rayo Boreal ('bola-rayo.png'): Limpia toda la fila horizontal.
+ *   4. Esfera Dorada de Patrocinador: Súper explosión solar (+420 pts).
+ * - Canasta de Intercambio "CAMBIAR" con Elfo Ayudante: toca la canasta o pulsa
+ *   [C / Shift / Espacio] para alternar la esfera actual con la siguiente.
+ * - Cancelación segura de tiro: si arrastras el dedo hacia abajo del cañón,
+ *   el disparo se cancela limpiamente sin disparar accidentalmente.
+ * - Mira Láser Predictiva con Silueta Fantasma del hexágono exacto de encaje.
+ * - 5 Cajas Colectoras de Regalos en la base (x2, x3, x5, x3, x2).
  * - Cero emojis.
  */
 
@@ -104,6 +115,102 @@ interface CollectorBin {
   bounce: number;
 }
 
+interface LevelBlueprint {
+  name: string;
+  grid: string[];
+}
+
+const LEVEL_BLUEPRINTS: LevelBlueprint[] = [
+  {
+    name: "NIVEL 1 • EL GRAN PINO NAVIDEÑO",
+    grid: [
+      "....$$....",
+      "...GGGG...",
+      "..GRYYRG..",
+      ".GG!GG!GG.",
+      "GGGBBBGGGG",
+      "...YYYY..."
+    ]
+  },
+  {
+    name: "NIVEL 2 • LA CAMPANA DORADA",
+    grid: [
+      "..YYYYYY..",
+      ".YYRYYRYY.",
+      "YYYY~YYYYY",
+      "YYBBYYBBYY",
+      "YYYYYYYYYY",
+      "....!!...."
+    ]
+  },
+  {
+    name: "NIVEL 3 • LA ESTRELLA DE BELÉN",
+    grid: [
+      "....**....",
+      "..YYYYYY..",
+      "YYRR**RRYY",
+      ".YYGGGGYY.",
+      "..YYYYYY..",
+      "...!..!..."
+    ]
+  },
+  {
+    name: "NIVEL 4 • EL BASTÓN DE CARAMELO",
+    grid: [
+      "RR..RR..RR",
+      ".RR..RR..R",
+      "PPRRPPRRPP",
+      ".PP~..~PP.",
+      "PPRRPPRRPP",
+      ".RR..RR..R"
+    ]
+  },
+  {
+    name: "NIVEL 5 • EL MUÑECO DE NIEVE",
+    grid: [
+      "...BBBB...",
+      "..B!BB!B..",
+      ".RRRRRRRR.",
+      "..BB**BB..",
+      ".BBBBBBBB.",
+      "...BBBB..."
+    ]
+  },
+  {
+    name: "NIVEL 6 • LA CORONA REAL DE ADVIENTO",
+    grid: [
+      ".GGGGGGGG.",
+      "GGRR..RRGG",
+      "GG~....~GG",
+      "GGPP..PPGG",
+      ".GGGGGGGG.",
+      "....$$...."
+    ]
+  },
+  {
+    name: "NIVEL 7 • EL REGALO SORPRESA DE SANTA",
+    grid: [
+      "RRRRYYRRRR",
+      "RRRRYYRRRR",
+      "YYYY!!YYYY",
+      "RRRRYYRRRR",
+      "RRRRYYRRRR",
+      "...~..~..."
+    ]
+  },
+  {
+    name: "NIVEL 8 • EL COPO GLACIAL MÁGICO",
+    grid: [
+      "P..GGGG..P",
+      ".P.Y**Y.P.",
+      "..G~~~~G..",
+      ".P.Y$$Y.P.",
+      "P..GGGG..P",
+      "...!!!!..."
+    ]
+  }
+];
+
 export class OrnamentPopGame extends BaseGame {
   private sprites: HTMLImageElement[] = [];
   private rainbowSprite!: HTMLImageElement;
@@ -117,21 +224,25 @@ export class OrnamentPopGame extends BaseGame {
   private sponsors: { name: string; logo: HTMLImageElement }[] = [];
   private stars: SkyStar[] = makeSkyStars(85);
 
+  // Tutorial interactivo
+  public onOpenTutorial?: () => void;
+
   // Geometría del tablero
   private r = 28;
   private left = 0;
-  private fieldTop = 94;
+  private fieldTop = 96;
   private rowH = 48;
-  private rowLimit = 9;
+  private rowLimit = 10;
   private cannonX = 0;
   private cannonY = 0;
   private swapCenterX = 0;
   private swapCenterY = 0;
 
-  // Rejilla hexagonal
+  // Rejilla hexagonal y niveles
   private grid: GridCell[][] = [];
   private shift = 0;
   private wave = 1;
+  private currentLevelTitle = "NIVEL 1 • EL GRAN PINO NAVIDEÑO";
 
   // Disparo y munición
   private aim = 0;
@@ -142,6 +253,7 @@ export class OrnamentPopGame extends BaseGame {
   private missCounter = 0;
   private readonly missLimit = 5;
   private aiming = false;
+  private aimCancelled = false;
   private keyLeft = false;
   private keyRight = false;
   private cannonRecoil = 0;
@@ -172,12 +284,18 @@ export class OrnamentPopGame extends BaseGame {
     super(
       "ornament-pop",
       "¡Burbujas de Adornos!",
-      "¡Apunta con el Cañón Navideño, intercambia esferas y junta 3 o más adornos iguales para hacerlos estallar!",
+      "¡Apunta con el Cañón Navideño, intercambia esferas y completa los 8 niveles de adornos mágicos!",
       canvas,
       input,
       audio,
       particles
     );
+
+    // Sin límite de tiempo (el juego se rige por superar las formaciones o ser vencido en la línea de peligro)
+    this.showTimer = false;
+    this.lives = 1;
+    this.maxLives = 1;
+    this.showLives = false;
 
     this.inGameMusicPath = "./assets/audio/Joy to the world.mp3";
     this.inGameMusicVolume = 0.42;
@@ -212,17 +330,13 @@ export class OrnamentPopGame extends BaseGame {
     ];
   }
 
-  private get activeColorCount(): number {
-    return this.wave >= 2 ? 5 : 4;
-  }
-
   // ==========================================================================
   // GEOMETRÍA
   // ==========================================================================
   private computeLayout(): void {
     const w = this.width > 0 ? this.width : 800;
     const h = this.height > 0 ? this.height : 600;
-    this.fieldTop = 94;
+    this.fieldTop = 96;
     const avail = h - this.fieldTop - 16;
 
     let r = Math.min(Math.min(w * 0.94, 680) / (COLS * 2 + 1), 33);
@@ -300,12 +414,11 @@ export class OrnamentPopGame extends BaseGame {
       }
     }
     if (set.size > 0) return Array.from(set);
-    const count = this.activeColorCount;
-    return Array.from({ length: count }, (_, i) => i);
+    return [0, 1, 2, 3, 4];
   }
 
   // ==========================================================================
-  // CICLO DE VIDA E CONTROLES
+  // CICLO DE VIDA Y CONTROLES
   // ==========================================================================
   private handleKeyDown = (e: KeyboardEvent): void => {
     if (!this.isRunning || this.isGameOver) return;
@@ -327,6 +440,7 @@ export class OrnamentPopGame extends BaseGame {
   };
 
   protected onStart(): void {
+    this.showTimer = false;
     this.computeLayout();
     this.score = 0;
     this.combo = 0;
@@ -343,40 +457,65 @@ export class OrnamentPopGame extends BaseGame {
     this.shotsFired = 0;
     this.missCounter = 0;
     this.aim = 0;
+    this.aiming = false;
+    this.aimCancelled = false;
     this.keyLeft = false;
     this.keyRight = false;
     this.cannonRecoil = 0;
     this.swapAnim = 0;
     this.ceilingDropOffset = 0;
-    this.lives = 3;
-    this.maxLives = 3;
+    this.lives = 1;
+    this.maxLives = 1;
     this.showLives = false;
 
     this.grid = [];
-    this.fillWaveFormation(this.wave);
+    this.buildLevelGrid(this.wave);
 
     this.curAmmo = { color: this.randomPresentColor(), special: "none", sponsorIdx: 0 };
     this.nextAmmo = { color: this.randomPresentColor(), special: "none", sponsorIdx: 1 };
 
     this.input.onPointerDown = (_id: number, x: number, y: number) => {
-      // ¿Tocó la canasta de intercambio "CAMBIAR"?
-      if (Math.hypot(x - this.swapCenterX, y - this.swapCenterY) <= this.r * 2.1) {
+      // 1. ¿Tocó la canasta de intercambio "CAMBIAR"?
+      if (Math.hypot(x - this.swapCenterX, y - this.swapCenterY) <= this.r * 2.3) {
         this.swapAmmo();
         this.aiming = false;
         return;
       }
-      this.aiming = true;
-      this.setAimFromPoint(x, y);
+
+      // 2. ¿Tocó el botón de Guía / Tutorial?
+      const helpX = this.left + (COLS * 2 + 1) * this.r - 28;
+      const helpY = this.fieldTop - 32;
+      if (Math.hypot(x - helpX, y - helpY) <= 24) {
+        if (this.onOpenTutorial) this.onOpenTutorial();
+        return;
+      }
+
+      // 3. Apuntado normal
+      if (y < this.cannonY - this.r * 0.8) {
+        this.aiming = true;
+        this.aimCancelled = false;
+        this.setAimFromPoint(x, y);
+      }
     };
+
     this.input.onPointerMove = (_id: number, x: number, y: number) => {
-      if (this.aiming) this.setAimFromPoint(x, y);
+      if (!this.aiming) return;
+      // Si el jugador arrastra hacia abajo del cañón, cancela el tiro limpiamente
+      if (y >= this.cannonY - this.r * 0.6) {
+        this.aimCancelled = true;
+      } else {
+        this.aimCancelled = false;
+        this.setAimFromPoint(x, y);
+      }
     };
+
     this.input.onPointerUp = (_id: number, x: number, y: number) => {
-      if (this.aiming) {
+      if (this.aiming && !this.aimCancelled) {
         this.setAimFromPoint(x, y);
         this.fire();
       }
       this.aiming = false;
+      this.aimCancelled = false;
     };
 
     window.removeEventListener("keydown", this.handleKeyDown);
@@ -384,7 +523,7 @@ export class OrnamentPopGame extends BaseGame {
     window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("keyup", this.handleKeyUp);
 
-    this.addFloatingText("¡APUNTA, INTERCAMBIA Y DISPARA!", this.width * 0.5, this.height * 0.44, "#FFD700", 1.35);
+    this.addFloatingText(`¡${this.currentLevelTitle}!`, this.width * 0.5, this.height * 0.44, "#FFD700", 1.4);
   }
 
   public override destroy(): void {
@@ -395,6 +534,7 @@ export class OrnamentPopGame extends BaseGame {
     this.input.onPointerMove = undefined;
     this.input.onPointerUp = undefined;
     this.aiming = false;
+    this.aimCancelled = false;
   }
 
   public override resize(width: number, height: number): void {
@@ -402,22 +542,55 @@ export class OrnamentPopGame extends BaseGame {
     this.computeLayout();
   }
 
-  private fillWaveFormation(wave: number): void {
-    this.grid = [];
-    const rows = Math.min(7, 5 + Math.floor((wave - 1) / 2));
-    const numColors = this.activeColorCount;
+  private buildLevelGrid(wave: number): void {
+    const bp = LEVEL_BLUEPRINTS[(wave - 1) % LEVEL_BLUEPRINTS.length];
+    const cycle = Math.floor((wave - 1) / LEVEL_BLUEPRINTS.length);
+    this.currentLevelTitle = cycle > 0 ? `${bp.name} ★${cycle + 1}` : bp.name;
 
-    for (let r = 0; r < rows; r++) {
+    this.grid = [];
+    let sponsorIdx = wave;
+
+    for (let r = 0; r < bp.grid.length; r++) {
+      const rowStr = bp.grid[r];
       const row: GridCell[] = [];
+
       for (let c = 0; c < COLS; c++) {
-        // Pequeños patrones simétricos por pares para favorecer jugadas estratégicas
-        const baseColor = (r * 2 + Math.floor(c / 2) + wave) % numColors;
-        const color = Math.random() < 0.65 ? baseColor : Math.floor(Math.random() * numColors);
-        let special: SpecialKind = "none";
-        if (r >= 1 && r <= rows - 2 && (c === 2 || c === COLS - 3) && r === 2) {
-          special = c === 2 ? "bomb" : "lightning";
+        const ch = rowStr[c] || ".";
+        if (ch === ".") {
+          row.push(this.emptyCell());
+          continue;
         }
-        row.push({ color, special });
+
+        let color = 0;
+        let special: SpecialKind = "none";
+
+        if (ch === "$" || ch === "S") {
+          special = "sponsor";
+          color = 3;
+        } else if (ch === "*" || ch === "W") {
+          special = "rainbow";
+          color = Math.floor(Math.random() * 5);
+        } else if (ch === "!" || ch === "X") {
+          special = "bomb";
+          color = 0;
+        } else if (ch === "~" || ch === "L") {
+          special = "lightning";
+          color = 1;
+        } else if (ch === "R" || ch === "0") {
+          color = 0;
+        } else if (ch === "B" || ch === "1") {
+          color = 1;
+        } else if (ch === "G" || ch === "2") {
+          color = 2;
+        } else if (ch === "Y" || ch === "3") {
+          color = 3;
+        } else if (ch === "P" || ch === "4") {
+          color = 4;
+        } else {
+          color = Math.floor(Math.random() * 4);
+        }
+
+        row.push({ color, special, sponsorIdx: special === "sponsor" ? sponsorIdx++ : undefined });
       }
       this.grid.push(row);
     }
@@ -476,7 +649,7 @@ export class OrnamentPopGame extends BaseGame {
   }
 
   private generateNextAmmo(): LoadedAmmo {
-    // Si la Fiebre Estelar llegó al 100%, regala una Esfera Estrella Arcoíris o Bomba
+    // Si la Fiebre Estelar llegó al 100%, regala una Esfera Estrella Arcoíris, Bomba o Rayo
     if (this.feverCharge >= 100) {
       this.feverCharge = 0;
       const specials: SpecialKind[] = ["rainbow", "bomb", "lightning"];
@@ -906,15 +1079,32 @@ export class OrnamentPopGame extends BaseGame {
     }
   }
 
+  private resetLevelAbilities(): void {
+    this.combo = 0;
+    this.fallers = [];
+    this.pops = [];
+    this.shockwaves = [];
+    this.lightningBeams = [];
+    this.missCounter = 0;
+    this.ceilingDropOffset = 0;
+    this.shot = null;
+    this.aiming = false;
+    this.aimCancelled = false;
+  }
+
   private afterResolve(popped: boolean): void {
+    // Si se despejaron todos los adornos del nivel actual
     if (this.lastOccupiedRow() < 0) {
       this.wave++;
       this.addScore(1000);
       this.audio.playVictory();
       this.particles.emitConfetti(this.width, 65);
-      this.addFloatingText(`¡OLEADA ${this.wave}! +1000`, this.width * 0.5, this.height * 0.4, "#FFD700", 1.55);
-      this.fillWaveFormation(this.wave);
-      this.missCounter = 0;
+      this.resetLevelAbilities();
+      this.buildLevelGrid(this.wave);
+      this.curAmmo = { color: this.randomPresentColor(), special: "none", sponsorIdx: 0 };
+      this.nextAmmo = { color: this.randomPresentColor(), special: "none", sponsorIdx: 1 };
+      this.addFloatingText(`¡${this.currentLevelTitle}! +1000`, this.width * 0.5, this.height * 0.4, "#FFD700", 1.55);
+      return;
     } else if (!popped && this.missCounter >= this.missLimit) {
       this.pushNewRow();
     }
@@ -1103,19 +1293,41 @@ export class OrnamentPopGame extends BaseGame {
 
     this.particles.draw(ctx, true);
 
-    // Indicadores superiores
+    // Indicadores superiores: Nivel actual + descensos restantes
     const shotsLeft = this.missLimit - this.missCounter;
     drawPill(
       ctx,
-      `OLEADA ${this.wave} • BAJAN EN ${shotsLeft}`,
+      `${this.currentLevelTitle} • DESCIENDEN EN: ${shotsLeft}`,
       w / 2,
-      68,
+      64,
       shotsLeft <= 2 ? "#FF5252" : "#FFD700",
-      235
+      320
     );
+
     if (this.combo >= 2) {
-      drawPill(ctx, `COMBO x${this.combo}`, this.left + fieldW - 68, 68, "#FF9100", 130);
+      drawPill(ctx, `COMBO x${this.combo}`, this.left + fieldW - 68, 64, "#FF9100", 125);
     }
+
+    // Botón de Ayuda / Tutorial en la esquina superior derecha
+    this.drawHelpButton(ctx, this.left + fieldW - 24, this.fieldTop - 28);
+  }
+
+  private drawHelpButton(ctx: CanvasRenderingContext2D, x: number, y: number): void {
+    ctx.save();
+    ctx.fillStyle = "rgba(10, 25, 52, 0.9)";
+    ctx.strokeStyle = "#FFD700";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, 16, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#FFD700";
+    ctx.font = "900 15px 'Titan One', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("?", x, y + 1);
+    ctx.restore();
   }
 
   private drawCandyPillar(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void {
@@ -1178,7 +1390,6 @@ export class OrnamentPopGame extends BaseGame {
     const baseY = this.cannonY + this.r * 0.65;
 
     for (let i = 0; i < binCount; i++) {
-      // Dejar el centro despejado para el cañón pero mostrar su multiplicador dorado
       const bx = this.left + i * binW;
       const bin = this.bins[i];
       const bounceOffset = bin.bounce * 7;
@@ -1191,7 +1402,6 @@ export class OrnamentPopGame extends BaseGame {
       ctx.fill();
       ctx.stroke();
 
-      // Icono de caja de regalo en las esquinas laterales
       if (i !== 2) {
         const giftImg = this.giftBoxSprites[i % this.giftBoxSprites.length];
         if (imgReady(giftImg)) {
@@ -1215,11 +1425,10 @@ export class OrnamentPopGame extends BaseGame {
 
   private drawGridCell(ctx: CanvasRenderingContext2D, cell: GridCell, x: number, y: number, r: number): void {
     if (cell.special !== "none") {
-      // Si es una bomba o rayo incrustado en el tablero, dibuja el color base y el icono especial encima
       if (cell.color >= 0) {
         this.drawOrnament(ctx, cell.color, x, y, r);
       }
-      this.drawSpecialOrb(ctx, cell.special, 0, x, y, r * 0.92);
+      this.drawSpecialOrb(ctx, cell.special, cell.sponsorIdx || 0, x, y, r * 0.92);
     } else {
       this.drawOrnament(ctx, cell.color, x, y, r);
     }
@@ -1309,6 +1518,8 @@ export class OrnamentPopGame extends BaseGame {
   }
 
   private drawAimGuideAndGhost(ctx: CanvasRenderingContext2D): void {
+    if (this.aimCancelled) return;
+
     let x = this.cannonX + Math.sin(this.aim) * this.r * 2.3;
     let y = this.cannonY - Math.cos(this.aim) * this.r * 2.3;
     let vx = Math.sin(this.aim);
@@ -1406,9 +1617,11 @@ export class OrnamentPopGame extends BaseGame {
       ctx.drawImage(this.elfHelperSprite, -r * 2.5, -eh * 0.55, ew, eh);
     }
 
+    // Aro decorativo pulsante
+    const ringPulse = 0.85 + Math.sin(this.animClock * 4) * 0.15;
     ctx.fillStyle = "rgba(10, 24, 52, 0.92)";
     ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 3 * ringPulse;
     ctx.beginPath();
     ctx.arc(0, 0, r * 1.28, 0, Math.PI * 2);
     ctx.fill();
@@ -1416,11 +1629,11 @@ export class OrnamentPopGame extends BaseGame {
 
     this.drawAmmo(ctx, 0, 0, this.nextAmmo, r * 0.92);
 
-    // Etiqueta interactiva "CAMBIAR [C]"
+    // Etiqueta interactiva "TOCA: CAMBIAR"
     ctx.fillStyle = "#FFD700";
     ctx.font = `900 ${Math.max(10, Math.round(r * 0.38))}px 'Titan One', 'Fredoka', sans-serif`;
     ctx.textAlign = "center";
-    ctx.fillText("TOCA: CAMBIAR", 0, r * 1.65);
+    ctx.fillText("TOCA: CAMBIAR", 0, r * 1.68);
     ctx.restore();
 
     // 4. Medidor de Fiebre Estelar a la derecha del cañón
