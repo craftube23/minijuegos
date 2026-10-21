@@ -1,1669 +1,1808 @@
 /**
  * ==============================================================================
- * JUEGO: ¡BURBUJAS DE ADORNOS! (Ornament Pop – Edición Deluxe Feria Mágica)
+ * MINIJUEGO 13: ¡NINJA CORTA-REGALOS! (Edición Quick-Game Estilo Fruit Ninja)
  * ==============================================================================
- * Dirección de Arte: Stylized 2D Game Art / Fantasy Game Concept Art
  *
- * Características Deluxe:
- * - SIN LÍMITE DE TIEMPO (showTimer = false): ¡Juega a tu ritmo por niveles!
- * - 8 NIVELES CON DISEÑOS NAVIDEÑOS ÚNICOS:
- *   1. El Gran Pino Navideño
- *   2. La Campana Dorada
- *   3. La Estrella de Belén
- *   4. El Bastón de Caramelo
- *   5. El Muñeco de Nieve
- *   6. La Corona Real de Adviento
- *   7. El Regalo Sorpresa de Santa
- *   8. El Copo Glacial Mágico
- * - Cañón Lanzador Mágico articulado con retroceso físico ('canon-adornos-tubo.png'
- *   y 'canon-adornos-base.png').
- * - 5 Colores de Adornos Navideños ('bola-roja', 'bola-azul', 'bola-verde',
- *   'bola-amarilla' y 'bola-morada' Amatista Real).
- * - 4 Esferas Especiales:
- *   1. Esfera Estrella Arcoíris ('bola-arcoiris.png'): Comodín que revienta todos
- *      los colores vecinos.
- *   2. Bola Bomba de Confeti ('bola-bomba.png'): Detona en radio de 2 anillos.
- *   3. Esfera Rayo Boreal ('bola-rayo.png'): Limpia toda la fila horizontal.
- *   4. Esfera Dorada de Patrocinador: Súper explosión solar (+420 pts).
- * - Canasta de Intercambio "CAMBIAR" con Elfo Ayudante: toca la canasta o pulsa
- *   [C / Shift / Espacio] para alternar la esfera actual con la siguiente.
- * - Cancelación segura de tiro: si arrastras el dedo hacia abajo del cañón,
- *   el disparo se cancela limpiamente sin disparar accidentalmente.
- * - Mira Láser Predictiva con Silueta Fantasma del hexágono exacto de encaje.
- * - 5 Cajas Colectoras de Regalos en la base (x2, x3, x5, x3, x2).
- * - Cero emojis.
+ * Acción táctil instantánea de reflejos y corte con espada mágica:
+ * - Desliza el dedo (o el ratón) para rebanar en el aire Galletas de Jengibre,
+ *   Caramelos de Menta, Cajas de Regalo Sorpresa y Esferas de Cristal.
+ * - Cada objeto cortado se divide físicamente en DOS MITADES REALES (ctx.clip)
+ *   en el ángulo exacto de tu tajo de espada, liberando juguetes y dulces.
+ * - Corta 3, 4 o 5+ objetos en un mismo tajo para desatar COMBOS MAESTROS.
+ * - Reloj Dorado Mágico (+5s): Sale volando cada 5 segundos; córtalo para
+ *   ganar +5 SEGUNDOS EXTRA en el cronómetro.
+ * - Publicidad Integrada de Patrocinadores: Cartelera luminosa en el Dojo +
+ *   Cofres Patrocinadores que liberan el logo oficial en grande y activan x2.
+ * - Visualización de Tiempo y Alerta de Últimos Segundos (<= 10s).
+ *
+ * Arte 100% Stylized 2D Game Art. Cero emojis.
  */
 
 import { BaseGame } from "../core/BaseGame";
 import type { InputManager } from "../core/InputManager";
 import type { AudioManager } from "../core/AudioManager";
 import type { ParticleSystem } from "../core/ParticleSystem";
-import {
-  drawNightSky,
-  drawPill,
-  drawSponsorMedallion,
-  imgReady,
-  makeSkyStars,
-  roundRectPath
-} from "./shared/gameDraw";
-import type { SkyStar } from "./shared/gameDraw";
+import { SPONSOR_CATALOG } from "../config/branding";
 
-const COLS = 10;
-const COLOR_HEX = ["#FF2A4D", "#2979FF", "#00E676", "#FFD700", "#B388FF"];
+type TargetKind =
+  | "gingerbread"
+  | "peppermint"
+  | "giftRed"
+  | "giftGreen"
+  | "giftBlue"
+  | "timeClock"
+  | "freezeCrystal"
+  | "frenzyOrb"
+  | "pinataBoss"
+  | "sponsorGift"
+  | "frostGoblin"
+  | "frozenGift"
+  | "bomb";
 
-type SpecialKind = "none" | "rainbow" | "bomb" | "lightning" | "sponsor";
-
-interface GridCell {
-  color: number; // -1 = vacío, 0..4 = color base
-  special: SpecialKind;
-  sponsorIdx?: number;
-}
-
-interface LoadedAmmo {
-  color: number;
-  special: SpecialKind;
-  sponsorIdx: number;
-}
-
-interface Shot {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  color: number;
-  special: SpecialKind;
-  sponsorIdx: number;
-  trail: { x: number; y: number }[];
-}
-
-interface Faller {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  rot: number;
-  vRot: number;
-  color: number;
-  special: SpecialKind;
-}
-
-interface PopFx {
-  x: number;
-  y: number;
-  color: number;
-  t: number;
-}
-
-interface ShockwaveFx {
-  x: number;
-  y: number;
-  maxR: number;
-  color: string;
-  t: number;
-}
-
-interface LightningBeamFx {
-  y: number;
-  t: number;
-}
-
-interface CollectorBin {
-  label: string;
-  mult: number;
-  basePts: number;
-  color: string;
-  bounce: number;
-}
-
-interface LevelBlueprint {
+interface SponsorEntry {
+  key: string;
   name: string;
-  grid: string[];
+  tagline: string;
+  themeColor: string;
+  logo: HTMLImageElement;
 }
 
-const LEVEL_BLUEPRINTS: LevelBlueprint[] = [
-  {
-    name: "NIVEL 1 • EL GRAN PINO NAVIDEÑO",
-    grid: [
-      "....$$....",
-      "...GGGG...",
-      "..GRYYRG..",
-      ".GG!GG!GG.",
-      "GGGBBBGGGG",
-      "...YYYY..."
-    ]
-  },
-  {
-    name: "NIVEL 2 • LA CAMPANA DORADA",
-    grid: [
-      "..YYYYYY..",
-      ".YYRYYRYY.",
-      "YYYY~YYYYY",
-      "YYBBYYBBYY",
-      "YYYYYYYYYY",
-      "....!!...."
-    ]
-  },
-  {
-    name: "NIVEL 3 • LA ESTRELLA DE BELÉN",
-    grid: [
-      "....**....",
-      "..YYYYYY..",
-      "YYRR**RRYY",
-      ".YYGGGGYY.",
-      "..YYYYYY..",
-      "...!..!..."
-    ]
-  },
-  {
-    name: "NIVEL 4 • EL BASTÓN DE CARAMELO",
-    grid: [
-      "RR..RR..RR",
-      ".RR..RR..R",
-      "PPRRPPRRPP",
-      ".PP~..~PP.",
-      "PPRRPPRRPP",
-      ".RR..RR..R"
-    ]
-  },
-  {
-    name: "NIVEL 5 • EL MUÑECO DE NIEVE",
-    grid: [
-      "...BBBB...",
-      "..B!BB!B..",
-      ".RRRRRRRR.",
-      "..BB**BB..",
-      ".BBBBBBBB.",
-      "...BBBB..."
-    ]
-  },
-  {
-    name: "NIVEL 6 • LA CORONA REAL DE ADVIENTO",
-    grid: [
-      ".GGGGGGGG.",
-      "GGRR..RRGG",
-      "GG~....~GG",
-      "GGPP..PPGG",
-      ".GGGGGGGG.",
-      "....$$...."
-    ]
-  },
-  {
-    name: "NIVEL 7 • EL REGALO SORPRESA DE SANTA",
-    grid: [
-      "RRRRYYRRRR",
-      "RRRRYYRRRR",
-      "YYYY!!YYYY",
-      "RRRRYYRRRR",
-      "RRRRYYRRRR",
-      "...~..~..."
-    ]
-  },
-  {
-    name: "NIVEL 8 • EL COPO GLACIAL MÁGICO",
-    grid: [
-      "P..GGGG..P",
-      ".P.Y**Y.P.",
-      "..G~~~~G..",
-      ".P.Y$$Y.P.",
-      "P..GGGG..P",
-      "...!!!!..."
-    ]
-  }
-];
+interface FlyingTarget {
+  id: number;
+  kind: TargetKind;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  r: number;
+  angle: number;
+  vAngle: number;
+  sliced: boolean;
+  reachedPeak: boolean;
+  multiHits: number;
+  maxMultiHits: number;
+  hitCooldown: number;
+  hoverTimer: number;
+  sponsor: SponsorEntry | null;
+}
+
+interface SlicedHalf {
+  kind: TargetKind;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  r: number;
+  angle: number;
+  vAngle: number;
+  cutAngle: number;
+  side: -1 | 1;
+  alpha: number;
+  life: number;
+  maxLife: number;
+  seamColor: string;
+  sponsor: SponsorEntry | null;
+}
+
+interface PoppedToy {
+  img: HTMLImageElement;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  angle: number;
+  vAngle: number;
+  alpha: number;
+  life: number;
+  maxLife: number;
+  isSponsorBadge?: boolean;
+  sponsorName?: string;
+  badgeColor?: string;
+}
+
+interface WallSplatter {
+  x: number;
+  y: number;
+  r: number;
+  color: string;
+  alpha: number;
+  life: number;
+  maxLife: number;
+  drops: { dx: number; dy: number; r: number }[];
+}
+
+interface SlashFlash {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  color: string;
+  alpha: number;
+}
+
+interface BladePoint {
+  x: number;
+  y: number;
+  age: number;
+}
+
+interface DroppedCross {
+  x: number;
+  y: number;
+  alpha: number;
+  scale: number;
+  life: number;
+}
+
+interface FloatingBanner {
+  x: number;
+  y: number;
+  vy: number;
+  text: string;
+  subText?: string;
+  color: string;
+  scale: number;
+  alpha: number;
+  life: number;
+  maxLife: number;
+}
 
 export class OrnamentPopGame extends BaseGame {
-  private sprites: HTMLImageElement[] = [];
-  private rainbowSprite!: HTMLImageElement;
-  private bombSprite!: HTMLImageElement;
-  private lightningSprite!: HTMLImageElement;
-  private cannonBarrelSprite!: HTMLImageElement;
-  private cannonBaseSprite!: HTMLImageElement;
-  private bgVillageSprite!: HTMLImageElement;
-  private elfHelperSprite!: HTMLImageElement;
-  private giftBoxSprites: HTMLImageElement[] = [];
-  private sponsors: { name: string; logo: HTMLImageElement }[] = [];
-  private stars: SkyStar[] = makeSkyStars(85);
-
-  // Tutorial interactivo
   public onOpenTutorial?: () => void;
 
-  // Geometría del tablero
-  private r = 28;
-  private left = 0;
-  private fieldTop = 96;
-  private rowH = 48;
-  private rowLimit = 10;
-  private cannonX = 0;
-  private cannonY = 0;
-  private swapCenterX = 0;
-  private swapCenterY = 0;
+  // Sprites 2D
+  private bgImg: HTMLImageElement;
+  private pinataImg: HTMLImageElement;
+  private gingerbreadImg: HTMLImageElement;
+  private peppermintImg: HTMLImageElement;
+  private clockImg: HTMLImageElement;
+  private freezeCrystalImg: HTMLImageElement;
+  private frenzyOrbImg: HTMLImageElement;
+  private bombImg: HTMLImageElement;
+  private duendeImg: HTMLImageElement;
+  private frozenGiftImg: HTMLImageElement;
+  private giftRedImg: HTMLImageElement;
+  private giftGreenImg: HTMLImageElement;
+  private giftBlueImg: HTMLImageElement;
+  private giftGoldImg: HTMLImageElement;
+  private bearImg: HTMLImageElement;
+  private robotImg: HTMLImageElement;
+  private carImg: HTMLImageElement;
 
-  // Rejilla hexagonal y niveles
-  private grid: GridCell[][] = [];
-  private shift = 0;
-  private wave = 1;
-  private currentLevelTitle = "NIVEL 1 • EL GRAN PINO NAVIDEÑO";
+  // Catálogo completo de patrocinadores para publicidad en el Dojo y en los cofres
+  private sponsors: SponsorEntry[] = [];
+  private sponsorIdx = 0;
+  private billboardSponsorIdx = 0;
+  private billboardSwapTimer = 0;
+  private billboardGlowTimer = 0;
 
-  // Disparo y munición
-  private aim = 0;
-  private shot: Shot | null = null;
-  private curAmmo: LoadedAmmo = { color: 0, special: "none", sponsorIdx: 0 };
-  private nextAmmo: LoadedAmmo = { color: 1, special: "none", sponsorIdx: 0 };
-  private shotsFired = 0;
-  private missCounter = 0;
-  private readonly missLimit = 5;
-  private aiming = false;
-  private aimCancelled = false;
-  private keyLeft = false;
-  private keyRight = false;
-  private cannonRecoil = 0;
-  private swapAnim = 0;
-  private ceilingDropOffset = 0;
+  // Entidades en juego
+  private targets: FlyingTarget[] = [];
+  private halves: SlicedHalf[] = [];
+  private poppedToys: PoppedToy[] = [];
+  private splatters: WallSplatter[] = [];
+  private slashFlashes: SlashFlash[] = [];
+  private droppedCrosses: DroppedCross[] = [];
+  private banners: FloatingBanner[] = [];
+  private nextTargetId = 1;
 
-  // Fiebre Estelar (0..100)
-  private feverCharge = 0;
+  // Hoja de espada táctil
+  private isSwiping = false;
+  private lastPointerX = 0;
+  private lastPointerY = 0;
+  private bladePoints: BladePoint[] = [];
 
-  // Efectos visuales y colectores inferiores
-  private fallers: Faller[] = [];
-  private pops: PopFx[] = [];
-  private shockwaves: ShockwaveFx[] = [];
-  private lightningBeams: LightningBeamFx[] = [];
-  private bins: CollectorBin[] = [
-    { label: "x2", mult: 2, basePts: 90, color: "#2979FF", bounce: 0 },
-    { label: "x3", mult: 3, basePts: 140, color: "#00E676", bounce: 0 },
-    { label: "x5", mult: 5, basePts: 250, color: "#FFD700", bounce: 0 },
-    { label: "x3", mult: 3, basePts: 140, color: "#00E676", bounce: 0 },
-    { label: "x2", mult: 2, basePts: 90, color: "#2979FF", bounce: 0 }
-  ];
+  // Sistema de Combo por Tajo
+  private swipeSliceCount = 0;
+  private swipeComboWindow = 0;
+  private lastSliceX = 0;
+  private lastSliceY = 0;
+  private totalSlicedCount = 0;
 
-  private combo = 0;
-  private ending = false;
+  // Estados especiales (Freeze, Frenzy y Reloj +5s cada 5s)
+  private freezeTimer = 0;
+  private frenzyTimer = 0;
+  private frenzyBurstCooldown = 0;
+  private clockSpawnCooldown = 5.0;
+  private timeAddedFlash = 0;
+  private initialDuration = 45;
+
+  // Generador de oleadas progresivas
+  private waveNumber = 0;
+  private spawnTimer = 0.55;
   private animClock = 0;
 
-  constructor(canvas: HTMLCanvasElement, input: InputManager, audio: AudioManager, particles: ParticleSystem) {
+  // Botón de tutorial
+  private helpBtnRect = { x: 0, y: 0, w: 0, h: 0 };
+
+  constructor(
+    canvas: HTMLCanvasElement,
+    input: InputManager,
+    audio: AudioManager,
+    particles: ParticleSystem
+  ) {
     super(
       "ornament-pop",
-      "¡Burbujas de Adornos!",
-      "¡Apunta con el Cañón Navideño, intercambia esferas y completa los 8 niveles de adornos mágicos!",
+      "¡Ninja Corta-Regalos!",
+      "¡Desliza tu espada de luz para cortar regalos, relojes (+5s) y piñatas sin tocar las bombas!",
       canvas,
       input,
       audio,
       particles
     );
 
-    // Sin límite de tiempo (el juego se rige por superar las formaciones o ser vencido en la línea de peligro)
-    this.showTimer = false;
-    this.lives = 1;
-    this.maxLives = 1;
+    this.inGameMusicPath = "./assets/audio/Deck the Halls.mp3";
+    this.inGameMusicVolume = 0.44;
+
+    this.showTimer = true;
     this.showLives = false;
 
-    this.inGameMusicPath = "./assets/audio/Joy to the world.mp3";
-    this.inGameMusicVolume = 0.42;
+    this.bgImg = this.getImage("./assets/images/fondo-habitacion.webp");
+    this.pinataImg = this.getImage("./assets/images/pinata-estrella.png");
+    this.gingerbreadImg = this.getImage("./assets/images/galleta-jengibre.png");
+    this.peppermintImg = this.getImage("./assets/images/caramelo-menta.png");
+    this.clockImg = this.getImage("./assets/images/reloj-magico-tiempo.png");
+    this.freezeCrystalImg = this.getImage("./assets/images/fruta-cristal-hielo.png");
+    this.frenzyOrbImg = this.getImage("./assets/images/bola-arcoiris.png");
+    this.bombImg = this.getImage("./assets/images/bomba-carbon-dorada.png");
+    this.duendeImg = this.getImage("./assets/images/duende-hielo.png");
+    this.frozenGiftImg = this.getImage("./assets/images/bloque-regalo-congelado.png");
+    this.giftRedImg = this.getImage("./assets/images/regalo-estilizado-rojo.png");
+    this.giftGreenImg = this.getImage("./assets/images/regalo-estilizado-verde.png");
+    this.giftBlueImg = this.getImage("./assets/images/regalo-estilizado-azul.png");
+    this.giftGoldImg = this.getImage("./assets/images/regalo-estilizado-dorado.png");
+    this.bearImg = this.getImage("./assets/images/osito.png");
+    this.robotImg = this.getImage("./assets/images/robot.png");
+    this.carImg = this.getImage("./assets/images/coche-juguete.png");
 
-    this.sprites = [
-      this.getImage("./assets/images/bola-roja.png"),
-      this.getImage("./assets/images/bola-azul.png"),
-      this.getImage("./assets/images/bola-verde.png"),
-      this.getImage("./assets/images/bola-amarilla.png"),
-      this.getImage("./assets/images/bola-morada.png")
-    ];
-    this.rainbowSprite = this.getImage("./assets/images/bola-arcoiris.png");
-    this.bombSprite = this.getImage("./assets/images/bola-bomba.png");
-    this.lightningSprite = this.getImage("./assets/images/bola-rayo.png");
-    this.cannonBarrelSprite = this.getImage("./assets/images/canon-adornos-tubo.png");
-    this.cannonBaseSprite = this.getImage("./assets/images/canon-adornos-base.png");
-    this.bgVillageSprite = this.getImage("./assets/images/fondo-nieve.png");
-    this.elfHelperSprite = this.getImage("./assets/images/elfo-frente.png");
-    this.giftBoxSprites = [
-      this.getImage("./assets/images/regalo-azul.png"),
-      this.getImage("./assets/images/regalo-verde.png"),
-      this.getImage("./assets/images/regalo-rojo.png"),
-      this.getImage("./assets/images/regalo-verde.png"),
-      this.getImage("./assets/images/regalo-azul.png")
-    ];
-
-    this.sponsors = [
-      { name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.png") },
-      { name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.png") },
-      { name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.png") },
-      { name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.png") }
-    ];
+    this.sponsors = Object.entries(SPONSOR_CATALOG).map(([key, cfg]) => ({
+      key,
+      name: cfg.shortName || cfg.name,
+      tagline: cfg.tagline || "Patrocinador Oficial",
+      themeColor: cfg.themeColor || "#FFD700",
+      logo: this.getImage(cfg.path)
+    }));
   }
 
-  // ==========================================================================
-  // GEOMETRÍA
-  // ==========================================================================
-  private computeLayout(): void {
-    const w = this.width > 0 ? this.width : 800;
-    const h = this.height > 0 ? this.height : 600;
-    this.fieldTop = 96;
-    const avail = h - this.fieldTop - 16;
-
-    let r = Math.min(Math.min(w * 0.94, 680) / (COLS * 2 + 1), 33);
-    let limit = Math.floor((avail - 4.2 * r) / (r * 1.732));
-    if (limit < 8) {
-      r = avail / (8 * 1.732 + 4.2);
-      limit = 8;
-    }
-    this.r = r;
-    this.rowLimit = Math.min(limit, 13);
-    this.rowH = r * 1.732;
-    this.left = (w - (COLS * 2 + 1) * r) / 2;
-    this.cannonX = w / 2;
-    this.cannonY = this.fieldTop + this.rowLimit * this.rowH + r * 1.95;
-    this.swapCenterX = this.cannonX - r * 4.4;
-    this.swapCenterY = this.cannonY + r * 0.15;
+  private nextSponsor(): SponsorEntry | null {
+    if (this.sponsors.length === 0) return null;
+    const s = this.sponsors[this.sponsorIdx % this.sponsors.length];
+    this.sponsorIdx++;
+    return s;
   }
-
-  private cellX(row: number, col: number): number {
-    return this.left + this.r + col * 2 * this.r + (((row + this.shift) & 1) === 1 ? this.r : 0);
-  }
-
-  private cellY(row: number): number {
-    return this.fieldTop + this.r + row * this.rowH + this.ceilingDropOffset;
-  }
-
-  private neighbors(row: number, col: number): [number, number][] {
-    const p = (row + this.shift) & 1;
-    const res: [number, number][] = [
-      [row, col - 1],
-      [row, col + 1]
-    ];
-    const cs = p === 0 ? [col - 1, col] : [col, col + 1];
-    for (const c of cs) {
-      res.push([row - 1, c]);
-      res.push([row + 1, c]);
-    }
-    return res.filter(([rr, cc]) => rr >= 0 && cc >= 0 && cc < COLS);
-  }
-
-  private emptyCell(): GridCell {
-    return { color: -1, special: "none" };
-  }
-
-  private ensureRow(row: number): void {
-    while (this.grid.length <= row) {
-      const arr: GridCell[] = [];
-      for (let c = 0; c < COLS; c++) arr.push(this.emptyCell());
-      this.grid.push(arr);
-    }
-  }
-
-  private getCell(row: number, col: number): GridCell | null {
-    if (row < 0 || row >= this.grid.length || col < 0 || col >= COLS) return null;
-    return this.grid[row][col];
-  }
-
-  private isOccupied(row: number, col: number): boolean {
-    const cell = this.getCell(row, col);
-    return !!cell && (cell.color >= 0 || cell.special !== "none");
-  }
-
-  private lastOccupiedRow(): number {
-    for (let r = this.grid.length - 1; r >= 0; r--) {
-      if (this.grid[r].some((cell) => cell.color >= 0 || cell.special !== "none")) return r;
-    }
-    return -1;
-  }
-
-  private presentColors(): number[] {
-    const set = new Set<number>();
-    for (const row of this.grid) {
-      for (const cell of row) {
-        if (cell.color >= 0) set.add(cell.color);
-      }
-    }
-    if (set.size > 0) return Array.from(set);
-    return [0, 1, 2, 3, 4];
-  }
-
-  // ==========================================================================
-  // CICLO DE VIDA Y CONTROLES
-  // ==========================================================================
-  private handleKeyDown = (e: KeyboardEvent): void => {
-    if (!this.isRunning || this.isGameOver) return;
-    if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") this.keyLeft = true;
-    if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") this.keyRight = true;
-    if (e.key === "c" || e.key === "C" || e.key === "Shift" || e.key === "ArrowDown") {
-      this.swapAmmo();
-      e.preventDefault();
-    }
-    if (e.key === " " || e.key === "ArrowUp") {
-      this.fire();
-      e.preventDefault();
-    }
-  };
-
-  private handleKeyUp = (e: KeyboardEvent): void => {
-    if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") this.keyLeft = false;
-    if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") this.keyRight = false;
-  };
 
   protected onStart(): void {
-    this.showTimer = false;
-    this.computeLayout();
-    this.score = 0;
-    this.combo = 0;
-    this.wave = 1;
-    this.feverCharge = 0;
-    this.ending = false;
-    this.animClock = 0;
-    this.shot = null;
-    this.fallers = [];
-    this.pops = [];
-    this.shockwaves = [];
-    this.lightningBeams = [];
-    this.shift = 0;
-    this.shotsFired = 0;
-    this.missCounter = 0;
-    this.aim = 0;
-    this.aiming = false;
-    this.aimCancelled = false;
-    this.keyLeft = false;
-    this.keyRight = false;
-    this.cannonRecoil = 0;
-    this.swapAnim = 0;
-    this.ceilingDropOffset = 0;
-    this.lives = 1;
-    this.maxLives = 1;
     this.showLives = false;
+    this.showTimer = true;
+    this.initialDuration = 45;
+    this.timeRemaining = this.initialDuration;
 
-    this.grid = [];
-    this.buildLevelGrid(this.wave);
+    this.targets = [];
+    this.halves = [];
+    this.poppedToys = [];
+    this.splatters = [];
+    this.slashFlashes = [];
+    this.droppedCrosses = [];
+    this.banners = [];
+    this.bladePoints = [];
 
-    this.curAmmo = { color: this.randomPresentColor(), special: "none", sponsorIdx: 0 };
-    this.nextAmmo = { color: this.randomPresentColor(), special: "none", sponsorIdx: 1 };
+    this.isSwiping = false;
+    this.swipeSliceCount = 0;
+    this.swipeComboWindow = 0;
+    this.totalSlicedCount = 0;
+    this.freezeTimer = 0;
+    this.frenzyTimer = 0;
+    this.frenzyBurstCooldown = 0;
+    // Reloj Dorado sale cada 5 segundos
+    this.clockSpawnCooldown = 5.0;
+    this.timeAddedFlash = 0;
+    this.billboardSwapTimer = 0;
+    this.billboardGlowTimer = 0;
+    this.waveNumber = 0;
+    this.spawnTimer = 0.45;
+    this.animClock = 0;
 
     this.input.onPointerDown = (_id: number, x: number, y: number) => {
-      // 1. ¿Tocó la canasta de intercambio "CAMBIAR"?
-      if (Math.hypot(x - this.swapCenterX, y - this.swapCenterY) <= this.r * 2.3) {
-        this.swapAmmo();
-        this.aiming = false;
+      if (!this.isRunning || this.isGameOver) return;
+      if (this.pointInRect(x, y, this.helpBtnRect)) {
+        this.audio.playTap();
+        this.onOpenTutorial?.();
         return;
       }
-
-      // 2. ¿Tocó el botón de Guía / Tutorial?
-      const helpX = this.left + (COLS * 2 + 1) * this.r - 28;
-      const helpY = this.fieldTop - 32;
-      if (Math.hypot(x - helpX, y - helpY) <= 24) {
-        if (this.onOpenTutorial) this.onOpenTutorial();
-        return;
-      }
-
-      // 3. Apuntado normal
-      if (y < this.cannonY - this.r * 0.8) {
-        this.aiming = true;
-        this.aimCancelled = false;
-        this.setAimFromPoint(x, y);
-      }
+      this.isSwiping = true;
+      this.lastPointerX = x;
+      this.lastPointerY = y;
+      this.bladePoints = [{ x, y, age: 0 }];
+      this.checkSegmentCuts(x - 8, y - 8, x + 8, y + 8);
     };
 
     this.input.onPointerMove = (_id: number, x: number, y: number) => {
-      if (!this.aiming) return;
-      // Si el jugador arrastra hacia abajo del cañón, cancela el tiro limpiamente
-      if (y >= this.cannonY - this.r * 0.6) {
-        this.aimCancelled = true;
-      } else {
-        this.aimCancelled = false;
-        this.setAimFromPoint(x, y);
+      if (!this.isRunning || this.isGameOver) return;
+      if (!this.isSwiping) {
+        this.lastPointerX = x;
+        this.lastPointerY = y;
+        return;
+      }
+      const dist = Math.hypot(x - this.lastPointerX, y - this.lastPointerY);
+      if (dist >= 4) {
+        this.checkSegmentCuts(this.lastPointerX, this.lastPointerY, x, y);
+        this.lastPointerX = x;
+        this.lastPointerY = y;
+        this.bladePoints.push({ x, y, age: 0 });
+        if (this.bladePoints.length > 16) {
+          this.bladePoints.shift();
+        }
       }
     };
 
-    this.input.onPointerUp = (_id: number, x: number, y: number) => {
-      if (this.aiming && !this.aimCancelled) {
-        this.setAimFromPoint(x, y);
-        this.fire();
-      }
-      this.aiming = false;
-      this.aimCancelled = false;
+    this.input.onPointerUp = () => {
+      this.isSwiping = false;
+      this.flushSwipeCombo();
     };
 
-    window.removeEventListener("keydown", this.handleKeyDown);
-    window.removeEventListener("keyup", this.handleKeyUp);
-    window.addEventListener("keydown", this.handleKeyDown);
-    window.addEventListener("keyup", this.handleKeyUp);
-
-    this.addFloatingText(`¡${this.currentLevelTitle}!`, this.width * 0.5, this.height * 0.44, "#FFD700", 1.4);
+    this.addBanner(
+      this.width * 0.5,
+      this.height * 0.42,
+      "¡DESLIZA PARA CORTAR!",
+      "¡Corta los Relojes Dorados para ganar +5 SEGUNDOS EXTRA!",
+      "#FFD700",
+      1.18
+    );
   }
 
   public override destroy(): void {
     super.destroy();
-    window.removeEventListener("keydown", this.handleKeyDown);
-    window.removeEventListener("keyup", this.handleKeyUp);
     this.input.onPointerDown = undefined;
     this.input.onPointerMove = undefined;
     this.input.onPointerUp = undefined;
-    this.aiming = false;
-    this.aimCancelled = false;
   }
 
-  public override resize(width: number, height: number): void {
-    super.resize(width, height);
-    this.computeLayout();
+  private getTargetRadius(kind: TargetKind): number {
+    const base = Math.max(42, Math.min(60, Math.min(this.width, this.height) * 0.068));
+    if (kind === "pinataBoss") return base * 1.48;
+    if (kind === "frostGoblin") return base * 1.35;
+    if (kind === "frozenGift") return base * 1.18;
+    if (kind === "timeClock") return base * 1.12;
+    if (kind === "sponsorGift") return base * 1.15;
+    if (kind === "bomb") return base * 0.96;
+    if (kind === "freezeCrystal" || kind === "frenzyOrb") return base * 1.06;
+    return base;
   }
 
-  private buildLevelGrid(wave: number): void {
-    const bp = LEVEL_BLUEPRINTS[(wave - 1) % LEVEL_BLUEPRINTS.length];
-    const cycle = Math.floor((wave - 1) / LEVEL_BLUEPRINTS.length);
-    this.currentLevelTitle = cycle > 0 ? `${bp.name} ★${cycle + 1}` : bp.name;
-
-    this.grid = [];
-    let sponsorIdx = wave;
-
-    for (let r = 0; r < bp.grid.length; r++) {
-      const rowStr = bp.grid[r];
-      const row: GridCell[] = [];
-
-      for (let c = 0; c < COLS; c++) {
-        const ch = rowStr[c] || ".";
-        if (ch === ".") {
-          row.push(this.emptyCell());
-          continue;
-        }
-
-        let color = 0;
-        let special: SpecialKind = "none";
-
-        if (ch === "$" || ch === "S") {
-          special = "sponsor";
-          color = 3;
-        } else if (ch === "*" || ch === "W") {
-          special = "rainbow";
-          color = Math.floor(Math.random() * 5);
-        } else if (ch === "!" || ch === "X") {
-          special = "bomb";
-          color = 0;
-        } else if (ch === "~" || ch === "L") {
-          special = "lightning";
-          color = 1;
-        } else if (ch === "R" || ch === "0") {
-          color = 0;
-        } else if (ch === "B" || ch === "1") {
-          color = 1;
-        } else if (ch === "G" || ch === "2") {
-          color = 2;
-        } else if (ch === "Y" || ch === "3") {
-          color = 3;
-        } else if (ch === "P" || ch === "4") {
-          color = 4;
-        } else {
-          color = Math.floor(Math.random() * 4);
-        }
-
-        row.push({ color, special, sponsorIdx: special === "sponsor" ? sponsorIdx++ : undefined });
-      }
-      this.grid.push(row);
-    }
-  }
-
-  private randomPresentColor(): number {
-    const cols = this.presentColors();
-    return cols[Math.floor(Math.random() * cols.length)];
-  }
-
-  private swapAmmo(): void {
-    if (!this.isRunning || this.isGameOver || this.ending || this.shot) return;
-    const tmp = this.curAmmo;
-    this.curAmmo = this.nextAmmo;
-    this.nextAmmo = tmp;
-    this.swapAnim = 1;
-    this.audio.playTap();
-    this.particles.emitBurst(this.swapCenterX, this.swapCenterY, "#FFD700", 8);
-  }
-
-  // ==========================================================================
-  // PUNTERÍA Y DISPARO
-  // ==========================================================================
-  private setAimFromPoint(x: number, y: number): void {
-    if (this.ending) return;
-    const dy = Math.min(this.cannonY - 26, y);
-    let a = Math.atan2(x - this.cannonX, this.cannonY - dy);
-    const max = 1.36;
-    a = Math.max(-max, Math.min(max, a));
-    this.aim = a;
-  }
-
-  private fire(): void {
-    if (!this.isRunning || this.isGameOver || this.isFinishing || this.ending || this.shot) return;
-    const speed = this.r * 45;
-    const tipX = this.cannonX + Math.sin(this.aim) * this.r * 2.35;
-    const tipY = this.cannonY - Math.cos(this.aim) * this.r * 2.35;
-    this.shot = {
-      x: tipX,
-      y: tipY,
-      vx: Math.sin(this.aim) * speed,
-      vy: -Math.cos(this.aim) * speed,
-      color: this.curAmmo.color,
-      special: this.curAmmo.special,
-      sponsorIdx: this.curAmmo.sponsorIdx,
-      trail: []
-    };
-    this.cannonRecoil = 1;
-    this.particles.emitBurst(tipX, tipY, "#FFD700", 10);
-    this.audio.playWhoosh();
-    this.shotsFired++;
-
-    // Avanzar cargador
-    this.curAmmo = this.nextAmmo;
-    this.nextAmmo = this.generateNextAmmo();
-  }
-
-  private generateNextAmmo(): LoadedAmmo {
-    // Si la Fiebre Estelar llegó al 100%, regala una Esfera Estrella Arcoíris, Bomba o Rayo
-    if (this.feverCharge >= 100) {
-      this.feverCharge = 0;
-      const specials: SpecialKind[] = ["rainbow", "bomb", "lightning"];
-      const picked = specials[this.shotsFired % specials.length];
-      this.addFloatingText("¡ESFERA DE FIEBRE LISTA!", this.cannonX, this.cannonY - this.r * 3.4, "#00E5FF", 1.25);
-      return {
-        color: this.randomPresentColor(),
-        special: picked,
-        sponsorIdx: 0
-      };
-    }
-
-    // Cada 8 disparos aparece una Bola Patrocinadora o Esfera Especial
-    if (this.shotsFired % 8 === 7) {
-      return {
-        color: 3,
-        special: "sponsor",
-        sponsorIdx: Math.floor(Math.random() * this.sponsors.length)
-      };
-    }
-    if (this.shotsFired % 6 === 5) {
-      const cycle: SpecialKind[] = ["rainbow", "bomb", "lightning"];
-      return {
-        color: this.randomPresentColor(),
-        special: cycle[Math.floor(this.shotsFired / 6) % cycle.length],
-        sponsorIdx: 0
-      };
-    }
-
-    return {
-      color: this.randomPresentColor(),
-      special: "none",
-      sponsorIdx: 0
-    };
-  }
-
-  // ==========================================================================
-  // ACTUALIZACIÓN
-  // ==========================================================================
-  protected onUpdate(dt: number): void {
-    this.animClock += dt;
-
-    if (this.cannonRecoil > 0) this.cannonRecoil = Math.max(0, this.cannonRecoil - dt * 6);
-    if (this.swapAnim > 0) this.swapAnim = Math.max(0, this.swapAnim - dt * 5);
-    if (this.ceilingDropOffset > 0) this.ceilingDropOffset = Math.max(0, this.ceilingDropOffset - dt * 95);
-
-    for (const bin of this.bins) {
-      if (bin.bounce > 0) bin.bounce = Math.max(0, bin.bounce - dt * 5);
-    }
-
-    if (this.keyLeft) this.aim = Math.max(-1.36, this.aim - dt * 1.75);
-    if (this.keyRight) this.aim = Math.min(1.36, this.aim + dt * 1.75);
-
-    // Actualizar adornos cayendo hacia las Cajas Colectoras de Regalos
-    const fieldW = (COLS * 2 + 1) * this.r;
-    const binTopY = this.cannonY + this.r * 0.45;
-    for (let i = this.fallers.length - 1; i >= 0; i--) {
-      const f = this.fallers[i];
-      f.vy += 1480 * dt;
-      f.x += f.vx * dt;
-      f.y += f.vy * dt;
-      f.rot += f.vRot * dt;
-
-      if (f.x < this.left + this.r) {
-        f.x = this.left + this.r;
-        f.vx = Math.abs(f.vx) * 0.7;
-      } else if (f.x > this.left + fieldW - this.r) {
-        f.x = this.left + fieldW - this.r;
-        f.vx = -Math.abs(f.vx) * 0.7;
-      }
-
-      if (f.y >= binTopY) {
-        const rel = Math.max(0, Math.min(0.999, (f.x - this.left) / fieldW));
-        const binIdx = Math.floor(rel * this.bins.length);
-        const bin = this.bins[binIdx];
-        bin.bounce = 1;
-        const pts = bin.basePts;
-        this.addScore(pts);
-        this.audio.playBellNote(binIdx % 4);
-        this.particles.emitBurst(f.x, binTopY, bin.color, 10);
-        this.addFloatingText(`+${pts} (${bin.label})`, f.x, binTopY - 18, bin.color, 1.15);
-        this.fallers.splice(i, 1);
-      }
-    }
-
-    for (const p of this.pops) p.t += dt * 3.2;
-    this.pops = this.pops.filter((p) => p.t < 1);
-
-    for (const sw of this.shockwaves) sw.t += dt * 2.6;
-    this.shockwaves = this.shockwaves.filter((sw) => sw.t < 1);
-
-    for (const lb of this.lightningBeams) lb.t += dt * 3.0;
-    this.lightningBeams = this.lightningBeams.filter((lb) => lb.t < 1);
-
-    if (this.shot) this.updateShot(dt);
-  }
-
-  private updateShot(dt: number): void {
-    const s = this.shot!;
-    s.trail.push({ x: s.x, y: s.y });
-    if (s.trail.length > 9) s.trail.shift();
-
-    const stepLen = this.r * 0.42;
-    const dist = Math.hypot(s.vx, s.vy) * dt;
-    const steps = Math.max(1, Math.ceil(dist / stepLen));
-    const sdt = dt / steps;
-    const minX = this.left + this.r;
-    const maxX = this.left + (COLS * 2 + 1) * this.r - this.r;
-
-    for (let i = 0; i < steps; i++) {
-      s.x += s.vx * sdt;
-      s.y += s.vy * sdt;
-
-      if (s.x < minX) {
-        s.x = minX;
-        s.vx = Math.abs(s.vx);
-        this.audio.playTap();
-        this.particles.emitBurst(s.x, s.y, "#FFD700", 5);
-      } else if (s.x > maxX) {
-        s.x = maxX;
-        s.vx = -Math.abs(s.vx);
-        this.audio.playTap();
-        this.particles.emitBurst(s.x, s.y, "#FFD700", 5);
-      }
-
-      let hit = s.y <= this.fieldTop + this.r;
-      if (!hit) hit = this.touchesBubble(s.x, s.y, this.r * 1.82);
-      if (hit) {
-        this.shot = null;
-        this.settleShot(s);
-        return;
-      }
-    }
-  }
-
-  private touchesBubble(x: number, y: number, dist: number): boolean {
-    const d2 = dist * dist;
-    for (let row = 0; row < this.grid.length; row++) {
-      const cy = this.cellY(row);
-      if (Math.abs(cy - y) > dist) continue;
-      for (let col = 0; col < COLS; col++) {
-        if (!this.isOccupied(row, col)) continue;
-        const dx = this.cellX(row, col) - x;
-        const dy = cy - y;
-        if (dx * dx + dy * dy < d2) return true;
-      }
-    }
-    return false;
-  }
-
-  private findSnapCell(x: number, y: number): [number, number] {
-    const maxRow = this.lastOccupiedRow() + 2;
-    this.ensureRow(maxRow);
-    let best: [number, number] = [0, 0];
-    let bestD = Infinity;
-    for (let row = 0; row <= maxRow; row++) {
-      for (let col = 0; col < COLS; col++) {
-        if (this.isOccupied(row, col)) continue;
-        let supported = row === 0;
-        if (!supported) {
-          for (const [nr, nc] of this.neighbors(row, col)) {
-            if (this.isOccupied(nr, nc)) {
-              supported = true;
-              break;
-            }
-          }
-        }
-        if (!supported) continue;
-        const dx = this.cellX(row, col) - x;
-        const dy = this.cellY(row) - y;
-        const d = dx * dx + dy * dy;
-        if (d < bestD) {
-          bestD = d;
-          best = [row, col];
-        }
-      }
-    }
-    return best;
-  }
-
-  private settleShot(s: Shot): void {
-    const [row, col] = this.findSnapCell(s.x, s.y);
-
-    // 1. Esfera Patrocinadora
-    if (s.special === "sponsor") {
-      this.explodeRadius(row, col, this.r * 4.5, "#FFD700", "BOLA PATROCINADORA", 420);
-      this.afterResolve(true);
-      return;
-    }
-
-    // 2. Bola Bomba de Confeti
-    if (s.special === "bomb") {
-      this.explodeRadius(row, col, this.r * 3.5, "#FF5252", "¡BOMBA DE CONFETI!", 280);
-      this.afterResolve(true);
-      return;
-    }
-
-    // 3. Esfera Rayo Boreal (limpia toda la fila de impacto y adyacentes)
-    if (s.special === "lightning") {
-      this.triggerLightningRow(row);
-      this.afterResolve(true);
-      return;
-    }
-
-    // 4. Esfera Estrella Arcoíris (Comodín: revienta todos los grupos de colores vecinos)
-    if (s.special === "rainbow") {
-      this.triggerRainbowWildcard(row, col);
-      this.afterResolve(true);
-      return;
-    }
-
-    // 5. Adorno normal
-    this.ensureRow(row);
-    this.grid[row][col] = { color: s.color, special: "none" };
-
-    // ¿Tocó un adorno Bomba o Rayo que estaba dentro del tablero?
-    for (const [nr, nc] of this.neighbors(row, col)) {
-      const nb = this.getCell(nr, nc);
-      if (!nb) continue;
-      if (nb.special === "bomb") {
-        this.grid[nr][nc] = this.emptyCell();
-        this.explodeRadius(nr, nc, this.r * 3.4, "#FF5252", "¡DETONACIÓN EN CADENA!", 300);
-        this.afterResolve(true);
-        return;
-      }
-      if (nb.special === "lightning") {
-        this.grid[nr][nc] = this.emptyCell();
-        this.triggerLightningRow(nr);
-        this.afterResolve(true);
-        return;
-      }
-    }
-
-    // Buscar grupo del mismo color
-    const group = this.floodSameColor(row, col);
-    if (group.length >= 3) {
-      this.combo++;
-      this.feverCharge = Math.min(100, this.feverCharge + group.length * 9 + this.combo * 5);
-      this.popCells(group);
-      const pts = group.length * 55 + Math.max(0, group.length - 3) * 45 + (this.combo > 1 ? this.combo * 35 : 0);
-      this.addScore(pts);
-      const c = group[0];
-      this.addFloatingText(`+${pts}`, this.cellX(c[0], c[1]), this.cellY(c[0]), "#FFD700", 1.3);
-      this.audio.playCatchItem(1.0 + Math.min(0.6, group.length * 0.06));
-      if (this.combo >= 2) {
-        this.addFloatingText(`¡COMBO x${this.combo}!`, this.width * 0.5, this.height * 0.4, "#FF9100", 1.35);
-      }
-      this.dropFloating();
-      this.missCounter = 0;
-      this.afterResolve(true);
-    } else {
-      this.combo = 0;
-      this.missCounter++;
-      this.audio.playTap();
-      this.afterResolve(false);
-    }
-  }
-
-  private triggerRainbowWildcard(row: number, col: number): void {
-    this.ensureRow(row);
-    const neighborColors = new Set<number>();
-    for (const [nr, nc] of this.neighbors(row, col)) {
-      const cell = this.getCell(nr, nc);
-      if (cell && cell.color >= 0) neighborColors.add(cell.color);
-    }
-
-    const toPop = new Map<number, [number, number]>();
-    toPop.set(row * COLS + col, [row, col]);
-
-    for (const targetColor of neighborColors) {
-      this.grid[row][col] = { color: targetColor, special: "none" };
-      for (const [gr, gc] of this.floodSameColor(row, col)) {
-        toPop.set(gr * COLS + gc, [gr, gc]);
-      }
-    }
-    this.grid[row][col] = this.emptyCell();
-
-    const cells = Array.from(toPop.values());
-    this.popCells(cells);
-    const cx = this.cellX(row, col);
-    const cy = this.cellY(row);
-    this.shockwaves.push({ x: cx, y: cy, maxR: this.r * 3.8, color: "#00E5FF", t: 0 });
-    const pts = 250 + cells.length * 60;
-    this.addScore(pts);
-    this.combo++;
-    this.missCounter = 0;
-    this.audio.playPowerUp();
-    this.particles.emitConfetti(this.width, 30);
-    this.addFloatingText(`¡ESTRELLA ARCOÍRIS! +${pts}`, this.width * 0.5, this.height * 0.36, "#00E5FF", 1.45);
-    this.dropFloating();
-  }
-
-  private triggerLightningRow(targetRow: number): void {
-    const r = Math.max(0, Math.min(this.grid.length - 1, targetRow));
-    if (r < 0 || !this.grid[r]) return;
-    const cy = this.cellY(r);
-    this.lightningBeams.push({ y: cy, t: 0 });
-
-    const cells: [number, number][] = [];
-    for (let c = 0; c < COLS; c++) {
-      if (this.isOccupied(r, c)) cells.push([r, c]);
-    }
-    this.popCells(cells);
-    const pts = 300 + cells.length * 55;
-    this.addScore(pts);
-    this.combo++;
-    this.missCounter = 0;
-    this.audio.playPowerUp();
-    this.triggerShake(0.22, 6);
-    this.addFloatingText(`¡RAYO BOREAL! +${pts}`, this.width * 0.5, cy - 16, "#00E5FF", 1.45);
-    this.dropFloating();
-  }
-
-  private explodeRadius(row: number, col: number, radius: number, waveColor: string, label: string, basePts: number): void {
-    const cx = this.cellX(row, col);
-    const cy = this.cellY(row);
-    this.shockwaves.push({ x: cx, y: cy, maxR: radius, color: waveColor, t: 0 });
-
-    let count = 0;
-    for (let r = 0; r < this.grid.length; r++) {
-      for (let c = 0; c < COLS; c++) {
-        if (!this.isOccupied(r, c)) continue;
-        const x = this.cellX(r, c);
-        const y = this.cellY(r);
-        if (Math.hypot(x - cx, y - cy) <= radius) {
-          const color = Math.max(0, this.grid[r][c].color);
-          this.pops.push({ x, y, color, t: 0 });
-          this.particles.emitBurst(x, y, waveColor, 6);
-          this.grid[r][c] = this.emptyCell();
-          count++;
-        }
-      }
-    }
-    const pts = basePts + count * 45;
-    this.addScore(pts);
-    this.audio.playPowerUp();
-    this.triggerShake(0.25, 6);
-    this.particles.emitConfetti(this.width, 35);
-    this.addFloatingText(`${label} +${pts}`, this.width * 0.5, this.height * 0.35, waveColor, 1.45);
-    this.dropFloating();
-    this.missCounter = 0;
-  }
-
-  private floodSameColor(row: number, col: number): [number, number][] {
-    const cell = this.getCell(row, col);
-    if (!cell || cell.color < 0) return [];
-    const color = cell.color;
-    const seen = new Set<number>([row * COLS + col]);
-    const queue: [number, number][] = [[row, col]];
-    const out: [number, number][] = [];
-    while (queue.length) {
-      const [r, c] = queue.pop()!;
-      out.push([r, c]);
-      for (const [nr, nc] of this.neighbors(r, c)) {
-        const key = nr * COLS + nc;
-        if (seen.has(key)) continue;
-        const nb = this.getCell(nr, nc);
-        if (nb && nb.color === color) {
-          seen.add(key);
-          queue.push([nr, nc]);
-        }
-      }
-    }
-    return out;
-  }
-
-  private popCells(cells: [number, number][]): void {
-    for (const [r, c] of cells) {
-      const cell = this.getCell(r, c);
-      if (!cell) continue;
-      const color = Math.max(0, cell.color);
-      const x = this.cellX(r, c);
-      const y = this.cellY(r);
-      this.grid[r][c] = this.emptyCell();
-      this.pops.push({ x, y, color, t: 0 });
-      this.particles.emitBurst(x, y, COLOR_HEX[color] ?? "#FFD700", 7);
-    }
-  }
-
-  private dropFloating(): void {
-    const seen = new Set<number>();
-    const queue: [number, number][] = [];
-    if (this.grid.length) {
-      for (let c = 0; c < COLS; c++) {
-        if (this.isOccupied(0, c)) {
-          seen.add(c);
-          queue.push([0, c]);
-        }
-      }
-    }
-    while (queue.length) {
-      const [r, c] = queue.pop()!;
-      for (const [nr, nc] of this.neighbors(r, c)) {
-        const key = nr * COLS + nc;
-        if (seen.has(key)) continue;
-        if (this.isOccupied(nr, nc)) {
-          seen.add(key);
-          queue.push([nr, nc]);
-        }
-      }
-    }
-
-    let dropped = 0;
-    for (let r = 0; r < this.grid.length; r++) {
-      for (let c = 0; c < COLS; c++) {
-        if (this.isOccupied(r, c) && !seen.has(r * COLS + c)) {
-          const cell = this.grid[r][c];
-          this.fallers.push({
-            x: this.cellX(r, c),
-            y: this.cellY(r),
-            vx: (Math.random() - 0.5) * 150,
-            vy: -130 - Math.random() * 110,
-            rot: 0,
-            vRot: (Math.random() - 0.5) * 6,
-            color: Math.max(0, cell.color),
-            special: cell.special
-          });
-          this.grid[r][c] = this.emptyCell();
-          dropped++;
-        }
-      }
-    }
-    if (dropped > 0) {
-      this.feverCharge = Math.min(100, this.feverCharge + dropped * 10);
-      this.audio.playPowerUp();
-      this.addFloatingText(`¡LLUVIA DE ${dropped} ADORNOS!`, this.width * 0.5, this.height * 0.28, "#00E676", 1.3);
-    }
-  }
-
-  private resetLevelAbilities(): void {
-    this.combo = 0;
-    this.fallers = [];
-    this.pops = [];
-    this.shockwaves = [];
-    this.lightningBeams = [];
-    this.missCounter = 0;
-    this.ceilingDropOffset = 0;
-    this.shot = null;
-    this.aiming = false;
-    this.aimCancelled = false;
-  }
-
-  private afterResolve(popped: boolean): void {
-    // Si se despejaron todos los adornos del nivel actual
-    if (this.lastOccupiedRow() < 0) {
-      this.wave++;
-      this.addScore(1000);
-      this.audio.playVictory();
-      this.particles.emitConfetti(this.width, 65);
-      this.resetLevelAbilities();
-      this.buildLevelGrid(this.wave);
-      this.curAmmo = { color: this.randomPresentColor(), special: "none", sponsorIdx: 0 };
-      this.nextAmmo = { color: this.randomPresentColor(), special: "none", sponsorIdx: 1 };
-      this.addFloatingText(`¡${this.currentLevelTitle}! +1000`, this.width * 0.5, this.height * 0.4, "#FFD700", 1.55);
-      return;
-    } else if (!popped && this.missCounter >= this.missLimit) {
-      this.pushNewRow();
-    }
-
-    const present = this.presentColors();
-    if (this.curAmmo.special === "none" && !present.includes(this.curAmmo.color)) {
-      this.curAmmo.color = present[Math.floor(Math.random() * present.length)];
-    }
-    if (this.nextAmmo.special === "none" && !present.includes(this.nextAmmo.color)) {
-      this.nextAmmo.color = present[Math.floor(Math.random() * present.length)];
-    }
-
-    this.checkDefeat();
-  }
-
-  private pushNewRow(): void {
-    const colors = this.presentColors();
-    const row: GridCell[] = [];
-    for (let c = 0; c < COLS; c++) {
-      let special: SpecialKind = "none";
-      if (Math.random() < 0.08) {
-        special = Math.random() < 0.5 ? "bomb" : "lightning";
-      }
-      row.push({
-        color: colors[Math.floor(Math.random() * colors.length)],
-        special
-      });
-    }
-    this.grid.unshift(row);
-    this.shift ^= 1;
-    this.missCounter = 0;
-    this.ceilingDropOffset = -this.rowH * 0.65;
-    this.audio.playWhoosh();
-    this.triggerShake(0.18, 4);
-    this.addFloatingText("¡DESCIENDEN LOS ADORNOS!", this.width * 0.5, this.height * 0.45, "#FF5252", 1.25);
-  }
-
-  private checkDefeat(): void {
-    if (this.ending) return;
-    const last = this.lastOccupiedRow();
-    if (last >= this.rowLimit) {
-      this.ending = true;
-      this.audio.playError();
-      this.triggerShake(0.3, 8);
-      this.addFloatingText("¡LLEGARON A LA BASE!", this.width * 0.5, this.height * 0.45, "#FF5252", 1.5);
-      this.setGameTimeout(() => this.endGame(), 1100);
-    }
-  }
-
-  // ==========================================================================
-  // RENDERIZADO DELUXE
-  // ==========================================================================
-  protected onDraw(ctx: CanvasRenderingContext2D): void {
+  private spawnWave(): void {
+    this.waveNumber++;
     const w = this.width;
     const h = this.height;
 
-    drawNightSky(ctx, w, h, this.animClock, this.stars, 0);
-
-    // Fondo de aldea navideña con veladura nocturna
-    if (imgReady(this.bgVillageSprite)) {
-      ctx.save();
-      ctx.globalAlpha = 0.28;
-      ctx.drawImage(this.bgVillageSprite, 0, 0, w, h);
-      ctx.restore();
-    }
-
-    // Marco escénico del taller/árbol de adornos
-    const fieldW = (COLS * 2 + 1) * this.r;
-    const panelTop = this.fieldTop - 14;
-    const panelBottom = this.cannonY + this.r * 1.95;
-
-    ctx.save();
-    const panelGrad = ctx.createLinearGradient(0, panelTop, 0, panelBottom);
-    panelGrad.addColorStop(0, "rgba(7, 18, 42, 0.84)");
-    panelGrad.addColorStop(0.6, "rgba(10, 26, 58, 0.78)");
-    panelGrad.addColorStop(1, "rgba(18, 12, 38, 0.88)");
-    ctx.fillStyle = panelGrad;
-    roundRectPath(ctx, this.left - 12, panelTop, fieldW + 24, panelBottom - panelTop, 20);
-    ctx.fill();
-
-    // Columnas laterales de bastón de caramelo y bronce
-    this.drawCandyPillar(ctx, this.left - 14, panelTop, 12, panelBottom - panelTop);
-    this.drawCandyPillar(ctx, this.left + fieldW + 2, panelTop, 12, panelBottom - panelTop);
-
-    // Viga superior de pino y guirnalda real
-    this.drawFestiveCeiling(ctx, this.left - 14, panelTop, fieldW + 28, 22);
-    ctx.restore();
-
-    // Cajas Colectoras de Regalos en la base
-    this.drawCollectorBins(ctx, fieldW);
-
-    // Línea de límite de peligro con luces de advertencia
-    const dangerY = this.fieldTop + this.rowLimit * this.rowH;
-    ctx.save();
-    const dangerPulse = 0.55 + Math.sin(this.animClock * 5) * 0.25;
-    ctx.strokeStyle = `rgba(255, 68, 68, ${dangerPulse})`;
-    ctx.lineWidth = 3;
-    ctx.setLineDash([12, 9]);
-    ctx.beginPath();
-    ctx.moveTo(this.left + 4, dangerY);
-    ctx.lineTo(this.left + fieldW - 4, dangerY);
-    ctx.stroke();
-    ctx.restore();
-
-    // Guía de puntería láser + Silueta Fantasma de encaje hexagonal
-    if (!this.shot && !this.ending) {
-      this.drawAimGuideAndGhost(ctx);
-    }
-
-    // Adornos de la rejilla
-    for (let row = 0; row < this.grid.length; row++) {
-      for (let col = 0; col < COLS; col++) {
-        const cell = this.grid[row][col];
-        if (!cell || (cell.color < 0 && cell.special === "none")) continue;
-        const wob = Math.sin(this.animClock * 2.2 + row * 0.7 + col * 0.5) * 1.1;
-        this.drawGridCell(ctx, cell, this.cellX(row, col), this.cellY(row) + wob, this.r);
-      }
-    }
-
-    // Ondas expansivas de explosión
-    for (const sw of this.shockwaves) {
-      ctx.save();
-      ctx.globalAlpha = 1 - sw.t;
-      ctx.strokeStyle = sw.color;
-      ctx.lineWidth = 5 * (1 - sw.t);
-      ctx.beginPath();
-      ctx.arc(sw.x, sw.y, sw.maxR * sw.t, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // Rayos Boreales Horizontales
-    for (const lb of this.lightningBeams) {
-      ctx.save();
-      ctx.globalAlpha = 1 - lb.t;
-      ctx.strokeStyle = "#00E5FF";
-      ctx.shadowColor = "#00E5FF";
-      ctx.shadowBlur = 18;
-      ctx.lineWidth = 10 * (1 - lb.t);
-      ctx.beginPath();
-      ctx.moveTo(this.left, lb.y);
-      for (let x = this.left; x <= this.left + fieldW; x += 28) {
-        const jitter = (Math.sin(x * 0.25 + this.animClock * 40) * 8) * (1 - lb.t);
-        ctx.lineTo(x, lb.y + jitter);
-      }
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // Adornos cayendo hacia las cajas colectoras
-    for (const f of this.fallers) {
-      ctx.save();
-      ctx.translate(f.x, f.y);
-      ctx.rotate(f.rot);
-      this.drawOrnament(ctx, f.color, 0, 0, this.r);
-      ctx.restore();
-    }
-
-    // Efectos de estallido
-    for (const p of this.pops) {
-      ctx.save();
-      ctx.globalAlpha = 1 - p.t;
-      this.drawOrnament(ctx, p.color, p.x, p.y, this.r * (1 + p.t * 0.5));
-      ctx.restore();
-      this.drawStar(ctx, p.x, p.y, this.r * (0.6 + p.t * 1.2), `rgba(255,236,140,${1 - p.t})`);
-    }
-
-    // Estela y adorno en vuelo
-    if (this.shot) {
-      for (let i = 0; i < this.shot.trail.length; i++) {
-        const pt = this.shot.trail[i];
-        const alpha = ((i + 1) / this.shot.trail.length) * 0.42;
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = this.shot.special !== "none" ? "#00E5FF" : COLOR_HEX[this.shot.color % COLOR_HEX.length];
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, this.r * 0.35 * ((i + 1) / this.shot.trail.length), 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-      this.drawAmmo(ctx, this.shot.x, this.shot.y, this.shot, this.r);
-    }
-
-    // Cañón Lanzador Mágico + Canasta de Intercambio + Medidor de Fiebre
-    this.drawCannonAndSwapper(ctx);
-
-    this.particles.draw(ctx, true);
-
-    // Indicadores superiores: Nivel actual + descensos restantes
-    const shotsLeft = this.missLimit - this.missCounter;
-    drawPill(
-      ctx,
-      `${this.currentLevelTitle} • DESCIENDEN EN: ${shotsLeft}`,
-      w / 2,
-      64,
-      shotsLeft <= 2 ? "#FF5252" : "#FFD700",
-      320
-    );
-
-    if (this.combo >= 2) {
-      drawPill(ctx, `COMBO x${this.combo}`, this.left + fieldW - 68, 64, "#FF9100", 125);
-    }
-
-    // Botón de Ayuda / Tutorial en la esquina superior derecha
-    this.drawHelpButton(ctx, this.left + fieldW - 24, this.fieldTop - 28);
-  }
-
-  private drawHelpButton(ctx: CanvasRenderingContext2D, x: number, y: number): void {
-    ctx.save();
-    ctx.fillStyle = "rgba(10, 25, 52, 0.9)";
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(x, y, 16, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = "#FFD700";
-    ctx.font = "900 15px 'Titan One', sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("?", x, y + 1);
-    ctx.restore();
-  }
-
-  private drawCandyPillar(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void {
-    ctx.save();
-    roundRectPath(ctx, x, y, w, h, 6);
-    ctx.clip();
-    ctx.fillStyle = "#FFF8E7";
-    ctx.fillRect(x, y, w, h);
-    ctx.fillStyle = "#D32F2F";
-    for (let sy = y - 20; sy < y + h + 20; sy += 28) {
-      ctx.beginPath();
-      ctx.moveTo(x, sy);
-      ctx.lineTo(x + w, sy + 10);
-      ctx.lineTo(x + w, sy + 22);
-      ctx.lineTo(x, sy + 12);
-      ctx.closePath();
-      ctx.fill();
-    }
-    ctx.restore();
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 2;
-    roundRectPath(ctx, x, y, w, h, 6);
-    ctx.stroke();
-  }
-
-  private drawFestiveCeiling(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void {
-    const grad = ctx.createLinearGradient(x, y, x, y + h);
-    grad.addColorStop(0, "#1B5E20");
-    grad.addColorStop(0.6, "#2E7D32");
-    grad.addColorStop(1, "#0D3B10");
-    ctx.fillStyle = grad;
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 2.5;
-    roundRectPath(ctx, x, y, w, h, 10);
-    ctx.fill();
-    ctx.stroke();
-
-    // Luces navideñas parpadeantes en la viga superior
-    const bulbColors = ["#FF2A4D", "#FFD700", "#00E5FF", "#00E676"];
-    const step = 36;
-    let idx = 0;
-    for (let bx = x + 22; bx < x + w - 16; bx += step) {
-      const c = bulbColors[idx % bulbColors.length];
-      const pulse = 0.65 + Math.sin(this.animClock * 5 + idx) * 0.35;
-      ctx.save();
-      ctx.fillStyle = c;
-      ctx.shadowColor = c;
-      ctx.shadowBlur = 8 * pulse;
-      ctx.beginPath();
-      ctx.arc(bx, y + h * 0.55, 4.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-      idx++;
-    }
-  }
-
-  private drawCollectorBins(ctx: CanvasRenderingContext2D, fieldW: number): void {
-    const binCount = this.bins.length;
-    const binW = fieldW / binCount;
-    const baseY = this.cannonY + this.r * 0.65;
-
-    for (let i = 0; i < binCount; i++) {
-      const bx = this.left + i * binW;
-      const bin = this.bins[i];
-      const bounceOffset = bin.bounce * 7;
-
-      ctx.save();
-      ctx.fillStyle = "rgba(12, 28, 60, 0.72)";
-      ctx.strokeStyle = bin.color;
-      ctx.lineWidth = 2;
-      roundRectPath(ctx, bx + 4, baseY - bounceOffset, binW - 8, this.r * 1.15, 10);
-      ctx.fill();
-      ctx.stroke();
-
-      if (i !== 2) {
-        const giftImg = this.giftBoxSprites[i % this.giftBoxSprites.length];
-        if (imgReady(giftImg)) {
-          const gs = this.r * 0.95;
-          ctx.drawImage(giftImg, bx + 10, baseY - bounceOffset + 2, gs, gs);
-        }
-      }
-
-      ctx.fillStyle = bin.color;
-      ctx.font = `900 ${Math.round(this.r * 0.5)}px 'Titan One', 'Fredoka', sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(
-        `${bin.label} (+${bin.basePts})`,
-        bx + binW * (i === 2 ? 0.5 : 0.6),
-        baseY - bounceOffset + this.r * 0.58
+    // 1. Asalto de la Piñata Estrella cada 6 oleadas
+    if (this.waveNumber % 6 === 0) {
+      this.spawnSingleTarget("pinataBoss", w * 0.5 + (Math.random() - 0.5) * 140, h + 40);
+      this.addBanner(
+        w * 0.5,
+        h * 0.34,
+        "¡PIÑATA ESTRELLA REAL!",
+        "¡Córtala repetidas veces antes de que explote!",
+        "#FFD700",
+        1.15
       );
-      ctx.restore();
-    }
-  }
-
-  private drawGridCell(ctx: CanvasRenderingContext2D, cell: GridCell, x: number, y: number, r: number): void {
-    if (cell.special !== "none") {
-      if (cell.color >= 0) {
-        this.drawOrnament(ctx, cell.color, x, y, r);
-      }
-      this.drawSpecialOrb(ctx, cell.special, cell.sponsorIdx || 0, x, y, r * 0.92);
-    } else {
-      this.drawOrnament(ctx, cell.color, x, y, r);
-    }
-  }
-
-  private drawOrnament(ctx: CanvasRenderingContext2D, color: number, x: number, y: number, r: number): void {
-    const img = this.sprites[color % this.sprites.length];
-    if (imgReady(img)) {
-      const sy = img.naturalHeight * 0.17;
-      const sh = img.naturalHeight - sy;
-      const dw = r * 2.04;
-      const dh = dw * (sh / img.naturalWidth);
-      ctx.drawImage(img, 0, sy, img.naturalWidth, sh, x - dw / 2, y + r * 1.02 - dh, dw, dh);
-    } else {
-      ctx.fillStyle = COLOR_HEX[color % COLOR_HEX.length];
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  private drawSpecialOrb(
-    ctx: CanvasRenderingContext2D,
-    special: SpecialKind,
-    sponsorIdx: number,
-    x: number,
-    y: number,
-    r: number
-  ): void {
-    if (special === "sponsor") {
-      ctx.save();
-      ctx.shadowColor = "#FFD700";
-      ctx.shadowBlur = 20;
-      this.drawOrnament(ctx, 3, x, y, r);
-      ctx.restore();
-      const sponsor = this.sponsors[sponsorIdx % this.sponsors.length];
-      drawSponsorMedallion(ctx, sponsor?.logo, x, y + r * 0.08, r * 0.56);
       return;
     }
 
-    const sprite =
-      special === "rainbow"
-        ? this.rainbowSprite
-        : special === "bomb"
-          ? this.bombSprite
-          : this.lightningSprite;
+    // 2. Nuevo Enemigo: ¡Asalto del Duende Ladrón del Hielo! (Oleada 3, 7, 11...)
+    if (this.waveNumber >= 3 && this.waveNumber % 4 === 3) {
+      const fromSide = Math.random() < 0.5 ? "left" : "right";
+      this.spawnSingleTarget("frostGoblin", w * 0.5, h + 30, fromSide);
+      this.audio.playCountdownStep(2);
+      this.addBanner(
+        w * 0.5,
+        h * 0.32,
+        "¡ALERTA: DUENDE LADRÓN!",
+        "¡Córtalo 3 veces antes de que escape o te robará 4 segundos!",
+        "#00E5FF",
+        1.25
+      );
+    }
 
-    if (imgReady(sprite)) {
-      ctx.save();
-      ctx.shadowColor = special === "rainbow" ? "#FF80AB" : special === "bomb" ? "#FF5252" : "#00E5FF";
-      ctx.shadowBlur = 14;
-      const size = r * 2.15;
-      ctx.drawImage(sprite, x - size / 2, y - size / 2, size, size);
-      ctx.restore();
-    } else {
-      this.drawOrnament(ctx, 3, x, y, r);
+    const count = Math.min(6, 2 + Math.floor(this.waveNumber / 3) + (Math.random() < 0.45 ? 1 : 0));
+    const normalPool: TargetKind[] = [
+      "gingerbread",
+      "peppermint",
+      "giftRed",
+      "giftGreen",
+      "giftBlue"
+    ];
+    if (this.waveNumber >= 2) {
+      normalPool.push("frozenGift");
+    }
+
+    let bombsInWave = 0;
+    const maxBombs = this.waveNumber <= 1 ? 0 : Math.min(2, 1 + Math.floor(this.waveNumber / 5));
+
+    for (let i = 0; i < count; i++) {
+      let kind: TargetKind = normalPool[Math.floor(Math.random() * normalPool.length)];
+
+      const roll = Math.random();
+      if (roll < 0.08 && this.freezeTimer <= 0) {
+        kind = "freezeCrystal";
+      } else if (roll >= 0.08 && roll < 0.15 && this.frenzyTimer <= 0) {
+        kind = "frenzyOrb";
+      } else if (roll >= 0.15 && roll < 0.32) {
+        // Alta frecuencia de Cofres Patrocinadores para destacar las marcas
+        kind = "sponsorGift";
+      } else if (roll >= 0.32 && roll < 0.48 && bombsInWave < maxBombs) {
+        kind = "bomb";
+        bombsInWave++;
+      }
+
+      const spreadX = w * 0.16 + (i + 0.5) * ((w * 0.68) / count) + (Math.random() - 0.5) * 55;
+      this.spawnSingleTarget(kind, spreadX, h + 35 + i * 22);
+    }
+
+    // Emboscada de Dificultad Dinámica: a partir de oleada 4, si hay bombas, sincronizar una bomba trampa paralela
+    if (bombsInWave > 0 && this.waveNumber >= 4 && Math.random() < 0.55) {
+      const ambushX = w * (0.28 + Math.random() * 0.44);
+      this.spawnSingleTarget("bomb", ambushX, h + 42);
     }
   }
 
-  private drawAmmo(
-    ctx: CanvasRenderingContext2D,
+  private spawnSingleTarget(kind: TargetKind, startX: number, startY: number, fromSide?: "left" | "right"): void {
+    const w = this.width;
+    const h = this.height;
+    const r = this.getTargetRadius(kind);
+
+    let vx = 0;
+    let vy = 0;
+
+    if (fromSide === "left") {
+      startX = -r;
+      startY = h * (0.42 + Math.random() * 0.28);
+      vx = w * (0.48 + Math.random() * 0.25);
+      vy = -(h * (0.42 + Math.random() * 0.22));
+    } else if (fromSide === "right") {
+      startX = w + r;
+      startY = h * (0.42 + Math.random() * 0.28);
+      vx = -w * (0.48 + Math.random() * 0.25);
+      vy = -(h * (0.42 + Math.random() * 0.22));
+    } else {
+      const targetPeakX = w * (0.25 + Math.random() * 0.5);
+      const flightTime = 1.05 + Math.random() * 0.22;
+      vx = (targetPeakX - startX) / flightTime;
+      const desiredPeakY = kind === "pinataBoss" ? h * 0.36 : h * (0.24 + Math.random() * 0.2);
+      const gravity = 940;
+      const riseHeight = Math.max(250, startY - desiredPeakY);
+      vy = -Math.sqrt(2 * gravity * riseHeight);
+    }
+
+    const sponsor = kind === "sponsorGift" ? this.nextSponsor() : null;
+
+    this.targets.push({
+      id: this.nextTargetId++,
+      kind,
+      x: startX,
+      y: startY,
+      vx,
+      vy,
+      r,
+      angle: (Math.random() - 0.5) * 0.45,
+      vAngle: kind === "timeClock" || kind === "sponsorGift" ? (Math.random() - 0.5) * 1.6 : (Math.random() - 0.5) * 3.8,
+      sliced: false,
+      reachedPeak: false,
+      multiHits: 0,
+      maxMultiHits: kind === "pinataBoss" ? 10 : kind === "frostGoblin" ? 3 : kind === "frozenGift" ? 2 : 1,
+      hitCooldown: 0,
+      hoverTimer: kind === "pinataBoss" ? 2.6 : kind === "frostGoblin" ? 1.2 : 0,
+      sponsor
+    });
+  }
+
+  private checkSegmentCuts(x1: number, y1: number, x2: number, y2: number): void {
+    const cutAngle = Math.atan2(y2 - y1, x2 - x1);
+
+    for (const t of this.targets) {
+      if (t.sliced || t.hitCooldown > 0) continue;
+
+      if (this.segmentIntersectsCircle(x1, y1, x2, y2, t.x, t.y, t.r * 1.08)) {
+        this.sliceTarget(t, cutAngle);
+      }
+    }
+  }
+
+  private sliceTarget(t: FlyingTarget, cutAngle: number): void {
+    // 1. ¿Es una Bomba de Carbón? -> ¡Quita tiempo del reloj (-6 segundos)!
+    if (t.kind === "bomb") {
+      t.sliced = true;
+      this.swipeSliceCount = 0;
+      this.audio.playPowerUp();
+      this.triggerShake(0.38, 16);
+      this.particles.emitBurst(t.x, t.y, "#FF1744", 32);
+      this.particles.emitBurst(t.x, t.y, "#FF9100", 24);
+      this.addSlashFlash(t.x, t.y, cutAngle, "#FF1744", t.r * 2.2);
+
+      for (const other of this.targets) {
+        if (other.kind === "bomb") other.sliced = true;
+      }
+
+      this.timeRemaining = Math.max(0, this.timeRemaining - 6);
+      this.addBanner(
+        t.x,
+        t.y - 25,
+        "¡BOMBA! -6 SEGUNDOS",
+        "¡Las bombas de carbón te quitan tiempo del reloj!",
+        "#FF1744",
+        1.24
+      );
+      return;
+    }
+
+    // 2. ¿Es el Duende Ladrón del Hielo? (Enemigo especial de 3 tajos obligatorios)
+    if (t.kind === "frostGoblin" && t.multiHits + 1 < t.maxMultiHits) {
+      t.multiHits++;
+      t.hitCooldown = 0.08;
+      t.vy = Math.min(t.vy, -135);
+      t.vx = (Math.random() > 0.5 ? 1 : -1) * (160 + Math.random() * 80);
+      t.vAngle = (Math.random() > 0.5 ? 1 : -1) * 8.5;
+
+      const hitPts = t.multiHits === 1 ? 100 : 150;
+      this.addScore(hitPts);
+      this.audio.playCatchItem(1.3 + t.multiHits * 0.2);
+      this.triggerShake(0.12, 6);
+      this.addSlashFlash(t.x, t.y, cutAngle, "#00E5FF", t.r * 2.3);
+      this.particles.emitBurst(t.x, t.y, "#00E5FF", 20);
+      this.particles.emitBurst(t.x, t.y, "#FFFFFF", 12);
+      const title = t.multiHits === 1 ? "¡ESCUDO DE HIELO ROTO!" : "¡CORONA QUEBRADA!";
+      this.addBanner(
+        t.x,
+        t.y - 35,
+        `${title} +${hitPts}`,
+        `¡Corte ${t.multiHits}/3! ¡Termínalo antes de que escape!`,
+        "#00E5FF",
+        1.1
+      );
+      return;
+    }
+
+    // 3. ¿Es un Regalo Acorazado de Hielo? (Requiere 2 tajos)
+    if (t.kind === "frozenGift" && t.multiHits === 0) {
+      t.multiHits = 1;
+      t.hitCooldown = 0.08;
+      t.vy = Math.min(t.vy, -90);
+      const hitPts = 90;
+      this.addScore(hitPts);
+      this.audio.playCatchItem(1.2);
+      this.triggerShake(0.1, 5);
+      this.addSlashFlash(t.x, t.y, cutAngle, "#80D8FF", t.r * 2.2);
+      this.particles.emitBurst(t.x, t.y, "#80D8FF", 18);
+      this.addBanner(
+        t.x,
+        t.y - 30,
+        `¡CORAZA AGRIETADA! +${hitPts}`,
+        "¡Corta de nuevo el regalo!",
+        "#80D8FF",
+        1.05
+      );
+      return;
+    }
+
+    // 4. ¿Es la Gran Piñata Estrella Multigolpe?
+    if (t.kind === "pinataBoss" && t.multiHits + 1 < t.maxMultiHits) {
+      t.multiHits++;
+      t.hitCooldown = 0.075;
+      t.vy = Math.min(t.vy, -80);
+      t.vx *= 0.5;
+      t.vAngle = (Math.random() > 0.5 ? 1 : -1) * 7.5;
+
+      const hitPts = 65;
+      this.addScore(hitPts);
+      this.audio.playCatchItem(1.0 + t.multiHits * 0.08);
+      this.triggerShake(0.08, 4);
+      this.addSlashFlash(t.x, t.y, cutAngle, "#FFD700", t.r * 2.1);
+      this.particles.emitBurst(t.x, t.y, "#FFD700", 14);
+      this.addBanner(
+        t.x + (Math.random() - 0.5) * 60,
+        t.y - 35,
+        `¡TAJO x${t.multiHits}! +${hitPts}`,
+        undefined,
+        "#FFD700",
+        0.95
+      );
+      return;
+    }
+
+    // 3. Corte completo en DOS MITADES REALES
+    t.sliced = true;
+    this.totalSlicedCount++;
+    this.swipeSliceCount++;
+    this.swipeComboWindow = 0.22;
+    this.lastSliceX = t.x;
+    this.lastSliceY = t.y;
+
+    const palette = this.getTargetPalette(t.kind);
+    this.addSlashFlash(t.x, t.y, cutAngle, palette.flash, t.r * 2.25);
+    this.addWallSplatter(t.x, t.y, t.r * 0.9, palette.splatter);
+    this.particles.emitBurst(t.x, t.y, palette.spark, 18);
+
+    const perpX = -Math.sin(cutAngle);
+    const perpY = Math.cos(cutAngle);
+    const splitSpeed = 125;
+
+    for (const side of [-1, 1] as const) {
+      this.halves.push({
+        kind: t.kind,
+        x: t.x + perpX * side * 8,
+        y: t.y + perpY * side * 8,
+        vx: t.vx * 0.55 + perpX * side * splitSpeed,
+        vy: Math.min(t.vy * 0.45, -90) + perpY * side * splitSpeed * 0.6,
+        r: t.r,
+        angle: t.angle,
+        vAngle: side * (3.6 + Math.random() * 2.4),
+        cutAngle: cutAngle - t.angle,
+        side,
+        alpha: 1,
+        life: 0,
+        maxLife: 1.05,
+        seamColor: palette.flash,
+        sponsor: t.sponsor
+      });
+    }
+
+    // Si era un Cofre Patrocinador, emerge la Insignia Gigante del Patrocinador Oficial
+    if (t.kind === "sponsorGift" && t.sponsor) {
+      this.poppedToys.push({
+        img: t.sponsor.logo,
+        x: t.x,
+        y: t.y,
+        vx: 0,
+        vy: -155,
+        size: t.r * 1.9,
+        angle: 0,
+        vAngle: 0,
+        alpha: 1,
+        life: 0,
+        maxLife: 1.35,
+        isSponsorBadge: true,
+        sponsorName: t.sponsor.name,
+        badgeColor: t.sponsor.themeColor
+      });
+      // Sincronizar la cartelera del Dojo con el patrocinador cortado
+      const foundIdx = this.sponsors.findIndex((s) => s.key === t.sponsor!.key);
+      if (foundIdx >= 0) {
+        this.billboardSponsorIdx = foundIdx;
+        this.billboardSwapTimer = 0;
+        this.billboardGlowTimer = 2.5;
+      }
+    } else if (t.kind === "giftRed" || t.kind === "giftGreen" || t.kind === "giftBlue" || t.kind === "frozenGift") {
+      const toys = [this.bearImg, this.robotImg, this.carImg];
+      const toyImg = toys[Math.floor(Math.random() * toys.length)];
+      this.poppedToys.push({
+        img: toyImg,
+        x: t.x,
+        y: t.y,
+        vx: (Math.random() - 0.5) * 160,
+        vy: -260 - Math.random() * 80,
+        size: t.r * 1.35,
+        angle: 0,
+        vAngle: (Math.random() - 0.5) * 4,
+        alpha: 1,
+        life: 0,
+        maxLife: 0.95
+      });
+    }
+
+    // Puntos, Tiempo Extra (+5s) y Poderes según el tipo cortado
+    if (t.kind === "timeClock") {
+      // ¡RELOJ DORADO MÁGICO: +5 SEGUNDOS EXTRA!
+      this.timeRemaining = Math.min(90, this.timeRemaining + 5);
+      this.timeAddedFlash = 1.0;
+      const pts = 150;
+      this.addScore(pts);
+      this.audio.playPowerUp();
+      this.particles.emitBurst(t.x, t.y, "#00E676", 26);
+      this.particles.emitBurst(t.x, t.y, "#FFD700", 20);
+      this.addBanner(
+        t.x,
+        t.y - 32,
+        "¡+5 SEGUNDOS EXTRA!",
+        `¡RELOJ MÁGICO CORTADO! (+${pts} PTS)`,
+        "#00E676",
+        1.28
+      );
+    } else if (t.kind === "frostGoblin") {
+      const pts = 400;
+      this.addScore(pts);
+      this.audio.playPowerUp();
+      this.audio.playVictory();
+      this.triggerShake(0.25, 12);
+      this.particles.emitBurst(t.x, t.y, "#00E5FF", 32);
+      this.particles.emitBurst(t.x, t.y, "#FFD700", 25);
+      this.particles.emitConfetti(this.width, 35);
+      // Recompensa legendaria: suelta de inmediato un Reloj Dorado (+5s)
+      this.spawnSingleTarget("timeClock", t.x, t.y);
+      this.addBanner(
+        t.x,
+        t.y - 32,
+        "¡DUENDE DERROTADO! +400",
+        "¡Soltó un Reloj Dorado (+5s) de regalo!",
+        "#00E5FF",
+        1.3
+      );
+    } else if (t.kind === "frozenGift") {
+      const pts = 250;
+      this.addScore(pts);
+      this.audio.playPowerUp();
+      this.particles.emitBurst(t.x, t.y, "#80D8FF", 24);
+      this.addBanner(t.x, t.y - 30, `¡REGALO DESCONGELADO! +${pts}`, "¡Juguetes liberados!", "#80D8FF", 1.2);
+    } else if (t.kind === "pinataBoss") {
+      const pts = 500;
+      this.addScore(pts);
+      this.audio.playVictory();
+      this.triggerShake(0.28, 12);
+      this.particles.emitConfetti(this.width, 40);
+      this.addBanner(t.x, t.y - 30, `¡PIÑATA REVENTADA! +${pts}`, "¡EXPLOSIÓN DE DULCES!", "#FFD700", 1.25);
+    } else if (t.kind === "freezeCrystal") {
+      this.freezeTimer = 5.5;
+      this.addScore(180);
+      this.audio.playPowerUp();
+      this.addBanner(
+        t.x,
+        t.y - 28,
+        "¡TIEMPO CONGELADO! +180",
+        "¡Cámara Lenta Glacial por 5.5s!",
+        "#00E5FF",
+        1.15
+      );
+    } else if (t.kind === "frenzyOrb") {
+      this.frenzyTimer = 4.2;
+      this.frenzyBurstCooldown = 0.05;
+      this.addScore(200);
+      this.audio.playPowerUp();
+      this.particles.emitConfetti(this.width, 30);
+      this.addBanner(
+        t.x,
+        t.y - 28,
+        "¡LLUVIA FRENESÍ! +200",
+        "¡Avalancha lateral de regalos sin bombas!",
+        "#00E676",
+        1.18
+      );
+    } else if (t.kind === "sponsorGift") {
+      const sponsorKey = t.sponsor ? t.sponsor.key : 1;
+      const sponsorName = t.sponsor ? t.sponsor.name.toUpperCase() : "PATROCINADOR";
+      this.triggerLogoPowerUp(sponsorKey, 6);
+      this.addScore(280);
+      this.addBanner(
+        t.x,
+        t.y - 30,
+        `¡${sponsorName}! +280`,
+        "¡PUNTOS DOBLES x2 ACTIVADOS!",
+        "#FFD700",
+        1.18
+      );
+    } else {
+      const basePts = 80;
+      this.addScore(basePts);
+      this.audio.playCatchItem(1.1 + Math.min(0.5, this.swipeSliceCount * 0.1));
+      this.addBanner(t.x, t.y - 18, `+${basePts}`, undefined, palette.flash, 0.92);
+    }
+  }
+
+  private flushSwipeCombo(): void {
+    if (this.swipeSliceCount >= 3) {
+      const count = this.swipeSliceCount;
+      const bonus = count * 65;
+      this.addScore(bonus);
+      this.audio.playPowerUp();
+      this.billboardGlowTimer = 1.8;
+      this.particles.emitBurst(this.lastSliceX, this.lastSliceY, "#FFD700", 22);
+      const label =
+        count === 3
+          ? "¡CORTE TRIPLE!"
+          : count === 4
+          ? "¡CORTE CUÁDRUPLE!"
+          : `¡CORTE MAESTRO NINJA x${count}!`;
+      this.addBanner(
+        Math.max(140, Math.min(this.width - 140, this.lastSliceX)),
+        Math.max(130, this.lastSliceY - 35),
+        label,
+        `+${bonus} PUNTOS DE COMBO`,
+        "#FFD700",
+        1.22
+      );
+    }
+    this.swipeSliceCount = 0;
+    this.swipeComboWindow = 0;
+  }
+
+  private getTargetPalette(kind: TargetKind): { flash: string; splatter: string; spark: string } {
+    switch (kind) {
+      case "timeClock":
+        return { flash: "#00E676", splatter: "rgba(0, 230, 118, 0.42)", spark: "#FFD700" };
+      case "gingerbread":
+        return { flash: "#FFE082", splatter: "rgba(210, 138, 71, 0.42)", spark: "#FFB300" };
+      case "peppermint":
+        return { flash: "#FF80AB", splatter: "rgba(255, 42, 77, 0.38)", spark: "#FF4081" };
+      case "giftRed":
+        return { flash: "#FF5252", splatter: "rgba(229, 57, 53, 0.38)", spark: "#FFD700" };
+      case "giftGreen":
+        return { flash: "#69F0AE", splatter: "rgba(0, 200, 83, 0.38)", spark: "#00E676" };
+      case "giftBlue":
+      case "freezeCrystal":
+        return { flash: "#84FFFF", splatter: "rgba(0, 229, 255, 0.42)", spark: "#00E5FF" };
+      case "frenzyOrb":
+      case "pinataBoss":
+      case "sponsorGift":
+        return { flash: "#FFF59D", splatter: "rgba(255, 215, 0, 0.42)", spark: "#FFD700" };
+      case "frostGoblin":
+        return { flash: "#00E5FF", splatter: "rgba(0, 229, 255, 0.45)", spark: "#00E5FF" };
+      case "frozenGift":
+        return { flash: "#80D8FF", splatter: "rgba(128, 216, 255, 0.42)", spark: "#FFFFFF" };
+      default:
+        return { flash: "#FF5252", splatter: "rgba(120, 120, 120, 0.4)", spark: "#FF9100" };
+    }
+  }
+
+  private addSlashFlash(cx: number, cy: number, angle: number, color: string, length: number): void {
+    const dx = Math.cos(angle) * length * 0.5;
+    const dy = Math.sin(angle) * length * 0.5;
+    this.slashFlashes.push({
+      x1: cx - dx,
+      y1: cy - dy,
+      x2: cx + dx,
+      y2: cy + dy,
+      color,
+      alpha: 1
+    });
+  }
+
+  private addWallSplatter(x: number, y: number, r: number, color: string): void {
+    const drops: { dx: number; dy: number; r: number }[] = [];
+    for (let i = 0; i < 6; i++) {
+      const ang = (Math.PI * 2 * i) / 6 + Math.random() * 0.6;
+      const dist = r * (0.65 + Math.random() * 0.65);
+      drops.push({
+        dx: Math.cos(ang) * dist,
+        dy: Math.sin(ang) * dist,
+        r: r * (0.18 + Math.random() * 0.22)
+      });
+    }
+    this.splatters.push({
+      x,
+      y,
+      r,
+      color,
+      alpha: 0.85,
+      life: 0,
+      maxLife: 4.0,
+      drops
+    });
+    if (this.splatters.length > 16) {
+      this.splatters.shift();
+    }
+  }
+
+  private addBanner(
     x: number,
     y: number,
-    ammo: { color: number; special: SpecialKind; sponsorIdx: number },
-    r: number
+    text: string,
+    subText: string | undefined,
+    color: string,
+    scale = 1
   ): void {
-    if (ammo.special !== "none") {
-      this.drawSpecialOrb(ctx, ammo.special, ammo.sponsorIdx, x, y, r);
-    } else {
-      this.drawOrnament(ctx, ammo.color, x, y, r);
-    }
+    this.banners.push({
+      x,
+      y,
+      vy: -38,
+      text,
+      subText,
+      color,
+      scale,
+      alpha: 1,
+      life: 0,
+      maxLife: 1.35
+    });
   }
 
-  private drawStar(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string): void {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    for (let i = 0; i < 8; i++) {
-      const rad = i % 2 === 0 ? r : r * 0.35;
-      const a = (i * Math.PI) / 4 + this.animClock;
-      const px = x + Math.cos(a) * rad;
-      const py = y + Math.sin(a) * rad;
-      if (i === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
+  protected onUpdate(dt: number): void {
+    const safeDt = Math.min(dt, 0.033);
+    this.animClock += safeDt;
+
+    if (this.timeAddedFlash > 0) {
+      this.timeAddedFlash = Math.max(0, this.timeAddedFlash - safeDt * 1.6);
     }
-    ctx.closePath();
-    ctx.fill();
-  }
 
-  private drawAimGuideAndGhost(ctx: CanvasRenderingContext2D): void {
-    if (this.aimCancelled) return;
+    // Rotación de la cartelera publicitaria del Dojo
+    this.billboardSwapTimer += safeDt;
+    if (this.billboardSwapTimer >= 4.8 && this.sponsors.length > 1) {
+      this.billboardSwapTimer = 0;
+      this.billboardSponsorIdx = (this.billboardSponsorIdx + 1) % this.sponsors.length;
+    }
+    if (this.billboardGlowTimer > 0) {
+      this.billboardGlowTimer = Math.max(0, this.billboardGlowTimer - safeDt);
+    }
 
-    let x = this.cannonX + Math.sin(this.aim) * this.r * 2.3;
-    let y = this.cannonY - Math.cos(this.aim) * this.r * 2.3;
-    let vx = Math.sin(this.aim);
-    let vy = -Math.cos(this.aim);
-    const step = this.r * 0.45;
-    const minX = this.left + this.r;
-    const maxX = this.left + (COLS * 2 + 1) * this.r - this.r;
+    // Lanzador periódico del Reloj Dorado (+5 segundos cada 5 segundos)
+    this.clockSpawnCooldown -= safeDt;
+    if (this.clockSpawnCooldown <= 0) {
+      this.clockSpawnCooldown = 5.0;
+      const clockX = this.width * (0.26 + Math.random() * 0.48);
+      this.spawnSingleTarget("timeClock", clockX, this.height + 35);
+    }
 
-    const guideColor =
-      this.curAmmo.special !== "none"
-        ? "#00E5FF"
-        : COLOR_HEX[this.curAmmo.color % COLOR_HEX.length] || "#FFF3B0";
-
-    ctx.save();
-    for (let i = 0; i < 280; i++) {
-      x += vx * step;
-      y += vy * step;
-      if (x < minX) {
-        x = minX;
-        vx = Math.abs(vx);
-      } else if (x > maxX) {
-        x = maxX;
-        vx = -Math.abs(vx);
-      }
-      if (y <= this.fieldTop + this.r || this.touchesBubble(x, y, this.r * 1.82)) break;
-      if (i % 3 === 0) {
-        ctx.globalAlpha = Math.max(0.18, 0.92 - i / 220);
-        ctx.fillStyle = guideColor;
-        ctx.beginPath();
-        ctx.arc(x, y, this.r * 0.16, 0, Math.PI * 2);
-        ctx.fill();
+    if (this.swipeComboWindow > 0) {
+      this.swipeComboWindow -= safeDt;
+      if (this.swipeComboWindow <= 0) {
+        this.flushSwipeCombo();
       }
     }
 
-    // Silueta fantasma hexagonal donde aterrizará el adorno
-    const [snapRow, snapCol] = this.findSnapCell(x, y);
-    const gx = this.cellX(snapRow, snapCol);
-    const gy = this.cellY(snapRow);
-    ctx.globalAlpha = 0.45 + Math.sin(this.animClock * 7) * 0.18;
-    ctx.strokeStyle = guideColor;
-    ctx.lineWidth = 3;
-    ctx.setLineDash([6, 5]);
-    ctx.beginPath();
-    ctx.arc(gx, gy, this.r * 0.92, 0, Math.PI * 2);
-    ctx.stroke();
+    if (this.freezeTimer > 0) {
+      this.freezeTimer = Math.max(0, this.freezeTimer - safeDt);
+    }
+
+    if (this.frenzyTimer > 0) {
+      this.frenzyTimer = Math.max(0, this.frenzyTimer - safeDt);
+      this.frenzyBurstCooldown -= safeDt;
+      if (this.frenzyBurstCooldown <= 0) {
+        this.frenzyBurstCooldown = 0.26;
+        const pool: TargetKind[] = ["gingerbread", "peppermint", "giftRed", "giftGreen", "giftBlue", "sponsorGift"];
+        const kind = pool[Math.floor(Math.random() * pool.length)];
+        const side = Math.random() < 0.5 ? "left" : "right";
+        this.spawnSingleTarget(kind, 0, 0, side);
+      }
+    }
+
+    const timeScale = this.freezeTimer > 0 ? 0.44 : 1.0;
+    const worldDt = safeDt * timeScale;
+    const gravity = 940;
+
+    if (this.frenzyTimer <= 0) {
+      this.spawnTimer -= worldDt;
+      if (this.spawnTimer <= 0 && this.targets.length <= 2) {
+        this.spawnWave();
+        this.spawnTimer = Math.max(1.05, 1.95 - this.waveNumber * 0.05);
+      }
+    }
+
+    for (let i = this.targets.length - 1; i >= 0; i--) {
+      const t = this.targets[i];
+      if (t.sliced) {
+        this.targets.splice(i, 1);
+        continue;
+      }
+
+      if (t.hitCooldown > 0) {
+        t.hitCooldown = Math.max(0, t.hitCooldown - safeDt);
+      }
+
+      if (t.kind === "pinataBoss" && t.y <= this.height * 0.42 && t.hoverTimer > 0) {
+        t.hoverTimer -= safeDt;
+        t.vy *= 0.85;
+        t.vx *= 0.92;
+        t.x += t.vx * worldDt;
+        t.y += Math.sin(this.animClock * 5) * 28 * worldDt;
+        t.angle += t.vAngle * safeDt * 0.5;
+        t.reachedPeak = true;
+        continue;
+      }
+
+      if (t.kind === "frostGoblin" && !t.sliced) {
+        // Vuelo sinusoidal oscilante con estela mágica de escarcha
+        t.x += Math.sin(this.animClock * 8 + t.id) * 110 * worldDt;
+        if (Math.random() < 0.35) {
+          this.particles.emitBurst(t.x + (Math.random() - 0.5) * 20, t.y + (Math.random() - 0.5) * 20, "#00E5FF", 2);
+        }
+      }
+
+      t.vy += gravity * worldDt;
+      t.x += t.vx * worldDt;
+      t.y += t.vy * worldDt;
+      t.angle += t.vAngle * worldDt;
+
+      if (t.vy >= 0 || t.y < this.height * 0.72) {
+        t.reachedPeak = true;
+      }
+
+      if (t.x - t.r < 24 && t.vx < 0) {
+        t.x = 24 + t.r;
+        t.vx = Math.abs(t.vx) * 0.75;
+      } else if (t.x + t.r > this.width - 24 && t.vx > 0) {
+        t.x = this.width - 24 - t.r;
+        t.vx = -Math.abs(t.vx) * 0.75;
+      }
+
+      if (t.y - t.r > this.height + 55 && t.vy > 0) {
+        if (t.kind === "frostGoblin" && !t.sliced) {
+          // ¡EL DUENDE ESCAPÓ! Penalización de tiempo (-4 segundos)
+          this.timeRemaining = Math.max(0, this.timeRemaining - 4);
+          this.triggerShake(0.24, 10);
+          this.audio.playError();
+          this.addBanner(
+            Math.max(160, Math.min(this.width - 160, t.x)),
+            this.height * 0.65,
+            "¡EL DUENDE ESCAPÓ! -4s",
+            "¡El ladrón huyó riéndose con tu tiempo!",
+            "#FF1744",
+            1.25
+          );
+        }
+        this.targets.splice(i, 1);
+      }
+    }
+
+    for (let i = this.halves.length - 1; i >= 0; i--) {
+      const h = this.halves[i];
+      h.life += safeDt;
+      h.vy += gravity * 1.05 * safeDt;
+      h.x += h.vx * safeDt;
+      h.y += h.vy * safeDt;
+      h.angle += h.vAngle * safeDt;
+      h.alpha = Math.max(0, 1 - h.life / h.maxLife);
+      if (h.life >= h.maxLife || h.y > this.height + 120) {
+        this.halves.splice(i, 1);
+      }
+    }
+
+    for (let i = this.poppedToys.length - 1; i >= 0; i--) {
+      const pt = this.poppedToys[i];
+      pt.life += safeDt;
+      pt.vy += (pt.isSponsorBadge ? 140 : 520) * safeDt;
+      pt.x += pt.vx * safeDt;
+      pt.y += pt.vy * safeDt;
+      pt.angle += pt.vAngle * safeDt;
+      pt.alpha = Math.max(0, 1 - Math.pow(pt.life / pt.maxLife, 1.6));
+      if (pt.life >= pt.maxLife) {
+        this.poppedToys.splice(i, 1);
+      }
+    }
+
+    for (let i = this.splatters.length - 1; i >= 0; i--) {
+      const sp = this.splatters[i];
+      sp.life += safeDt;
+      sp.alpha = Math.max(0, 0.75 * (1 - sp.life / sp.maxLife));
+      if (sp.life >= sp.maxLife) {
+        this.splatters.splice(i, 1);
+      }
+    }
+
+    for (let i = this.slashFlashes.length - 1; i >= 0; i--) {
+      const sf = this.slashFlashes[i];
+      sf.alpha -= safeDt * 6.5;
+      if (sf.alpha <= 0) {
+        this.slashFlashes.splice(i, 1);
+      }
+    }
+
+    for (let i = this.bladePoints.length - 1; i >= 0; i--) {
+      this.bladePoints[i].age += safeDt;
+      if (this.bladePoints[i].age > 0.13) {
+        this.bladePoints.splice(i, 1);
+      }
+    }
+
+    for (let i = this.droppedCrosses.length - 1; i >= 0; i--) {
+      const dc = this.droppedCrosses[i];
+      dc.life += safeDt;
+      dc.alpha = Math.max(0, 1 - dc.life / 1.3);
+      if (dc.life >= 1.3) {
+        this.droppedCrosses.splice(i, 1);
+      }
+    }
+
+    for (let i = this.banners.length - 1; i >= 0; i--) {
+      const fb = this.banners[i];
+      fb.life += safeDt;
+      fb.y += fb.vy * safeDt;
+      fb.alpha = Math.max(0, 1 - Math.pow(fb.life / fb.maxLife, 1.7));
+      if (fb.life >= fb.maxLife) {
+        this.banners.splice(i, 1);
+      }
+    }
+  }
+
+  private segmentIntersectsCircle(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    cx: number,
+    cy: number,
+    r: number
+  ): boolean {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const lenSq = dx * dx + dy * dy;
+    let t = 0;
+    if (lenSq > 0) {
+      t = ((cx - x1) * dx + (cy - y1) * dy) / lenSq;
+      t = Math.max(0, Math.min(1, t));
+    }
+    const nearX = x1 + t * dx;
+    const nearY = y1 + t * dy;
+    const distSq = (cx - nearX) * (cx - nearX) + (cy - nearY) * (cy - nearY);
+    return distSq <= r * r;
+  }
+
+  private pointInRect(px: number, py: number, rect: { x: number; y: number; w: number; h: number }): boolean {
+    return px >= rect.x && px <= rect.x + rect.w && py >= rect.y && py <= rect.y + rect.h;
+  }
+
+  // ============================================================================
+  // RENDERIZADO 2D ESTILIZADO
+  // ============================================================================
+
+  protected onDraw(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+
+    this.drawDojoBackground(ctx);
+    this.drawDojoSponsorBillboard(ctx);
+    this.drawWallSplatters(ctx);
+    this.drawTopStatusBarAndTimerGauge(ctx);
+    this.drawLowTimeUrgencyOverlay(ctx);
+    this.drawSlicedHalves(ctx);
+    this.drawPoppedToys(ctx);
+    this.drawFlyingTargets(ctx);
+    this.drawSlashFlashes(ctx);
+    this.drawKatanaBlade(ctx);
+    this.drawDroppedCrosses(ctx);
+    this.drawFreezeAndFrenzyBorders(ctx);
+    this.drawBanners(ctx);
+
     ctx.restore();
   }
 
-  private drawCannonAndSwapper(ctx: CanvasRenderingContext2D): void {
-    const cx = this.cannonX;
-    const cy = this.cannonY;
-    const r = this.r;
+  private drawDojoBackground(ctx: CanvasRenderingContext2D): void {
+    const w = this.width;
+    const h = this.height;
 
-    // 1. Tubo giratorio del cañón ('canon-adornos-tubo.png')
+    if (this.bgImg.complete && this.bgImg.naturalWidth > 0) {
+      const scale = Math.max(w / this.bgImg.naturalWidth, h / this.bgImg.naturalHeight);
+      const dw = this.bgImg.naturalWidth * scale;
+      const dh = this.bgImg.naturalHeight * scale;
+      ctx.drawImage(this.bgImg, (w - dw) * 0.5, (h - dh) * 0.5, dw, dh);
+    }
+
+    const dojoGrad = ctx.createRadialGradient(w * 0.5, h * 0.5, w * 0.1, w * 0.5, h * 0.5, w * 0.85);
+    dojoGrad.addColorStop(0, "rgba(42, 22, 12, 0.72)");
+    dojoGrad.addColorStop(0.65, "rgba(26, 13, 7, 0.84)");
+    dojoGrad.addColorStop(1, "rgba(12, 6, 3, 0.92)");
+    ctx.fillStyle = dojoGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = "rgba(255, 193, 110, 0.06)";
+    ctx.lineWidth = 2;
+    const plankStep = Math.max(65, Math.floor(h / 9));
+    for (let y = plankStep; y < h; y += plankStep) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+  }
+
+  /**
+   * Cartelera / Estandarte publicitario de Patrocinadores integrado en el muro del Dojo
+   */
+  private drawDojoSponsorBillboard(ctx: CanvasRenderingContext2D): void {
+    if (this.sponsors.length === 0) return;
+    const sponsor = this.sponsors[this.billboardSponsorIdx % this.sponsors.length];
+    const w = this.width;
+    const boardW = Math.min(340, w * 0.36);
+    const boardH = 68;
+    const boardX = (w - boardW) * 0.5;
+    const boardY = 128;
+
     ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(this.aim);
-    const recoilOffset = this.cannonRecoil * r * 0.45;
-    ctx.translate(0, recoilOffset);
 
-    if (imgReady(this.cannonBarrelSprite)) {
-      const bw = r * 2.55;
-      const bh = bw * (this.cannonBarrelSprite.naturalHeight / this.cannonBarrelSprite.naturalWidth);
-      ctx.drawImage(this.cannonBarrelSprite, -bw / 2, -bh * 0.78, bw, bh);
-    } else {
-      ctx.fillStyle = "#C77B3A";
-      roundRectPath(ctx, -r * 0.8, -r * 2.7, r * 1.6, r * 3.2, r * 0.4);
-      ctx.fill();
+    // Resplandor cuando se activa un patrocinador o combo
+    if (this.billboardGlowTimer > 0 || this.isLogoPowerUpActive) {
+      ctx.shadowColor = sponsor.themeColor;
+      ctx.shadowBlur = 22;
     }
 
-    // Adorno cargado asomando en la boca del cañón
-    if (!this.shot) {
-      this.drawAmmo(ctx, 0, -r * 1.65, this.curAmmo, r * 0.94);
-    }
-    ctx.restore();
-
-    // 2. Pedestal estacionario de relojería ('canon-adornos-base.png')
-    if (imgReady(this.cannonBaseSprite)) {
-      const baseW = r * 4.5;
-      const baseH = baseW * (this.cannonBaseSprite.naturalHeight / this.cannonBaseSprite.naturalWidth);
-      ctx.drawImage(this.cannonBaseSprite, cx - baseW / 2, cy - baseH * 0.35, baseW, baseH);
-    }
-
-    // 3. Canasta de Intercambio "CAMBIAR" con Elfo Ayudante a la izquierda
-    const sx = this.swapCenterX;
-    const sy = this.swapCenterY;
-    ctx.save();
-    const scale = 1 + Math.sin(this.swapAnim * Math.PI) * 0.18;
-    ctx.translate(sx, sy);
-    ctx.scale(scale, scale);
-
-    if (imgReady(this.elfHelperSprite)) {
-      const ew = r * 2.1;
-      const eh = ew * (this.elfHelperSprite.naturalHeight / this.elfHelperSprite.naturalWidth);
-      ctx.drawImage(this.elfHelperSprite, -r * 2.5, -eh * 0.55, ew, eh);
-    }
-
-    // Aro decorativo pulsante
-    const ringPulse = 0.85 + Math.sin(this.animClock * 4) * 0.15;
-    ctx.fillStyle = "rgba(10, 24, 52, 0.92)";
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 3 * ringPulse;
-    ctx.beginPath();
-    ctx.arc(0, 0, r * 1.28, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    this.drawAmmo(ctx, 0, 0, this.nextAmmo, r * 0.92);
-
-    // Etiqueta interactiva "TOCA: CAMBIAR"
-    ctx.fillStyle = "#FFD700";
-    ctx.font = `900 ${Math.max(10, Math.round(r * 0.38))}px 'Titan One', 'Fredoka', sans-serif`;
-    ctx.textAlign = "center";
-    ctx.fillText("TOCA: CAMBIAR", 0, r * 1.68);
-    ctx.restore();
-
-    // 4. Medidor de Fiebre Estelar a la derecha del cañón
-    const fx = cx + r * 4.4;
-    const fy = cy + r * 0.15;
-    const barW = r * 3.2;
-    const barH = r * 0.62;
-    ctx.save();
-    ctx.fillStyle = "rgba(10, 24, 52, 0.9)";
-    ctx.strokeStyle = "#00E5FF";
+    // Marco de madera noble y bronce del Dojo
+    const bgGrad = ctx.createLinearGradient(boardX, boardY, boardX, boardY + boardH);
+    bgGrad.addColorStop(0, "rgba(30, 16, 10, 0.92)");
+    bgGrad.addColorStop(1, "rgba(16, 8, 5, 0.95)");
+    ctx.fillStyle = bgGrad;
+    ctx.strokeStyle = this.isLogoPowerUpActive ? "#00E676" : "#FFD700";
     ctx.lineWidth = 2.5;
-    roundRectPath(ctx, fx - barW / 2, fy - barH / 2, barW, barH, barH / 2);
+    ctx.beginPath();
+    ctx.roundRect(boardX, boardY, boardW, boardH, 16);
     ctx.fill();
     ctx.stroke();
+    ctx.shadowBlur = 0;
 
-    const fillW = Math.max(0, (barW - 6) * (this.feverCharge / 100));
-    if (fillW > 0) {
-      const fGrad = ctx.createLinearGradient(fx - barW / 2, 0, fx + barW / 2, 0);
-      fGrad.addColorStop(0, "#00E5FF");
-      fGrad.addColorStop(0.5, "#FFD700");
-      fGrad.addColorStop(1, "#FF4081");
-      ctx.fillStyle = fGrad;
-      roundRectPath(ctx, fx - barW / 2 + 3, fy - barH / 2 + 3, fillW, barH - 6, (barH - 6) / 2);
-      ctx.fill();
+    // Medallón claro a la izquierda para máxima legibilidad del logo
+    const logoBoxW = 92;
+    const logoBoxH = boardH - 12;
+    const logoBoxX = boardX + 8;
+    const logoBoxY = boardY + 6;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
+    ctx.beginPath();
+    ctx.roundRect(logoBoxX, logoBoxY, logoBoxW, logoBoxH, 11);
+    ctx.fill();
+
+    if (sponsor.logo.complete && sponsor.logo.naturalWidth > 0) {
+      const pad = 6;
+      const maxW = logoBoxW - pad * 2;
+      const maxH = logoBoxH - pad * 2;
+      const scale = Math.min(maxW / sponsor.logo.naturalWidth, maxH / sponsor.logo.naturalHeight);
+      const dw = sponsor.logo.naturalWidth * scale;
+      const dh = sponsor.logo.naturalHeight * scale;
+      ctx.drawImage(
+        sponsor.logo,
+        logoBoxX + (logoBoxW - dw) * 0.5,
+        logoBoxY + (logoBoxH - dh) * 0.5,
+        dw,
+        dh
+      );
     }
+
+    // Textos del patrocinador a la derecha
+    const textX = logoBoxX + logoBoxW + 12;
+    const maxTextW = boardW - logoBoxW - 28;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+
+    ctx.fillStyle = "#FFD700";
+    ctx.font = "900 10px 'Nunito', sans-serif";
+    ctx.fillText(
+      this.isLogoPowerUpActive ? "¡PODER PATROCINADOR x2 ACTIVO!" : "PATROCINADOR DEL DOJO",
+      textX,
+      boardY + 18,
+      maxTextW
+    );
 
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = `900 ${Math.max(10, Math.round(r * 0.36))}px 'Titan One', 'Fredoka', sans-serif`;
-    ctx.textAlign = "center";
-    ctx.fillText(`FIEBRE ${Math.round(this.feverCharge)}%`, fx, fy + r * 0.85);
+    ctx.font = "900 15px 'Nunito', sans-serif";
+    ctx.fillText(sponsor.name.toUpperCase(), textX, boardY + 36, maxTextW);
+
+    ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
+    ctx.font = "700 11px 'Nunito', sans-serif";
+    ctx.fillText(sponsor.tagline, textX, boardY + 53, maxTextW);
+
     ctx.restore();
+  }
+
+  private drawWallSplatters(ctx: CanvasRenderingContext2D): void {
+    for (const sp of this.splatters) {
+      ctx.save();
+      ctx.globalAlpha = sp.alpha;
+      ctx.fillStyle = sp.color;
+      ctx.beginPath();
+      ctx.arc(sp.x, sp.y, sp.r * 0.58, 0, Math.PI * 2);
+      for (const d of sp.drops) {
+        ctx.moveTo(sp.x + d.dx + d.r, sp.y + d.dy);
+        ctx.arc(sp.x + d.dx, sp.y + d.dy, d.r, 0, Math.PI * 2);
+      }
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  private drawTopStatusBarAndTimerGauge(ctx: CanvasRenderingContext2D): void {
+    const barY = 82;
+    const barH = 38;
+    const secs = Math.max(0, Math.ceil(this.timeRemaining));
+    const isLowTime = this.timeRemaining <= 10;
+
+    ctx.save();
+
+    // 1. Placa Izquierda: Cortes y Oleada
+    const leftW = 215;
+    const leftX = 18;
+    ctx.fillStyle = "rgba(20, 12, 8, 0.88)";
+    ctx.strokeStyle = "#FFD700";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(leftX, barY, leftW, barH, 19);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#FFD700";
+    ctx.font = "900 13px 'Nunito', sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`CORTES: ${this.totalSlicedCount} • OLEADA ${this.waveNumber}`, leftX + 16, barY + barH * 0.5);
+
+    // 2. Placa Central: Barra Visual de Tiempo + Indicador de Reloj Dorado (+5s)
+    const timerW = Math.min(350, this.width * 0.36);
+    const timerX = (this.width - timerW) * 0.5;
+    const pulse = isLowTime ? 1 + Math.sin(this.animClock * 16) * 0.04 : 1;
+
+    ctx.save();
+    ctx.translate(timerX + timerW * 0.5, barY + barH * 0.5);
+    ctx.scale(pulse, pulse);
+    ctx.translate(-(timerX + timerW * 0.5), -(barY + barH * 0.5));
+
+    ctx.fillStyle = isLowTime
+      ? "rgba(90, 10, 18, 0.94)"
+      : this.timeAddedFlash > 0
+      ? "rgba(8, 75, 48, 0.94)"
+      : "rgba(20, 12, 8, 0.9)";
+    ctx.strokeStyle = isLowTime ? "#FF1744" : this.timeAddedFlash > 0 ? "#00E676" : "#FFD700";
+    ctx.lineWidth = isLowTime || this.timeAddedFlash > 0 ? 3 : 2;
+    ctx.beginPath();
+    ctx.roundRect(timerX, barY, timerW, barH, 19);
+    ctx.fill();
+    ctx.stroke();
+
+    // Barra de progreso de tiempo interna
+    const fillRatio = Math.max(0, Math.min(1, this.timeRemaining / this.initialDuration));
+    const innerPad = 5;
+    const fillW = Math.max(0, (timerW - innerPad * 2) * fillRatio);
+    if (fillW > 0) {
+      const barGrad = ctx.createLinearGradient(timerX, barY, timerX + timerW, barY);
+      if (isLowTime) {
+        barGrad.addColorStop(0, "rgba(255, 23, 68, 0.55)");
+        barGrad.addColorStop(1, "rgba(255, 145, 0, 0.55)");
+      } else {
+        barGrad.addColorStop(0, "rgba(0, 230, 118, 0.42)");
+        barGrad.addColorStop(1, "rgba(0, 229, 255, 0.42)");
+      }
+      ctx.fillStyle = barGrad;
+      ctx.beginPath();
+      ctx.roundRect(timerX + innerPad, barY + innerPad, fillW, barH - innerPad * 2, 14);
+      ctx.fill();
+    }
+
+    // Icono del Reloj Dorado a la izquierda de la barra
+    if (this.clockImg.complete && this.clockImg.naturalWidth > 0) {
+      ctx.drawImage(this.clockImg, timerX + 10, barY + 3, 32, 32);
+    }
+
+    ctx.fillStyle = isLowTime ? "#FF8A80" : "#FFFFFF";
+    ctx.font = "900 14px 'Nunito', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(
+      isLowTime
+        ? `¡TIEMPO: ${secs}s! ¡CORTA EL RELOJ +5s!`
+        : `TIEMPO: ${secs}s • RELOJ DORADO = +5s`,
+      timerX + timerW * 0.5 + 10,
+      barY + barH * 0.5
+    );
+    ctx.restore();
+
+    // 3. Botón Tutorial a la derecha
+    const helpW = 116;
+    const helpX = this.width - helpW - 18;
+    this.helpBtnRect = { x: helpX, y: barY, w: helpW, h: barH };
+
+    ctx.fillStyle = "rgba(24, 14, 10, 0.88)";
+    ctx.strokeStyle = "#00E5FF";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(helpX, barY, helpW, barH, 19);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "900 12px 'Nunito', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("? TUTORIAL", helpX + helpW * 0.5, barY + barH * 0.5);
+
+    ctx.restore();
+  }
+
+  /**
+   * Alerta visual dramática cuando quedan <= 10 segundos en el reloj
+   */
+  private drawLowTimeUrgencyOverlay(ctx: CanvasRenderingContext2D): void {
+    if (this.timeRemaining > 10 || this.timeRemaining <= 0) return;
+
+    const w = this.width;
+    const h = this.height;
+    const secs = Math.ceil(this.timeRemaining);
+    const pulse = 0.5 + 0.5 * Math.sin(this.animClock * 14);
+
+    ctx.save();
+
+    // Viñeta / marco pulsante rojo de alerta
+    ctx.strokeStyle = `rgba(255, 23, 68, ${0.28 + pulse * 0.45})`;
+    ctx.lineWidth = 14;
+    ctx.strokeRect(7, 7, w - 14, h - 14);
+
+    // Cuenta regresiva grande en el centro del Dojo
+    const scale = 1 + pulse * 0.14;
+    ctx.translate(w * 0.5, h * 0.52);
+    ctx.scale(scale, scale);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.font = "900 110px 'Nunito', sans-serif";
+    ctx.fillStyle = `rgba(255, 23, 68, ${0.16 + pulse * 0.14})`;
+    ctx.fillText(`${secs}`, 0, 0);
+
+    ctx.font = "900 18px 'Nunito', sans-serif";
+    ctx.fillStyle = `rgba(255, 215, 0, ${0.55 + pulse * 0.35})`;
+    ctx.fillText("¡ÚLTIMOS SEGUNDOS! ¡CORTA UN RELOJ DORADO (+5s)!", 0, 68);
+
+    ctx.restore();
+  }
+
+  private getSpriteForKind(kind: TargetKind): HTMLImageElement {
+    switch (kind) {
+      case "timeClock":
+        return this.clockImg;
+      case "pinataBoss":
+        return this.pinataImg;
+      case "gingerbread":
+        return this.gingerbreadImg;
+      case "peppermint":
+        return this.peppermintImg;
+      case "freezeCrystal":
+        return this.freezeCrystalImg;
+      case "frenzyOrb":
+        return this.frenzyOrbImg;
+      case "bomb":
+        return this.bombImg;
+      case "giftRed":
+        return this.giftRedImg;
+      case "giftGreen":
+        return this.giftGreenImg;
+      case "giftBlue":
+        return this.giftBlueImg;
+      case "sponsorGift":
+        return this.giftGoldImg;
+      case "frostGoblin":
+        return this.duendeImg;
+      case "frozenGift":
+        return this.frozenGiftImg;
+    }
+  }
+
+  private drawFlyingTargets(ctx: CanvasRenderingContext2D): void {
+    for (const t of this.targets) {
+      if (t.sliced) continue;
+
+      ctx.save();
+      ctx.translate(t.x, t.y);
+      ctx.rotate(t.angle);
+
+      if (t.kind === "bomb") {
+        const pulse = 1 + Math.sin(this.animClock * 18) * 0.12;
+        const dangerGlow = ctx.createRadialGradient(0, 0, t.r * 0.3, 0, 0, t.r * 1.55 * pulse);
+        dangerGlow.addColorStop(0, "rgba(255, 23, 68, 0.58)");
+        dangerGlow.addColorStop(1, "rgba(255, 23, 68, 0)");
+        ctx.fillStyle = dangerGlow;
+        ctx.beginPath();
+        ctx.arc(0, 0, t.r * 1.55 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (t.kind === "frostGoblin") {
+        const pulse = 1 + Math.sin(this.animClock * 14) * 0.15;
+        const goblinAura = ctx.createRadialGradient(0, 0, t.r * 0.2, 0, 0, t.r * 1.65 * pulse);
+        goblinAura.addColorStop(0, "rgba(0, 229, 255, 0.65)");
+        goblinAura.addColorStop(0.7, "rgba(0, 150, 255, 0.3)");
+        goblinAura.addColorStop(1, "rgba(0, 229, 255, 0)");
+        ctx.fillStyle = goblinAura;
+        ctx.beginPath();
+        ctx.arc(0, 0, t.r * 1.65 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (t.kind === "frozenGift") {
+        const frostAura = ctx.createRadialGradient(0, 0, t.r * 0.3, 0, 0, t.r * 1.45);
+        frostAura.addColorStop(0, "rgba(128, 216, 255, 0.45)");
+        frostAura.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = frostAura;
+        ctx.beginPath();
+        ctx.arc(0, 0, t.r * 1.45, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (
+        t.kind === "timeClock" ||
+        t.kind === "pinataBoss" ||
+        t.kind === "freezeCrystal" ||
+        t.kind === "frenzyOrb" ||
+        t.kind === "sponsorGift"
+      ) {
+        const auraColor =
+          t.kind === "timeClock"
+            ? "rgba(0, 230, 118, 0.62)"
+            : t.kind === "freezeCrystal"
+            ? "rgba(0, 229, 255, 0.52)"
+            : t.kind === "frenzyOrb"
+            ? "rgba(0, 230, 118, 0.5)"
+            : "rgba(255, 215, 0, 0.55)";
+        const aura = ctx.createRadialGradient(0, 0, t.r * 0.3, 0, 0, t.r * 1.65);
+        aura.addColorStop(0, auraColor);
+        aura.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = aura;
+        ctx.beginPath();
+        ctx.arc(0, 0, t.r * 1.65, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      const img = this.getSpriteForKind(t.kind);
+      const drawSize = t.r * 2.25;
+      if (img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, -drawSize * 0.5, -drawSize * 0.5, drawSize, drawSize);
+      } else {
+        ctx.fillStyle = "#FFD700";
+        ctx.beginPath();
+        ctx.arc(0, 0, t.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Medallón de alto contraste con el Logo del Patrocinador sobre el Cofre Volador
+      if (t.kind === "sponsorGift" && t.sponsor) {
+        ctx.rotate(-t.angle);
+        const badgeR = t.r * 0.68;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
+        ctx.strokeStyle = t.sponsor.themeColor || "#FFD700";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 4, badgeR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        if (t.sponsor.logo.complete && t.sponsor.logo.naturalWidth > 0) {
+          const maxDim = badgeR * 1.45;
+          const sc = Math.min(maxDim / t.sponsor.logo.naturalWidth, maxDim / t.sponsor.logo.naturalHeight);
+          const lw = t.sponsor.logo.naturalWidth * sc;
+          const lh = t.sponsor.logo.naturalHeight * sc;
+          ctx.drawImage(t.sponsor.logo, -lw * 0.5, 4 - lh * 0.5, lw, lh);
+        }
+      }
+
+      // Etiqueta "+5 SEGUNDOS" sobre el Reloj Dorado Mágico
+      if (t.kind === "timeClock") {
+        ctx.rotate(-t.angle);
+        ctx.fillStyle = "rgba(6, 52, 32, 0.94)";
+        ctx.strokeStyle = "#00E676";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.roundRect(-42, -t.r - 26, 84, 24, 12);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#00E676";
+        ctx.font = "900 13px 'Nunito', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("+5 SEG", 0, -t.r - 14);
+      }
+
+      if (t.kind === "frostGoblin") {
+        ctx.rotate(-t.angle);
+        ctx.fillStyle = "rgba(4, 24, 48, 0.92)";
+        ctx.strokeStyle = "#00E5FF";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.roundRect(-68, -t.r - 32, 136, 26, 13);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#00E5FF";
+        ctx.font = "900 12px 'Nunito', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`¡DUENDE! ${t.multiHits}/3 TAJOS`, 0, -t.r - 19);
+      }
+
+      if (t.kind === "frozenGift") {
+        ctx.rotate(-t.angle);
+        ctx.fillStyle = "rgba(6, 32, 60, 0.9)";
+        ctx.strokeStyle = "#80D8FF";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(-54, -t.r - 28, 108, 22, 11);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#80D8FF";
+        ctx.font = "900 11px 'Nunito', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(t.multiHits === 0 ? "¡HIELO DURO!" : "¡REGALO!", 0, -t.r - 17);
+      }
+
+      if (t.kind === "pinataBoss") {
+        ctx.rotate(-t.angle);
+        ctx.fillStyle = "rgba(10, 20, 40, 0.88)";
+        ctx.strokeStyle = "#FFD700";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(-56, -t.r - 30, 112, 24, 12);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#FFD700";
+        ctx.font = "900 12px 'Nunito', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`¡CÓRTALA! ${t.multiHits}/${t.maxMultiHits}`, 0, -t.r - 18);
+      }
+
+      ctx.restore();
+    }
+  }
+
+  private drawSlicedHalves(ctx: CanvasRenderingContext2D): void {
+    for (const h of this.halves) {
+      const img = this.getSpriteForKind(h.kind);
+      if (!img.complete || img.naturalWidth === 0) continue;
+
+      ctx.save();
+      ctx.globalAlpha = h.alpha;
+      ctx.translate(h.x, h.y);
+      ctx.rotate(h.angle);
+
+      ctx.save();
+      ctx.rotate(h.cutAngle);
+      ctx.beginPath();
+      const clipExtent = h.r * 2.6;
+      if (h.side === -1) {
+        ctx.rect(-clipExtent, -clipExtent, clipExtent * 2, clipExtent);
+      } else {
+        ctx.rect(-clipExtent, 0, clipExtent * 2, clipExtent);
+      }
+      ctx.clip();
+
+      ctx.rotate(-h.cutAngle);
+      const drawSize = h.r * 2.25;
+      ctx.drawImage(img, -drawSize * 0.5, -drawSize * 0.5, drawSize, drawSize);
+      ctx.restore();
+
+      ctx.save();
+      ctx.rotate(h.cutAngle);
+      ctx.strokeStyle = h.seamColor;
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(-h.r * 0.85, 0);
+      ctx.lineTo(h.r * 0.85, 0);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.restore();
+    }
+  }
+
+  private drawPoppedToys(ctx: CanvasRenderingContext2D): void {
+    for (const pt of this.poppedToys) {
+      if (!pt.img.complete || pt.img.naturalWidth === 0) continue;
+      ctx.save();
+      ctx.globalAlpha = pt.alpha;
+      ctx.translate(pt.x, pt.y);
+      ctx.rotate(pt.angle);
+
+      if (pt.isSponsorBadge) {
+        // Placa publicitaria flotante grande al cortar un Cofre de Patrocinador
+        const cardW = pt.size * 1.35;
+        const cardH = pt.size * 0.88;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
+        ctx.strokeStyle = pt.badgeColor || "#FFD700";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.roundRect(-cardW * 0.5, -cardH * 0.5, cardW, cardH, 16);
+        ctx.fill();
+        ctx.stroke();
+
+        const maxW = cardW * 0.82;
+        const maxH = cardH * 0.78;
+        const sc = Math.min(maxW / pt.img.naturalWidth, maxH / pt.img.naturalHeight);
+        const dw = pt.img.naturalWidth * sc;
+        const dh = pt.img.naturalHeight * sc;
+        ctx.drawImage(pt.img, -dw * 0.5, -dh * 0.5, dw, dh);
+      } else {
+        ctx.drawImage(pt.img, -pt.size * 0.5, -pt.size * 0.5, pt.size, pt.size);
+      }
+
+      ctx.restore();
+    }
+  }
+
+  private drawSlashFlashes(ctx: CanvasRenderingContext2D): void {
+    for (const sf of this.slashFlashes) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, sf.alpha);
+      ctx.strokeStyle = sf.color;
+      ctx.lineWidth = 7;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(sf.x1, sf.y1);
+      ctx.lineTo(sf.x2, sf.y2);
+      ctx.stroke();
+
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(sf.x1, sf.y1);
+      ctx.lineTo(sf.x2, sf.y2);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  private drawKatanaBlade(ctx: CanvasRenderingContext2D): void {
+    if (this.bladePoints.length < 2) return;
+
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    for (let i = 1; i < this.bladePoints.length; i++) {
+      const p0 = this.bladePoints[i - 1];
+      const p1 = this.bladePoints[i];
+      const ratio = i / this.bladePoints.length;
+      const alpha = Math.max(0, 1 - p1.age / 0.13) * ratio;
+
+      ctx.strokeStyle = this.freezeTimer > 0 ? `rgba(0, 229, 255, ${alpha})` : `rgba(255, 215, 0, ${alpha})`;
+      ctx.lineWidth = Math.max(2, ratio * 14);
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y);
+      ctx.lineTo(p1.x, p1.y);
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+      ctx.lineWidth = Math.max(1, ratio * 6);
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y);
+      ctx.lineTo(p1.x, p1.y);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  private drawDroppedCrosses(ctx: CanvasRenderingContext2D): void {
+    for (const dc of this.droppedCrosses) {
+      ctx.save();
+      ctx.globalAlpha = dc.alpha;
+      ctx.translate(dc.x, dc.y);
+      ctx.scale(dc.scale, dc.scale);
+
+      ctx.strokeStyle = "#FF1744";
+      ctx.lineWidth = 6;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-14, -14);
+      ctx.lineTo(14, 14);
+      ctx.moveTo(14, -14);
+      ctx.lineTo(-14, 14);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+  }
+
+  private drawFreezeAndFrenzyBorders(ctx: CanvasRenderingContext2D): void {
+    if (this.freezeTimer > 0) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(0, 229, 255, 0.55)";
+      ctx.lineWidth = 14;
+      ctx.strokeRect(7, 7, this.width - 14, this.height - 14);
+      ctx.restore();
+    } else if (this.frenzyTimer > 0) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(255, 215, 0, 0.55)";
+      ctx.lineWidth = 12;
+      ctx.strokeRect(6, 6, this.width - 12, this.height - 12);
+      ctx.restore();
+    }
+  }
+
+  private drawBanners(ctx: CanvasRenderingContext2D): void {
+    for (const fb of this.banners) {
+      ctx.save();
+      ctx.globalAlpha = fb.alpha;
+      ctx.translate(fb.x, fb.y);
+      ctx.scale(fb.scale, fb.scale);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.font = "900 22px 'Nunito', sans-serif";
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = "rgba(12, 8, 6, 0.92)";
+      ctx.strokeText(fb.text, 0, 0);
+      ctx.fillStyle = fb.color;
+      ctx.fillText(fb.text, 0, 0);
+
+      if (fb.subText) {
+        ctx.font = "800 14px 'Nunito', sans-serif";
+        ctx.lineWidth = 4;
+        ctx.strokeText(fb.subText, 0, 22);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(fb.subText, 0, 22);
+      }
+      ctx.restore();
+    }
   }
 }

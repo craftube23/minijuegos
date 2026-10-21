@@ -159,6 +159,30 @@ export abstract class BaseGame {
     this.onStart();
   }
 
+  /**
+   * Prepara el estado visual e inicializa entidades para la cuenta regresiva 3-2-1
+   * sin avanzar fisicas ni temporizador hasta que finalice el conteo.
+   */
+  public prepareForCountdown(durationSeconds: number = 45): void {
+    this.score = 0;
+    this.timeRemaining = durationSeconds;
+    this.isRunning = false;
+    this.isGameOver = false;
+    this.isFinishing = false;
+    this.finishTimer = 0;
+    this.lastCountdownStepSec = -1;
+    this.isLogoPowerUpActive = false;
+    this.logoPowerUpTimer = 0;
+    this.shakeTimer = 0;
+    this.floatingTextSystem.clear();
+    this.highScore = StorageManager.getHighScore(this.id, this.currentSubKey);
+    this.particles.clear();
+    this.clearAllTimeouts();
+    this.input.clearHandlers();
+    this.onStart();
+    this.isRunning = false;
+  }
+
   protected abstract onStart(): void;
 
   public update(dt: number): void {

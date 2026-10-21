@@ -226,20 +226,19 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
   },
   "ornament-pop": {
     id: "ornament-pop",
-    title: "¡Burbujas de Adornos!",
-    iconName: "star",
-    themeColor: "#00E5FF",
-    goal: "¡Supera los 8 Niveles Navideños sin reloj! Apunta con la silueta fantasma y junta 3 o más adornos del mismo color para reventarlos.",
+    title: "¡Ninja Corta-Regalos!",
+    iconName: "sparkles",
+    themeColor: "#FF2A4D",
+    goal: "¡Desliza tu espada de luz para cortar en dos mitades exactas los regalos, galletas de jengibre, caramelos y piñatas sin tocar las bombas!",
     positiveItems: [
-      { iconName: "gift", label: "Grupo de 3 o más adornos (+50 pts por adorno)" },
-      { iconName: "sparkles", label: "Adornos que caen (+80 pts cada uno)" },
-      { iconName: "star", label: "Bola Patrocinadora (¡Explota todo a su alrededor!)" }
+      { iconName: "gift", label: "Regalos, Galletas y Caramelos (+80 pts y combos x3, x4, x5)" },
+      { iconName: "snowflake", label: "Cristal Glacial y Esfera Arcoíris (¡Tiempo Congelado y Lluvia Frenesí!)" },
+      { iconName: "star", label: "Gran Piñata Estrella (¡Córtala hasta 10 veces seguidas +500 pts!)" }
     ],
     negativeItems: [
-      { iconName: "flame", label: "Disparos sin acierto (bajan nuevas filas de adornos)" },
-      { iconName: "skull", label: "Adornos en la línea roja (fin de la partida)" }
+      { iconName: "flame", label: "Cortar una Bomba de Carbón o dejar caer un regalo (pierdes 1 de tus 3 vidas)" }
     ],
-    controls: "Arrastra para apuntar con la silueta fantasma y suelta para disparar. Toca la canasta o pulsa [ C ] para cambiar esfera."
+    controls: "Desliza el dedo o el ratón a toda velocidad sobre los regalos y dulces en el aire."
   },
   "toy-match": {
     id: "toy-match",

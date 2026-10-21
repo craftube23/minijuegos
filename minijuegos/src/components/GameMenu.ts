@@ -158,13 +158,13 @@ export class GameMenu {
     },
     {
       id: "ornament-pop",
-      title: "¡Burbujas de Adornos!",
-      imageSrc: "./assets/images/icon-burbujas-adornos.png",
-      frameImageSrc: "./assets/images/marco-juego-azul.png",
-      themeClass: "theme-stone-blue",
-      category: "PUZZLE & PUNTERÍA",
-      tagline: "¡Junta 3 adornos del mismo color para reventarlos!",
-      gemColor: "#00E5FF"
+      title: "¡Ninja Corta-Regalos!",
+      imageSrc: "./assets/images/icon-ninja-regalos.png",
+      frameImageSrc: "./assets/images/marco-juego-rojo.png",
+      themeClass: "theme-wood-red",
+      category: "ACCIÓN & CORTES",
+      tagline: "¡Rebana al vuelo piñatas, dulces y regalos en dos mitades!",
+      gemColor: "#FF2A4D"
     },
     {
       id: "toy-match",

@@ -735,40 +735,7 @@ class KioskApp {
    * Estela mágica táctil (Touch Magic Trail - Optimizado sin Reflow)
    */
   private setupTouchMagicTrail(): void {
-    let lastX = 0;
-    let lastY = 0;
-
-    const emit = (clientX: number, clientY: number, count: number) => {
-      const rect = this.cachedCanvasRect || this.canvas.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-      this.particles.emitTouchTrail(x, y, count);
-    };
-
-    window.addEventListener(
-      "pointermove",
-      (e) => {
-        const dx = e.clientX - lastX;
-        const dy = e.clientY - lastY;
-        // Solo emitir si el puntero se movió al menos 10px para evitar saturar el loop
-        if (dx * dx + dy * dy > 100) {
-          lastX = e.clientX;
-          lastY = e.clientY;
-          emit(e.clientX, e.clientY, 1);
-        }
-      },
-      { passive: true }
-    );
-
-    window.addEventListener(
-      "pointerdown",
-      (e) => {
-        lastX = e.clientX;
-        lastY = e.clientY;
-        emit(e.clientX, e.clientY, 3);
-      },
-      { passive: true }
-    );
+    void this.cachedCanvasRect;
   }
 
   /**
@@ -883,6 +850,9 @@ class KioskApp {
       this.currentGame.start(KIOSK_CONFIG.defaultGameDurationSeconds);
       this.isTransitioning = false;
     } else {
+      if ("prepareForCountdown" in game && typeof (game as any).prepareForCountdown === "function") {
+        (game as any).prepareForCountdown(KIOSK_CONFIG.defaultGameDurationSeconds);
+      }
       // Ejecutar cuenta regresiva arcade 3-2-1 al presionar Jugar
       ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
         if (this.appState !== "playing" || this.currentGame !== game) {
@@ -896,7 +866,9 @@ class KioskApp {
   }
 
   /**
-   * Inicio directo con transición mágica (para revancha desde el modal de resultados)
+   * Inicio directo para revancha ("Volver a jugar") desde el modal de fin de partida:
+   * Omite cualquier efecto de telón o desenrollado de regalo y ejecuta directamente
+   * la cuenta regresiva normal arcade 3-2-1 en todos los minijuegos.
    */
   public launchGameDirect(gameId: string): void {
     const game = this.games.get(gameId);
@@ -907,43 +879,37 @@ class KioskApp {
     }
 
     this.audio.pauseMenuBGM();
+    this.currentGame = game;
+    this.appState = "playing";
+    this.isTransitioning = false;
+
+    this.attractScreen.hide();
+    this.gameMenu.hide();
+    this.gameOverModal.hide();
+    this.instructionsModal.hide();
+
+    this.input.reset();
+    this.resetInactivity();
+
     const mainContainer = document.getElementById("kiosk-main") || document.body;
-    const gameInfo = this.getGameTransitionInfo(gameId);
 
-    ScreenTransition.getInstance().runGiftUnwrapTransition(
-      mainContainer,
-      gameInfo,
-      this.particles,
-      () => {
-        this.currentGame = game;
-        this.appState = "playing";
-
-        this.attractScreen.hide();
-        this.gameMenu.hide();
-        this.gameOverModal.hide();
-
-        this.input.reset();
-        this.resetInactivity();
-      },
-      () => {
+    if (game instanceof BellSymphonyGame) {
+      game.replayLastSong();
+    } else if (game instanceof FlyingElfGame) {
+      game.replayWithCountdown();
+    } else {
+      if ("prepareForCountdown" in game && typeof (game as any).prepareForCountdown === "function") {
+        (game as any).prepareForCountdown(KIOSK_CONFIG.defaultGameDurationSeconds);
+      }
+      ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
         if (this.appState !== "playing" || this.currentGame !== game) {
           return;
         }
-        if (game instanceof BellSymphonyGame) {
-          game.replayLastSong();
-        } else if (game instanceof FlyingElfGame) {
-          game.replayWithCountdown();
-        } else {
-          ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
-            if (this.appState !== "playing" || this.currentGame !== game) {
-              return;
-            }
-            game.start(KIOSK_CONFIG.defaultGameDurationSeconds);
-          });
-        }
-      }
-    );
+        game.start(KIOSK_CONFIG.defaultGameDurationSeconds);
+      });
+    }
   }
+
 
   /**
    * Maneja el fin de partida

@@ -64,7 +64,7 @@ export class ParticleSystem {
    */
   public emitTouchTrail(x: number, y: number, count: number = 3): void {
     // Limitar partículas totales activas a 120 para no saturar memoria
-    if (this.particles.length > 120) return;
+    if (true) return; // Estela del cursor desactivada permanentemente
 
     const colors = ["#FFD700", "#FFF9C4", "#FFFFFF", "#FF80AB", "#00E5FF"];
     for (let i = 0; i < count; i++) {

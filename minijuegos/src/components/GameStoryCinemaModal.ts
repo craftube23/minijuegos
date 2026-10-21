@@ -332,19 +332,19 @@ export class GameStoryCinemaModal {
     // 13. BURBUJAS DE ADORNOS (OrnamentPopGame)
     this.stories.set("ornament-pop", {
       gameId: "ornament-pop",
-      gameTitle: "¡BURBUJAS DE ADORNOS!",
-      subTag: "¡CAÑÓN DE CARAMELO!",
-      headline: "¡JUNTA 3 ADORNOS!",
-      tagline: "¡Apunta y dispara adornos brillantes para despejar el árbol mágico!",
-      pageIllustrationBg: "./assets/images/fondo-villa-seamless.jpg",
-      heroLayerImg: "./assets/images/icon-burbujas-adornos.png",
-      heroLayerScale: 1.2,
+      gameTitle: "¡NINJA CORTA-REGALOS!",
+      subTag: "¡ESPADA DE LUZ DEL DOJO!",
+      headline: "¡REBANA AL VUELO!",
+      tagline: "¡Corta piñatas, dulces y cajas mágicas en dos mitades y esquiva las bombas!",
+      pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
+      heroLayerImg: "./assets/images/icon-ninja-regalos.png",
+      heroLayerScale: 1.22,
       heroLayerOffsetY: 2,
       props: [
-        { src: "./assets/images/bola-roja.png", className: "prop-pop-red", xPercent: -36, yPercent: -38, delayOffset: 0.14, scale: 0.85 },
-        { src: "./assets/images/bola-azul.png", className: "prop-pop-blue", xPercent: 36, yPercent: -38, delayOffset: 0.26, scale: 0.85 }
+        { src: "./assets/images/pinata-estrella.png", className: "prop-pop-red", xPercent: -36, yPercent: -38, delayOffset: 0.14, scale: 0.9 },
+        { src: "./assets/images/galleta-jengibre.png", className: "prop-pop-blue", xPercent: 36, yPercent: -34, delayOffset: 0.26, scale: 0.9 }
       ],
-      playHeroSound: (a) => a.playCatchItem(1.25)
+      playHeroSound: (a) => a.playWhoosh()
     });
 
     // 14. JUGUETERÍA MÁGICA (ToyMatchGame)

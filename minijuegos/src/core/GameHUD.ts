@@ -224,7 +224,6 @@ export class GameHUD {
       ctx.fillStyle = isUrgent ? "#FF4D4D" : "#FFFFFF";
       ctx.fillText(timeFormatted, clockIconX + clockIconR + 4, plaqueY + plaqueH / 2);
       ctx.restore();
-
       }
       // 5. RÉCORD / TOP (Derecha - Placa de Honor Esmeralda)
       ctx.save();
@@ -244,6 +243,7 @@ export class GameHUD {
       ctx.restore();
     } else {
       // Solo cronómetro centrado en placa
+      if (state.showTimer !== false && state.timeRemaining <= 3600) {
       const clockW = Math.round(Math.max(75, isNarrow ? 70 : 95));
       const clockX = Math.round((state.width - clockW) / 2);
 
@@ -266,6 +266,7 @@ export class GameHUD {
       ctx.fillStyle = isUrgent ? "#FF4D4D" : "#FFFFFF";
       ctx.fillText(timeFormatted, clockIconX + clockIconR + 4, plaqueY + plaqueH / 2);
       ctx.restore();
+      }
 
       // Récord a la derecha
       const recordPlaqueX = Math.round(state.width - paddingX - recordPlaqueW);
