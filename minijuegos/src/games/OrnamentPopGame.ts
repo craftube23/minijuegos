@@ -782,7 +782,7 @@ export class OrnamentPopGame extends BaseGame {
       const basePts = 80;
       this.addScore(basePts);
       this.audio.playCatchItem(1.1 + Math.min(0.5, this.swipeSliceCount * 0.1));
-      this.addBanner(t.x, t.y - 18, `+${basePts}`, undefined, palette.flash, 0.92);
+      // Los juguetes salen volando limpios sin dejar puntos ni marcas en pantalla
     }
   }
 
@@ -854,30 +854,9 @@ export class OrnamentPopGame extends BaseGame {
     });
   }
 
-  private addWallSplatter(x: number, y: number, r: number, color: string): void {
-    const drops: { dx: number; dy: number; r: number }[] = [];
-    for (let i = 0; i < 6; i++) {
-      const ang = (Math.PI * 2 * i) / 6 + Math.random() * 0.6;
-      const dist = r * (0.65 + Math.random() * 0.65);
-      drops.push({
-        dx: Math.cos(ang) * dist,
-        dy: Math.sin(ang) * dist,
-        r: r * (0.18 + Math.random() * 0.22)
-      });
-    }
-    this.splatters.push({
-      x,
-      y,
-      r,
-      color,
-      alpha: 0.85,
-      life: 0,
-      maxLife: 4.0,
-      drops
-    });
-    if (this.splatters.length > 16) {
-      this.splatters.shift();
-    }
+  private addWallSplatter(_x: number, _y: number, _r: number, _color: string): void {
+    // Desactivado: no dejar manchas ni puntos en la pared, solo que los juguetes salgan volando
+    return;
   }
 
   private addBanner(

@@ -293,10 +293,7 @@ export class ToyCatchGame extends BaseGame {
       this.comboCount++;
       this.addScore(item.points);
       this.triggerLogoPowerUp(sponsor.id, 7);
-      this.triggerShake(0.15, 4);
-      this.addFloatingText(`¡BONUS ${sponsor.shortName.toUpperCase()} x2! +500`, this.basketX, this.basketY - 50, sponsor.themeColor, 1.35);
-      this.particles.emitBurst(this.basketX, this.basketY, sponsor.themeColor, 25);
-      this.particles.emitConfetti(this.width, 35);
+      this.triggerShake(0.12, 3);
     } else {
       this.comboCount++;
       const comboBonus = Math.min(this.comboCount * 20, 200);
@@ -304,10 +301,8 @@ export class ToyCatchGame extends BaseGame {
       this.addScore(totalPoints);
       this.audio.playCatchItem(1.0 + Math.min(this.comboCount * 0.05, 0.5));
 
-      // Texto de puntos flotante con combo
-      const comboLabel = this.comboCount > 2 ? ` (x${this.comboCount})` : "";
-      const scoreColor = this.comboCount > 4 ? "#FFD700" : "#00E676";
-      this.addFloatingText(`+${totalPoints}${comboLabel}`, this.basketX, this.basketY - 40, scoreColor);
+      // Los puntos se suman al HUD superior sin dejar texto flotante ni marcas en pantalla
+      // Los juguetes entran limpios al saco sin dejar puntos ni rastro.
     }
   }
 

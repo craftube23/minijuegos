@@ -516,18 +516,8 @@ export class WorkshopChaosGame extends BaseGame {
         }
       }
 
-      // Feedback visual del flotante de puntos y mención de marca
-      if (obj.isSponsored && obj.sponsorName) {
-        this.addFloatingText(`★ ${obj.sponsorName.toUpperCase()} ★`, obj.x, obj.y - 36, "#FFD700", 1.2);
-        this.addFloatingText(`+${finalPoints}`, obj.x, obj.y - 14, "#00E5FF", 1.15);
-        this.particles.emitBurst(obj.x, obj.y, "#FFD700", 16);
-      } else {
-        const comboTag = multiplier > 1 ? ` (x${multiplier.toFixed(1)})` : "";
-        const text = `+${finalPoints}${comboTag}`;
-        const textColor = obj.type === "gold_gift" ? "#FFD700" : multiplier >= 2 ? "#00E5FF" : "#FFFFFF";
-        this.addFloatingText(text, obj.x, obj.y - 15, textColor, 1.1);
-        this.particles.emitBurst(obj.x, obj.y, obj.type === "gold_gift" ? "#FFD700" : "#00E676", obj.type === "gold_gift" ? 14 : 7);
-      }
+      // Puntos sumados directamente al HUD sin dejar puntos ni rastro de partículas en pantalla
+      // Los juguetes salen volando limpios sin números ni marcas que dejen rastro.
 
       // Carteles de Racha / Hitos de Combo
       if (this.combo === 5) {
@@ -602,24 +592,7 @@ export class WorkshopChaosGame extends BaseGame {
         obj.vy += obj.gravity * dt;
         obj.rotation += obj.rotSpeed * dt;
 
-        // Estelas y destellos visuales dinámicos
-        obj.sparkleTimer += dt;
-        if (obj.type === "gold_gift" || obj.isSponsored) {
-          if (obj.sparkleTimer >= 0.12) {
-            obj.sparkleTimer = 0;
-            this.particles.emitBurst(obj.x, obj.y, "#FFD700", 2);
-          }
-        } else if (obj.type === "hazard_coal") {
-          if (obj.sparkleTimer >= 0.14) {
-            obj.sparkleTimer = 0;
-            this.particles.emitBurst(obj.x, obj.y, "#FF3D00", 2);
-          }
-        } else if (obj.type === "hazard_defective") {
-          if (obj.sparkleTimer >= 0.14) {
-            obj.sparkleTimer = 0;
-            this.particles.emitBurst(obj.x, obj.y - obj.radius * 0.45, "#FFD600", 2);
-          }
-        }
+        // Los juguetes vuelan limpios en el aire sin dejar rastro ni estelas de partículas
 
         // Si cae por debajo del borde de la pantalla, eliminarlo
         if (obj.y > this.height + 60 && obj.vy > 0) {
