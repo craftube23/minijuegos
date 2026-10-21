@@ -161,16 +161,18 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
     title: "¡Salto Mágico Navideño!",
     iconName: "sparkles",
     themeColor: "#00E5FF",
-    goal: "¡Salta sin parar hacia las alturas! El elfo rebota automáticamente sobre las plataformas nevadas. Recoge regalos, estrellas y usa los cohetes de patrocinadores para ascender a toda velocidad.",
+    goal: "¡Salta sin parar hacia las alturas! Rebota sobre plataformas de nieve, nubes y bumpers. Aplasta a los duendes del hielo en el aire y usa cohetes propulsores para alcanzar las estrellas.",
     positiveItems: [
-      { iconName: "star", label: "Plataformas de Patrocinador (¡Cohete propulsor supersónico!)" },
-      { iconName: "gift", label: "Regalos y Estrellas flotantes (+100 a +250 pts)" },
-      { iconName: "target", label: "Resortes de Caramelo (¡Súper salto acrobático!)" },
-      { iconName: "sparkles", label: "Récord de Altura (Suma puntos continuos al escalar)" }
+      { iconName: "star", label: "Cohete Propulsor (¡Ascenso supersónico a toda velocidad!)" },
+      { iconName: "gift", label: "Regalos y Estrellas (+100 a +250 pts)" },
+      { iconName: "target", label: "Bumpers y Resortes (¡Rebotes acrobáticos de alta potencia!)" },
+      { iconName: "clock", label: "Reloj Mágico (+5s de tiempo extra)" },
+      { iconName: "sparkles", label: "Pisotón a Duendes (¡Aplástalos desde arriba para +350 pts!)" }
     ],
     negativeItems: [
-      { iconName: "snowflake", label: "Hielo Quebradizo (Se rompe al segundo de pisarlo)" },
-      { iconName: "flame", label: "Caída al Fondo (El trampolín de rescate te salva, pero reinicia el combo)" }
+      { iconName: "skull", label: "Choque Lateral con Duendes (-50 pts y Rompe Combo)" },
+      { iconName: "snowflake", label: "Hielo Quebradizo y Nubes de 1 Solo Rebote" },
+      { iconName: "flame", label: "Caída al Fondo (El trampolín te salva, pero reinicia tu combo)" }
     ],
     controls: "Arrastra el dedo hacia los lados, usa los botones táctiles [ ◀ IZQUIERDA / DERECHA ▶ ] o usa [ ◄ / ► / A / D ]"
   },

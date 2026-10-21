@@ -983,8 +983,8 @@ export class UniversalStoryTutorialModal {
           title: "¡Escalando hacia la Gran Estrella!",
           badge: "HISTORIA FESTIVA",
           badgeColor: "#FFD700",
-          storyText: "¡El elfo saltador debe ascender hasta la copa del árbol navideño más alto de Santander! Rebota sobre las plataformas nevadas y escala hacia el firmamento estrellado.",
-          proTip: "¡A mayor altura alcanzada, más puntos continuos ganarás!",
+          storyText: "¡El elfo saltador debe ascender hasta la copa del árbol navideño más alto de Santander! Rebota sobre las plataformas nevadas, nubes de malvavisco y escala hacia el firmamento cósmico.",
+          proTip: "¡A mayor altura alcanzada, más bonificaciones de hito desbloquearás (100m, 250m, 500m...)!",
           stageType: "generic_story"
         },
         {
@@ -997,21 +997,21 @@ export class UniversalStoryTutorialModal {
           stageType: "generic_controls"
         },
         {
-          tag: "CAPÍTULO 3 • COHETES & RESORTES",
+          tag: "CAPÍTULO 3 • COHETES, BUMPERS & RESORTES",
           title: "¡Ascenso Hipersónico!",
           badge: "SUPER SALTOS",
           badgeColor: "#00E676",
-          storyText: "Pisa las plataformas con <strong>Resortes de Caramelo</strong> para un súper salto y los <strong>Cohetes de Patrocinador</strong> para dispararte cientos de metros hacia arriba.",
-          proTip: "¡Recoge estrellas y regalos flotantes durante el ascenso!",
+          storyText: "Usa los <strong>Resortes de Bastón</strong> para súper saltos, los <strong>Bumpers de Pinball</strong> para rebotar en 360° y los <strong>Cohetes Propulsores</strong> para dispararte a toda velocidad.",
+          proTip: "¡Recoge estrellas doradas (+250 pts), regalos (+100 pts) y relojes mágicos (+5s de tiempo)!",
           stageType: "generic_points"
         },
         {
-          tag: "CAPÍTULO 4 • ¡PELIGRO!",
-          title: "¡Hielo Quebradizo y Caídas!",
-          badge: "SUPERVIVENCIA",
+          tag: "CAPÍTULO 4 • DUENDES VOLADORES & PELIGROS",
+          title: "¡Pisa a los Duendes y Esquiva el Hielo!",
+          badge: "COMBATE AÉREO",
           badgeColor: "#FF1744",
-          storyText: "Las plataformas de hielo transparente se rompen al segundo de pisarlas. Si caes al vacío el trampolín te salvará, pero reiniciarás tu racha de combo.",
-          proTip: "¡Anticipa la siguiente plataforma antes de llegar a la cumbre del salto!",
+          storyText: "¡Salta sobre la cabeza de los <strong>Duendes del Hielo</strong> para aplastarlos y rebotar con +350 pts! Si te golpean por los lados perderás tu combo. ¡Cuidado con el hielo frágil!",
+          proTip: "¡Las nubes de algodón desaparecen tras 1 solo rebote: planifica bien tus saltos!",
           stageType: "generic_hazards"
         }
       ]
