@@ -28,7 +28,7 @@
 
 import { BaseGame } from "../core/BaseGame";
 import type { AudioManager } from "../core/AudioManager";
-import type { InputManager } from "../core/InputManager";
+import type { InputManager } from "../core/InputManager"; 
 import type { ParticleSystem } from "../core/ParticleSystem";
 import { imgReady, drawPill } from "./shared/gameDraw";
 

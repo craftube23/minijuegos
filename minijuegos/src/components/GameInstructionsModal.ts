@@ -185,7 +185,8 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
     positiveItems: [
       { iconName: "gift", label: "Alineación Perfecta (+300 pts y combo musical)" },
       { iconName: "star", label: "Cajas de Patrocinador (¡+500 pts y expansión mágica!)" },
-      { iconName: "sparkles", label: "Fiebre Navideña (¡Puntos dobles tras 3 perfectos!)" }
+      { iconName: "sparkles", label: "Fiebre Navideña (¡Puntos dobles tras 3 perfectos!)" },
+      { iconName: "target", label: "Joyero Real y Reloj Mágico (+750 pts o +1 Vida Extra)" }
     ],
     negativeItems: [
       { iconName: "flame", label: "Desbordes (Rebanan la caja haciéndola más estrecha)" },
