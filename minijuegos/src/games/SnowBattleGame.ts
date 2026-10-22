@@ -78,6 +78,24 @@ function imgReady(img: HTMLImageElement | null | undefined): img is HTMLImageEle
 export class SnowBattleGame extends BaseGame {
   private joystick: VirtualJoystick;
 
+  /**
+   * Ratios normalizados (0.0 a 1.0) del área jugable dentro de la textura de fondo.
+   * Si la imagen de fondo cambia o se escala, los límites se adaptan automáticamente.
+   */
+  public arenaRatios = {
+    minX: 0.135,
+    maxX: 0.865,
+    minY: 0.14,
+    maxY: 0.835
+  };
+
+  /**
+   * Permite reconfigurar dinámicamente los ratios límite de la arena de combate.
+   */
+  public setArenaLimits(ratios: { minX: number; maxX: number; minY: number; maxY: number }): void {
+    this.arenaRatios = { ...ratios };
+  }
+
   // Jugador (Rodolfo)
   private px = 0;
   private py = 0;
@@ -281,13 +299,46 @@ export class SnowBattleGame extends BaseGame {
   public getArenaBounds(): { left: number; right: number; top: number; bottom: number; width: number; height: number } {
     const w = this.width || 1024;
     const h = this.height || 768;
-    const top = 112;
-    const bottom = h - 38;
-    const arenaW = Math.min(w - 56, 960);
-    const left = Math.round((w - arenaW) / 2);
-    const right = left + arenaW;
-    const arenaH = bottom - top;
-    return { left, right, top, bottom, width: arenaW, height: arenaH };
+
+    let left: number;
+    let right: number;
+    let top: number;
+    let bottom: number;
+
+    if (imgReady(this.backgroundImg)) {
+      const img = this.backgroundImg;
+      const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+      const dw = img.naturalWidth * s;
+      const dh = img.naturalHeight * s;
+      const dx = (w - dw) / 2;
+      const dy = (h - dh) / 2;
+
+      // Límites calculados dinámicamente a partir de la escala y posición de la imagen de fondo
+      left = Math.round(dx + this.arenaRatios.minX * dw);
+      right = Math.round(dx + this.arenaRatios.maxX * dw);
+      top = Math.round(dy + this.arenaRatios.minY * dh);
+      bottom = Math.round(dy + this.arenaRatios.maxY * dh);
+
+      // Márgenes de seguridad para respetar el HUD superior y límites de pantalla
+      top = Math.max(72, top);
+      bottom = Math.min(h - 18, bottom);
+      left = Math.max(16, left);
+      right = Math.min(w - 16, right);
+    } else {
+      left = Math.round(w * 0.12);
+      right = Math.round(w * 0.88);
+      top = 80;
+      bottom = h - 25;
+    }
+
+    return {
+      left,
+      right,
+      top,
+      bottom,
+      width: Math.max(100, right - left),
+      height: Math.max(100, bottom - top)
+    };
   }
 
   private updatePlayer(dt: number, _w: number, _h: number): void {
@@ -656,42 +707,41 @@ export class SnowBattleGame extends BaseGame {
     const t = performance.now() * 0.001;
 
     this.drawBackground(ctx, w, h);
-    // Recuadro visual decorativo del área central de combate
-    const bounds = this.getArenaBounds();
-    ctx.save();
-    ctx.strokeStyle = "rgba(0, 229, 255, 0.40)";
-    ctx.lineWidth = 3.5;
-    ctx.shadowColor = "#00E5FF";
-    ctx.shadowBlur = 12;
-    // Borde redondeado suave
-    const rad = 14;
-    ctx.beginPath();
-    ctx.roundRect(bounds.left, bounds.top, bounds.width, bounds.height, rad);
-    ctx.stroke();
-
-    // Línea interior dorada sutil
-    ctx.strokeStyle = "rgba(255, 215, 0, 0.30)";
-    ctx.lineWidth = 1.5;
-    ctx.shadowColor = "#FFD700";
-    ctx.shadowBlur = 6;
-    ctx.beginPath();
-    ctx.roundRect(bounds.left + 4, bounds.top + 4, bounds.width - 8, bounds.height - 8, Math.max(4, rad - 4));
-    ctx.stroke();
-
-    // Pequeños cristales decorativos en las 4 esquinas del recuadro
-    ctx.fillStyle = "#FFD700";
-    const corners = [
-      [bounds.left, bounds.top],
-      [bounds.right, bounds.top],
-      [bounds.left, bounds.bottom],
-      [bounds.right, bounds.bottom]
-    ];
-    for (const [cx, cy] of corners) {
+    // Marco delimitador: solo se dibuja en fallback si no hay imagen de fondo
+    if (!imgReady(this.backgroundImg)) {
+      const bounds = this.getArenaBounds();
+      ctx.save();
+      ctx.strokeStyle = "rgba(0, 229, 255, 0.40)";
+      ctx.lineWidth = 3.5;
+      ctx.shadowColor = "#00E5FF";
+      ctx.shadowBlur = 12;
+      const rad = 14;
       ctx.beginPath();
-      ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.roundRect(bounds.left, bounds.top, bounds.width, bounds.height, rad);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(255, 215, 0, 0.30)";
+      ctx.lineWidth = 1.5;
+      ctx.shadowColor = "#FFD700";
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.roundRect(bounds.left + 4, bounds.top + 4, bounds.width - 8, bounds.height - 8, Math.max(4, rad - 4));
+      ctx.stroke();
+
+      ctx.fillStyle = "#FFD700";
+      const corners = [
+        [bounds.left, bounds.top],
+        [bounds.right, bounds.top],
+        [bounds.left, bounds.bottom],
+        [bounds.right, bounds.bottom]
+      ];
+      for (const [cx, cy] of corners) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
     }
-    ctx.restore();
 
     // Power-ups
     for (const p of this.powerUps) {
