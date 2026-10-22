@@ -353,6 +353,102 @@ export class UniversalStoryTutorialModal {
       }
     }
 
+    // Escenarios propios de ¡Batalla de Nieve!
+    if (gameId === "snow-battle") {
+      switch (stageType) {
+        case "battle_story":
+          return `
+            <div class="ski-stage stage-story">
+              <div class="stage-sky-backdrop"></div>
+              <div class="stage-mountain-peak">
+                <img src="./assets/images/rodolfo-battle-down-1.png" alt="Rodolfo" class="santa-hero-story" />
+                <div class="santa-snow-pedestal"></div>
+              </div>
+              <div class="stage-story-badge">
+                <img src="./assets/images/estrella con logo.png" alt="Estrella Feria" class="story-star-badge" />
+                <span>OBJETIVO: DEFENDER LA PLAZA NEVADA 45 SEGUNDOS</span>
+              </div>
+            </div>
+          `;
+        case "battle_controls":
+          return `
+            <div class="ski-stage stage-controls">
+              <div class="stage-controls-track">
+                <img src="./assets/images/rodolfo-battle-side-1.png" alt="Rodolfo" class="universal-control-demo-img" id="universal-demo-hero" />
+              </div>
+              <div class="controls-overlay-cues">
+                <div class="touch-cue-box">
+                  <span class="cue-label">JOYSTICK TÁCTIL</span>
+                  <div class="touch-hand-anim"><span>👆</span><span>🕹️</span></div>
+                  <span class="cue-hint">Toca y arrastra donde quieras</span>
+                </div>
+                <div class="cue-divider">O</div>
+                <div class="keys-cue-box">
+                  <span class="cue-label">TECLADO</span>
+                  <div class="key-caps-pair">
+                    <span class="key-cap">W A S D</span>
+                    <span class="key-cap">▲ ◄ ▼ ►</span>
+                  </div>
+                  <span class="cue-hint">Movimiento 360° • disparo automático</span>
+                </div>
+              </div>
+            </div>
+          `;
+        case "battle_enemies":
+          return `
+            <div class="ski-stage stage-hazards-turbo">
+              <div class="hazard-split danger-side">
+                <div class="split-title-bar bar-danger"><span>⛔ ENEMIGOS (-1 ❤ AL TOCARTE)</span></div>
+                <div class="hazard-props-row">
+                  <div class="prop-hazard-item"><img src="./assets/images/snowman-evil-1.png" alt="Muñeco malvado" /><span>Muñeco • 2 golpes</span></div>
+                  <div class="prop-hazard-item"><img src="./assets/images/elf-mischief-1.png" alt="Duende travieso" /><span>Duende • 1 golpe</span></div>
+                </div>
+                <div class="crash-preview-box">
+                  <img src="./assets/images/rodolfo-battle-hit.png" alt="Rodolfo golpeado" class="demo-santa-crash" />
+                  <span class="crash-alert-tag">¡GOLPE Y COMBO PERDIDO!</span>
+                </div>
+              </div>
+              <div class="hazard-split turbo-side">
+                <div class="split-title-bar bar-turbo"><span>🔥 COMBOS HASTA x3</span></div>
+                <div class="turbo-power-showcase">
+                  <img src="./assets/images/snowball-proj.png" alt="Bola de nieve" class="demo-star-power" />
+                  <div class="turbo-smash-demo"><span class="smash-impact-star">💥</span><span class="smash-tag">¡ELIMINACIONES SEGUIDAS!</span></div>
+                </div>
+                <p class="turbo-tip-text">Cada 5 eliminaciones sin recibir daño tus puntos suben +0.5x.</p>
+              </div>
+            </div>
+          `;
+        case "battle_powerups":
+          return `
+            <div class="ski-stage stage-hazards-turbo">
+              <div class="hazard-split turbo-side" style="grid-column: span 2;">
+                <div class="split-title-bar bar-turbo"><span>🎁 POWER-UPS DE LOS ENEMIGOS</span></div>
+                <div class="hazard-props-row" style="margin: 18px 0;">
+                  <div class="prop-hazard-item"><img src="./assets/images/pu-triple.png" alt="Disparo triple" /><span>Disparo Triple</span></div>
+                  <div class="prop-hazard-item"><img src="./assets/images/pu-shield.png" alt="Escudo de nariz" /><span>Nariz Brillante</span></div>
+                  <div class="prop-hazard-item"><img src="./assets/images/pu-cookie.png" alt="Galleta" /><span>Galleta +1 ❤</span></div>
+                  <div class="prop-hazard-item"><img src="./assets/images/estrella con logo.png" alt="Logo patrocinador" /><span>Logo x2 pts</span></div>
+                </div>
+              </div>
+            </div>
+          `;
+        case "battle_yeti":
+          return `
+            <div class="ski-stage stage-yeti">
+              <div class="yeti-chase-arena">
+                <img src="./assets/images/yeti-boss-1.png" alt="Yeti" class="demo-yeti-monster" />
+                <div class="yeti-chase-target"><img src="./assets/images/rodolfo-battle-down-1.png" alt="Rodolfo" class="demo-santa-flee" /></div>
+                <div class="yeti-warning-banner"><span>⚠️</span><span>¡EL YETI LLEGA A LOS 30 s!</span></div>
+              </div>
+              <div class="yeti-escape-tips">
+                <div class="escape-rule"><span>❄️</span><span>Aguanta 10 bolas de nieve: ¡+1500 pts!</span></div>
+                <div class="escape-rule"><span>🎁</span><span>Siempre suelta un power-up al caer.</span></div>
+              </div>
+            </div>
+          `;
+      }
+    }
+
     // Escenarios universales para todos los otros juegos
     switch (stageType) {
       case "generic_story":
@@ -451,7 +547,8 @@ export class UniversalStoryTutorialModal {
       "ice-breaker": "./assets/images/paleta-caramelo.png",
       "ornament-pop": "./assets/images/canon-caramelo.png",
       "toy-match": "./assets/images/vitrina-juguetes.png",
-      "santa-ski": "./assets/images/santa-ski-straight.png"
+      "santa-ski": "./assets/images/santa-ski-straight.png",
+      "snow-battle": "./assets/images/rodolfo-battle-down-1.png"
     };
     return map[gameId] || "./assets/images/medallon-feria.png";
   }
@@ -1224,6 +1321,60 @@ export class UniversalStoryTutorialModal {
           storyText: "Cuentas con un cronómetro de partida. Realizar movimientos vacíos sin combinación romperá tu racha de combo. ¡Sé rápido y bate el récord de la feria!",
           proTip: "¡Las cascadas automáticas siguen sumando puntos mientras el reloj avanza!",
           stageType: "generic_hazards"
+        }
+      ]
+    });
+
+    // 16. ¡BATALLA DE NIEVE! (SnowBattleGame)
+    this.database.set("snow-battle", {
+      gameId: "snow-battle",
+      gameTitle: "¡Batalla de Nieve!",
+      themeColor: "#FF2A4D",
+      steps: [
+        {
+          tag: "CAPÍTULO 1 • LA HISTORIA",
+          title: "¡La Plaza Nevada está en Peligro!",
+          badge: "HISTORIA FESTIVA",
+          badgeColor: "#FFD700",
+          storyText: "Un ejército de <strong>muñecos de nieve malvados</strong> y <strong>duendes traviesos</strong> invadió la plaza de la <strong>Feria Mágica del Juguete</strong>. ¡Rodolfo el Reno se ha armado de bolas de nieve para defenderla durante 45 segundos!",
+          proTip: "¡Sobrevive con tus 3 corazones y suma la mayor puntuación posible!",
+          stageType: "battle_story"
+        },
+        {
+          tag: "CAPÍTULO 2 • CONTROLES",
+          title: "¡Joystick Mágico y Disparo Automático!",
+          badge: "CONTROLES",
+          badgeColor: "#00E5FF",
+          storyText: "Toca la pantalla donde quieras: aparecerá un <strong>joystick dorado</strong> bajo tu pulgar. Arrástralo para mover a Rodolfo en 360°. En PC usa <strong>[ W A S D ]</strong> o las <strong>flechas</strong>. ¡Rodolfo apunta y dispara solo al enemigo más cercano!",
+          proTip: "¡Concéntrate en esquivar; la puntería corre por cuenta de Rodolfo!",
+          stageType: "battle_controls"
+        },
+        {
+          tag: "CAPÍTULO 3 • ENEMIGOS Y COMBOS",
+          title: "¡Muñecos, Duendes y Combos!",
+          badge: "OLEADAS",
+          badgeColor: "#FF9100",
+          storyText: "Los <strong>muñecos malvados</strong> son lentos pero aguantan 2 bolas; los <strong>duendes</strong> son rápidos y caen con 1. Cada eliminación seguida sube tu <strong>combo</strong> y multiplica tus puntos hasta x3, ¡pero si te golpean el combo se reinicia!",
+          proTip: "¡Mantente en movimiento para no quedar rodeado!",
+          stageType: "battle_enemies"
+        },
+        {
+          tag: "CAPÍTULO 4 • POWER-UPS",
+          title: "¡Regalos que Caen del Cielo!",
+          badge: "POWER-UPS",
+          badgeColor: "#00E676",
+          storyText: "Los enemigos derrotados pueden soltar: <strong>Disparo Triple</strong> (abanico de 3 bolas), <strong>Escudo de Nariz Brillante</strong> (aura roja que daña al contacto), <strong>Galleta Navideña</strong> (+1 corazón) y el <strong>Logo del Patrocinador</strong> (¡puntos x2!).",
+          proTip: "¡Los power-ups parpadean antes de desaparecer, recógelos rápido!",
+          stageType: "battle_powerups"
+        },
+        {
+          tag: "CAPÍTULO 5 • ¡ALERTA YETI!",
+          title: "¡El Mini-Jefe Yeti!",
+          badge: "JEFE FINAL",
+          badgeColor: "#FF2A4D",
+          storyText: "A los <strong>30 segundos</strong> el temible <strong>Yeti</strong> entra en la plaza. Necesita <strong>10 impactos</strong> para caer, pero derrotarlo otorga <strong>+1500 pts</strong> y un power-up garantizado.",
+          proTip: "¡Guarda el Disparo Triple para derribar al Yeti más rápido!",
+          stageType: "battle_yeti"
         }
       ]
     });

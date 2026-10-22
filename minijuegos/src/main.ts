@@ -58,6 +58,7 @@ import { IceBreakerGame } from "./games/IceBreakerGame";
 import { OrnamentPopGame } from "./games/OrnamentPopGame";
 import { ToyMatchGame } from "./games/ToyMatchGame";
 import { SantaSkiGame } from "./games/SantaSkiGame";
+import { SnowBattleGame } from "./games/SnowBattleGame";
 import { getIconSvg } from "./utils/icons";
 import {
   initKioskNativeMode,
@@ -295,9 +296,10 @@ class KioskApp {
     const game13 = new OrnamentPopGame(this.canvas, this.input, this.audio, this.particles);
     const game14 = new ToyMatchGame(this.canvas, this.input, this.audio, this.particles);
     const game15 = new SantaSkiGame(this.canvas, this.input, this.audio, this.particles);
+    const game16 = new SnowBattleGame(this.canvas, this.input, this.audio, this.particles);
 
     // Conectar callback de Game Over de cada juego
-    [game1, game2, game3, game4, game5, game6, game7, game8, game9, game10, game11, game12, game13, game14, game15].forEach((g) => {
+    [game1, game2, game3, game4, game5, game6, game7, game8, game9, game10, game11, game12, game13, game14, game15, game16].forEach((g) => {
       g.onGameOver = (result: GameResult) => this.handleGameOver(result);
       this.games.set(g.id, g);
     });
@@ -310,6 +312,11 @@ class KioskApp {
     const skiGame = game15 as SantaSkiGame;
     skiGame.onOpenTutorial = () => {
       this.skiTutorialModal.show(0);
+    };
+
+    const snowBattleGame = game16 as SnowBattleGame;
+    snowBattleGame.onOpenTutorial = () => {
+      this.universalTutorialModal.show("snow-battle", 0);
     };
   }
 
@@ -777,7 +784,8 @@ class KioskApp {
       "ice-breaker": { title: "¡Rompe-Hielos Mágico!", icon: getIconSvg("snowflake", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
       "ornament-pop": { title: "¡Burbujas de Adornos!", icon: getIconSvg("star", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" },
       "toy-match": { title: "¡Juguetería Mágica!", icon: getIconSvg("sparkles", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" },
-      "santa-ski": { title: "¡Esquí Alpino de Santa!", icon: getIconSvg("sparkles", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" }
+      "santa-ski": { title: "¡Esquí Alpino de Santa!", icon: getIconSvg("sparkles", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" },
+      "snow-battle": { title: "¡Batalla de Nieve!", icon: getIconSvg("snowflake", { size: 36, color: "#FF2A4D" }), themeColor: "#FF2A4D" }
     };
     return map[gameId] || { title: "Minijuego Mágico", icon: getIconSvg("tree", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" };
   }

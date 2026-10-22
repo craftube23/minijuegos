@@ -185,6 +185,16 @@ export class GameMenu {
       category: "VELOCIDAD & DESTREZA",
       tagline: "¡Desciende por las pistas alpinas, cruza eslalons y salta en rampas!",
       gemColor: "#00E5FF"
+    },
+    {
+      id: "snow-battle",
+      title: "¡Batalla de Nieve!",
+      imageSrc: "./assets/images/snow-battle-portada.png",
+      frameImageSrc: "./assets/images/marco-juego-rojo.png",
+      themeClass: "theme-wood-red",
+      category: "ACCIÓN & PUNTERÍA",
+      tagline: "¡Guía a Rodolfo con el joystick y defiende la plaza a bolazos de nieve!",
+      gemColor: "#FF2A4D"
     }
   ];
 
