@@ -281,7 +281,7 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
     title: "¡Batalla de Nieve!",
     iconName: "snowflake",
     themeColor: "#FF2A4D",
-    goal: "¡Mueve a Rodolfo por la plaza nevada durante 45 segundos! Lanza bolas de nieve automáticamente al enemigo más cercano, encadena combos y derrota al Yeti.",
+    goal: "¡Defiende la plaza el mayor tiempo posible! Tienes 3 vidas: lanza bolas de nieve automáticamente a los enemigos dentro del recuadro, encadena combos y derrota al Yeti.",
     positiveItems: [
       { iconName: "sparkles", label: "Disparo Triple (abanico de 3 bolas de nieve)" },
       { iconName: "star", label: "Escudo de Nariz Brillante (aura roja que daña al contacto)" },
@@ -289,7 +289,7 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
     ],
     negativeItems: [
       { iconName: "snowflake", label: "Muñecos malvados (2 impactos) y Duendes traviesos (1 impacto)" },
-      { iconName: "flame", label: "Yeti mini-jefe a los 30 s (10 impactos). Cada golpe resta 1 de tus 3 corazones" }
+      { iconName: "flame", label: "Yeti mini-jefe periódico (10 impactos). Cada golpe resta 1 de tus 3 corazones" }
     ],
     controls: "Toca y arrastra en cualquier lugar para usar el joystick flotante, o usa [ W A S D / Flechas ]"
   }

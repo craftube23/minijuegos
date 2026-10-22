@@ -61,7 +61,6 @@ interface PowerUp {
   sponsorId?: string;
 }
 
-const GAME_DURATION = 45;
 const PLAYER_SPEED = 320;
 const PLAYER_RADIUS = 34;
 const FIRE_INTERVAL = 0.4;
@@ -71,7 +70,6 @@ const TRIPLE_TIME = 8;
 const SHIELD_TIME = 6;
 const POWERUP_LIFE = 8;
 const DROP_CHANCE = 0.18;
-const YETI_SPAWN_ELAPSED = 30;
 
 function imgReady(img: HTMLImageElement | null | undefined): img is HTMLImageElement {
   return !!img && img.complete && img.naturalWidth > 0;
@@ -97,8 +95,9 @@ export class SnowBattleGame extends BaseGame {
   private enemies: Enemy[] = [];
   private snowballs: Snowball[] = [];
   private powerUps: PowerUp[] = [];
+  private survivalTime = 0;
+  private nextYetiTime = 28;
   private spawnTimer = 0;
-  private yetiSpawned = false;
   private combo = 0;
   private comboPulse = 0;
   private lastDt = 1 / 60;
@@ -185,11 +184,14 @@ export class SnowBattleGame extends BaseGame {
     const w = this.width || 1024;
     const h = this.height || 768;
 
-    // Duración fija de 45 segundos por partida
-    this.timeRemaining = GAME_DURATION;
+    // Modo supervivencia por vidas (sin límite de tiempo)
+    this.showTimer = false;
+    this.timeRemaining = 999999;
     this.lives = 3;
     this.maxLives = 3;
     this.showLives = true;
+    this.survivalTime = 0;
+    this.nextYetiTime = 28;
 
     this.px = w / 2;
     this.py = h * 0.6;
@@ -207,8 +209,7 @@ export class SnowBattleGame extends BaseGame {
     this.snowballs = [];
     this.powerUps = [];
     this.spawnTimer = 0.6;
-    this.yetiSpawned = false;
-    this.combo = 0;
+        this.combo = 0;
     this.comboPulse = 0;
 
     this.joystick.detach();
@@ -233,7 +234,7 @@ export class SnowBattleGame extends BaseGame {
   }
 
   private get elapsed(): number {
-    return GAME_DURATION - this.timeRemaining;
+    return this.survivalTime;
   }
 
   private get comboMultiplier(): number {
@@ -251,6 +252,7 @@ export class SnowBattleGame extends BaseGame {
 
     this.updateFlakes(dt, w, h);
     if (this.isFinishing) return;
+    this.survivalTime += dt;
 
     this.updatePlayer(dt, w, h);
     this.updateSpawning(dt, w, h);
@@ -272,7 +274,23 @@ export class SnowBattleGame extends BaseGame {
     }
   }
 
-  private updatePlayer(dt: number, w: number, h: number): void {
+  /**
+   * Recuadro central de juego: delimita el área de combate en la plaza nevada.
+   * Ni Rodolfo ni sus bolas de nieve pueden salir de este recuadro.
+   */
+  public getArenaBounds(): { left: number; right: number; top: number; bottom: number; width: number; height: number } {
+    const w = this.width || 1024;
+    const h = this.height || 768;
+    const top = 112;
+    const bottom = h - 38;
+    const arenaW = Math.min(w - 56, 960);
+    const left = Math.round((w - arenaW) / 2);
+    const right = left + arenaW;
+    const arenaH = bottom - top;
+    return { left, right, top, bottom, width: arenaW, height: arenaH };
+  }
+
+  private updatePlayer(dt: number, _w: number, _h: number): void {
     const js = this.joystick;
     const targetVx = js.x * js.magnitude * PLAYER_SPEED;
     const targetVy = js.y * js.magnitude * PLAYER_SPEED;
@@ -283,10 +301,10 @@ export class SnowBattleGame extends BaseGame {
     this.px += this.pvx * dt;
     this.py += this.pvy * dt;
 
-    // Arena: pantalla completa con margen (respetando el HUD superior)
-    const top = 130;
-    this.px = Math.max(PLAYER_RADIUS + 10, Math.min(w - PLAYER_RADIUS - 10, this.px));
-    this.py = Math.max(top + PLAYER_RADIUS, Math.min(h - PLAYER_RADIUS - 10, this.py));
+    // Confinar a Rodolfo estrictamente dentro del recuadro central
+    const bounds = this.getArenaBounds();
+    this.px = Math.max(bounds.left + PLAYER_RADIUS, Math.min(bounds.right - PLAYER_RADIUS, this.px));
+    this.py = Math.max(bounds.top + PLAYER_RADIUS, Math.min(bounds.bottom - PLAYER_RADIUS, this.py));
 
     if (js.magnitude > 0.05) {
       this.walkAnim += dt * 10 * js.magnitude;
@@ -304,10 +322,11 @@ export class SnowBattleGame extends BaseGame {
   }
 
   private updateSpawning(dt: number, w: number, h: number): void {
-    const t = this.elapsed;
+    const t = this.survivalTime;
 
-    if (!this.yetiSpawned && t >= YETI_SPAWN_ELAPSED) {
-      this.yetiSpawned = true;
+    // Aparición periódica del Mini-Jefe Yeti en modo supervivencia
+    if (t >= this.nextYetiTime) {
+      this.nextYetiTime = t + 40;
       this.spawnEnemy("yeti", w, h);
       this.addFloatingText("¡ALERTA: YETI!", w / 2, h * 0.35, "#00E5FF", 1.6);
       this.triggerShake(0.5, 9);
@@ -316,31 +335,43 @@ export class SnowBattleGame extends BaseGame {
 
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0) {
-      const progress = Math.min(1, t / GAME_DURATION);
-      this.spawnTimer = 0.95 - (0.95 - 0.45) * progress;
-      const elfChance = 0.35 + 0.35 * progress;
+      const progress = Math.min(2.5, t / 60);
+      this.spawnTimer = Math.max(0.38, 0.95 - 0.22 * progress);
+      const elfChance = Math.min(0.65, 0.35 + 0.15 * progress);
       this.spawnEnemy(Math.random() < elfChance ? "elf" : "snowman", w, h);
-      // Oleadas dobles desde temprano, cada vez más frecuentes
-      if (t > 6 && Math.random() < 0.3 + 0.25 * progress) {
+      if (t > 10 && Math.random() < Math.min(0.55, 0.25 + 0.15 * progress)) {
         this.spawnEnemy(Math.random() < elfChance ? "elf" : "snowman", w, h);
       }
     }
   }
 
-  private spawnEnemy(kind: EnemyKind, w: number, h: number): void {
-    const top = 130;
+  private spawnEnemy(kind: EnemyKind, _w: number, _h: number): void {
+    const bounds = this.getArenaBounds();
     const side = Math.floor(Math.random() * 4);
-    const margin = 60;
+    const offset = 48;
     let x = 0;
     let y = 0;
-    if (side === 0) { x = Math.random() * w; y = top - margin; }
-    else if (side === 1) { x = w + margin; y = top + Math.random() * (h - top); }
-    else if (side === 2) { x = Math.random() * w; y = h + margin; }
-    else { x = -margin; y = top + Math.random() * (h - top); }
+    if (side === 0) {
+      // Arriba del recuadro
+      x = bounds.left + Math.random() * bounds.width;
+      y = bounds.top - offset;
+    } else if (side === 1) {
+      // Derecha del recuadro
+      x = bounds.right + offset;
+      y = bounds.top + Math.random() * bounds.height;
+    } else if (side === 2) {
+      // Abajo del recuadro
+      x = bounds.left + Math.random() * bounds.width;
+      y = bounds.bottom + offset;
+    } else {
+      // Izquierda del recuadro
+      x = bounds.left - offset;
+      y = bounds.top + Math.random() * bounds.height;
+    }
 
-    // Evitar aparecer encima del jugador
-    if (Math.hypot(x - this.px, y - this.py) < 220) {
-      x = this.px < w / 2 ? w + margin : -margin;
+    // Evitar aparecer inmediatamente encima de Rodolfo
+    if (Math.hypot(x - this.px, y - this.py) < 180) {
+      x = this.px < (bounds.left + bounds.right) / 2 ? bounds.right + offset : bounds.left - offset;
     }
 
     const stats: Record<EnemyKind, { r: number; hp: number; speed: number }> = {
@@ -362,11 +393,24 @@ export class SnowBattleGame extends BaseGame {
   }
 
   private findNearestEnemy(): Enemy | null {
+    const bounds = this.getArenaBounds();
     let best: Enemy | null = null;
     let bestD = Infinity;
     for (const e of this.enemies) {
-      const d = Math.hypot(e.x - this.px, e.y - this.py);
-      if (d < bestD) { bestD = d; best = e; }
+      // No disparar fuera del recuadro central: solo apuntar a enemigos dentro de la plaza
+      const insideArena =
+        e.x >= bounds.left - 8 &&
+        e.x <= bounds.right + 8 &&
+        e.y >= bounds.top - 8 &&
+        e.y <= bounds.bottom + 8;
+
+      if (insideArena) {
+        const d = Math.hypot(e.x - this.px, e.y - this.py);
+        if (d < bestD) {
+          bestD = d;
+          best = e;
+        }
+      }
     }
     return best;
   }
@@ -393,15 +437,29 @@ export class SnowBattleGame extends BaseGame {
     this.audio.playWhoosh();
   }
 
-  private updateSnowballs(dt: number, w: number, h: number): void {
+  private updateSnowballs(dt: number, _w: number, _h: number): void {
+    const bounds = this.getArenaBounds();
     for (let i = this.snowballs.length - 1; i >= 0; i--) {
       const b = this.snowballs[i];
       b.x += b.vx * dt;
       b.y += b.vy * dt;
       b.life -= dt;
 
-      let consumed = b.life <= 0 || b.x < -40 || b.x > w + 40 || b.y < -40 || b.y > h + 40;
-      if (!consumed) {
+      // El proyectil no puede viajar fuera del recuadro central
+      const hitWall =
+        b.x <= bounds.left ||
+        b.x >= bounds.right ||
+        b.y <= bounds.top ||
+        b.y >= bounds.bottom;
+
+      let consumed = b.life <= 0 || hitWall;
+      if (hitWall) {
+        // Impacto contra el borde nevado del recuadro
+        const clampX = Math.max(bounds.left, Math.min(bounds.right, b.x));
+        const clampY = Math.max(bounds.top, Math.min(bounds.bottom, b.y));
+        this.particles.emitBurst(clampX, clampY, "#E0F7FA", 6);
+        this.particles.emitBurst(clampX, clampY, "#FFFFFF", 4);
+      } else if (!consumed) {
         for (const e of this.enemies) {
           if (e.hp > 0 && Math.hypot(e.x - b.x, e.y - b.y) < e.r + 10) {
             this.damageEnemy(e, 1);
@@ -467,7 +525,10 @@ export class SnowBattleGame extends BaseGame {
     const sponsorId = kind === "logo" && sponsors.length > 0
       ? sponsors[Math.floor(Math.random() * sponsors.length)].id
       : undefined;
-    this.powerUps.push({ kind, x, y, life: POWERUP_LIFE, bob: Math.random() * Math.PI * 2, sponsorId });
+    const bounds = this.getArenaBounds();
+    const clampedX = Math.max(bounds.left + 35, Math.min(bounds.right - 35, x));
+    const clampedY = Math.max(bounds.top + 35, Math.min(bounds.bottom - 35, y));
+    this.powerUps.push({ kind, x: clampedX, y: clampedY, life: POWERUP_LIFE, bob: Math.random() * Math.PI * 2, sponsorId });
   }
 
   private updateEnemies(dt: number): void {
@@ -595,6 +656,42 @@ export class SnowBattleGame extends BaseGame {
     const t = performance.now() * 0.001;
 
     this.drawBackground(ctx, w, h);
+    // Recuadro visual decorativo del área central de combate
+    const bounds = this.getArenaBounds();
+    ctx.save();
+    ctx.strokeStyle = "rgba(0, 229, 255, 0.40)";
+    ctx.lineWidth = 3.5;
+    ctx.shadowColor = "#00E5FF";
+    ctx.shadowBlur = 12;
+    // Borde redondeado suave
+    const rad = 14;
+    ctx.beginPath();
+    ctx.roundRect(bounds.left, bounds.top, bounds.width, bounds.height, rad);
+    ctx.stroke();
+
+    // Línea interior dorada sutil
+    ctx.strokeStyle = "rgba(255, 215, 0, 0.30)";
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = "#FFD700";
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.roundRect(bounds.left + 4, bounds.top + 4, bounds.width - 8, bounds.height - 8, Math.max(4, rad - 4));
+    ctx.stroke();
+
+    // Pequeños cristales decorativos en las 4 esquinas del recuadro
+    ctx.fillStyle = "#FFD700";
+    const corners = [
+      [bounds.left, bounds.top],
+      [bounds.right, bounds.top],
+      [bounds.left, bounds.bottom],
+      [bounds.right, bounds.bottom]
+    ];
+    for (const [cx, cy] of corners) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
 
     // Power-ups
     for (const p of this.powerUps) {

@@ -1336,7 +1336,7 @@ export class UniversalStoryTutorialModal {
           title: "¡La Plaza Nevada está en Peligro!",
           badge: "HISTORIA FESTIVA",
           badgeColor: "#FFD700",
-          storyText: "Un ejército de <strong>muñecos de nieve malvados</strong> y <strong>duendes traviesos</strong> invadió la plaza de la <strong>Feria Mágica del Juguete</strong>. ¡Rodolfo el Reno se ha armado de bolas de nieve para defenderla durante 45 segundos!",
+          storyText: "Un ejército de <strong>muñecos de nieve malvados</strong> y <strong>duendes traviesos</strong> invadió la plaza de la <strong>Feria Mágica del Juguete</strong>. ¡Rodolfo el Reno se ha armado de bolas de nieve para defender el recuadro central!",
           proTip: "¡Sobrevive con tus 3 corazones y suma la mayor puntuación posible!",
           stageType: "battle_story"
         },
@@ -1372,7 +1372,7 @@ export class UniversalStoryTutorialModal {
           title: "¡El Mini-Jefe Yeti!",
           badge: "JEFE FINAL",
           badgeColor: "#FF2A4D",
-          storyText: "A los <strong>30 segundos</strong> el temible <strong>Yeti</strong> entra en la plaza. Necesita <strong>10 impactos</strong> para caer, pero derrotarlo otorga <strong>+1500 pts</strong> y un power-up garantizado.",
+          storyText: "El temible <strong>Yeti</strong> entra a la plaza periódicamente. Necesita <strong>10 impactos</strong> para caer, pero derrotarlo otorga <strong>+1500 pts</strong> y un power-up garantizado.",
           proTip: "¡Guarda el Disparo Triple para derribar al Yeti más rápido!",
           stageType: "battle_yeti"
         }
