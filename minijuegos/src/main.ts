@@ -357,52 +357,26 @@ class KioskApp {
       this.goToAttractScreen();
     };
 
-    // 3. Al seleccionar un juego en el Menú → ¡ZARPAZO DE GARRAS Y MINI-HISTORIA CINEMÁTICA!
+    // 3. Al seleccionar un juego en el Menú → La animación de corte/cortina se ejecuta SOLO AQUÍ al entrar al juego, revelando debajo el tutorial
     this.gameMenu.onSelectGame = (gameId: string) => {
       if (this.isTransitioning) return;
+      this.audio.playTap();
       this.isTransitioning = true;
 
-      const mainContainer = document.getElementById("kiosk-main") || document.body;
+      const mainContainer = document.body;
       const gameInfo = this.getGameTransitionInfo(gameId);
 
-      // Ejecutar la transición de garras cortando el paquete
       ScreenTransition.getInstance().runClawSlashGameTransition(
         mainContainer,
         gameInfo,
         this.particles,
         () => {
-          // Punto medio: Pantalla cubierta.
+          // Punto medio (pantalla 100% cubierta): Ocultar menú y colocar el tutorial debajo del corte
           this.gameMenu.hide();
-          if (gameId === "toy-catch") {
-            this.toyCatchTutorialModal.show(0);
-          } else if (gameId === "santa-ski") {
-            this.skiTutorialModal.show(0);
-          } else if (gameId === "bell-symphony") {
-            this.bellTutorialModal.show(0);
-          } else if (gameId === "flying-elf") {
-            this.elfTutorialModal.show(0);
-          } else if (gameId === "magic-pairs") {
-            this.pairsTutorialModal.show(0);
-          } else if (gameId === "santa-hills") {
-            this.hillsTutorialModal.show(0);
-          } else if (gameId === "tree-melody") {
-            this.drumsTutorialModal.show(0);
-          } else if (gameId === "snowball-target") {
-            this.targetTutorialModal.show(0);
-          } else if (gameId === "ice-breaker") {
-            this.iceTutorialModal.show(0);
-          } else if (gameId === "ornament-pop") {
-            this.ornamentTutorialModal.show(0);
-          } else if (gameId === "polar-express") {
-            this.polarTutorialModal.show(0);
-          } else if (gameId === "workshop-chaos") {
-            this.workshopTutorialModal.show(0);
-          } else {
-            this.universalTutorialModal.show(gameId, 0);
-          }
+          this.showGameTutorial(gameId);
         },
         () => {
-          // Las garras terminan de desgarrar
+          // Los cortes han terminado y la cortina se retira, dejando visible e interactivo el tutorial debajo
           this.isTransitioning = false;
         }
       );
@@ -680,29 +654,6 @@ class KioskApp {
       this.goToMenu();
     };
 
-    // 7. Al pulsar "Seguir Editando / Grabar" en la pantalla de resultados
-    this.gameOverModal.onEditAgain = (songFile?: string, customNotes?: any[]) => {
-      const bellGame = this.games.get("bell-symphony") as BellSymphonyGame | undefined;
-      if (bellGame) {
-        if (this.currentGame && this.currentGame !== bellGame) {
-          this.currentGame.destroy();
-        }
-        this.currentGame = bellGame;
-        this.appState = "playing";
-        this.isTransitioning = false;
-        this.attractScreen.hide();
-        this.gameMenu.hide();
-        this.gameOverModal.hide();
-        this.instructionsModal.hide();
-        this.audio.stopMenuBGM();
-        this.audio.setGameActive(true);
-        this.resetInactivity();
-        bellGame.start();
-        bellGame.openChartEditor(songFile, customNotes);
-      } else {
-        this.goToMenu();
-      }
-    };
   }
 
   /**
@@ -740,10 +691,7 @@ class KioskApp {
           }
           this.input.reset();
           this.appState = "menu";
-          this.attractScreen.hide();
-          this.gameOverModal.hide();
-          this.instructionsModal.hide();
-          this.storyModal.hide();
+          this.hideAllModals();
           this.gameMenu.show();
           this.resetInactivity();
         },
@@ -759,10 +707,7 @@ class KioskApp {
       this.isTransitioning = false;
       this.input.reset();
       this.appState = "menu";
-      this.attractScreen.hide();
-      this.gameOverModal.hide();
-      this.instructionsModal.hide();
-      this.storyModal.hide();
+      this.hideAllModals();
       this.gameMenu.show();
       this.resetInactivity();
     }
@@ -791,7 +736,66 @@ class KioskApp {
   }
 
   /**
+   * Cierra todos los modales y tutoriales interactivos abiertos
+   */
+  public hideAllModals(): void {
+    this.attractScreen.hide();
+    this.gameMenu.hide();
+    this.gameOverModal.hide();
+    this.instructionsModal.hide();
+    this.storyModal.hide();
+    this.skiTutorialModal.hide();
+    this.toyCatchTutorialModal.hide();
+    this.bellTutorialModal.hide();
+    this.elfTutorialModal.hide();
+    this.pairsTutorialModal.hide();
+    this.hillsTutorialModal.hide();
+    this.drumsTutorialModal.hide();
+    this.targetTutorialModal.hide();
+    this.workshopTutorialModal.hide();
+    this.polarTutorialModal.hide();
+    this.iceTutorialModal.hide();
+    this.ornamentTutorialModal.hide();
+    this.universalTutorialModal.hide();
+  }
+
+  /**
+   * Abre directamente el tutorial interactivo o instrucciones del juego seleccionado
+   */
+  public showGameTutorial(gameId: string): void {
+    this.gameMenu.hide();
+    if (gameId === "toy-catch") {
+      this.toyCatchTutorialModal.show(0);
+    } else if (gameId === "santa-ski") {
+      this.skiTutorialModal.show(0);
+    } else if (gameId === "bell-symphony") {
+      this.bellTutorialModal.show(0);
+    } else if (gameId === "flying-elf") {
+      this.elfTutorialModal.show(0);
+    } else if (gameId === "magic-pairs") {
+      this.pairsTutorialModal.show(0);
+    } else if (gameId === "santa-hills") {
+      this.hillsTutorialModal.show(0);
+    } else if (gameId === "tree-melody") {
+      this.drumsTutorialModal.show(0);
+    } else if (gameId === "snowball-target") {
+      this.targetTutorialModal.show(0);
+    } else if (gameId === "ice-breaker") {
+      this.iceTutorialModal.show(0);
+    } else if (gameId === "ornament-pop") {
+      this.ornamentTutorialModal.show(0);
+    } else if (gameId === "polar-express") {
+      this.polarTutorialModal.show(0);
+    } else if (gameId === "workshop-chaos") {
+      this.workshopTutorialModal.show(0);
+    } else {
+      this.universalTutorialModal.show(gameId, 0);
+    }
+  }
+
+  /**
    * Inicia el minijuego con la cuenta regresiva cinemática 3-2-1
+   * (NO repite la animación de corte, va directo al conteo 3-2-1)
    */
   public launchGameWithCountdown(gameId: string): void {
     const game = this.games.get(gameId);
@@ -807,28 +811,22 @@ class KioskApp {
     this.audio.pauseMenuBGM();
     this.currentGame = game;
     this.appState = "playing";
+    this.isTransitioning = true;
 
-    this.attractScreen.hide();
-    this.gameMenu.hide();
-    this.gameOverModal.hide();
-    this.instructionsModal.hide();
+    this.hideAllModals();
 
     this.input.reset();
     this.resetInactivity();
 
     const mainContainer = document.getElementById("kiosk-main") || document.body;
 
-    // Si el juego tiene pantalla de selección previa (Sinfonía de Campanas o El Vuelo del Elfo),
-    // ingresar directamente a su pantalla de selección sin conteo previo.
-    // La única cuenta regresiva se ejecutará tras presionar "Jugar" / "Volar".
     if (gameId === "bell-symphony" || gameId === "flying-elf") {
-      this.currentGame.start(KIOSK_CONFIG.defaultGameDurationSeconds);
       this.isTransitioning = false;
+      this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
     } else {
       if ("prepareForCountdown" in game && typeof (game as any).prepareForCountdown === "function") {
         (game as any).prepareForCountdown(KIOSK_CONFIG.defaultGameDurationSeconds);
       }
-      // Ejecutar cuenta regresiva arcade 3-2-1 al presionar Jugar
       ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
         if (this.appState !== "playing" || this.currentGame !== game) {
           this.isTransitioning = false;
@@ -858,10 +856,7 @@ class KioskApp {
     this.appState = "playing";
     this.isTransitioning = false;
 
-    this.attractScreen.hide();
-    this.gameMenu.hide();
-    this.gameOverModal.hide();
-    this.instructionsModal.hide();
+    this.hideAllModals();
 
     this.input.reset();
     this.resetInactivity();

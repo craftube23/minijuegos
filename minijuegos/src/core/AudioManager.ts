@@ -601,6 +601,21 @@ export class AudioManager {
     }
   }
 
+  private lastSliceSfxAt = 0;
+
+  /** Corte exitoso de regalo/piñata (Ninja Corta-Regalos). Limita solapamientos en tajos muy seguidos. */
+  public playSliceCut(): void {
+    const now = performance.now();
+    if (now - this.lastSliceSfxAt < 70) return;
+    this.lastSliceSfxAt = now;
+    this.playSoundEffect("./assets/audio/cortaregalos/corte_effec.mp3", 0.8, 0.95 + Math.random() * 0.15);
+  }
+
+  /** Explosión al cortar una bomba de carbón. */
+  public playCoalBombExplosion(): void {
+    this.playSoundEffect("./assets/audio/cortaregalos/efecto de sonido de explosión.mp3", 0.95);
+  }
+
   // ==========================================================================
   // EFECTOS DE SONIDO ESPECÍFICOS: EL VUELO MÁGICO DEL ELFO
   // ==========================================================================

@@ -198,6 +198,7 @@ export class SantaSkiGame extends BaseGame {
 
   // Sprites 2D unificados de Santa (Mismo diseño con gafas, traje rojo y esquís en todas las poses)
   private santaStraightImg: HTMLImageElement;
+  private santaStraight2Img: HTMLImageElement;
   private santaLeftImg: HTMLImageElement;
   private santaRightImg: HTMLImageElement;
   private santaJumpImg: HTMLImageElement;
@@ -206,6 +207,7 @@ export class SantaSkiGame extends BaseGame {
   // Sprites del Yeti
   private yetiRun1Img: HTMLImageElement;
   private yetiRun2Img: HTMLImageElement;
+  private yetiCatchImg: HTMLImageElement;
   private yetiDizzyImg: HTMLImageElement;
 
   // Props y obstáculos
@@ -239,11 +241,12 @@ export class SantaSkiGame extends BaseGame {
       particles
     );
 
-    this.inGameMusicPath = "./assets/audio/Jingle Bells.mp3";
+    this.inGameMusicPath = "./assets/audio/jingle-bells.mp3";
     this.inGameMusicVolume = 0.45;
 
     // Sprites 2D unificados de Santa (mismo estilo, proporciones y modelo de personaje)
     this.santaStraightImg = this.getImage("./assets/images/santa-ski-straight.png");
+    this.santaStraight2Img = this.getImage("./assets/images/santa-ski-straight-2.png");
     this.santaLeftImg = this.getImage("./assets/images/santa-ski-left.png");
     this.santaRightImg = this.getImage("./assets/images/santa-ski-right.png");
     this.santaJumpImg = this.getImage("./assets/images/santa-ski-jump.png");
@@ -252,6 +255,7 @@ export class SantaSkiGame extends BaseGame {
     // Sprites del Yeti
     this.yetiRun1Img = this.getImage("./assets/images/yeti-run1.png");
     this.yetiRun2Img = this.getImage("./assets/images/yeti-run2.png");
+    this.yetiCatchImg = this.getImage("./assets/images/yeti-catch.png");
     this.yetiDizzyImg = this.getImage("./assets/images/yeti-dizzy.png");
 
     // Props y obstáculos
@@ -1109,7 +1113,7 @@ export class SantaSkiGame extends BaseGame {
               this.crashTimer = 1.2;
               this.yetiStunnedTimer = 3.2;
               this.combo = 0;
-              this.audio.playRunnerHit();
+              this.audio.playElfHit();
               this.triggerShake(0.45, 14);
               this.particles.emitBurst(w / 2, h * 0.32, "#FFFFFF", 36);
               this.addFloatingText(hadStreak ? "¡RACHA PERDIDA! -1" : "¡EL YETI TE ATRAPÓ! -1", w / 2, h * 0.28, "#FF1744", 1.45);
@@ -1262,7 +1266,7 @@ export class SantaSkiGame extends BaseGame {
             this.invulnerableTimer = 2.0;
             this.crashTimer = 1.1;
             this.combo = 0;
-            this.audio.playRunnerHit();
+            this.audio.playElfHit();
             this.triggerShake(0.35, 12);
             if (isBillboard) {
               this.particles.emitBurst(w / 2, h * 0.32, "#6D4C41", 20);
@@ -1772,8 +1776,12 @@ export class SantaSkiGame extends BaseGame {
     ctx.translate(yx, yy);
 
     let yetiImg = this.yetiRun1Img;
+    const yd = Math.hypot(this.worldX - this.yetiWorldX, this.worldY - this.yetiWorldY);
+    const isCatching = yd < 120 && (this.crashTimer > 0 || yd < 75);
     if (this.yetiStunnedTimer > 0) {
       yetiImg = this.yetiDizzyImg;
+    } else if (isCatching && imgReady(this.yetiCatchImg)) {
+      yetiImg = this.yetiCatchImg;
     } else {
       const step = Math.floor(this.yetiAnimTimer) % 2;
       yetiImg = step === 0 ? this.yetiRun1Img : this.yetiRun2Img;
@@ -1938,8 +1946,9 @@ export class SantaSkiGame extends BaseGame {
       renderW = baseW;
       renderH = baseH;
     } else {
-      // De frente / recto: mirando hacia el frente con esquís paralelos
-      activeImg = this.santaStraightImg;
+      // De frente / recto: alternancia fluida entre 2 frames de balanceo y esquís dinámicos
+      const stride = Math.sin(t * 10) > 0;
+      activeImg = stride && imgReady(this.santaStraight2Img) ? this.santaStraight2Img : this.santaStraightImg;
       const shudder = Math.sin(t * 14) * 0.02;
       ctx.rotate(shudder);
       renderW = baseW;

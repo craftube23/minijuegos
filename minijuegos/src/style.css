@@ -4348,7 +4348,7 @@ html, body {
 .gift-transition-overlay.fantasy-gift-mode {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 30000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4860,7 +4860,7 @@ html, body {
 .gift-transition-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 30000;
   display: flex;
   align-items: center;
   justify-content: center;

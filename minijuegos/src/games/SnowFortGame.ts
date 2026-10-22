@@ -114,7 +114,7 @@ export class SnowFortGame extends BaseGame {
       particles
     );
 
-    this.inGameMusicPath = "./assets/audio/Jingle Bells.mp3";
+    this.inGameMusicPath = "./assets/audio/jingle-bells.mp3";
     this.inGameMusicVolume = 0.44;
 
     this.bgImg = this.getImage("./assets/images/fondo-villa-montanas.jpg");

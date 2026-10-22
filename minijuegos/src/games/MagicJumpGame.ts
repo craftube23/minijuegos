@@ -678,9 +678,6 @@ export class MagicJumpGame extends BaseGame {
       this.rocketTimer -= dt;
       this.playerVy = this.rocketSpeed;
 
-      // Estela de chispas doradas y humo festivo
-      this.particles.emitBurst(this.playerX - 10, this.playerY + this.playerH * 0.45, "#FFD700", 3);
-      this.particles.emitBurst(this.playerX + 10, this.playerY + this.playerH * 0.45, "#FF9100", 3);
 
       if (this.rocketTimer <= 0) {
         this.isRocketActive = false;
@@ -1054,9 +1051,13 @@ export class MagicJumpGame extends BaseGame {
     this.bumpers = this.bumpers.filter((b) => b.y < cleanupY);
     this.goblins = this.goblins.filter((g) => g.y < cleanupY && (!g.isDefeated || g.defeatAlpha > 0.05));
 
-    // 15. Caída por el fondo (red elástica mágica de rescate)
-    if (this.playerY > this.cameraY + this.height + 70) {
-      this.handlePlayerFall();
+    // 15. Caída por el fondo: Game Over inmediato al caer al abismo
+    if (this.playerY > this.cameraY + this.height + 40) {
+      this.combo = 0;
+      this.audio.playWhoosh();
+      this.triggerShake(0.2, 6);
+      this.endGame();
+      return;
     }
   }
 
@@ -1119,53 +1120,7 @@ export class MagicJumpGame extends BaseGame {
     this.addFloatingText(`★ ¡COHETE ${sponsorName.toUpperCase()}! ★`, this.width * 0.5, this.height * 0.35, "#FFD700", 1.6);
   }
 
-  /**
-   * Trampolín de rescate cuando el elfo cae por la base
-   */
-  private handlePlayerFall(): void {
-    this.combo = 0;
-    this.audio.playWhoosh();
-    this.triggerShake(0.2, 6);
 
-    // Impulsar hacia arriba con cama elástica mágica potente
-    this.playerVy = this.normalJumpSpeed * 1.3;
-    this.playerY = this.cameraY + this.height * 0.82;
-
-    // Crear una plataforma de emergencia ancha justo debajo
-    const emergencyW = Math.max(190, Math.min(340, this.width * 0.38));
-    this.platforms.push({
-      x: Math.max(16, Math.min(this.width - emergencyW - 16, this.playerX - emergencyW * 0.5)),
-      y: this.playerY + 28,
-      w: emergencyW,
-      h: Math.round(emergencyW * 0.28),
-      type: "normal",
-      moveDir: 0,
-      moveSpeed: 0,
-      minX: 0,
-      maxX: this.width,
-      broken: false,
-      squishTimer: 0.22
-    });
-
-    // Generar inmediatamente un peldaño con resorte encima para recuperar altura sin esperar
-    const springPlatW = 135;
-    this.platforms.push({
-      x: Math.max(20, Math.min(this.width - springPlatW - 20, this.playerX - springPlatW * 0.5)),
-      y: this.playerY - 88,
-      w: springPlatW,
-      h: Math.round(springPlatW * 0.28),
-      type: "spring",
-      moveDir: 0,
-      moveSpeed: 0,
-      minX: 0,
-      maxX: this.width,
-      broken: false,
-      squishTimer: 0
-    });
-
-    this.particles.emitBurst(this.playerX, this.playerY, "#FF9100", 14);
-    this.addFloatingText("¡TRAMPOLÍN DE RESCATE!", this.width * 0.5, this.height * 0.58, "#FFD700", 1.3);
-  }
 
   // ==========================================================================
   // RENDERIZADO VISUAL A 60 FPS (Stylized 2D Game Concept Art)
@@ -1615,7 +1570,8 @@ export class MagicJumpGame extends BaseGame {
 
         // Medallón dorado flotante con el logo oficial del patrocinador
         if (plat.sponsorLogo && plat.sponsorLogo.complete && plat.sponsorLogo.naturalWidth > 0) {
-          const emblemSize = Math.max(34, Math.min(54, plat.h * 1.25));
+          const baseEmblem = Math.max(34, Math.min(54, plat.h * 1.25));
+          const emblemSize = Math.round(baseEmblem * 1.35);
           const emblemX = plat.x + (plat.w - emblemSize) / 2;
           const floatBob = Math.sin(time * 3 + plat.x) * 4;
           const emblemY = drawY - emblemSize - 8 + floatBob;
@@ -1717,9 +1673,9 @@ export class MagicJumpGame extends BaseGame {
 
         // Resorte de bastón de caramelo para tipo "spring"
         if (plat.type === "spring") {
-          const springW = 34;
+          const springW = 46;
           const compression = plat.springCompression || 0;
-          const springH = 34 * (1 - compression * 0.45);
+          const springH = 46 * (1 - compression * 0.45);
           const springX = plat.x + (plat.w - springW) / 2;
           const springY = drawY - springH + 8;
 
@@ -1762,10 +1718,10 @@ export class MagicJumpGame extends BaseGame {
       if (plat.hasItem && !plat.itemCollected && plat.type !== "sponsor") {
         const itemX = plat.x + plat.w * 0.5;
         const itemBob = Math.sin(time * 4 + plat.x) * 4;
-        const itemY = drawY - 22 + itemBob;
+        const itemY = drawY - 26 + itemBob;
 
         if (plat.hasItem === "star") {
-          const starSize = 30;
+          const starSize = 40;
           if (this.spriteStar && this.spriteStar.complete && this.spriteStar.naturalWidth > 0) {
             ctx.save();
             ctx.shadowColor = "#FFD700";
@@ -1774,7 +1730,7 @@ export class MagicJumpGame extends BaseGame {
             ctx.restore();
           }
         } else if (plat.hasItem === "gift") {
-          const giftSize = 28;
+          const giftSize = 38;
           if (this.spriteGift && this.spriteGift.complete && this.spriteGift.naturalWidth > 0) {
             ctx.save();
             ctx.shadowColor = "#FF1744";
@@ -1783,7 +1739,7 @@ export class MagicJumpGame extends BaseGame {
             ctx.restore();
           }
         } else if (plat.hasItem === "clock") {
-          const clockSize = 32;
+          const clockSize = 43;
           if (this.spriteClock && this.spriteClock.complete && this.spriteClock.naturalWidth > 0) {
             ctx.save();
             ctx.shadowColor = "#00E5FF";
@@ -1792,7 +1748,7 @@ export class MagicJumpGame extends BaseGame {
             ctx.restore();
           }
         } else if (plat.hasItem === "rocket") {
-          const rSize = 32;
+          const rSize = 43;
           if (this.spriteRocket && this.spriteRocket.complete && this.spriteRocket.naturalWidth > 0) {
             ctx.save();
             ctx.shadowColor = "#FFD700";

@@ -232,7 +232,7 @@ export class OrnamentPopGame extends BaseGame {
       particles
     );
 
-    this.inGameMusicPath = "./assets/audio/Deck the Halls.mp3";
+    this.inGameMusicPath = "./assets/audio/Deck The Halls.mp3";
     this.inGameMusicVolume = 0.44;
 
     this.showTimer = true;
@@ -513,7 +513,7 @@ export class OrnamentPopGame extends BaseGame {
     if (t.kind === "bomb") {
       t.sliced = true;
       this.swipeSliceCount = 0;
-      this.audio.playPowerUp();
+      this.audio.playCoalBombExplosion();
       this.triggerShake(0.38, 16);
       this.particles.emitBurst(t.x, t.y, "#FF1744", 32);
       this.particles.emitBurst(t.x, t.y, "#FF9100", 24);
@@ -534,6 +534,9 @@ export class OrnamentPopGame extends BaseGame {
       );
       return;
     }
+
+    // Cualquier otro objetivo alcanzado por el tajo es un corte exitoso
+    this.audio.playSliceCut();
 
     // 2. ¿Es el Duende Ladrón del Hielo? (Enemigo especial de 3 tajos obligatorios)
     if (t.kind === "frostGoblin" && t.multiHits + 1 < t.maxMultiHits) {

@@ -22,7 +22,6 @@ export class GameOverModal {
   public onPlayAgain?: () => void;
   public onBackToMenu?: () => void;
   public onChangeSong?: () => void;
-  public onEditAgain?: (songFile?: string, customNotes?: any[]) => void;
 
   private entranceTl: gsap.core.Timeline | null = null;
   private scoreTween: gsap.core.Tween | null = null;
@@ -207,17 +206,6 @@ export class GameOverModal {
               ${getIconSvg("music", { size: 18, color: "#ffffff" })}
               <span>CAMBIAR CANCIÓN</span>
             </button>
-            <button id="btn-modal-editor" class="btn-action btn-editor-action" title="Abrir el editor con tus notas">
-              ${getIconSvg("wrench", { size: 18, color: "#451A03" })}
-              <span>${isCustom ? "SEGUIR EDITANDO / GRABAR" : "MODO GRABADOR"}</span>
-            </button>
-          ` : ""}
-
-          ${isCustom && result.customNotes && result.customNotes.length > 0 ? `
-            <button id="btn-modal-copy" class="btn-action btn-copy-action" title="Copiar código TypeScript al portapapeles">
-              ${getIconSvg("clipboard", { size: 18, color: "#083344" })}
-              <span>GUARDAR / COPIAR CÓDIGO</span>
-            </button>
           ` : ""}
 
           <button id="btn-modal-menu" class="btn-action btn-menu" title="Volver al menú de minijuegos">
@@ -232,7 +220,7 @@ export class GameOverModal {
     `;
 
     this.container.style.display = "flex";
-    this.setupEvents(result);
+    this.setupEvents();
     this.playEntranceAnimation(result);
 
     const resultSignature = `${result.gameId}:${result.score}:${result.highScore}:${Boolean(result.isNewRecord)}:${rank}`;
@@ -524,14 +512,12 @@ export class GameOverModal {
     }
   }
 
-  private setupEvents(result: GameResult): void {
+  private setupEvents(): void {
     const btnAgain = this.container.querySelector<HTMLElement>("#btn-modal-again");
     const btnChangeSong = this.container.querySelector<HTMLElement>("#btn-modal-change-song");
     const btnMenu = this.container.querySelector<HTMLElement>("#btn-modal-menu");
-    const btnEditor = this.container.querySelector<HTMLElement>("#btn-modal-editor");
-    const btnCopy = this.container.querySelector<HTMLElement>("#btn-modal-copy");
 
-    const actionButtons = [btnAgain, btnChangeSong, btnMenu, btnEditor, btnCopy].filter(
+    const actionButtons = [btnAgain, btnChangeSong, btnMenu].filter(
       (btn): btn is HTMLElement => btn !== null
     );
 
@@ -578,68 +564,6 @@ export class GameOverModal {
       if (this.onBackToMenu) this.onBackToMenu();
     });
 
-    btnEditor?.addEventListener("click", () => {
-      this.audio.playTap();
-      this.hide();
-      if (this.onEditAgain) {
-        this.onEditAgain(result.songFile, result.customNotes);
-      }
-    });
-
-    btnCopy?.addEventListener("click", () => {
-      if (!result.customNotes || result.customNotes.length === 0) return;
-
-      const codeLines = result.customNotes.map((n: { lane: number; time: number; isStar?: boolean }) => {
-        const starStr = n.isStar ? ", isStar: true" : "";
-        return `  { lane: ${n.lane}, time: ${n.time.toFixed(2)}${starStr} },`;
-      });
-
-      const output = `// Partitura generada con el Grabador de Ritmo\nconst vocalChart = [\n${codeLines.join("\n")}\n];`;
-
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(output).then(() => {
-          this.showToast("¡Código TypeScript copiado al portapapeles con éxito!");
-        }).catch(() => {
-          this.fallbackCopy(output);
-        });
-      } else {
-        this.fallbackCopy(output);
-      }
-    });
-  }
-
-  private fallbackCopy(text: string): void {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.select();
-    try {
-      document.execCommand("copy");
-      this.showToast("¡Código copiado al portapapeles!");
-    } catch {
-      alert("Partitura:\n\n" + text);
-    }
-    document.body.removeChild(textArea);
-  }
-
-  private showToast(msg: string): void {
-    const toast = this.container.querySelector("#modal-toast") as HTMLElement;
-    if (toast) {
-      this.toastTimerIds.forEach((id) => window.clearTimeout(id));
-      this.toastTimerIds = [];
-
-      toast.textContent = msg;
-      toast.style.display = "block";
-      toast.classList.add("show");
-      const t1 = window.setTimeout(() => {
-        toast.classList.remove("show");
-        const t2 = window.setTimeout(() => {
-          toast.style.display = "none";
-        }, 300);
-        this.toastTimerIds.push(t2);
-      }, 3000);
-      this.toastTimerIds.push(t1);
-    }
   }
 
   public hide(): void {

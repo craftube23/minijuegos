@@ -29,7 +29,7 @@ import { VirtualJoystick } from "./shared/VirtualJoystick";
 
 type EnemyKind = "snowman" | "elf" | "yeti";
 type PowerUpKind = "triple" | "shield" | "cookie" | "logo";
-type FacingDir = "down" | "up" | "side";
+type FacingDir = "down" | "up" | "right" | "left";
 
 interface Enemy {
   kind: EnemyKind;
@@ -42,6 +42,8 @@ interface Enemy {
   hitFlash: number;
   shieldTick: number;
   wobble: number;
+  attackTimer?: number;
+  defeatTimer?: number;
 }
 
 interface Snowball {
@@ -102,20 +104,27 @@ export class SnowBattleGame extends BaseGame {
   private pvx = 0;
   private pvy = 0;
   private facing: FacingDir = "down";
-  private facingLeft = false;
   private invulnerable = 0;
   private fireTimer = 0;
   private tripleTimer = 0;
   private shieldTimer = 0;
   private walkAnim = 0;
+  private stepParticleTimer = 0;
+
+  // Estado de derrota / muerte comica
+  private isDying = false;
+  private deathTimer = 0;
+
+  // Control de generación continua y dificultad por Yeti
+  private nextYetiTime = 25;
+  private yetiCount = 0;
+  private spawnTimer = 0.8;
 
   // Entidades
   private enemies: Enemy[] = [];
   private snowballs: Snowball[] = [];
   private powerUps: PowerUp[] = [];
   private survivalTime = 0;
-  private nextYetiTime = 28;
-  private spawnTimer = 0;
   private combo = 0;
   private comboPulse = 0;
   private lastDt = 1 / 60;
@@ -123,22 +132,28 @@ export class SnowBattleGame extends BaseGame {
   // Copos decorativos de fondo
   private flakes: { x: number; y: number; r: number; vy: number; vx: number }[] = [];
 
-  // Sprites de Rodolfo (Animación completa: Caminar 1/2, Parada/Idle y Golpe)
-  private rodolfoDown1Img: HTMLImageElement;
-  private rodolfoDown2Img: HTMLImageElement;
-  private rodolfoUp1Img: HTMLImageElement;
-  private rodolfoUp2Img: HTMLImageElement;
-  private rodolfoSide1Img: HTMLImageElement;
-  private rodolfoSide2Img: HTMLImageElement;
-  private rodolfoIdleDownImg: HTMLImageElement;
-  private rodolfoIdleSideImg: HTMLImageElement;
-  private rodolfoIdleUpImg: HTMLImageElement;
+  // Sprites de Rodolfo en las 4 direcciones (Paso 1, Juntas/Pass, Paso 2, Stop)
+  private rodolfoSprites: Record<FacingDir, {
+    step1: HTMLImageElement;
+    pass: HTMLImageElement;
+    step2: HTMLImageElement;
+    stop: HTMLImageElement;
+  }>;
   private rodolfoHitImg: HTMLImageElement;
+  private rodolfoDeadImg: HTMLImageElement;
   private snowmanImg: HTMLImageElement;
+  private snowmanImg2: HTMLImageElement;
   private snowmanHitImg: HTMLImageElement;
+  private snowmanAtkImg: HTMLImageElement;
+  private snowmanDeadImg: HTMLImageElement;
   private elfImg: HTMLImageElement;
+  private elfImg2: HTMLImageElement;
+  private elfHitImg: HTMLImageElement;
+  private elfAtkImg: HTMLImageElement;
   private yetiImg: HTMLImageElement;
+  private yetiImg2: HTMLImageElement;
   private yetiHitImg: HTMLImageElement;
+  private yetiSlamImg: HTMLImageElement;
   private snowballImg: HTMLImageElement;
   private puTripleImg: HTMLImageElement;
   private puShieldImg: HTMLImageElement;
@@ -164,27 +179,53 @@ export class SnowBattleGame extends BaseGame {
       particles
     );
 
-    this.inGameMusicPath = "./assets/audio/Jingle Bells.mp3";
+    this.inGameMusicPath = "./assets/audio/Batalla de Nieve/Christmas synths.ogg";
     this.inGameMusicVolume = 0.45;
 
     this.joystick = new VirtualJoystick(canvas, () => ({ width: this.width, height: this.height }));
 
     const base = "./assets/images/";
-    this.rodolfoDown1Img = this.getImage(base + "rodolfo-battle-down-1.png");
-    this.rodolfoDown2Img = this.getImage(base + "rodolfo-battle-down-2.png");
-    this.rodolfoUp1Img = this.getImage(base + "rodolfo-battle-up-1.png");
-    this.rodolfoUp2Img = this.getImage(base + "rodolfo-battle-up-2.png");
-    this.rodolfoSide1Img = this.getImage(base + "rodolfo-battle-side-1.png");
-    this.rodolfoSide2Img = this.getImage(base + "rodolfo-battle-side-2.png");
-    this.rodolfoIdleDownImg = this.getImage(base + "rodolfo-battle-idle.png");
-    this.rodolfoIdleSideImg = this.getImage(base + "rodolfo-battle-idle-side.png");
-    this.rodolfoIdleUpImg = this.getImage(base + "rodolfo-battle-idle-up.png");
+    this.rodolfoSprites = {
+      right: {
+        step1: this.getImage(base + "rodolfo-battle-right-1.png"),
+        pass: this.getImage(base + "rodolfo-battle-right-pass.png"),
+        step2: this.getImage(base + "rodolfo-battle-right-2.png"),
+        stop: this.getImage(base + "rodolfo-battle-right-stop.png")
+      },
+      left: {
+        step1: this.getImage(base + "rodolfo-battle-left-1.png"),
+        pass: this.getImage(base + "rodolfo-battle-left-pass.png"),
+        step2: this.getImage(base + "rodolfo-battle-left-2.png"),
+        stop: this.getImage(base + "rodolfo-battle-left-stop.png")
+      },
+      down: {
+        step1: this.getImage(base + "rodolfo-battle-down-1.png"),
+        pass: this.getImage(base + "rodolfo-battle-down-pass.png"),
+        step2: this.getImage(base + "rodolfo-battle-down-2.png"),
+        stop: this.getImage(base + "rodolfo-battle-down-stop.png")
+      },
+      up: {
+        step1: this.getImage(base + "rodolfo-battle-up-1.png"),
+        pass: this.getImage(base + "rodolfo-battle-up-pass.png"),
+        step2: this.getImage(base + "rodolfo-battle-up-2.png"),
+        stop: this.getImage(base + "rodolfo-battle-up-stop.png")
+      }
+    };
     this.rodolfoHitImg = this.getImage(base + "rodolfo-battle-hit.png");
+    this.rodolfoDeadImg = this.getImage(base + "rodolfo-battle-dead.png");
     this.snowmanImg = this.getImage(base + "snowman-evil-1.png");
+    this.snowmanImg2 = this.getImage(base + "snowman-evil-2.png");
     this.snowmanHitImg = this.getImage(base + "snowman-evil-hit.png");
+    this.snowmanAtkImg = this.getImage(base + "snowman-evil-attack.png");
+    this.snowmanDeadImg = this.getImage(base + "snowman-evil-dead.png");
     this.elfImg = this.getImage(base + "elf-mischief-1.png");
+    this.elfImg2 = this.getImage(base + "elf-mischief-2.png");
+    this.elfHitImg = this.getImage(base + "elf-mischief-hit.png");
+    this.elfAtkImg = this.getImage(base + "elf-mischief-attack.png");
     this.yetiImg = this.getImage(base + "yeti-boss-1.png");
+    this.yetiImg2 = this.getImage(base + "yeti-boss-2.png");
     this.yetiHitImg = this.getImage(base + "yeti-boss-hit.png");
+    this.yetiSlamImg = this.getImage(base + "yeti-boss-slam.png");
     this.snowballImg = this.getImage(base + "snowball-proj.png");
     this.puTripleImg = this.getImage(base + "pu-triple.png");
     this.puShieldImg = this.getImage(base + "pu-shield.png");
@@ -221,14 +262,14 @@ export class SnowBattleGame extends BaseGame {
     this.maxLives = 3;
     this.showLives = true;
     this.survivalTime = 0;
-    this.nextYetiTime = 28;
+    this.isDying = false;
+    this.deathTimer = 0;
 
     this.px = w / 2;
     this.py = h * 0.6;
     this.pvx = 0;
     this.pvy = 0;
     this.facing = "down";
-    this.facingLeft = false;
     this.invulnerable = 0;
     this.fireTimer = 0;
     this.tripleTimer = 0;
@@ -238,8 +279,10 @@ export class SnowBattleGame extends BaseGame {
     this.enemies = [];
     this.snowballs = [];
     this.powerUps = [];
-    this.spawnTimer = 0.6;
-        this.combo = 0;
+    this.nextYetiTime = 25;
+    this.yetiCount = 0;
+    this.spawnTimer = 0.8;
+    this.combo = 0;
     this.comboPulse = 0;
 
     this.joystick.detach();
@@ -283,6 +326,11 @@ export class SnowBattleGame extends BaseGame {
     this.updateFlakes(dt, w, h);
     if (this.isFinishing) return;
     this.survivalTime += dt;
+
+    if (this.isDying) {
+      this.updateDeath(dt);
+      return;
+    }
 
     this.updatePlayer(dt, w, h);
     this.updateSpawning(dt, w, h);
@@ -369,30 +417,75 @@ export class SnowBattleGame extends BaseGame {
     this.px = Math.max(bounds.left + PLAYER_RADIUS, Math.min(bounds.right - PLAYER_RADIUS, this.px));
     this.py = Math.max(bounds.top + PLAYER_RADIUS, Math.min(bounds.bottom - PLAYER_RADIUS, this.py));
 
-    const isMoving = js.magnitude > 0.08 || Math.hypot(this.pvx, this.pvy) > 30;
+    const speed = Math.hypot(this.pvx, this.pvy);
+    const isMoving = js.magnitude > 0.08 || speed > 25;
     if (isMoving) {
-      this.walkAnim += dt * 10 * Math.max(0.4, js.magnitude);
-      if (Math.abs(js.x) > Math.abs(js.y) * 0.9) {
-        this.facing = "side";
-        this.facingLeft = js.x < 0;
+      const speedFactor = Math.min(1.4, Math.max(0.45, speed / (PLAYER_SPEED * 0.85)));
+      this.walkAnim += dt * 3.2 * speedFactor;
+      const absX = Math.abs(js.x);
+      const absY = Math.abs(js.y);
+      const isCurrentlyHoriz = this.facing === "left" || this.facing === "right";
+      if (isCurrentlyHoriz) {
+        if (absY > absX * 1.35) {
+          this.facing = js.y < 0 ? "up" : "down";
+        } else if (absX > 0.05) {
+          this.facing = js.x > 0 ? "right" : "left";
+        }
       } else {
-        this.facing = js.y < 0 ? "up" : "down";
+        if (absX > absY * 1.35) {
+          this.facing = js.x > 0 ? "right" : "left";
+        } else if (absY > 0.05) {
+          this.facing = js.y < 0 ? "up" : "down";
+        }
+      }
+      this.stepParticleTimer += dt;
+      if (this.stepParticleTimer > 0.18) {
+        this.stepParticleTimer = 0;
+        this.particles.emitBurst(this.px + (Math.random() - 0.5) * 16, this.py + PLAYER_RADIUS * 0.92, "#E0F7FA", 2);
       }
     } else {
       this.walkAnim = 0;
+      this.stepParticleTimer = 0;
     }
-
     if (this.invulnerable > 0) this.invulnerable -= dt;
     if (this.tripleTimer > 0) this.tripleTimer -= dt;
     if (this.shieldTimer > 0) this.shieldTimer -= dt;
   }
 
+  private updateDeath(dt: number): void {
+    this.deathTimer -= dt;
+    this.pvx *= 0.88;
+    this.pvy *= 0.88;
+    this.px += this.pvx * dt;
+    this.py += this.pvy * dt;
+
+    const bounds = this.getArenaBounds();
+    this.px = Math.max(bounds.left + PLAYER_RADIUS, Math.min(bounds.right - PLAYER_RADIUS, this.px));
+    this.py = Math.max(bounds.top + PLAYER_RADIUS, Math.min(bounds.bottom - PLAYER_RADIUS, this.py));
+
+    // Partículas de estrellas mareadas ocasionales
+    if (Math.random() < 0.25) {
+      this.particles.emitBurst(
+        this.px + (Math.random() - 0.5) * 36,
+        this.py - PLAYER_RADIUS * 1.3 + (Math.random() - 0.5) * 16,
+        "#FFD700",
+        1
+      );
+    }
+
+    if (this.deathTimer <= 0) {
+      this.isDying = false;
+      this.endGame();
+    }
+  }
+
   private updateSpawning(dt: number, w: number, h: number): void {
     const t = this.survivalTime;
 
-    // Aparición periódica del Mini-Jefe Yeti en modo supervivencia
+    // Aparición periódica del Mini-Jefe Yeti: cada que aparece se van agregando +1 enemigos
     if (t >= this.nextYetiTime) {
-      this.nextYetiTime = t + 40;
+      this.yetiCount++;
+      this.nextYetiTime = t + 35;
       this.spawnEnemy("yeti", w, h);
       this.addFloatingText("¡ALERTA: YETI!", w / 2, h * 0.35, "#00E5FF", 1.6);
       this.triggerShake(0.5, 9);
@@ -401,11 +494,14 @@ export class SnowBattleGame extends BaseGame {
 
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0) {
-      const progress = Math.min(2.5, t / 60);
-      this.spawnTimer = Math.max(0.38, 0.95 - 0.22 * progress);
-      const elfChance = Math.min(0.65, 0.35 + 0.15 * progress);
-      this.spawnEnemy(Math.random() < elfChance ? "elf" : "snowman", w, h);
-      if (t > 10 && Math.random() < Math.min(0.55, 0.25 + 0.15 * progress)) {
+      const progress = Math.min(2.0, t / 60);
+      this.spawnTimer = Math.max(0.45, 1.15 - 0.25 * progress);
+
+      // Inicia con 1 enemigo y cada que aparece un Yeti se agrega 1 más a la tanda (+1 por Yeti)
+      const countToSpawn = 1 + this.yetiCount;
+      const elfChance = Math.min(0.55, 0.25 + 0.12 * progress);
+
+      for (let i = 0; i < countToSpawn; i++) {
         this.spawnEnemy(Math.random() < elfChance ? "elf" : "snowman", w, h);
       }
     }
@@ -541,12 +637,14 @@ export class SnowBattleGame extends BaseGame {
   }
 
   private damageEnemy(e: Enemy, amount: number): void {
+    if ((e.defeatTimer ?? 0) > 0) return;
     e.hp -= amount;
     e.hitFlash = 0.15;
     if (e.hp <= 0) this.onEnemyDefeated(e);
   }
 
   private onEnemyDefeated(e: Enemy): void {
+    e.defeatTimer = 0.35;
     this.combo++;
     this.comboPulse = 0.35;
     const basePoints = e.kind === "yeti" ? 1500 : e.kind === "snowman" ? 100 : 75;
@@ -574,7 +672,7 @@ export class SnowBattleGame extends BaseGame {
   }
 
   private removeDeadEnemies(): void {
-    this.enemies = this.enemies.filter((e) => e.hp > 0);
+    this.enemies = this.enemies.filter((e) => e.hp > 0 || (e.defeatTimer !== undefined && e.defeatTimer > 0));
   }
 
   private dropPowerUp(x: number, y: number): void {
@@ -599,10 +697,20 @@ export class SnowBattleGame extends BaseGame {
 
   private updateEnemies(dt: number): void {
     for (const e of this.enemies) {
+      if ((e.defeatTimer ?? 0) > 0) {
+        e.defeatTimer = (e.defeatTimer ?? 0) - dt;
+        continue;
+      }
+      if ((e.attackTimer ?? 0) > 0) {
+        e.attackTimer = (e.attackTimer ?? 0) - dt;
+      }
       const dx = this.px - e.x;
       const dy = this.py - e.y;
       const d = Math.hypot(dx, dy) || 1;
       e.wobble += dt * (e.kind === "elf" ? 9 : 4);
+      if (d < e.r + PLAYER_RADIUS + 35 && (e.attackTimer ?? 0) <= 0) {
+        e.attackTimer = 0.35;
+      }
 
       let mx = dx / d;
       let my = dy / d;
@@ -656,13 +764,21 @@ export class SnowBattleGame extends BaseGame {
     this.pvx += mx * 420;
     this.pvy += my * 420;
     this.triggerShake(0.3, 8);
-    this.audio.playRunnerHit();
+    this.audio.playElfHit();
     this.particles.emitBurst(this.px, this.py, "#FF5252", 20);
     this.addFloatingText("-1 ❤", this.px, this.py - 50, "#FF5252", 1.1);
 
     if (this.lives <= 0) {
       this.lives = 0;
-      this.endGame();
+      this.isDying = true;
+      this.deathTimer = 2.4;
+      this.pvx = mx * 320;
+      this.pvy = my * 320;
+      this.triggerShake(0.6, 12);
+      this.audio.playElfHit();
+      this.particles.emitBurst(this.px, this.py, "#FF1744", 30);
+      this.particles.emitBurst(this.px, this.py, "#FFD700", 25);
+      this.addFloatingText("¡K.O.!", this.px, this.py - 60, "#FF1744", 2.0);
     }
   }
 
@@ -849,12 +965,23 @@ export class SnowBattleGame extends BaseGame {
     ctx.restore();
   }
 
-  private drawSprite(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, size: number, flip = false): void {
+  private drawSprite(
+    ctx: CanvasRenderingContext2D,
+    img: HTMLImageElement,
+    x: number,
+    y: number,
+    size: number,
+    flip = false,
+    rot = 0,
+    scaleX = 1,
+    scaleY = 1
+  ): void {
     const ratio = img.naturalWidth / img.naturalHeight;
-    const dw = ratio >= 1 ? size : size * ratio;
-    const dh = ratio >= 1 ? size / ratio : size;
+    const dw = (ratio >= 1 ? size : size * ratio) * scaleX;
+    const dh = (ratio >= 1 ? size / ratio : size) * scaleY;
     ctx.save();
     ctx.translate(x, y);
+    if (rot !== 0) ctx.rotate(rot);
     if (flip) ctx.scale(-1, 1);
     ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
     ctx.restore();
@@ -865,6 +992,45 @@ export class SnowBattleGame extends BaseGame {
   private drawPlayer(ctx: CanvasRenderingContext2D, t: number): void {
     const x = this.px;
     const y = this.py;
+
+    if (this.isDying) {
+      this.drawShadow(ctx, x, y + PLAYER_RADIUS * 0.9, PLAYER_RADIUS * 0.95);
+      const wobble = Math.sin(t * 7) * 0.06;
+      const dizzyBob = Math.sin(t * 3.5) * 2;
+      const deadImg = imgReady(this.rodolfoDeadImg) ? this.rodolfoDeadImg : this.rodolfoHitImg;
+      if (imgReady(deadImg)) {
+        this.drawSprite(ctx, deadImg, x, y + dizzyBob, PLAYER_RADIUS * 3.0, false, wobble, 1.0, 1.0);
+      } else {
+        this.drawRodolfoFallback(ctx, x, y + dizzyBob, true, t);
+      }
+
+      // Estrellas mareadas dando vueltas sobre la cabeza
+      ctx.save();
+      const headY = y - PLAYER_RADIUS * 1.5;
+      const numStars = 4;
+      for (let i = 0; i < numStars; i++) {
+        const starAng = t * 4.5 + (i * (Math.PI * 2 / numStars));
+        const sx = x + Math.cos(starAng) * 28;
+        const sy = headY + Math.sin(starAng) * 10;
+        ctx.fillStyle = "#FFD700";
+        ctx.shadowColor = "#FFF8E1";
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        for (let p = 0; p < 5; p++) {
+          const a = (p * Math.PI) / 2.5 - Math.PI / 2 + starAng;
+          const rOut = 7;
+          const rIn = 3;
+          if (p === 0) ctx.moveTo(sx + Math.cos(a) * rOut, sy + Math.sin(a) * rOut);
+          else ctx.lineTo(sx + Math.cos(a) * rOut, sy + Math.sin(a) * rOut);
+          const aMid = a + Math.PI / 5;
+          ctx.lineTo(sx + Math.cos(aMid) * rIn, sy + Math.sin(aMid) * rIn);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+      return;
+    }
 
     // Aura del escudo de nariz brillante
     if (this.shieldTimer > 0) {
@@ -890,38 +1056,62 @@ export class SnowBattleGame extends BaseGame {
     // Parpadeo durante invulnerabilidad
     if (this.invulnerable > 0 && Math.floor(this.invulnerable * 12) % 2 === 0) return;
 
-    const isMoving = this.joystick.magnitude > 0.08 || Math.hypot(this.pvx, this.pvy) > 30;
+    const speed = Math.hypot(this.pvx, this.pvy);
+    const isMoving = this.joystick.magnitude > 0.08 || speed > 25;
     const isHit = this.invulnerable > INVULNERABLE_TIME - 0.35;
 
-    // Quieto: respiración sutil y calmada. En movimiento: rebote de caminata.
-    const bob = isMoving ? Math.abs(Math.sin(this.walkAnim)) * -4 : Math.sin(t * 3.5) * 1.5;
-
     let img: HTMLImageElement;
+    let bob = 0;
+    let rot = 0;
+    let scaleX = 1;
+    let scaleY = 1;
+
     if (isHit) {
       img = this.rodolfoHitImg;
+      bob = Math.sin(t * 18) * 2;
+      rot = Math.sin(t * 22) * 0.08;
     } else if (isMoving) {
-      // Caminando: alterna cíclicamente entre el frame 1 y frame 2
-      const frame = Math.floor(this.walkAnim) % 2 === 0 ? 1 : 2;
-      if (this.facing === "up") {
-        img = frame === 1 ? this.rodolfoUp1Img : this.rodolfoUp2Img;
-      } else if (this.facing === "side") {
-        img = frame === 1 ? this.rodolfoSide1Img : this.rodolfoSide2Img;
+      // Fase continua entre 0.0 y 1.0 para interpolación orgánica
+      const phase = (this.walkAnim) % 1.0;
+      const dirSet = this.rodolfoSprites[this.facing];
+
+      // Temporización de animación profesional:
+      // 0.00 a 0.32: Zancada pie 1 (extensión y apoyo)
+      // 0.32 a 0.50: Paso intermedio (pies juntos en transición)
+      // 0.50 a 0.82: Zancada pie 2 (extensión y apoyo)
+      // 0.82 a 1.00: Paso intermedio (pies juntos en transición)
+      if (phase < 0.32) {
+        img = dirSet.step1;
+      } else if (phase < 0.50) {
+        img = dirSet.pass;
+      } else if (phase < 0.82) {
+        img = dirSet.step2;
       } else {
-        img = frame === 1 ? this.rodolfoDown1Img : this.rodolfoDown2Img;
+        img = dirSet.pass;
       }
+
+      // Rebote vertical orgánico (suave elevación en paso intermedio, caída al apoyar el pie)
+      bob = -Math.abs(Math.sin(phase * Math.PI * 2)) * 4.8;
+
+      // Deformación elástica sutil (Squash & Stretch ~2.5% estilo Supercell) que da vida a los sprites
+      const squashWave = Math.sin(phase * Math.PI * 2);
+      scaleX = 1.0 + Math.abs(squashWave) * 0.035;
+      scaleY = 1.0 - Math.abs(squashWave) * 0.035;
+
+      // Inclinación pendular natural del torso según la zancada
+      const swayFactor = (this.facing === "left" || this.facing === "right") ? 0.4 : 1.0;
+      rot = Math.sin(phase * Math.PI * 2) * 0.045 * swayFactor;
     } else {
-      // Parado (IDLE / STOP): pose neutral con ambos pies firmes en el suelo
-      if (this.facing === "up") {
-        img = this.rodolfoIdleUpImg;
-      } else if (this.facing === "side") {
-        img = this.rodolfoIdleSideImg;
-      } else {
-        img = this.rodolfoIdleDownImg;
-      }
+      // Pose de STOP / Quieto mirando a esa dirección con ambos pies firmes
+      img = this.rodolfoSprites[this.facing].stop;
+      // Respiración sutil en reposo
+      bob = Math.sin(t * 3.2) * 1.6;
+      scaleY = 1.0 + Math.sin(t * 3.2) * 0.018;
+      scaleX = 1.0 - Math.sin(t * 3.2) * 0.012;
     }
 
     if (imgReady(img)) {
-      this.drawSprite(ctx, img, x, y + bob, PLAYER_RADIUS * 2.8, this.facing === "side" && this.facingLeft);
+      this.drawSprite(ctx, img, x, y + bob, PLAYER_RADIUS * 2.8, false, rot, scaleX, scaleY);
     } else {
       this.drawRodolfoFallback(ctx, x, y + bob, isHit, t);
     }
@@ -931,7 +1121,7 @@ export class SnowBattleGame extends BaseGame {
     const s = PLAYER_RADIUS;
     ctx.save();
     ctx.translate(x, y);
-    if (this.facing === "side" && this.facingLeft) ctx.scale(-1, 1);
+    if (this.facing === "left") ctx.scale(-1, 1);
 
     // Cuerpo
     ctx.fillStyle = isHit ? "#A1887F" : "#8D6E63";
@@ -971,7 +1161,7 @@ export class SnowBattleGame extends BaseGame {
     }
 
     if (this.facing !== "up") {
-      const off = this.facing === "side" ? s * 0.18 : 0;
+      const off = (this.facing === "left" || this.facing === "right") ? s * 0.18 : 0;
       // Ojos
       ctx.fillStyle = "#212121";
       if (isHit) {
@@ -1018,20 +1208,56 @@ export class SnowBattleGame extends BaseGame {
   // ---------------------------- Enemigos ------------------------------------
 
   private drawEnemy(ctx: CanvasRenderingContext2D, e: Enemy, t: number): void {
-    this.drawShadow(ctx, e.x, e.y + e.r * 0.95, e.r * 0.85);
+    const isDying = (e.defeatTimer ?? 0) > 0;
+    this.drawShadow(ctx, e.x, e.y + e.r * 0.95, e.r * (isDying ? 1.1 : 0.85));
     const flash = e.hitFlash > 0;
+    const isAttacking = (e.attackTimer ?? 0) > 0;
 
     let img: HTMLImageElement | null = null;
-    if (e.kind === "snowman") img = flash && imgReady(this.snowmanHitImg) ? this.snowmanHitImg : this.snowmanImg;
-    else if (e.kind === "elf") img = this.elfImg;
-    else img = flash && imgReady(this.yetiHitImg) ? this.yetiHitImg : this.yetiImg;
+    if (e.kind === "snowman") {
+      if (isDying && imgReady(this.snowmanDeadImg)) {
+        img = this.snowmanDeadImg;
+      } else if (flash && imgReady(this.snowmanHitImg)) {
+        img = this.snowmanHitImg;
+      } else if (isAttacking && imgReady(this.snowmanAtkImg)) {
+        img = this.snowmanAtkImg;
+      } else {
+        img = Math.sin(e.wobble) > 0 ? this.snowmanImg : (imgReady(this.snowmanImg2) ? this.snowmanImg2 : this.snowmanImg);
+      }
+    } else if (e.kind === "elf") {
+      if (flash && imgReady(this.elfHitImg)) {
+        img = this.elfHitImg;
+      } else if (isAttacking && imgReady(this.elfAtkImg)) {
+        img = this.elfAtkImg;
+      } else {
+        img = Math.sin(e.wobble) > 0 || !imgReady(this.elfImg2) ? this.elfImg : this.elfImg2;
+      }
+    } else {
+      if (flash && imgReady(this.yetiHitImg)) {
+        img = this.yetiHitImg;
+      } else if (isAttacking && imgReady(this.yetiSlamImg)) {
+        img = this.yetiSlamImg;
+      } else {
+        img = Math.sin(e.wobble) > 0 || !imgReady(this.yetiImg2) ? this.yetiImg : this.yetiImg2;
+      }
+    }
 
-    const sway = Math.sin(e.wobble) * (e.kind === "elf" ? 0.12 : 0.05);
+    const sway = isDying ? 0 : Math.sin(e.wobble) * (e.kind === "elf" ? 0.12 : 0.05);
     if (imgReady(img)) {
       ctx.save();
       ctx.translate(e.x, e.y);
-      ctx.rotate(sway);
-      if (flash && e.kind === "elf") ctx.globalAlpha = 0.6;
+      if (isDying) {
+        const fade = Math.max(0, (e.defeatTimer ?? 0) / 0.35);
+        ctx.globalAlpha = fade;
+        if (e.kind === "snowman") {
+          ctx.scale(1.15, 0.7);
+        } else {
+          ctx.rotate(-0.35);
+        }
+      } else {
+        ctx.rotate(sway);
+        if (flash && e.kind === "elf" && !imgReady(this.elfHitImg)) ctx.globalAlpha = 0.6;
+      }
       this.drawSprite(ctx, img, 0, 0, e.r * 2.6, this.px < e.x);
       ctx.restore();
     } else {
@@ -1044,8 +1270,8 @@ export class SnowBattleGame extends BaseGame {
       ctx.restore();
     }
 
-    // Barra de vida (enemigos con más de 1 impacto)
-    if (e.maxHp > 1 && e.hp < e.maxHp) {
+    // Barra de vida (enemigos con más de 1 impacto mientras sigan en combate)
+    if (!isDying && e.maxHp > 1 && e.hp < e.maxHp) {
       const bw = e.kind === "yeti" ? e.r * 2 : e.r * 1.4;
       const bx = e.x - bw / 2;
       const by = e.y - e.r * 1.35 - 10;
