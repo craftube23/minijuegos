@@ -92,56 +92,43 @@ const LEVEL_BLUEPRINTS: LevelBlueprint[] = [
     name: "NIVEL 1 • EL ARCO POLAR",
     grid: [
       "IIASSAII",
-      "IRGGGGGI",
-      "IRBBBBBI",
-      "IGRSSRGI",
+      "IRGGGGRI",
+      "IRBBBBRI",
       "IAAIIAAI",
-      "IRGGGGGI",
-      "IBRRRRBI",
-      "IGB..BGI",
-      "IAA..AAI"
+      "I..SS..I"
     ],
     bumpers: [
-      { nx: 0.28, ny: 0.74, r: 25 },
-      { nx: 0.72, ny: 0.74, r: 25 }
+      { nx: 0.28, ny: 0.54, r: 24 },
+      { nx: 0.72, ny: 0.54, r: 24 }
     ]
   },
   {
     name: "NIVEL 2 • EL GRAN PINO DE CRISTAL",
     grid: [
-      "II.SS.II",
-      "I.GAAG.I",
+      "..SS....",
+      ".IGAAGI.",
       "IGRSSRGI",
       "IGBBBBGI",
-      "IRGGGGGI",
-      "IGRSSBGI",
-      "IBGGGGGI",
-      "IABRRBAI",
-      "IIAAAAII",
-      "IIIAAIII"
+      "IIAAAAII"
     ],
     bumpers: [
-      { nx: 0.22, ny: 0.75, r: 24 },
-      { nx: 0.50, ny: 0.78, r: 25 },
-      { nx: 0.78, ny: 0.75, r: 24 }
+      { nx: 0.22, ny: 0.56, r: 24 },
+      { nx: 0.50, ny: 0.60, r: 25 },
+      { nx: 0.78, ny: 0.56, r: 24 }
     ]
   },
   {
     name: "NIVEL 3 • EL CORAZÓN DE LA NAVIDAD",
     grid: [
-      "IRS..SRI",
-      "RRRRRRRR",
-      "RBBSSBBR",
+      ".RR..RR.",
+      "RBBSSRBR",
       "RGGGGGGR",
-      "RBAIIABR",
-      "RRRRRRRR",
-      "IRBBBBRI",
-      "IIRSSRII",
-      "IIAAAAII"
+      ".IRBBRI.",
+      "..IAAI.."
     ],
     bumpers: [
-      { nx: 0.26, ny: 0.74, r: 25 },
-      { nx: 0.74, ny: 0.74, r: 25 }
+      { nx: 0.26, ny: 0.54, r: 25 },
+      { nx: 0.74, ny: 0.54, r: 25 }
     ]
   },
   {
@@ -151,16 +138,12 @@ const LEVEL_BLUEPRINTS: LevelBlueprint[] = [
       "ARGGGGRA",
       "ABIIIIBA",
       "AARSSRAA",
-      "AGBBBBGA",
-      "ARIIIIBA",
-      "AAGGGGAA",
-      "ABRRRRBA",
-      "AA.AA.AA"
+      "AAGGGGAA"
     ],
     bumpers: [
-      { nx: 0.50, ny: 0.72, r: 26 },
-      { nx: 0.22, ny: 0.76, r: 23 },
-      { nx: 0.78, ny: 0.76, r: 23 }
+      { nx: 0.50, ny: 0.52, r: 26 },
+      { nx: 0.22, ny: 0.58, r: 23 },
+      { nx: 0.78, ny: 0.58, r: 23 }
     ]
   },
   {
@@ -168,17 +151,13 @@ const LEVEL_BLUEPRINTS: LevelBlueprint[] = [
     grid: [
       "AIISSSIA",
       "IAAGGIAA",
-      "IRBBBBBI",
       "SRAAAARS",
-      "IGRRRRGI",
-      "SRAAAARS",
-      "IRBBBBBI",
       "IAAGGIAA",
       "AIISSSIA"
     ],
     bumpers: [
-      { nx: 0.28, ny: 0.74, r: 25 },
-      { nx: 0.72, ny: 0.74, r: 25 }
+      { nx: 0.28, ny: 0.54, r: 25 },
+      { nx: 0.72, ny: 0.54, r: 25 }
     ]
   },
   {
@@ -186,59 +165,47 @@ const LEVEL_BLUEPRINTS: LevelBlueprint[] = [
     grid: [
       "ISAAAASI",
       "IRGBBGRI",
-      "IIAAAAII",
-      "IBRGGRBI",
       "ISBBBBSI",
-      "IRGGGGGI",
-      "IIAAAAII",
-      "IBRRRRBI",
+      "IRGGGGRI",
       "IAAIIAAI"
     ],
     bumpers: [
-      { nx: 0.25, ny: 0.74, r: 24 },
-      { nx: 0.50, ny: 0.77, r: 25 },
-      { nx: 0.75, ny: 0.74, r: 24 }
+      { nx: 0.25, ny: 0.54, r: 24 },
+      { nx: 0.50, ny: 0.58, r: 25 },
+      { nx: 0.75, ny: 0.54, r: 24 }
     ],
-    movingRows: [1, 3, 5, 7]
+    movingRows: [1, 3]
   },
   {
     name: "NIVEL 7 • LA BÓVEDA DE DIAMANTE",
     grid: [
-      "IIAAAAII",
-      "IAASSAAI",
+      "..AAAA..",
+      ".IAASSAI",
       "ARGGGGRA",
       "ABSSSSBA",
-      "ARBBBBRA",
-      "ABRRRRBA",
-      "ARGGGGRA",
-      "IAASSAAI",
-      "IIAAAAII"
+      "..IIAA.."
     ],
     bumpers: [
-      { nx: 0.22, ny: 0.74, r: 24 },
-      { nx: 0.50, ny: 0.77, r: 25 },
-      { nx: 0.78, ny: 0.74, r: 24 }
+      { nx: 0.22, ny: 0.54, r: 24 },
+      { nx: 0.50, ny: 0.58, r: 25 },
+      { nx: 0.78, ny: 0.54, r: 24 }
     ]
   },
   {
-    name: "NIVEL 8 • LA CORONA DE LA FERIA",
+    name: "NIVEL 8 • LA CORONA REAL DE LA FERIA",
     grid: [
       "SAIAAIAS",
       "AARRRRAA",
       "AGSSSSGA",
       "ABIIIIBA",
-      "AGBBBBGA",
-      "AARRRRAA",
-      "AGGGGGGA",
-      "ABSSSSBA",
       "AAAAAAAA"
     ],
     bumpers: [
-      { nx: 0.25, ny: 0.74, r: 24 },
-      { nx: 0.50, ny: 0.78, r: 26 },
-      { nx: 0.75, ny: 0.74, r: 24 }
+      { nx: 0.25, ny: 0.54, r: 24 },
+      { nx: 0.50, ny: 0.58, r: 26 },
+      { nx: 0.75, ny: 0.54, r: 24 }
     ],
-    movingRows: [1, 3, 5, 7]
+    movingRows: [1, 3]
   }
 ];
 
@@ -485,9 +452,9 @@ export class IceBreakerGame extends BaseGame {
     const arenaW = Math.min(w - 32, 880);
     const left = (w - arenaW) / 2;
     const right = left + arenaW;
-    const top = 108;
+    const top = 98;
     const bottom = h - 18;
-    const paddleY = h - 68;
+    const paddleY = bottom - 48;
     return { w, h, arenaW, left, right, top, bottom, paddleY };
   }
 
@@ -515,11 +482,14 @@ export class IceBreakerGame extends BaseGame {
 
     const cols = 8;
     const padX = 16;
-    const gapX = 9;
-    const gapY = 8;
+    const gapX = 8;
     const usableW = arenaW - padX * 2 - gapX * (cols - 1);
     const bw = usableW / cols;
-    const bh = 44;
+    const arenaH = Math.max(200, paddleY - top);
+    const numRows = bp.grid.length;
+    const maxGridH = Math.min(195, arenaH * 0.38);
+    const gapY = Math.max(5, Math.min(7, Math.round(maxGridH * 0.035)));
+    const bh = Math.max(26, Math.min(36, Math.floor((maxGridH - (numRows - 1) * gapY) / numRows)));
 
     this.bricks = [];
     let sponsorIdx = wave;
@@ -593,7 +563,6 @@ export class IceBreakerGame extends BaseGame {
       }
     }
 
-    const arenaH = Math.max(200, paddleY - top);
     this.bumpers = bp.bumpers.map((b) => ({
       nx: b.nx,
       ny: b.ny,
@@ -607,24 +576,28 @@ export class IceBreakerGame extends BaseGame {
 
   private repositionArenaGeometry(): void {
     const bounds = this.getArenaBounds();
+    const bp = LEVEL_BLUEPRINTS[(this.wave - 1) % LEVEL_BLUEPRINTS.length];
     const cols = 8;
     const padX = 16;
-    const gapX = 9;
-    const gapY = 8;
+    const gapX = 8;
     const usableW = bounds.arenaW - padX * 2 - gapX * (cols - 1);
     const bw = usableW / cols;
-    const bh = 44;
+    const arenaH = Math.max(200, bounds.paddleY - bounds.top);
+    const numRows = bp.grid.length;
+    const maxGridH = Math.min(195, arenaH * 0.38);
+    const gapY = Math.max(5, Math.min(7, Math.round(maxGridH * 0.035)));
+    const bh = Math.max(26, Math.min(36, Math.floor((maxGridH - (numRows - 1) * gapY) / numRows)));
+
     for (const br of this.bricks) {
       if (br.movingSpeed === 0) {
         br.x = bounds.left + padX + br.col * (bw + gapX);
       } else {
         br.x = Math.max(bounds.left + 12, Math.min(bounds.right - bw - 12, br.x));
       }
-      br.y = bounds.top + 22 + br.row * (bh + gapY);
+      br.y = bounds.top + 20 + br.row * (bh + gapY);
       br.w = bw;
       br.h = bh;
     }
-    const arenaH = Math.max(200, bounds.paddleY - bounds.top);
     for (const bmp of this.bumpers) {
       bmp.x = bounds.left + bounds.arenaW * bmp.nx;
       bmp.y = bounds.top + arenaH * bmp.ny;
@@ -1193,10 +1166,10 @@ export class IceBreakerGame extends BaseGame {
 
     // 12. HUD Superior e Indicadores de Nivel y Poder
     const remaining = this.bricks.filter((b) => b.alive).length;
-    drawPill(ctx, `${this.currentLevelTitle} • BLOQUES: ${remaining}`, w / 2, 72, "#00E5FF", 310);
+    drawPill(ctx, `${this.currentLevelTitle} • BLOQUES: ${remaining}`, w / 2, 64, "#00E5FF", 310);
 
     if (this.comboMultiplier > 1) {
-      drawPill(ctx, `RACHA x${this.comboMultiplier} (${this.combo})`, left + 95, 72, "#00E676", 145);
+      drawPill(ctx, `RACHA x${this.comboMultiplier} (${this.combo})`, left + 95, 64, "#00E676", 145);
     }
 
     if (this.fireballTimer > 0) {
