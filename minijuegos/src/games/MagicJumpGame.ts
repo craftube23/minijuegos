@@ -98,6 +98,30 @@ interface TwinkleStar {
   parallaxFactor: number;
 }
 
+interface SnowFlake {
+  x: number;
+  y: number;
+  size: number;
+  alpha: number;
+  speed: number;
+  drift: number;
+  par: number;
+}
+
+interface PlayerGhost {
+  x: number;
+  y: number;
+  rot: number;
+  faceRight: boolean;
+  alpha: number;
+}
+
+interface LandRing {
+  x: number;
+  y: number;
+  t: number;
+}
+
 interface MilestoneBanner {
   text: string;
   subtext: string;
@@ -163,6 +187,12 @@ export class MagicJumpGame extends BaseGame {
 
   // Estrellas de fondo procedimentales
   private skyStars: TwinkleStar[] = [];
+  private snowFlakes: SnowFlake[] = [];
+
+  // Efectos visuales: estela del elfo, ondas de aterrizaje y zona actual
+  private ghosts: PlayerGhost[] = [];
+  private landRings: LandRing[] = [];
+  private currentZone: number = 0;
 
   // Combos
   private combo: number = 0;
@@ -228,8 +258,25 @@ export class MagicJumpGame extends BaseGame {
     this.spriteArrowRight = this.getImage("./assets/images/flecha-der.png");
 
     this.initSkyStars();
+    this.initSnowFlakes();
     this.initSpeedLines();
     this.computeGameLayout();
+  }
+
+  private initSnowFlakes(): void {
+    this.snowFlakes = [];
+    for (let i = 0; i < 70; i++) {
+      const near = Math.random() < 0.3;
+      this.snowFlakes.push({
+        x: Math.random(),
+        y: Math.random(),
+        size: near ? 2.6 + Math.random() * 1.8 : 1.2 + Math.random() * 1.4,
+        alpha: near ? 0.85 : 0.45 + Math.random() * 0.3,
+        speed: near ? 70 + Math.random() * 40 : 25 + Math.random() * 30,
+        drift: 0.6 + Math.random() * 1.2,
+        par: near ? 0.5 : 0.2
+      });
+    }
   }
 
   private loadImage(src: string): HTMLImageElement {
@@ -278,6 +325,9 @@ export class MagicJumpGame extends BaseGame {
     this.playerRotation = 0;
     this.targetPlayerX = null;
     this.activeBanner = null;
+    this.ghosts = [];
+    this.landRings = [];
+    this.currentZone = 0;
 
     this.bumpers = [];
     this.goblins = [];
@@ -827,6 +877,7 @@ export class MagicJumpGame extends BaseGame {
           }
 
           if (this.combo > this.maxCombo) this.maxCombo = this.combo;
+          this.landRings.push({ x: this.playerX, y: platSurfaceY, t: 0 });
 
           // Recoger coleccionables sobre la plataforma
           if (plat.hasItem && !plat.itemCollected) {
@@ -932,6 +983,21 @@ export class MagicJumpGame extends BaseGame {
       }
     });
 
+    // 9b. Estela del elfo en ascensos rápidos y ondas de aterrizaje
+    if (this.playerVy < -500 || this.isRocketActive) {
+      this.ghosts.push({
+        x: this.playerX,
+        y: this.playerY,
+        rot: this.playerRotation,
+        faceRight: this.playerFacingRight,
+        alpha: 0.4
+      });
+    }
+    this.ghosts.forEach((gh) => { gh.alpha -= dt * 1.8; });
+    this.ghosts = this.ghosts.filter((gh) => gh.alpha > 0).slice(-9);
+    this.landRings.forEach((r) => { r.t += dt * 3.2; });
+    this.landRings = this.landRings.filter((r) => r.t < 1);
+
     // 10. Actualización de Banners de Altitud
     if (this.activeBanner) {
       this.activeBanner.timer -= dt;
@@ -962,6 +1028,18 @@ export class MagicJumpGame extends BaseGame {
         else if (this.nextMilestone === 750) this.nextMilestone = 1000;
         else this.nextMilestone += 500;
       }
+    }
+
+    // 12b. Anuncio de cambio de zona (cielo y decorado nuevos)
+    const zoneNow = this.zoneIndexAt(this.maxAltitudeReached);
+    if (zoneNow > this.currentZone) {
+      this.currentZone = zoneNow;
+      this.activeBanner = {
+        text: MagicJumpGame.ZONES[zoneNow].name,
+        subtext: "NUEVA ZONA DESBLOQUEADA",
+        timer: 2.6,
+        maxTimer: 2.6
+      };
     }
 
     // 13. Generación continua de plataformas superiores sin vacíos
@@ -1112,10 +1190,17 @@ export class MagicJumpGame extends BaseGame {
     // 5. Dibujar Duendes de Hielo Aéreos
     this.drawGoblins(ctx);
 
+    // 5b. Ondas de aterrizaje y estela del elfo
+    this.drawLandRings(ctx);
+    this.drawGhosts(ctx);
+
     // 6. Dibujar al Elfo Saltador Stylized 2D
     this.drawPlayer(ctx);
 
     ctx.restore();
+
+    // 6b. Nieve en primer plano
+    this.drawSnowfall(ctx);
 
     // 7. Partículas en pantalla
     this.particles.draw(ctx, true);
@@ -1127,119 +1212,353 @@ export class MagicJumpGame extends BaseGame {
     this.drawTouchButtonsAndHUD(ctx);
   }
 
+  // ==========================================================================
+  // MUNDO POR ZONAS: cada tramo de altura tiene su propio cielo y decorado
+  // ==========================================================================
+  private static readonly ZONES: { at: number; name: string; top: number[]; mid: number[]; bot: number[] }[] = [
+    { at: 0, name: "ALDEA AL ATARDECER", top: [44, 30, 86], mid: [176, 74, 122], bot: [255, 166, 112] },
+    { at: 140, name: "BOSQUE DE PINOS", top: [8, 24, 52], mid: [14, 64, 84], bot: [28, 110, 110] },
+    { at: 380, name: "AURORA BOREAL", top: [6, 14, 44], mid: [26, 40, 96], bot: [30, 120, 130] },
+    { at: 650, name: "MAR DE NUBES", top: [70, 60, 140], mid: [236, 130, 160], bot: [255, 214, 150] },
+    { at: 950, name: "ESPACIO ESTRELLADO", top: [3, 4, 16], mid: [14, 10, 40], bot: [40, 20, 80] }
+  ];
+
+  private zoneIndexAt(meters: number): number {
+    let idx = 0;
+    for (let i = 0; i < MagicJumpGame.ZONES.length; i++) {
+      if (meters >= MagicJumpGame.ZONES[i].at) idx = i;
+    }
+    return idx;
+  }
+
+  private ramp(v: number, from: number, to: number): number {
+    return Math.min(1, Math.max(0, (v - from) / (to - from)));
+  }
+
+  private lerpRgb(a: number[], b: number[], t: number): number[] {
+    return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+  }
+
+  private rgba(c: number[], alpha: number = 1, shade: number = 1): string {
+    return `rgba(${Math.round(c[0] * shade)}, ${Math.round(c[1] * shade)}, ${Math.round(c[2] * shade)}, ${alpha})`;
+  }
+
+  private hash(i: number): number {
+    return Math.abs(Math.sin(i * 127.1 + 311.7) * 43758.5453) % 1;
+  }
+
   /**
-   * Fondo con cielo crepuscular y scroll parallax vertical por capas
+   * Cielo por zonas con transición suave y capas de parallax (montañas, pinos,
+   * aurora, mar de nubes y espacio) que aparecen según la altura.
    */
   private drawBackground(ctx: CanvasRenderingContext2D): void {
     const w = this.width;
     const h = this.height;
+    const time = this.animTimer;
+    const m = Math.max(0, -this.cameraY / 12);
+    const zones = MagicJumpGame.ZONES;
 
-    // Gradiente dinámico de cielo (oscurece al ascender al espacio)
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
-    const altRatio = Math.min(1, Math.max(0, -this.cameraY / 3800));
+    const zi = this.zoneIndexAt(m);
+    const cur = zones[zi];
+    const nxt = zones[Math.min(zi + 1, zones.length - 1)];
+    const rawT = zi < zones.length - 1 ? this.ramp(m, nxt.at - 90, nxt.at) : 0;
+    const t = rawT * rawT * (3 - 2 * rawT);
+    const top = this.lerpRgb(cur.top, nxt.top, t);
+    const mid = this.lerpRgb(cur.mid, nxt.mid, t);
+    const bot = this.lerpRgb(cur.bot, nxt.bot, t);
 
-    // Capa 1: Aldea Alpina -> Capa 2: Bosque Boreal -> Capa 3: Aurora -> Capa 4: Espacio Cósmico
-    let topColor = "#061329";
-    let midColor = "#0E2445";
-    let botColor = "#1D3557";
-
-    if (altRatio > 0.65) {
-      // Espacio cósmico
-      topColor = "#02040A";
-      midColor = "#090D1C";
-      botColor = "#151633";
-    } else if (altRatio > 0.3) {
-      // Noche boreal
-      topColor = "#040D1E";
-      midColor = "#0A1B38";
-      botColor = "#142850";
-    }
-
-    skyGrad.addColorStop(0, topColor);
-    skyGrad.addColorStop(0.55, midColor);
-    skyGrad.addColorStop(1, botColor);
-
-    ctx.fillStyle = skyGrad;
+    const sky = ctx.createLinearGradient(0, 0, 0, h);
+    sky.addColorStop(0, this.rgba(top));
+    sky.addColorStop(0.55, this.rgba(mid));
+    sky.addColorStop(1, this.rgba(bot));
+    ctx.fillStyle = sky;
     ctx.fillRect(0, 0, w, h);
 
-    // Estrellas parpadeantes procedimentales
-    ctx.save();
-    this.skyStars.forEach((star) => {
-      const starX = star.x * w;
-      const starY = ((star.y * h * 2 - this.cameraY * star.parallaxFactor) % h + h) % h;
-      const twinkle = Math.sin(this.animTimer * star.twinkleSpeed + star.x * 10);
-      const alpha = Math.max(0.15, Math.min(1, star.alpha + twinkle * 0.3));
-
-      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-      ctx.beginPath();
-      ctx.arc(starX, starY, star.size, 0, Math.PI * 2);
-      ctx.fill();
-    });
-    ctx.restore();
-
-    // Aurora Boreal ondulante mágica
-    const auroraAlpha = 0.26 + Math.sin(this.animTimer * 1.2) * 0.08;
-    const auroraGrad = ctx.createLinearGradient(0, h * 0.06, w, h * 0.36);
-    auroraGrad.addColorStop(0, `rgba(0, 229, 255, ${auroraAlpha * 0.55})`);
-    auroraGrad.addColorStop(0.5, `rgba(0, 230, 118, ${auroraAlpha})`);
-    auroraGrad.addColorStop(1, `rgba(186, 104, 200, ${auroraAlpha * 0.45})`);
-
-    ctx.fillStyle = auroraGrad;
-    ctx.beginPath();
-    ctx.moveTo(0, h * 0.16 + Math.sin(this.animTimer * 0.8) * 18);
-    ctx.bezierCurveTo(
-      w * 0.35, h * 0.08 + Math.cos(this.animTimer * 0.6) * 22,
-      w * 0.7, h * 0.26 + Math.sin(this.animTimer * 0.7) * 18,
-      w, h * 0.14 + Math.cos(this.animTimer * 0.5) * 16
-    );
-    ctx.lineTo(w, h * 0.42);
-    ctx.lineTo(0, h * 0.42);
-    ctx.closePath();
-    ctx.fill();
-
-    // Luna llena resplandeciente
-    const moonX = w * 0.82;
-    const moonY = h * 0.12 - (this.cameraY * 0.04);
-    if (moonY > -80 && moonY < h + 80) {
+    // Sol poniente (sólo en la aldea)
+    const sunVis = 1 - this.ramp(m, 0, 180);
+    if (sunVis > 0.02) {
+      const sx = w * 0.3;
+      const sy = h * 0.58 + m * 1.1;
       ctx.save();
-      const moonGlow = ctx.createRadialGradient(moonX, moonY, 14, moonX, moonY, 68);
-      moonGlow.addColorStop(0, "rgba(255, 254, 230, 0.45)");
-      moonGlow.addColorStop(1, "rgba(255, 254, 230, 0)");
-      ctx.fillStyle = moonGlow;
+      ctx.globalAlpha = sunVis;
+      const glow = ctx.createRadialGradient(sx, sy, 20, sx, sy, 190);
+      glow.addColorStop(0, "rgba(255, 214, 150, 0.75)");
+      glow.addColorStop(1, "rgba(255, 150, 100, 0)");
+      ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(moonX, moonY, 68, 0, Math.PI * 2);
+      ctx.arc(sx, sy, 190, 0, Math.PI * 2);
       ctx.fill();
-
-      ctx.fillStyle = "#FFFDE7";
+      ctx.fillStyle = "#FFE3A8";
       ctx.beginPath();
-      ctx.arc(moonX, moonY, 26, 0, Math.PI * 2);
+      ctx.arc(sx, sy, 46, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
 
-    // Aldea navideña en la base con scroll parallax
-    if (this.bgImage && this.bgImage.complete && this.bgImage.naturalWidth > 0) {
-      const bgW = w;
-      const bgH = Math.max(h, (w * 1080) / 1920);
-      const parallaxFactor = 0.45;
-      const villageY = (h - bgH) - (this.cameraY * parallaxFactor);
+    // Estrellas parpadeantes: aparecen de noche y vuelven en el espacio
+    const starVis = Math.max(this.ramp(m, 60, 260) * (1 - 0.8 * this.ramp(m, 600, 700)), this.ramp(m, 900, 1000));
+    if (starVis > 0.02) {
+      ctx.save();
+      this.skyStars.forEach((star) => {
+        const starX = star.x * w;
+        const starY = ((star.y * h * 2 - this.cameraY * star.parallaxFactor) % h + h) % h;
+        const twinkle = Math.sin(time * star.twinkleSpeed + star.x * 10);
+        const alpha = Math.max(0.1, Math.min(1, star.alpha + twinkle * 0.3)) * starVis;
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(starX, starY, star.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.restore();
+    }
 
-      if (villageY < h) {
+    // Luna con cráteres
+    const moonVis = this.ramp(m, 120, 260) * (1 - this.ramp(m, 600, 720));
+    if (moonVis > 0.02) {
+      const moonX = w * 0.82;
+      const moonY = Math.min(h * 0.5, h * 0.14 + m * 0.25);
+      ctx.save();
+      ctx.globalAlpha = moonVis;
+      const moonGlow = ctx.createRadialGradient(moonX, moonY, 14, moonX, moonY, 78);
+      moonGlow.addColorStop(0, "rgba(255, 254, 230, 0.5)");
+      moonGlow.addColorStop(1, "rgba(255, 254, 230, 0)");
+      ctx.fillStyle = moonGlow;
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, 78, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#FFFDE7";
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, 28, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(200, 190, 150, 0.35)";
+      ctx.beginPath();
+      ctx.arc(moonX - 9, moonY - 6, 6, 0, Math.PI * 2);
+      ctx.arc(moonX + 8, moonY + 8, 4.5, 0, Math.PI * 2);
+      ctx.arc(moonX + 6, moonY - 10, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    this.drawAurora(ctx, m, time);
+    this.drawCloudSea(ctx, m, time);
+    this.drawSpaceScenery(ctx, m, time);
+
+    // Montañas lejanas
+    const mountVis = 1 - this.ramp(m, 260, 420);
+    if (mountVis > 0.02) {
+      const layers = [
+        { par: 0.12, base: 0.80, amp: 70, shade: 0.55, seed: 1.3 },
+        { par: 0.22, base: 0.88, amp: 52, shade: 0.38, seed: 4.1 }
+      ];
+      layers.forEach((L) => {
+        const off = -this.cameraY * L.par;
+        const baseY = h * L.base + off;
+        if (baseY - L.amp * 1.5 > h) return;
+        ctx.fillStyle = this.rgba(bot, mountVis, L.shade);
+        ctx.beginPath();
+        ctx.moveTo(0, h + 4);
+        for (let x = 0; x <= w + 20; x += 20) {
+          const y = baseY - (Math.sin(x * 0.004 + L.seed) * 0.6 + 0.4) * L.amp - Math.sin(x * 0.013 + L.seed * 2) * 14;
+          ctx.lineTo(x, y);
+        }
+        ctx.lineTo(w, h + 4);
+        ctx.closePath();
+        ctx.fill();
+      });
+    }
+
+    // Bosque de pinos nevados
+    const forestVis = 1 - this.ramp(m, 330, 480);
+    if (forestVis > 0.02) {
+      const off = -this.cameraY * 0.38;
+      const baseY = h * 0.96 + off;
+      if (baseY - 150 < h) {
+        const spacing = 46;
+        const count = Math.ceil(w / spacing) + 2;
+        for (let i = 0; i < count; i++) {
+          const tx = i * spacing - 10 + this.hash(i) * 22;
+          const th = 70 + this.hash(i + 40) * 70;
+          const tw = 34 + this.hash(i + 80) * 14;
+          ctx.fillStyle = this.rgba(bot, forestVis, 0.3);
+          for (let tier = 0; tier < 3; tier++) {
+            const ty = baseY - th * (tier * 0.28);
+            const tierW = tw * (1 - tier * 0.26);
+            ctx.beginPath();
+            ctx.moveTo(tx, ty - th * 0.42);
+            ctx.lineTo(tx + tierW, ty);
+            ctx.lineTo(tx - tierW, ty);
+            ctx.closePath();
+            ctx.fill();
+          }
+          ctx.fillStyle = `rgba(235, 245, 255, ${0.7 * forestVis})`;
+          ctx.beginPath();
+          ctx.moveTo(tx, baseY - th * 0.56 - th * 0.42 * 0.6);
+          ctx.lineTo(tx + tw * 0.2, baseY - th * 0.56 - th * 0.42 * 0.2);
+          ctx.lineTo(tx - tw * 0.2, baseY - th * 0.56 - th * 0.42 * 0.2);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+    }
+
+    // Aldea navideña de la base: se aleja con parallax y deja ver el mundo nuevo
+    if (this.bgImage && this.bgImage.complete && this.bgImage.naturalWidth > 0) {
+      const bgH = Math.max(h, (w * 1080) / 1920);
+      const villageY = (h - bgH) - (this.cameraY * 0.45);
+      const fadeAlpha = 1 - this.ramp(m, 0, 220);
+      if (villageY < h && fadeAlpha > 0.02) {
         ctx.save();
-        const fadeAlpha = Math.max(0.12, 1 - (-this.cameraY / 1900));
         ctx.globalAlpha = fadeAlpha;
-        ctx.drawImage(this.bgImage, 0, villageY, bgW, bgH);
+        ctx.drawImage(this.bgImage, 0, villageY, w, bgH);
         ctx.restore();
       }
     }
 
-    // Viñeta cálida suave
+    // Viñeta suave
     const vignette = ctx.createLinearGradient(0, 0, 0, h);
-    vignette.addColorStop(0, "rgba(8, 16, 36, 0.3)");
+    vignette.addColorStop(0, "rgba(8, 16, 36, 0.25)");
     vignette.addColorStop(0.5, "rgba(0, 0, 0, 0)");
-    vignette.addColorStop(1, "rgba(10, 22, 48, 0.45)");
+    vignette.addColorStop(1, "rgba(10, 22, 48, 0.4)");
     ctx.fillStyle = vignette;
     ctx.fillRect(0, 0, w, h);
+  }
+
+  /** Cortinas de aurora boreal (zona 380m - 750m) */
+  private drawAurora(ctx: CanvasRenderingContext2D, m: number, time: number): void {
+    const vis = this.ramp(m, 280, 420) * (1 - this.ramp(m, 700, 800));
+    if (vis < 0.02) return;
+
+    const w = this.width;
+    const h = this.height;
+    const colors = [[0, 255, 170], [0, 200, 255], [170, 100, 255]];
+
+    ctx.save();
+    colors.forEach((c, b) => {
+      const baseY = h * (0.1 + b * 0.09);
+      const grad = ctx.createLinearGradient(0, baseY - 30, 0, baseY + h * 0.42);
+      grad.addColorStop(0, this.rgba(c, 1));
+      grad.addColorStop(1, this.rgba(c, 0));
+      ctx.fillStyle = grad;
+      for (let x = 0; x < w; x += 10) {
+        const wave = Math.sin(x * 0.007 + time * 0.9 + b * 1.7) * 0.5 + 0.5;
+        const y0 = baseY + Math.sin(x * 0.011 + time * 0.6 + b) * 26;
+        const len = h * 0.2 + wave * h * 0.18;
+        ctx.globalAlpha = vis * (0.12 + wave * 0.26);
+        ctx.fillRect(x, y0, 10, len);
+      }
+    });
+    ctx.restore();
+  }
+
+  /** Bancos de nubes esponjosas que se desplazan (zona 650m - 1000m) */
+  private drawCloudSea(ctx: CanvasRenderingContext2D, m: number, time: number): void {
+    const vis = this.ramp(m, 560, 700) * (1 - this.ramp(m, 940, 1040));
+    if (vis < 0.02) return;
+
+    const w = this.width;
+    const h = this.height;
+    ctx.save();
+    for (let r = 0; r < 3; r++) {
+      const par = 0.28 + r * 0.2;
+      const scale = 0.8 + r * 0.45;
+      for (let i = 0; i < 4; i++) {
+        const seed = r * 10 + i;
+        const cx = ((this.hash(seed) * (w + 300) + time * (8 + r * 7)) % (w + 300)) - 150;
+        const cy = ((h * 0.25 * (i + r * 0.4) + -this.cameraY * par) % (h + 240)) - 120;
+        ctx.globalAlpha = vis * (0.5 + r * 0.2);
+        ctx.fillStyle = "rgba(255, 238, 232, 1)";
+        ctx.beginPath();
+        ctx.arc(cx, cy, 34 * scale, 0, Math.PI * 2);
+        ctx.arc(cx + 38 * scale, cy - 14 * scale, 42 * scale, 0, Math.PI * 2);
+        ctx.arc(cx + 82 * scale, cy, 36 * scale, 0, Math.PI * 2);
+        ctx.arc(cx + 40 * scale, cy + 12 * scale, 38 * scale, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(244, 170, 190, 0.55)";
+        ctx.beginPath();
+        ctx.ellipse(cx + 40 * scale, cy + 30 * scale, 64 * scale, 10 * scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+
+  /** Planetas y cometa del espacio (a partir de 950m) */
+  private drawSpaceScenery(ctx: CanvasRenderingContext2D, m: number, time: number): void {
+    const vis = this.ramp(m, 880, 1050);
+    if (vis < 0.02) return;
+
+    const w = this.width;
+    const h = this.height;
+    ctx.save();
+    ctx.globalAlpha = vis;
+
+    // Planeta con anillos
+    const px = w * 0.2;
+    const py = ((h * 0.2 + -this.cameraY * 0.06) % (h * 2)) - h * 0.3;
+    const pr = Math.max(34, w * 0.06);
+    const pg = ctx.createRadialGradient(px - pr * 0.3, py - pr * 0.3, pr * 0.1, px, py, pr);
+    pg.addColorStop(0, "#FFB74D");
+    pg.addColorStop(1, "#8E3A1B");
+    ctx.fillStyle = pg;
+    ctx.beginPath();
+    ctx.arc(px, py, pr, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 224, 178, 0.7)";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.ellipse(px, py, pr * 1.7, pr * 0.42, -0.35, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Planeta pequeño azul
+    const qx = w * 0.8;
+    const qy = ((h * 0.55 + -this.cameraY * 0.1) % (h * 2)) - h * 0.4;
+    const qr = Math.max(18, w * 0.03);
+    const qg = ctx.createRadialGradient(qx - qr * 0.3, qy - qr * 0.3, qr * 0.1, qx, qy, qr);
+    qg.addColorStop(0, "#80DEEA");
+    qg.addColorStop(1, "#1A4F8B");
+    ctx.fillStyle = qg;
+    ctx.beginPath();
+    ctx.arc(qx, qy, qr, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cometa
+    const ct = (time % 7) / 7;
+    const cx = w * (1.1 - ct * 1.3);
+    const cy = h * (0.08 + ct * 0.45);
+    const tail = ctx.createLinearGradient(cx, cy, cx + 150, cy - 70);
+    tail.addColorStop(0, "rgba(255, 255, 255, 0.9)");
+    tail.addColorStop(1, "rgba(255, 255, 255, 0)");
+    ctx.strokeStyle = tail;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + 150, cy - 70);
+    ctx.stroke();
+    ctx.fillStyle = "#FFFFFF";
+    ctx.beginPath();
+    ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  /** Nieve (y polvo de estrellas en el espacio) en primer plano */
+  private drawSnowfall(ctx: CanvasRenderingContext2D): void {
+    const w = this.width;
+    const h = this.height;
+    const m = Math.max(0, -this.cameraY / 12);
+    const space = this.ramp(m, 880, 1000);
+
+    ctx.save();
+    this.snowFlakes.forEach((f) => {
+      const x = f.x * w + Math.sin(this.animTimer * f.drift + f.y * 20) * 18;
+      const y = ((f.y * h + this.animTimer * f.speed + -this.cameraY * f.par) % (h + 20)) - 10;
+      ctx.fillStyle = space > 0.5 ? `rgba(255, 224, 130, ${f.alpha * 0.7})` : `rgba(255, 255, 255, ${f.alpha})`;
+      ctx.beginPath();
+      ctx.arc(x, y, f.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.restore();
   }
 
   /**
@@ -1392,6 +1711,10 @@ export class MagicJumpGame extends BaseGame {
           ctx.fill();
         }
 
+        if (!plat.broken) {
+          this.drawPlatformLights(ctx, plat, drawY);
+        }
+
         // Resorte de bastón de caramelo para tipo "spring"
         if (plat.type === "spring") {
           const springW = 34;
@@ -1417,6 +1740,16 @@ export class MagicJumpGame extends BaseGame {
 
         // Si es moving, brillo sutil en los extremos
         if (plat.type === "moving") {
+          // Estela de viento detrás de la plataforma
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+          ctx.lineWidth = 2;
+          for (let k = 0; k < 3; k++) {
+            const lx = plat.moveDir > 0 ? plat.x - 8 - k * 9 : plat.x + plat.w + 8 + k * 9;
+            ctx.beginPath();
+            ctx.moveTo(lx, drawY + plat.h * (0.25 + k * 0.22));
+            ctx.lineTo(lx + (plat.moveDir > 0 ? -10 : 10), drawY + plat.h * (0.25 + k * 0.22));
+            ctx.stroke();
+          }
           ctx.fillStyle = "rgba(255, 215, 0, 0.85)";
           ctx.beginPath();
           ctx.arc(plat.x + 12, drawY + plat.h * 0.45, 3.5 + Math.sin(time * 5) * 1.5, 0, Math.PI * 2);
@@ -1668,6 +2001,67 @@ export class MagicJumpGame extends BaseGame {
       ctx.restore();
     }
 
+    ctx.restore();
+  }
+
+  /** Ondas doradas que salen de la plataforma al aterrizar */
+  private drawLandRings(ctx: CanvasRenderingContext2D): void {
+    this.landRings.forEach((r) => {
+      ctx.save();
+      ctx.strokeStyle = `rgba(255, 224, 130, ${(1 - r.t) * 0.85})`;
+      ctx.lineWidth = 3 * (1 - r.t) + 1;
+      ctx.beginPath();
+      ctx.ellipse(r.x, r.y, 12 + r.t * 54, 4 + r.t * 12, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
+
+  /** Imágenes residuales del elfo en ascensos rápidos */
+  private drawGhosts(ctx: CanvasRenderingContext2D): void {
+    if (!(this.spritePlayer.complete && this.spritePlayer.naturalWidth > 0)) return;
+    this.ghosts.forEach((gh) => {
+      ctx.save();
+      ctx.globalAlpha = gh.alpha;
+      ctx.translate(gh.x, gh.y);
+      ctx.rotate(gh.rot);
+      if (!gh.faceRight) ctx.scale(-1, 1);
+      ctx.shadowColor = "#80DEEA";
+      ctx.shadowBlur = 14;
+      ctx.drawImage(this.spritePlayer, -this.playerW * 0.5, -this.playerH * 0.5, this.playerW, this.playerH);
+      ctx.restore();
+    });
+  }
+
+  /** Cuerda de luces navideñas bajo la plataforma */
+  private drawPlatformLights(ctx: CanvasRenderingContext2D, plat: JumpPlatform, drawY: number): void {
+    const bulbs = Math.max(3, Math.floor(plat.w / 24));
+    const palette = ["#FF5252", "#FFD740", "#69F0AE", "#40C4FF"];
+    const y0 = drawY + plat.h * 0.95;
+    const x0 = plat.x + 10;
+    const span = plat.w - 20;
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(20, 30, 20, 0.7)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.quadraticCurveTo(x0 + span / 2, y0 + 9, x0 + span, y0);
+    ctx.stroke();
+
+    for (let i = 0; i < bulbs; i++) {
+      const f = bulbs === 1 ? 0.5 : i / (bulbs - 1);
+      const bx = x0 + span * f;
+      const by = y0 + Math.sin(f * Math.PI) * 4.5 + 2;
+      const on = 0.55 + 0.45 * Math.sin(this.animTimer * 4 + i * 1.3 + plat.x);
+      ctx.globalAlpha = on;
+      ctx.shadowColor = palette[i % palette.length];
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = palette[i % palette.length];
+      ctx.beginPath();
+      ctx.arc(bx, by + 2.5, 2.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.restore();
   }
 
