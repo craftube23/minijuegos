@@ -123,10 +123,16 @@ export class SnowBattleGame extends BaseGame {
   // Copos decorativos de fondo
   private flakes: { x: number; y: number; r: number; vy: number; vx: number }[] = [];
 
-  // Sprites
-  private rodolfoDownImg: HTMLImageElement;
-  private rodolfoUpImg: HTMLImageElement;
-  private rodolfoSideImg: HTMLImageElement;
+  // Sprites de Rodolfo (Animación completa: Caminar 1/2, Parada/Idle y Golpe)
+  private rodolfoDown1Img: HTMLImageElement;
+  private rodolfoDown2Img: HTMLImageElement;
+  private rodolfoUp1Img: HTMLImageElement;
+  private rodolfoUp2Img: HTMLImageElement;
+  private rodolfoSide1Img: HTMLImageElement;
+  private rodolfoSide2Img: HTMLImageElement;
+  private rodolfoIdleDownImg: HTMLImageElement;
+  private rodolfoIdleSideImg: HTMLImageElement;
+  private rodolfoIdleUpImg: HTMLImageElement;
   private rodolfoHitImg: HTMLImageElement;
   private snowmanImg: HTMLImageElement;
   private snowmanHitImg: HTMLImageElement;
@@ -164,9 +170,15 @@ export class SnowBattleGame extends BaseGame {
     this.joystick = new VirtualJoystick(canvas, () => ({ width: this.width, height: this.height }));
 
     const base = "./assets/images/";
-    this.rodolfoDownImg = this.getImage(base + "rodolfo-battle-down-1.png");
-    this.rodolfoUpImg = this.getImage(base + "rodolfo-battle-up-1.png");
-    this.rodolfoSideImg = this.getImage(base + "rodolfo-battle-side-1.png");
+    this.rodolfoDown1Img = this.getImage(base + "rodolfo-battle-down-1.png");
+    this.rodolfoDown2Img = this.getImage(base + "rodolfo-battle-down-2.png");
+    this.rodolfoUp1Img = this.getImage(base + "rodolfo-battle-up-1.png");
+    this.rodolfoUp2Img = this.getImage(base + "rodolfo-battle-up-2.png");
+    this.rodolfoSide1Img = this.getImage(base + "rodolfo-battle-side-1.png");
+    this.rodolfoSide2Img = this.getImage(base + "rodolfo-battle-side-2.png");
+    this.rodolfoIdleDownImg = this.getImage(base + "rodolfo-battle-idle.png");
+    this.rodolfoIdleSideImg = this.getImage(base + "rodolfo-battle-idle-side.png");
+    this.rodolfoIdleUpImg = this.getImage(base + "rodolfo-battle-idle-up.png");
     this.rodolfoHitImg = this.getImage(base + "rodolfo-battle-hit.png");
     this.snowmanImg = this.getImage(base + "snowman-evil-1.png");
     this.snowmanHitImg = this.getImage(base + "snowman-evil-hit.png");
@@ -357,14 +369,17 @@ export class SnowBattleGame extends BaseGame {
     this.px = Math.max(bounds.left + PLAYER_RADIUS, Math.min(bounds.right - PLAYER_RADIUS, this.px));
     this.py = Math.max(bounds.top + PLAYER_RADIUS, Math.min(bounds.bottom - PLAYER_RADIUS, this.py));
 
-    if (js.magnitude > 0.05) {
-      this.walkAnim += dt * 10 * js.magnitude;
-      if (Math.abs(js.x) > Math.abs(js.y)) {
+    const isMoving = js.magnitude > 0.08 || Math.hypot(this.pvx, this.pvy) > 30;
+    if (isMoving) {
+      this.walkAnim += dt * 10 * Math.max(0.4, js.magnitude);
+      if (Math.abs(js.x) > Math.abs(js.y) * 0.9) {
         this.facing = "side";
         this.facingLeft = js.x < 0;
       } else {
         this.facing = js.y < 0 ? "up" : "down";
       }
+    } else {
+      this.walkAnim = 0;
     }
 
     if (this.invulnerable > 0) this.invulnerable -= dt;
@@ -875,13 +890,35 @@ export class SnowBattleGame extends BaseGame {
     // Parpadeo durante invulnerabilidad
     if (this.invulnerable > 0 && Math.floor(this.invulnerable * 12) % 2 === 0) return;
 
-    const bob = Math.sin(this.walkAnim) * 3;
+    const isMoving = this.joystick.magnitude > 0.08 || Math.hypot(this.pvx, this.pvy) > 30;
     const isHit = this.invulnerable > INVULNERABLE_TIME - 0.35;
+
+    // Quieto: respiración sutil y calmada. En movimiento: rebote de caminata.
+    const bob = isMoving ? Math.abs(Math.sin(this.walkAnim)) * -4 : Math.sin(t * 3.5) * 1.5;
+
     let img: HTMLImageElement;
-    if (isHit) img = this.rodolfoHitImg;
-    else if (this.facing === "up") img = this.rodolfoUpImg;
-    else if (this.facing === "side") img = this.rodolfoSideImg;
-    else img = this.rodolfoDownImg;
+    if (isHit) {
+      img = this.rodolfoHitImg;
+    } else if (isMoving) {
+      // Caminando: alterna cíclicamente entre el frame 1 y frame 2
+      const frame = Math.floor(this.walkAnim) % 2 === 0 ? 1 : 2;
+      if (this.facing === "up") {
+        img = frame === 1 ? this.rodolfoUp1Img : this.rodolfoUp2Img;
+      } else if (this.facing === "side") {
+        img = frame === 1 ? this.rodolfoSide1Img : this.rodolfoSide2Img;
+      } else {
+        img = frame === 1 ? this.rodolfoDown1Img : this.rodolfoDown2Img;
+      }
+    } else {
+      // Parado (IDLE / STOP): pose neutral con ambos pies firmes en el suelo
+      if (this.facing === "up") {
+        img = this.rodolfoIdleUpImg;
+      } else if (this.facing === "side") {
+        img = this.rodolfoIdleSideImg;
+      } else {
+        img = this.rodolfoIdleDownImg;
+      }
+    }
 
     if (imgReady(img)) {
       this.drawSprite(ctx, img, x, y + bob, PLAYER_RADIUS * 2.8, this.facing === "side" && this.facingLeft);
