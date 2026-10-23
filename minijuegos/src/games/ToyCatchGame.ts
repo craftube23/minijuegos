@@ -72,12 +72,12 @@ export class ToyCatchGame extends BaseGame {
       particles
     );
 
-    this.bagImage = this.getImage("./assets/images/bolsa de regalos.png");
+    this.bagImage = this.getImage("./assets/images/bolsa de regalos.webp");
     this.imgGiftRed = this.getImage("./assets/images/regalo-rojo.png");
     this.imgGiftGreen = this.getImage("./assets/images/regalo-verde.png");
     this.imgTeddy = this.getImage("./assets/images/osito.png");
     this.imgRobot = this.getImage("./assets/images/robot.png");
-    this.imgCoal = this.getImage("./assets/images/carbon.png");
+    this.imgCoal = this.getImage("./assets/images/carbon.webp");
     this.imgIce = this.getImage("./assets/images/hielo.png");
 
     this.showLives = true;

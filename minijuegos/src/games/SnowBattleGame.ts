@@ -14,8 +14,8 @@
  *
  * ASSETS (./assets/images/) — si un PNG aún no existe se dibuja un fallback vectorial:
  *   rodolfo-battle-down-1.png, rodolfo-battle-up-1.png, rodolfo-battle-side-1.png,
- *   rodolfo-battle-hit.png, snowman-evil-1.png, snowman-evil-hit.png,
- *   elf-mischief-1.png, yeti-boss-1.png, yeti-boss-hit.png, snowball-proj.png,
+ *   rodolfo-battle-hit.png, snowman-evil-1.webp, snowman-evil-hit.webp,
+ *   elf-mischief-1.png, yeti-boss-1.webp, yeti-boss-hit.webp, snowball-proj.png,
  *   pu-triple.png, pu-shield.png, pu-cookie.png, heart-ui.png,
  *   fondo-plaza-nevada.png, snow-battle-portada.png (portada del menú)
  */
@@ -212,19 +212,19 @@ export class SnowBattleGame extends BaseGame {
     };
     this.rodolfoHitImg = this.getImage(base + "rodolfo-battle-hit.png");
     this.rodolfoDeadImg = this.getImage(base + "rodolfo-battle-dead.png");
-    this.snowmanImg = this.getImage(base + "snowman-evil-1.png");
-    this.snowmanImg2 = this.getImage(base + "snowman-evil-2.png");
-    this.snowmanHitImg = this.getImage(base + "snowman-evil-hit.png");
-    this.snowmanAtkImg = this.getImage(base + "snowman-evil-attack.png");
-    this.snowmanDeadImg = this.getImage(base + "snowman-evil-dead.png");
+    this.snowmanImg = this.getImage(base + "snowman-evil-1.webp");
+    this.snowmanImg2 = this.getImage(base + "snowman-evil-2.webp");
+    this.snowmanHitImg = this.getImage(base + "snowman-evil-hit.webp");
+    this.snowmanAtkImg = this.getImage(base + "snowman-evil-attack.webp");
+    this.snowmanDeadImg = this.getImage(base + "snowman-evil-dead.webp");
     this.elfImg = this.getImage(base + "elf-mischief-1.png");
     this.elfImg2 = this.getImage(base + "elf-mischief-2.png");
     this.elfHitImg = this.getImage(base + "elf-mischief-hit.png");
     this.elfAtkImg = this.getImage(base + "elf-mischief-attack.png");
-    this.yetiImg = this.getImage(base + "yeti-boss-1.png");
-    this.yetiImg2 = this.getImage(base + "yeti-boss-2.png");
-    this.yetiHitImg = this.getImage(base + "yeti-boss-hit.png");
-    this.yetiSlamImg = this.getImage(base + "yeti-boss-slam.png");
+    this.yetiImg = this.getImage(base + "yeti-boss-1.webp");
+    this.yetiImg2 = this.getImage(base + "yeti-boss-2.webp");
+    this.yetiHitImg = this.getImage(base + "yeti-boss-hit.webp");
+    this.yetiSlamImg = this.getImage(base + "yeti-boss-slam.webp");
     this.snowballImg = this.getImage(base + "snowball-proj.png");
     this.puTripleImg = this.getImage(base + "pu-triple.png");
     this.puShieldImg = this.getImage(base + "pu-shield.png");

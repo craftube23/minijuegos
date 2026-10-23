@@ -167,10 +167,10 @@ export class GiftTowerGame extends BaseGame {
     ];
 
     this.sponsors = [
-      { name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.png") },
-      { name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.png") },
-      { name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.png") },
-      { name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.png") }
+      { name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.webp") },
+      { name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.webp") },
+      { name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.webp") },
+      { name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.webp") }
     ];
   }
 

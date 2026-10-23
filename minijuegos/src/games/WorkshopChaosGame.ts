@@ -143,20 +143,20 @@ export class WorkshopChaosGame extends BaseGame {
     this.spriteBear = this.loadImage("./assets/images/osito.png");
     this.spriteRobot = this.loadImage("./assets/images/robot.png");
     this.spriteCar = this.loadImage("./assets/images/coche-juguete.png");
-    this.spriteCoal = this.loadImage("./assets/images/carbon.png");
+    this.spriteCoal = this.loadImage("./assets/images/carbon.webp");
     this.spriteDefective = this.loadImage("./assets/images/regalo-defectuoso.png");
 
     // Carga de Logotipos Oficiales de la Feria y Patrocinadores
-    this.fairLogo = this.loadImage("./assets/logos/clean-feria-magica.png");
+    this.fairLogo = this.loadImage("./assets/logos/clean-feria-magica.webp");
     this.sponsorList = [
-      { name: "Campuslands", logo: this.loadImage("./assets/logos/clean-campuslands.png") },
-      { name: "Cajasan", logo: this.loadImage("./assets/logos/clean-cajasan.png") },
-      { name: "IMEBU", logo: this.loadImage("./assets/logos/clean-imebu.png") },
-      { name: "Mariposa", logo: this.loadImage("./assets/logos/clean-mariposa.png") },
-      { name: "Angelus", logo: this.loadImage("./assets/logos/clean-angelus.png") },
-      { name: "Factor Humano", logo: this.loadImage("./assets/logos/clean-factor-humano.png") },
-      { name: "Fundalas", logo: this.loadImage("./assets/logos/clean-fundalas.png") },
-      { name: "Practi Arepa", logo: this.loadImage("./assets/logos/clean-practi-arepa.png") },
+      { name: "Campuslands", logo: this.loadImage("./assets/logos/clean-campuslands.webp") },
+      { name: "Cajasan", logo: this.loadImage("./assets/logos/clean-cajasan.webp") },
+      { name: "IMEBU", logo: this.loadImage("./assets/logos/clean-imebu.webp") },
+      { name: "Mariposa", logo: this.loadImage("./assets/logos/clean-mariposa.webp") },
+      { name: "Angelus", logo: this.loadImage("./assets/logos/clean-angelus.webp") },
+      { name: "Factor Humano", logo: this.loadImage("./assets/logos/clean-factor-humano.webp") },
+      { name: "Fundalas", logo: this.loadImage("./assets/logos/clean-fundalas.webp") },
+      { name: "Practi Arepa", logo: this.loadImage("./assets/logos/clean-practi-arepa.webp") },
       { name: "Feria Mágica", logo: this.fairLogo }
     ];
   }

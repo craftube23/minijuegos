@@ -254,8 +254,8 @@ export class IceBreakerStoryTutorialModal {
           <div class="ice-demo-stage">
             <div class="polar-demo-badge-top">BÓVEDA GLACIAL • RESCATE DE JUGUETES</div>
             <div class="ice-demo-bricks-row">
-              <img src="./assets/images/bloque-hielo-cristal.png" alt="Hielo" class="ice-demo-brick-img" />
-              <img src="./assets/images/bloque-regalo-congelado.png" alt="Regalo" class="ice-demo-brick-img" />
+              <img src="./assets/images/bloque-hielo-cristal.webp" alt="Hielo" class="ice-demo-brick-img" />
+              <img src="./assets/images/bloque-regalo-congelado.webp" alt="Regalo" class="ice-demo-brick-img" />
               <img src="./assets/images/bloque-hielo-dorado.png" alt="Acorazado" class="ice-demo-brick-img" />
             </div>
             <div class="ice-demo-arena-mid">
@@ -289,12 +289,12 @@ export class IceBreakerStoryTutorialModal {
           <div class="ice-demo-stage">
             <div class="ice-bricks-showcase-grid">
               <div class="ice-brick-card">
-                <img src="./assets/images/bloque-hielo-cristal.png" alt="Hielo Glacial" />
+                <img src="./assets/images/bloque-hielo-cristal.webp" alt="Hielo Glacial" />
                 <span class="b-title">HIELO GLACIAL</span>
                 <span class="b-pts">1 GOLPE • +60 PTS</span>
               </div>
               <div class="ice-brick-card">
-                <img src="./assets/images/bloque-regalo-congelado.png" alt="Regalo Congelado" />
+                <img src="./assets/images/bloque-regalo-congelado.webp" alt="Regalo Congelado" />
                 <span class="b-title">REGALO CONGELADO</span>
                 <span class="b-pts">RESCATA JUGUETE • +95</span>
               </div>
@@ -304,7 +304,7 @@ export class IceBreakerStoryTutorialModal {
                 <span class="b-pts">2 GOLPES • +160 PTS</span>
               </div>
               <div class="ice-brick-card">
-                <img src="./assets/images/bumper-polar.png" alt="Bumper Polar" class="bumper-spin-img" />
+                <img src="./assets/images/bumper-polar.webp" alt="Bumper Polar" class="bumper-spin-img" />
                 <span class="b-title">BUMPER POLAR</span>
                 <span class="b-pts">IMPULSO • +100 PTS</span>
               </div>
@@ -338,7 +338,7 @@ export class IceBreakerStoryTutorialModal {
                 </div>
               </div>
               <div class="ice-power-pill">
-                <img src="./assets/images/baston-caramelo.png" alt="Paleta Gigante" />
+                <img src="./assets/images/baston-caramelo.webp" alt="Paleta Gigante" />
                 <div>
                   <strong>PALETA GIGANTE + ESCUDO</strong>
                   <span>Expande la paleta y protege el abismo</span>

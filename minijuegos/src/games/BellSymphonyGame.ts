@@ -315,8 +315,8 @@ export class BellSymphonyGame extends BaseGame {
     this.imgArrowDown = this.getImage("./assets/images/flecha-abajo.png");
     this.imgArrowUp = this.getImage("./assets/images/flecha-arriba.png");
     this.imgArrowRight = this.getImage("./assets/images/flecha-der.png");
-    this.imgLogoFair = this.getImage("./assets/logos/Feria-magica-del-jugete-sin-fondo.png");
-    this.imgLogoCampus = this.getImage("./assets/logos/logo-campus-sin-fondo.png");
+    this.imgLogoFair = this.getImage("./assets/logos/Feria-magica-del-jugete-sin-fondo.webp");
+    this.imgLogoCampus = this.getImage("./assets/logos/logo-campus-sin-fondo.webp");
 
     this.setupKeyboard();
   }

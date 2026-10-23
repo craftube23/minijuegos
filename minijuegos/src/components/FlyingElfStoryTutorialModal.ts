@@ -263,7 +263,7 @@ export class FlyingElfStoryTutorialModal {
               </div>
               <div class="floating-night-gifts">
                 <img src="./assets/images/regalo-rojo.png" alt="Regalo" class="gift-floating-1" />
-                <img src="./assets/images/baston-caramelo.png" alt="Caramelo" class="gift-floating-2" />
+                <img src="./assets/images/baston-caramelo.webp" alt="Caramelo" class="gift-floating-2" />
                 <img src="./assets/images/regalo-verde.png" alt="Regalo" class="gift-floating-3" />
               </div>
             </div>
@@ -334,7 +334,7 @@ export class FlyingElfStoryTutorialModal {
               <div class="toy-point-card card-special">
                 <div class="point-badge-tag tag-purple">+200 PTS</div>
                 <div class="point-images-duo">
-                  <img src="./assets/images/baston-caramelo.png" alt="Bastón Caramelo" />
+                  <img src="./assets/images/baston-caramelo.webp" alt="Bastón Caramelo" />
                   <img src="./assets/images/osito.png" alt="Peluche" />
                 </div>
                 <span class="point-label">Dulces y Juguetes</span>
@@ -360,7 +360,7 @@ export class FlyingElfStoryTutorialModal {
               <!-- Chimeneas y Techos -->
               <div class="hazard-card card-chimney">
                 <div class="hazard-title-badge">CHIMENEAS Y TECHOS</div>
-                <img src="./assets/images/casa-obstaculo.png" alt="Casa Obstáculo" class="hazard-sprite-img" />
+                <img src="./assets/images/casa-obstaculo.webp" alt="Casa Obstáculo" class="hazard-sprite-img" />
                 <span class="hazard-penalty-tag tag-red">-1 VIDA • ESQUIVA POR ARRIBA</span>
               </div>
 

@@ -368,7 +368,7 @@ export class WorkshopChaosStoryTutorialModal {
               <!-- Carbón ardiente -->
               <div class="hazard-card card-coal">
                 <div class="hazard-title-badge">CARBÓN ARDIENTE</div>
-                <img src="./assets/images/carbon.png" alt="Carbón" class="hazard-sprite-img" />
+                <img src="./assets/images/carbon.webp" alt="Carbón" class="hazard-sprite-img" />
                 <span class="hazard-penalty-tag tag-red">-30 PTS • ROMPE COMBO</span>
               </div>
 

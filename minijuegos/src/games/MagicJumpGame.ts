@@ -232,12 +232,12 @@ export class MagicJumpGame extends BaseGame {
 
     // Fondos y logos
     this.bgImage = this.loadImage("./assets/images/fondo-nieve.webp");
-    this.fairLogo = this.loadImage("./assets/logos/clean-feria-magica.png");
+    this.fairLogo = this.loadImage("./assets/logos/clean-feria-magica.webp");
 
     this.sponsorLogos = [
-      { name: "Campuslands", logo: this.loadImage("./assets/logos/clean-campuslands.png") },
-      { name: "Cajasan", logo: this.loadImage("./assets/logos/clean-cajasan.png") },
-      { name: "IMEBU", logo: this.loadImage("./assets/logos/clean-imebu.png") },
+      { name: "Campuslands", logo: this.loadImage("./assets/logos/clean-campuslands.webp") },
+      { name: "Cajasan", logo: this.loadImage("./assets/logos/clean-cajasan.webp") },
+      { name: "IMEBU", logo: this.loadImage("./assets/logos/clean-imebu.webp") },
       { name: "Feria Mágica", logo: this.fairLogo }
     ];
 
@@ -247,8 +247,8 @@ export class MagicJumpGame extends BaseGame {
     this.spritePlatHielo = this.getImage("./assets/images/plataforma-hielo.png");
     this.spritePlatDorada = this.getImage("./assets/images/plataforma-dorada.png");
     this.spritePlatNube = this.getImage("./assets/images/plataforma-nube.png");
-    this.spriteCandyCane = this.getImage("./assets/images/baston-caramelo.png");
-    this.spriteBumper = this.getImage("./assets/images/bumper-polar.png");
+    this.spriteCandyCane = this.getImage("./assets/images/baston-caramelo.webp");
+    this.spriteBumper = this.getImage("./assets/images/bumper-polar.webp");
     this.spriteGoblin = this.getImage("./assets/images/duende-hielo.png");
     this.spriteRocket = this.getImage("./assets/images/cohete-navideno.png");
     this.spriteStar = this.getImage("./assets/images/estrella con logo.png");

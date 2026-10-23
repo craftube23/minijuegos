@@ -378,7 +378,7 @@ export class SnowballTargetStoryTutorialModal {
               <!-- Carbón ardiente -->
               <div class="hazard-card card-coal">
                 <div class="hazard-title-badge">BARRIL DE CARBÓN</div>
-                <img src="./assets/images/carbon.png" alt="Carbón" class="hazard-sprite-img" />
+                <img src="./assets/images/carbon.webp" alt="Carbón" class="hazard-sprite-img" />
                 <span class="hazard-penalty-tag tag-red">-150 PTS • ROMPE COMBO</span>
               </div>
 

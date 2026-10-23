@@ -241,13 +241,13 @@ export class OrnamentPopGame extends BaseGame {
     this.bgImg = this.getImage("./assets/images/fondo-habitacion.webp");
     this.pinataImg = this.getImage("./assets/images/pinata-estrella.png");
     this.gingerbreadImg = this.getImage("./assets/images/galleta-jengibre.png");
-    this.peppermintImg = this.getImage("./assets/images/caramelo-menta.png");
+    this.peppermintImg = this.getImage("./assets/images/caramelo-menta.webp");
     this.clockImg = this.getImage("./assets/images/reloj-magico-tiempo.png");
     this.freezeCrystalImg = this.getImage("./assets/images/fruta-cristal-hielo.png");
-    this.frenzyOrbImg = this.getImage("./assets/images/bola-arcoiris.png");
-    this.bombImg = this.getImage("./assets/images/bomba-carbon-dorada.png");
+    this.frenzyOrbImg = this.getImage("./assets/images/bola-arcoiris.webp");
+    this.bombImg = this.getImage("./assets/images/bomba-carbon-dorada.webp");
     this.duendeImg = this.getImage("./assets/images/duende-hielo.png");
-    this.frozenGiftImg = this.getImage("./assets/images/bloque-regalo-congelado.png");
+    this.frozenGiftImg = this.getImage("./assets/images/bloque-regalo-congelado.webp");
     this.giftRedImg = this.getImage("./assets/images/regalo-estilizado-rojo.png");
     this.giftGreenImg = this.getImage("./assets/images/regalo-estilizado-verde.png");
     this.giftBlueImg = this.getImage("./assets/images/regalo-estilizado-azul.png");

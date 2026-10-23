@@ -15,7 +15,7 @@
  *    - Tras alcanzar cierta distancia (o por evento), un Yeti Muñeco de Nieve gigante
  *      con cuernos de hielo aparece persiguiendo a Santa desde arriba a gran velocidad.
  *    - ¡Haz giros cerrados, salta en rampas o activa el Super Turbo Dorado para escapar!
- *    - Sprites dedicados: `yeti-run1.png`, `yeti-run2.png`, `yeti-dizzy.png`.
+ *    - Sprites dedicados: `yeti-run1.webp`, `yeti-run2.webp`, `yeti-dizzy.webp`.
  * 4. Posturas y Sprites de Acción de Santa:
  *    - `santa-ski-left.png`: Carving a la izquierda con spray de nieve.
  *    - `santa-ski-right.png`: Carving a la derecha.
@@ -253,19 +253,19 @@ export class SantaSkiGame extends BaseGame {
     this.santaCrashImg = this.getImage("./assets/images/santa-ski-crash.png");
 
     // Sprites del Yeti
-    this.yetiRun1Img = this.getImage("./assets/images/yeti-run1.png");
-    this.yetiRun2Img = this.getImage("./assets/images/yeti-run2.png");
-    this.yetiCatchImg = this.getImage("./assets/images/yeti-catch.png");
-    this.yetiDizzyImg = this.getImage("./assets/images/yeti-dizzy.png");
+    this.yetiRun1Img = this.getImage("./assets/images/yeti-run1.webp");
+    this.yetiRun2Img = this.getImage("./assets/images/yeti-run2.webp");
+    this.yetiCatchImg = this.getImage("./assets/images/yeti-catch.webp");
+    this.yetiDizzyImg = this.getImage("./assets/images/yeti-dizzy.webp");
 
     // Props y obstáculos
     this.rampImg = this.getImage("./assets/images/rampa-esqui.png");
     this.gateImg = this.getImage("./assets/images/puerta-eslalon.png");
-    this.treeImg = this.getImage("./assets/images/arbol.png");
+    this.treeImg = this.getImage("./assets/images/arbol.webp");
     this.snowmanImg = this.getImage("./assets/images/obstaculo-muneco.png");
     this.crystalImg = this.getImage("./assets/images/obstaculo-cristal.png");
     this.logImg = this.getImage("./assets/images/obstaculo-tronco.png");
-    this.chaletImg = this.getImage("./assets/images/casa-navidena-clean.png");
+    this.chaletImg = this.getImage("./assets/images/casa-navidena-clean.webp");
     this.starImg = this.getImage("./assets/images/estrella con logo.png");
 
     this.giftImgs = [
@@ -276,13 +276,13 @@ export class SantaSkiGame extends BaseGame {
     ];
 
     this.sponsors = [
-      { id: "feria", name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.png"), color: "#E53935" },
-      { id: "campus", name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.png"), color: "#00E5FF" },
-      { id: "cajasan", name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.png"), color: "#FF9100" },
-      { id: "imebu", name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.png"), color: "#00E676" },
-      { id: "fundalas", name: "Fundalas", logo: this.getImage("./assets/logos/clean-fundalas.png"), color: "#AB47BC" },
-      { id: "mariposa", name: "Mariposa", logo: this.getImage("./assets/logos/clean-mariposa.png"), color: "#EC407A" },
-      { id: "practi", name: "Practi-Arepa", logo: this.getImage("./assets/logos/clean-practi-arepa.png"), color: "#FFD600" }
+      { id: "feria", name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.webp"), color: "#E53935" },
+      { id: "campus", name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.webp"), color: "#00E5FF" },
+      { id: "cajasan", name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.webp"), color: "#FF9100" },
+      { id: "imebu", name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.webp"), color: "#00E676" },
+      { id: "fundalas", name: "Fundalas", logo: this.getImage("./assets/logos/clean-fundalas.webp"), color: "#AB47BC" },
+      { id: "mariposa", name: "Mariposa", logo: this.getImage("./assets/logos/clean-mariposa.webp"), color: "#EC407A" },
+      { id: "practi", name: "Practi-Arepa", logo: this.getImage("./assets/logos/clean-practi-arepa.webp"), color: "#FFD600" }
     ];
 
     // Sistema profesional de nieve multicapa (Fondo, Cristales Medios y Primer Plano Bokeh)

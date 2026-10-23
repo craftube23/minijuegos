@@ -88,7 +88,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/8.png",
       logos: [
         {
-          src: "./assets/logos/clean-feria-magica.png",
+          src: "./assets/logos/clean-feria-magica.webp",
           alt: "Feria Mágica del Juguete - Donde vive la magia",
           name: "FERIA MÁGICA DEL JUGUETE",
           fitMode: "standard"
@@ -122,7 +122,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/7.png",
       logos: [
         {
-          src: "./assets/logos/horiz-fundalas.png",
+          src: "./assets/logos/horiz-fundalas.webp",
           alt: "Logotipo oficial de Fundalas",
           name: "FUNDALAS",
           fitMode: "standard"
@@ -156,7 +156,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/4.png",
       logos: [
         {
-          src: "./assets/logos/horiz-factor-humano.png",
+          src: "./assets/logos/horiz-factor-humano.webp",
           alt: "Logotipo oficial de Factor Humano S.A.S.",
           name: "FACTOR HUMANO S.A.S.",
           fitMode: "compact"
@@ -192,7 +192,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/5.png",
       logos: [
         {
-          src: "./assets/logos/clean-feria-magica.png",
+          src: "./assets/logos/clean-feria-magica.webp",
           alt: "Feria Mágica del Juguete - Donde vive la magia",
           name: "FERIA MÁGICA DEL JUGUETE",
           fitMode: "standard"
@@ -226,7 +226,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/1.png",
       logos: [
         {
-          src: "./assets/logos/horiz-campuslands.png",
+          src: "./assets/logos/horiz-campuslands.webp",
           alt: "Logotipo oficial de Campuslands",
           name: "CAMPUSLANDS",
           fitMode: "standard"
@@ -260,7 +260,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/11.png",
       logos: [
         {
-          src: "./assets/logos/horiz-angelus.png",
+          src: "./assets/logos/horiz-angelus.webp",
           alt: "Logotipo oficial de Angelus Seguridad Ltda",
           name: "ANGELUS SEGURIDAD LTDA",
           fitMode: "standard"
@@ -296,7 +296,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/6.png",
       logos: [
         {
-          src: "./assets/logos/clean-feria-magica.png",
+          src: "./assets/logos/clean-feria-magica.webp",
           alt: "Feria Mágica del Juguete",
           name: "FERIA MÁGICA DEL JUGUETE",
           fitMode: "standard"
@@ -330,7 +330,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/9.png",
       logos: [
         {
-          src: "./assets/logos/clean-practi-arepa.png",
+          src: "./assets/logos/clean-practi-arepa.webp",
           alt: "Logotipo oficial de Practi Arepa - La auténtica y Tradicional",
           name: "PRACTI AREPA",
           fitMode: "compact"
@@ -364,7 +364,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/3.png",
       logos: [
         {
-          src: "./assets/logos/clean-mariposa.png",
+          src: "./assets/logos/clean-mariposa.webp",
           alt: "Logotipo oficial de Dulces Mariposa",
           name: "DULCES MARIPOSA",
           fitMode: "standard"
@@ -400,7 +400,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/12.png",
       logos: [
         {
-          src: "./assets/logos/clean-feria-magica.png",
+          src: "./assets/logos/clean-feria-magica.webp",
           alt: "Feria Mágica del Juguete",
           name: "FERIA MÁGICA DEL JUGUETE",
           fitMode: "standard"
@@ -434,7 +434,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/10.png",
       logos: [
         {
-          src: "./assets/logos/clean-cajasan.png",
+          src: "./assets/logos/clean-cajasan.webp",
           alt: "Logotipo oficial de Cajasan",
           name: "CAJASAN",
           fitMode: "standard"
@@ -468,7 +468,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/2.png",
       logos: [
         {
-          src: "./assets/logos/clean-imebu.png",
+          src: "./assets/logos/clean-imebu.webp",
           alt: "Alcaldía de Bucaramanga e IMEBU - Instituto Municipal de Empleo y Fomento Empresarial",
           name: "IMEBU",
           fitMode: "standard"
@@ -504,7 +504,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/13.png",
       logos: [
         {
-          src: "./assets/logos/clean-feria-magica.png",
+          src: "./assets/logos/clean-feria-magica.webp",
           alt: "Feria Mágica del Juguete",
           name: "FERIA MÁGICA DEL JUGUETE",
           fitMode: "standard"
@@ -540,7 +540,7 @@ export const BANNER_CONFIG = {
       bgImage: "./assets/banners/14.png",
       logos: [
         {
-          src: "./assets/logos/clean-feria-magica.png",
+          src: "./assets/logos/clean-feria-magica.webp",
           alt: "Feria Mágica del Juguete",
           name: "FERIA MÁGICA DEL JUGUETE",
           fitMode: "standard"

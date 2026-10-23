@@ -183,7 +183,7 @@ export class GameBannerCarousel {
 
     // CARTEL INSTITUCIONAL DEL EVENTO (FERIA MÁGICA DEL JUGUETE)
     const eventLogo = slide.logos[0] || {
-      src: "./assets/logos/Feria-magica-del-jugete-sin-fondo.png",
+      src: "./assets/logos/Feria-magica-del-jugete-sin-fondo.webp",
       alt: "Feria Mágica del Juguete",
       name: "FERIA MÁGICA DEL JUGUETE",
       fitMode: "standard" as const

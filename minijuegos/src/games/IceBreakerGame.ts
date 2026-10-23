@@ -16,7 +16,7 @@
  *   6. El Carrusel Glacial (con filas móviles)
  *   7. La Bóveda de Diamante
  *   8. La Corona Real de la Feria (con filas móviles)
- * - Bumpers Reboteadores Polares ('bumper-polar.png') integrados en cada nivel.
+ * - Bumpers Reboteadores Polares ('bumper-polar.webp') integrados en cada nivel.
  * - 5 Súper Poderes: Multi-Esfera x3, Paleta Gigante, Esfera de Fuego Solar,
  *   Cañón de Carámbanos y Escudo Glacial Protector.
  * - Cero emojis.
@@ -346,10 +346,10 @@ export class IceBreakerGame extends BaseGame {
     this.bgImg = this.getImage("./assets/images/fondo-villa-montanas.jpg");
     this.paddleImg = this.getImage("./assets/images/paleta-rompehielos.png");
     this.orbImg = this.getImage("./assets/images/esfera-rompehielos.png");
-    this.brickIceImg = this.getImage("./assets/images/bloque-hielo-cristal.png");
+    this.brickIceImg = this.getImage("./assets/images/bloque-hielo-cristal.webp");
     this.brickGoldImg = this.getImage("./assets/images/bloque-hielo-dorado.png");
-    this.brickGiftImg = this.getImage("./assets/images/bloque-regalo-congelado.png");
-    this.bumperImg = this.getImage("./assets/images/bumper-polar.png");
+    this.brickGiftImg = this.getImage("./assets/images/bloque-regalo-congelado.webp");
+    this.bumperImg = this.getImage("./assets/images/bumper-polar.webp");
     this.icicleImg = this.getImage("./assets/images/estalactita-hielo.png");
 
     this.giftRedImg = this.getImage("./assets/images/regalo-estilizado-rojo.png");
@@ -357,16 +357,16 @@ export class IceBreakerGame extends BaseGame {
     this.giftBlueImg = this.getImage("./assets/images/regalo-estilizado-azul.png");
     this.giftGoldImg = this.getImage("./assets/images/regalo-estilizado-dorado.png");
     this.starImg = this.getImage("./assets/images/estrella con logo.png");
-    this.candyImg = this.getImage("./assets/images/baston-caramelo.png");
+    this.candyImg = this.getImage("./assets/images/baston-caramelo.webp");
     this.bearImg = this.getImage("./assets/images/osito.png");
     this.robotImg = this.getImage("./assets/images/robot.png");
     this.carImg = this.getImage("./assets/images/coche-juguete.png");
 
     this.sponsors = [
-      { id: "campus", name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.png") },
-      { id: "cajasan", name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.png") },
-      { id: "imebu", name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.png") },
-      { id: "feria", name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.png") }
+      { id: "campus", name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.webp") },
+      { id: "cajasan", name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.webp") },
+      { id: "imebu", name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.webp") },
+      { id: "feria", name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.webp") }
     ];
   }
 

@@ -340,7 +340,7 @@ export class SantaSkiStoryTutorialModal {
               </div>
               <div class="hazard-props-row">
                 <div class="prop-hazard-item">
-                  <img src="./assets/images/arbol.png" alt="Pino Nevado" />
+                  <img src="./assets/images/arbol.webp" alt="Pino Nevado" />
                   <span>Pino</span>
                 </div>
                 <div class="prop-hazard-item">
@@ -382,7 +382,7 @@ export class SantaSkiStoryTutorialModal {
           <div class="ski-stage stage-yeti">
             <div class="yeti-chase-arena">
               <div class="yeti-frost-aura"></div>
-              <img src="./assets/images/yeti-run1.png" alt="Yeti de Nieve" class="demo-yeti-monster" id="demo-yeti-sprite" />
+              <img src="./assets/images/yeti-run1.webp" alt="Yeti de Nieve" class="demo-yeti-monster" id="demo-yeti-sprite" />
               <div class="yeti-chase-target">
                 <img src="./assets/images/santa-ski-straight.png" alt="Santa Huyendo" class="demo-santa-flee" />
               </div>
@@ -505,7 +505,7 @@ export class SantaSkiStoryTutorialModal {
     let step = 0;
     this.stepInterval = setInterval(() => {
       step = 1 - step;
-      yetiSprite.src = step === 0 ? "./assets/images/yeti-run1.png" : "./assets/images/yeti-run2.png";
+      yetiSprite.src = step === 0 ? "./assets/images/yeti-run1.webp" : "./assets/images/yeti-run2.webp";
     }, 280);
   }
 

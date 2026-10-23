@@ -247,7 +247,7 @@ export class OrnamentPopStoryTutorialModal {
               <div class="toy-falling-gifts-demo">
                 <img src="./assets/images/regalo-estilizado-rojo.png" alt="Regalo" class="gift-fall gift-fall-1" style="width: 60px; height: 60px; object-fit: contain;" />
                 <img src="./assets/images/galleta-jengibre.png" alt="Galleta" class="gift-fall gift-fall-2" style="width: 60px; height: 60px; object-fit: contain;" />
-                <img src="./assets/images/caramelo-menta.png" alt="Caramelo" class="gift-fall gift-fall-3" style="width: 58px; height: 58px; object-fit: contain;" />
+                <img src="./assets/images/caramelo-menta.webp" alt="Caramelo" class="gift-fall gift-fall-3" style="width: 58px; height: 58px; object-fit: contain;" />
               </div>
               <div class="toy-bag-hero-wrapper">
                 <div class="toy-bag-golden-glow" style="background: radial-gradient(circle, rgba(0,229,255,0.45), transparent 70%);"></div>
@@ -269,7 +269,7 @@ export class OrnamentPopStoryTutorialModal {
               <div style="position: relative; display: flex; align-items: center; justify-content: center; gap: 24px;">
                 <img src="./assets/images/regalo-estilizado-verde.png" alt="Regalo" style="width: 65px; height: 65px; object-fit: contain;" />
                 <img src="./assets/images/galleta-jengibre.png" alt="Galleta" style="width: 65px; height: 65px; object-fit: contain;" />
-                <img src="./assets/images/caramelo-menta.png" alt="Caramelo" style="width: 62px; height: 62px; object-fit: contain;" />
+                <img src="./assets/images/caramelo-menta.webp" alt="Caramelo" style="width: 62px; height: 62px; object-fit: contain;" />
                 <div id="ninja-demo-slash" style="position: absolute; left: -10%; right: -10%; height: 6px; border-radius: 4px; background: linear-gradient(90deg, transparent, #00E5FF, #FFFFFF, #FFD700, transparent); box-shadow: 0 0 18px #00E5FF; transform: rotate(-10deg);"></div>
               </div>
             </div>
@@ -339,7 +339,7 @@ export class OrnamentPopStoryTutorialModal {
               <!-- Bomba de Carbón -->
               <div class="hazard-card card-coal" style="border-color: #FF1744; flex: 1.1;">
                 <div class="hazard-title-badge" style="background: #FF1744; color: #FFFFFF;">BOMBA DE CARBÓN</div>
-                <img src="./assets/images/bomba-carbon-dorada.png" alt="Bomba" class="hazard-sprite-img" style="width: 78px; height: 78px; object-fit: contain; filter: drop-shadow(0 0 18px rgba(255,23,68,0.8));" />
+                <img src="./assets/images/bomba-carbon-dorada.webp" alt="Bomba" class="hazard-sprite-img" style="width: 78px; height: 78px; object-fit: contain; filter: drop-shadow(0 0 18px rgba(255,23,68,0.8));" />
                 <span class="hazard-penalty-tag tag-red">-6 SEGUNDOS AL TOCARLA</span>
               </div>
 

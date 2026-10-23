@@ -317,7 +317,7 @@ export class UniversalStoryTutorialModal {
               <div class="hazard-split danger-side">
                 <div class="split-title-bar bar-danger"><span>⛔ PELIGROS (-1 VIDA)</span></div>
                 <div class="hazard-props-row">
-                  <div class="prop-hazard-item"><img src="./assets/images/arbol.png" alt="Pino" /><span>Pino</span></div>
+                  <div class="prop-hazard-item"><img src="./assets/images/arbol.webp" alt="Pino" /><span>Pino</span></div>
                   <div class="prop-hazard-item"><img src="./assets/images/obstaculo-muneco-estilizado.png" alt="Muñeco" /><span>Muñeco</span></div>
                   <div class="prop-hazard-item"><div class="mini-wood-billboard"><span class="mini-bb-label">CARTEL</span></div><span>Cartel</span></div>
                 </div>
@@ -340,7 +340,7 @@ export class UniversalStoryTutorialModal {
           return `
             <div class="ski-stage stage-yeti">
               <div class="yeti-chase-arena">
-                <img src="./assets/images/yeti-run1.png" alt="Yeti" class="demo-yeti-monster" id="demo-yeti-sprite" />
+                <img src="./assets/images/yeti-run1.webp" alt="Yeti" class="demo-yeti-monster" id="demo-yeti-sprite" />
                 <div class="yeti-chase-target"><img src="./assets/images/santa-ski-straight.png" alt="Santa" class="demo-santa-flee" /></div>
                 <div class="yeti-warning-banner"><span>⚠️</span><span>¡EL YETI TE PERSIGUE!</span></div>
               </div>
@@ -400,7 +400,7 @@ export class UniversalStoryTutorialModal {
               <div class="hazard-split danger-side">
                 <div class="split-title-bar bar-danger"><span>⛔ ENEMIGOS (-1 ❤ AL TOCARTE)</span></div>
                 <div class="hazard-props-row">
-                  <div class="prop-hazard-item"><img src="./assets/images/snowman-evil-1.png" alt="Muñeco malvado" /><span>Muñeco • 2 golpes</span></div>
+                  <div class="prop-hazard-item"><img src="./assets/images/snowman-evil-1.webp" alt="Muñeco malvado" /><span>Muñeco • 2 golpes</span></div>
                   <div class="prop-hazard-item"><img src="./assets/images/elf-mischief-1.png" alt="Duende travieso" /><span>Duende • 1 golpe</span></div>
                 </div>
                 <div class="crash-preview-box">
@@ -436,7 +436,7 @@ export class UniversalStoryTutorialModal {
           return `
             <div class="ski-stage stage-yeti">
               <div class="yeti-chase-arena">
-                <img src="./assets/images/yeti-boss-1.png" alt="Yeti" class="demo-yeti-monster" />
+                <img src="./assets/images/yeti-boss-1.webp" alt="Yeti" class="demo-yeti-monster" />
                 <div class="yeti-chase-target"><img src="./assets/images/rodolfo-battle-down-1.png" alt="Rodolfo" class="demo-santa-flee" /></div>
                 <div class="yeti-warning-banner"><span>⚠️</span><span>¡EL YETI LLEGA A LOS 30 s!</span></div>
               </div>
@@ -533,7 +533,7 @@ export class UniversalStoryTutorialModal {
 
   private getHeroImageForGame(gameId: string): string {
     const map: Record<string, string> = {
-      "toy-catch": "./assets/images/bolsa de regalos.png",
+      "toy-catch": "./assets/images/bolsa de regalos.webp",
       "bell-symphony": "./assets/images/icon-campanas.png",
       "tree-melody": "./assets/images/icon-tambor.png",
       "flying-elf": "./assets/images/elfo-volador.png",
@@ -606,7 +606,7 @@ export class UniversalStoryTutorialModal {
         let step = 0;
         this.stepInterval = setInterval(() => {
           step = 1 - step;
-          yetiSprite.src = step === 0 ? "./assets/images/yeti-run1.png" : "./assets/images/yeti-run2.png";
+          yetiSprite.src = step === 0 ? "./assets/images/yeti-run1.webp" : "./assets/images/yeti-run2.webp";
         }, 280);
       }
     } else {

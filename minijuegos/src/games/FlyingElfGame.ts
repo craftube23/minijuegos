@@ -332,7 +332,7 @@ export class FlyingElfGame extends BaseGame {
     this.imgBgPanorama = this.getImage("./assets/images/fondo-villa-seamless.jpg");
 
     // 3. Obstáculos Ilustrados 2D (Casa navideña con tejado/chimenea y Estalactitas)
-    this.imgHouseObstacle = this.getImage("./assets/images/casa-obstaculo.png");
+    this.imgHouseObstacle = this.getImage("./assets/images/casa-obstaculo.webp");
     this.imgIcicle = this.getImage("./assets/images/estalactita-hielo.png");
 
     // 4. Carteles de Publicidad con Logos Integrados de Todos los Patrocinadores
@@ -342,13 +342,13 @@ export class FlyingElfGame extends BaseGame {
     }
 
     // 5. Decoraciones de Piso
-    this.imgTree = this.getImage("./assets/images/arbol.png");
+    this.imgTree = this.getImage("./assets/images/arbol.webp");
 
     // 6. Coleccionables Ilustrados 2D
     this.imgGiftRed = this.getImage("./assets/images/regalo-rojo.png");
     this.imgGiftGreen = this.getImage("./assets/images/regalo-verde.png");
     this.imgGiftRed2 = this.getImage("./assets/images/regalo-rojo2.png");
-    this.imgCandy = this.getImage("./assets/images/baston-caramelo.png");
+    this.imgCandy = this.getImage("./assets/images/baston-caramelo.webp");
     this.imgTeddy = this.getImage("./assets/images/osito.png");
     this.imgStarLogo = this.getImage("./assets/images/estrella con logo.png");
 

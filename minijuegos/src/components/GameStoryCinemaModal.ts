@@ -111,7 +111,7 @@ export class GameStoryCinemaModal {
       tagline: "¡La chimenea se desbordó! Atrapa los juguetes con el saco de Santa.",
       pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
       sceneryLayerImg: "./assets/images/chimenea-obstaculo.png",
-      heroLayerImg: "./assets/images/bolsa de regalos.png",
+      heroLayerImg: "./assets/images/bolsa de regalos.webp",
       heroLayerScale: 1.15,
       heroLayerOffsetY: 12,
       props: [
@@ -135,8 +135,8 @@ export class GameStoryCinemaModal {
       heroLayerScale: 1.25,
       heroLayerOffsetY: 5,
       props: [
-        { src: "./assets/images/bola-roja.png", className: "prop-note-red", xPercent: -38, yPercent: -35, delayOffset: 0.12, scale: 0.8 },
-        { src: "./assets/images/bola-amarilla.png", className: "prop-note-gold", xPercent: 40, yPercent: -35, delayOffset: 0.22, scale: 0.8 },
+        { src: "./assets/images/bola-roja.webp", className: "prop-note-red", xPercent: -38, yPercent: -35, delayOffset: 0.12, scale: 0.8 },
+        { src: "./assets/images/bola-amarilla.webp", className: "prop-note-gold", xPercent: 40, yPercent: -35, delayOffset: 0.22, scale: 0.8 },
         { src: "./assets/images/estrella con logo.png", className: "prop-bell-star", xPercent: 0, yPercent: -75, delayOffset: 0.34, scale: 1.1 }
       ],
       playHeroSound: (a) => a.playPowerUp()
@@ -150,12 +150,12 @@ export class GameStoryCinemaModal {
       headline: "¡VUELA CON EL ELFO!",
       tagline: "¡Una ráfaga helada dispersó las cartas! Vuela y rescátalas.",
       pageIllustrationBg: "./assets/images/fondo-villa-montanas.jpg",
-      sceneryLayerImg: "./assets/images/casas-techo-fore.png",
+      sceneryLayerImg: "./assets/images/casas-techo-fore.webp",
       heroLayerImg: "./assets/images/elfo-volador.png",
       heroLayerScale: 1.2,
       heroLayerOffsetY: -10,
       props: [
-        { src: "./assets/images/baston-caramelo.png", className: "prop-elf-candy", xPercent: 44, yPercent: -42, delayOffset: 0.15, scale: 0.9, rotateDeg: 28 },
+        { src: "./assets/images/baston-caramelo.webp", className: "prop-elf-candy", xPercent: 44, yPercent: -42, delayOffset: 0.15, scale: 0.9, rotateDeg: 28 },
         { src: "./assets/images/regalo-estilizado-azul.png", className: "prop-elf-gift", xPercent: -40, yPercent: -25, delayOffset: 0.28, scale: 0.85, rotateDeg: -20 },
         { src: "./assets/images/estrella con logo.png", className: "prop-elf-star", xPercent: -20, yPercent: -75, delayOffset: 0.38, scale: 1.0 }
       ],
@@ -189,7 +189,7 @@ export class GameStoryCinemaModal {
       headline: "¡DESLÍZATE Y RESCATA!",
       tagline: "¡El trineo de Santa perdió los regalos por las colinas nevadas!",
       pageIllustrationBg: "./assets/images/fondo-nieve.webp",
-      sceneryLayerImg: "./assets/images/arbol.png",
+      sceneryLayerImg: "./assets/images/arbol.webp",
       heroLayerImg: "./assets/images/santa-trineo.png",
       heroLayerScale: 1.25,
       heroLayerOffsetY: 8,
@@ -323,7 +323,7 @@ export class GameStoryCinemaModal {
       heroLayerScale: 1.2,
       heroLayerOffsetY: 2,
       props: [
-        { src: "./assets/images/bola-amarilla.png", className: "prop-pin-ball1", xPercent: -35, yPercent: -42, delayOffset: 0.14, scale: 0.85 },
+        { src: "./assets/images/bola-amarilla.webp", className: "prop-pin-ball1", xPercent: -35, yPercent: -42, delayOffset: 0.14, scale: 0.85 },
         { src: "./assets/images/estrella con logo.png", className: "prop-pin-star", xPercent: 35, yPercent: -48, delayOffset: 0.26, scale: 0.95 }
       ],
       playHeroSound: (a) => a.playCatchItem(1.3)

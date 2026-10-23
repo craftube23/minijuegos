@@ -255,7 +255,7 @@ export class ToyCatchStoryTutorialModal {
               </div>
               <div class="toy-bag-hero-wrapper">
                 <div class="toy-bag-golden-glow"></div>
-                <img src="./assets/images/bolsa de regalos.png" alt="Saco Mágico de Santa" class="toy-bag-hero-img" />
+                <img src="./assets/images/bolsa de regalos.webp" alt="Saco Mágico de Santa" class="toy-bag-hero-img" />
               </div>
             </div>
             <div class="stage-story-badge">
@@ -272,7 +272,7 @@ export class ToyCatchStoryTutorialModal {
             <div class="toy-controls-track">
               <!-- Saco moviéndose a los lados -->
               <div class="toy-bag-moving-demo" id="toy-bag-moving-demo">
-                <img src="./assets/images/bolsa de regalos.png" alt="Saco" class="demo-bag-sprite" />
+                <img src="./assets/images/bolsa de regalos.webp" alt="Saco" class="demo-bag-sprite" />
                 <div class="bag-catch-star-burst">✨</div>
               </div>
             </div>
@@ -346,7 +346,7 @@ export class ToyCatchStoryTutorialModal {
               <!-- Carbón -->
               <div class="hazard-card card-coal">
                 <div class="hazard-title-badge">🔥 CARBÓN ARDIENTE</div>
-                <img src="./assets/images/carbon.png" alt="Carbón" class="hazard-sprite-img" />
+                <img src="./assets/images/carbon.webp" alt="Carbón" class="hazard-sprite-img" />
                 <span class="hazard-penalty-tag">RESTA PUNTOS • ROMPE COMBO</span>
               </div>
 

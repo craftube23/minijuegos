@@ -181,11 +181,11 @@ export class PolarExpressGame extends BaseGame {
 
     this.bgImage = this.getImage("./assets/images/fondo-villa-seamless.jpg");
     this.spriteTrain = this.getImage("./assets/images/locomotora-lateral.png");
-    this.spriteWagon = this.getImage("./assets/images/vagon-expreso.png");
-    this.spriteSignal = this.getImage("./assets/images/semaforo-tren.png");
+    this.spriteWagon = this.getImage("./assets/images/vagon-expreso.webp");
+    this.spriteSignal = this.getImage("./assets/images/semaforo-tren.webp");
     this.spriteBarrier = this.getImage("./assets/images/obstaculo-barrera-tren.png");
-    this.spriteCottage = this.getImage("./assets/images/casa-navidena-clean.png");
-    this.spriteTree = this.getImage("./assets/images/arbol.png");
+    this.spriteCottage = this.getImage("./assets/images/casa-navidena-clean.webp");
+    this.spriteTree = this.getImage("./assets/images/arbol.webp");
     this.spriteStar = this.getImage("./assets/images/estrella con logo.png");
     this.spriteGold = this.getImage("./assets/images/regalo-estilizado-dorado.png");
 
@@ -194,7 +194,7 @@ export class PolarExpressGame extends BaseGame {
       { img: this.getImage("./assets/images/obstaculo-muneco.png"), hMul: 0.96 },
       { img: this.getImage("./assets/images/obstaculo-cristal.png"), hMul: 0.84 },
       { img: this.getImage("./assets/images/obstaculo-tronco.png"), hMul: 0.68 },
-      { img: this.getImage("./assets/images/carbon.png"), hMul: 0.62 }
+      { img: this.getImage("./assets/images/carbon.webp"), hMul: 0.62 }
     ];
 
     this.giftSprites = [
@@ -204,10 +204,10 @@ export class PolarExpressGame extends BaseGame {
     ];
 
     this.sponsors = [
-      { name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.png") },
-      { name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.png") },
-      { name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.png") },
-      { name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.png") }
+      { name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.webp") },
+      { name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.webp") },
+      { name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.webp") },
+      { name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.webp") }
     ];
   }
 

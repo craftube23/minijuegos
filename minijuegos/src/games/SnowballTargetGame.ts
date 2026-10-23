@@ -178,7 +178,7 @@ export class SnowballTargetGame extends BaseGame {
     this.spriteRobot = this.createImage("./assets/images/robot.png");
     this.spriteGiftRed = this.createImage("./assets/images/regalo-rojo2.png");
     this.spriteGiftGreen = this.createImage("./assets/images/regalo-verde.png");
-    this.spriteCoal = this.createImage("./assets/images/carbon.png");
+    this.spriteCoal = this.createImage("./assets/images/carbon.webp");
     this.spriteMedallion = this.createImage("./assets/images/medallon-feria.png");
     this.spriteIceSpike = this.createImage("./assets/images/obstaculo-cristal.png");
     this.spriteElf = this.createImage("./assets/images/elfo-volador.png");

@@ -221,18 +221,18 @@ export class SantaHillsGame extends BaseGame {
     this.imgSantaSleigh = load("./assets/images/santa-trineo.png");
     this.imgGiftRed = load("./assets/images/regalo-rojo.png");
     this.imgGiftGreen = load("./assets/images/regalo-verde.png");
-    this.imgCandy = load("./assets/images/baston-caramelo.png");
+    this.imgCandy = load("./assets/images/baston-caramelo.webp");
     this.imgTeddy = load("./assets/images/osito.png");
     this.imgRobot = load("./assets/images/robot.png");
-    this.imgRock = load("./assets/images/carbon.png");
+    this.imgRock = load("./assets/images/carbon.webp");
     this.imgIce = load("./assets/images/hielo.png");
     this.imgSnowman = load("./assets/images/obstaculo-muneco.png");
     this.imgCrystal = load("./assets/images/obstaculo-cristal.png");
     this.imgLog = load("./assets/images/obstaculo-tronco.png");
-    this.imgTree = load("./assets/images/arbol.png");
-    this.imgHouse = load("./assets/images/casa-navidena-clean.png");
-    this.imgSignFeria = load("./assets/images/cartel-feria.png");
-    this.imgSignSponsor = load("./assets/images/cartel-sponsor.png");
+    this.imgTree = load("./assets/images/arbol.webp");
+    this.imgHouse = load("./assets/images/casa-navidena-clean.webp");
+    this.imgSignFeria = load("./assets/images/cartel-feria.webp");
+    this.imgSignSponsor = load("./assets/images/cartel-sponsor.webp");
     this.imgMedallonFeria = load("./assets/images/medallon-feria.png");
     this.imgBgSeamless = load("./assets/images/fondo-villa-seamless.jpg");
   }

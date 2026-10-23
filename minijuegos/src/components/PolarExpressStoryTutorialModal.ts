@@ -259,14 +259,14 @@ export class PolarExpressStoryTutorialModal {
             <div class="polar-demo-badge-top">CONVOY OFICIAL • LOCOMOTORA + VAGÓN</div>
             <div class="polar-demo-rail-bed">
               <div class="polar-demo-convoy" id="polar-demo-convoy">
-                <img src="./assets/images/vagon-expreso.png" alt="Vagón" class="polar-demo-wagon-img" />
+                <img src="./assets/images/vagon-expreso.webp" alt="Vagón" class="polar-demo-wagon-img" />
                 <div class="polar-demo-coupler"></div>
                 <img src="./assets/images/locomotora-lateral.png" alt="Locomotora" class="polar-demo-loco-img" />
                 <div class="polar-demo-beam"></div>
               </div>
               <div class="polar-demo-golden-rail"></div>
             </div>
-            <img src="./assets/images/semaforo-tren.png" alt="Semáforo" class="polar-demo-signal-bg" />
+            <img src="./assets/images/semaforo-tren.webp" alt="Semáforo" class="polar-demo-signal-bg" />
           </div>
         `;
 
@@ -278,7 +278,7 @@ export class PolarExpressStoryTutorialModal {
               <div class="polar-lane-row active" id="polar-lane-1"><span class="polar-lane-chip">VÍA 2</span><div class="polar-lane-rail"></div></div>
               <div class="polar-lane-row" id="polar-lane-2"><span class="polar-lane-chip">VÍA 3</span><div class="polar-lane-rail"></div></div>
               <div class="polar-lane-mover" id="polar-lane-mover">
-                <img src="./assets/images/vagon-expreso.png" alt="Vagón" class="mover-wagon" />
+                <img src="./assets/images/vagon-expreso.webp" alt="Vagón" class="mover-wagon" />
                 <img src="./assets/images/locomotora-lateral.png" alt="Locomotora" class="mover-loco" />
               </div>
             </div>
@@ -317,7 +317,7 @@ export class PolarExpressStoryTutorialModal {
                 <span class="col-pts">+150 PTS • +30%</span>
               </div>
               <div class="polar-col-card station-col-card">
-                <img src="./assets/images/semaforo-tren.png" alt="Estación" />
+                <img src="./assets/images/semaforo-tren.webp" alt="Estación" />
                 <span class="col-title">ESTACIÓN 400m</span>
                 <span class="col-pts">+250 BONO</span>
               </div>

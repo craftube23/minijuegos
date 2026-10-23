@@ -85,12 +85,12 @@ export class MagicPairsGame extends BaseGame {
     this.spriteRobot = this.createImage("./assets/images/robot.png");
     this.spriteGiftRed = this.createImage("./assets/images/regalo-rojo2.png");
     this.spriteGiftGreen = this.createImage("./assets/images/regalo-verde.png");
-    this.spriteCandyCane = this.createImage("./assets/images/baston-caramelo.png");
+    this.spriteCandyCane = this.createImage("./assets/images/baston-caramelo.webp");
     this.spriteFlyingElf = this.createImage("./assets/images/elfo-volador.png");
     this.spriteDrums = this.createImage("./assets/images/icon-tambores.png");
     this.spriteBells = this.createImage("./assets/images/icon-campanas.png");
-    this.spriteTree = this.createImage("./assets/images/arbol.png");
-    this.spriteHouse = this.createImage("./assets/images/casa-obstaculo.png");
+    this.spriteTree = this.createImage("./assets/images/arbol.webp");
+    this.spriteHouse = this.createImage("./assets/images/casa-obstaculo.webp");
     this.spriteStarLogo = this.createImage("./assets/images/estrella con logo.png");
     this.spriteLogo1 = this.createImage(BRANDING.getLogoPath(1));
     this.spriteMedallion = this.createImage("./assets/images/medallon-feria.png");

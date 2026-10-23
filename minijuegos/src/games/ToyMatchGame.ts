@@ -112,16 +112,16 @@ export class ToyMatchGame extends BaseGame {
       this.getImage("./assets/images/robot.png"),
       this.getImage("./assets/images/coche-juguete.png"),
       this.getImage("./assets/images/regalo-estilizado-dorado.png"),
-      this.getImage("./assets/images/bola-roja.png"),
-      this.getImage("./assets/images/bola-azul.png")
+      this.getImage("./assets/images/bola-roja.webp"),
+      this.getImage("./assets/images/bola-azul.webp")
     ];
     this.starImg = this.getImage("./assets/images/estrella con logo.png");
 
     this.sponsors = [
-      { id: "campus", name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.png") },
-      { id: "cajasan", name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.png") },
-      { id: "imebu", name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.png") },
-      { id: "feria", name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.png") }
+      { id: "campus", name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.webp") },
+      { id: "cajasan", name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.webp") },
+      { id: "imebu", name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.webp") },
+      { id: "feria", name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.webp") }
     ];
   }
 

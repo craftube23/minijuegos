@@ -366,7 +366,7 @@ export class MagicPairsStoryTutorialModal {
                 <div class="point-badge-tag tag-purple">+300 PTS</div>
                 <div class="point-images-duo">
                   <img src="./assets/images/elfo-volador.png" alt="Elfo Volador" />
-                  <img src="./assets/images/baston-caramelo.png" alt="Bastón" />
+                  <img src="./assets/images/baston-caramelo.webp" alt="Bastón" />
                 </div>
                 <span class="point-label">Elfo & Dulces</span>
               </div>
