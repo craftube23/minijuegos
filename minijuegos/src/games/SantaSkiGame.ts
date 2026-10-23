@@ -246,7 +246,7 @@ export class SantaSkiGame extends BaseGame {
 
     // Sprites 2D unificados de Santa (mismo estilo, proporciones y modelo de personaje)
     this.santaStraightImg = this.getImage("./assets/images/santa-ski-straight.png");
-    this.santaStraight2Img = this.getImage("./assets/images/santa-ski-straight-2.png");
+    this.santaStraight2Img = this.getImage("./assets/images/santa-ski-straight-2.webp");
     this.santaLeftImg = this.getImage("./assets/images/santa-ski-left.png");
     this.santaRightImg = this.getImage("./assets/images/santa-ski-right.png");
     this.santaJumpImg = this.getImage("./assets/images/santa-ski-jump.png");

@@ -186,22 +186,22 @@ export class SnowBattleGame extends BaseGame {
     const base = "./assets/images/";
     this.rodolfoSprites = {
       right: {
-        step1: this.getImage(base + "rodolfo-battle-right-1.png"),
+        step1: this.getImage(base + "rodolfo-battle-right-1.webp"),
         pass: this.getImage(base + "rodolfo-battle-right-pass.png"),
         step2: this.getImage(base + "rodolfo-battle-right-2.png"),
         stop: this.getImage(base + "rodolfo-battle-right-stop.png")
       },
       left: {
-        step1: this.getImage(base + "rodolfo-battle-left-1.png"),
-        pass: this.getImage(base + "rodolfo-battle-left-pass.png"),
-        step2: this.getImage(base + "rodolfo-battle-left-2.png"),
-        stop: this.getImage(base + "rodolfo-battle-left-stop.png")
+        step1: this.getImage(base + "rodolfo-battle-left-1.webp"),
+        pass: this.getImage(base + "rodolfo-battle-left-pass.webp"),
+        step2: this.getImage(base + "rodolfo-battle-left-2.webp"),
+        stop: this.getImage(base + "rodolfo-battle-left-stop.webp")
       },
       down: {
         step1: this.getImage(base + "rodolfo-battle-down-1.png"),
-        pass: this.getImage(base + "rodolfo-battle-down-pass.png"),
+        pass: this.getImage(base + "rodolfo-battle-down-pass.webp"),
         step2: this.getImage(base + "rodolfo-battle-down-2.png"),
-        stop: this.getImage(base + "rodolfo-battle-down-stop.png")
+        stop: this.getImage(base + "rodolfo-battle-down-stop.webp")
       },
       up: {
         step1: this.getImage(base + "rodolfo-battle-up-1.png"),
@@ -211,7 +211,7 @@ export class SnowBattleGame extends BaseGame {
       }
     };
     this.rodolfoHitImg = this.getImage(base + "rodolfo-battle-hit.png");
-    this.rodolfoDeadImg = this.getImage(base + "rodolfo-battle-dead.png");
+    this.rodolfoDeadImg = this.getImage(base + "rodolfo-battle-dead.webp");
     this.snowmanImg = this.getImage(base + "snowman-evil-1.webp");
     this.snowmanImg2 = this.getImage(base + "snowman-evil-2.webp");
     this.snowmanHitImg = this.getImage(base + "snowman-evil-hit.webp");
@@ -219,8 +219,8 @@ export class SnowBattleGame extends BaseGame {
     this.snowmanDeadImg = this.getImage(base + "snowman-evil-dead.webp");
     this.elfImg = this.getImage(base + "elf-mischief-1.png");
     this.elfImg2 = this.getImage(base + "elf-mischief-2.png");
-    this.elfHitImg = this.getImage(base + "elf-mischief-hit.png");
-    this.elfAtkImg = this.getImage(base + "elf-mischief-attack.png");
+    this.elfHitImg = this.getImage(base + "elf-mischief-hit.webp");
+    this.elfAtkImg = this.getImage(base + "elf-mischief-attack.webp");
     this.yetiImg = this.getImage(base + "yeti-boss-1.webp");
     this.yetiImg2 = this.getImage(base + "yeti-boss-2.webp");
     this.yetiHitImg = this.getImage(base + "yeti-boss-hit.webp");
