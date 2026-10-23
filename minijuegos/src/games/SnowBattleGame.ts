@@ -26,6 +26,7 @@ import { AudioManager } from "../core/AudioManager";
 import { ParticleSystem } from "../core/ParticleSystem";
 import { BRANDING } from "../config/branding";
 import { VirtualJoystick } from "./shared/VirtualJoystick";
+import { imgReady } from "./shared/gameDraw";
 
 type EnemyKind = "snowman" | "elf" | "yeti";
 type PowerUpKind = "triple" | "shield" | "cookie" | "logo";
@@ -73,9 +74,7 @@ const SHIELD_TIME = 6;
 const POWERUP_LIFE = 8;
 const DROP_CHANCE = 0.18;
 
-function imgReady(img: HTMLImageElement | null | undefined): img is HTMLImageElement {
-  return !!img && img.complete && img.naturalWidth > 0;
-}
+
 
 export class SnowBattleGame extends BaseGame {
   private joystick: VirtualJoystick;

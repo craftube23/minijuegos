@@ -216,11 +216,7 @@ export class SantaHillsGame extends BaseGame {
     this.inGameMusicPath = "./assets/audio/jingle-bells.mp3";
     this.inGameMusicVolume = 0.44;
 
-    const load = (src: string): HTMLImageElement => {
-      const img = new Image();
-      img.src = src;
-      return img;
-    };
+    const load = (src: string): HTMLImageElement => this.getImage(src);
 
     this.imgSantaSleigh = load("./assets/images/santa-trineo.png");
     this.imgGiftRed = load("./assets/images/regalo-rojo.png");

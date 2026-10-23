@@ -431,6 +431,7 @@ export class BellSymphonyGame extends BaseGame {
       try {
         this.bgAudioElement.pause();
         this.bgAudioElement.currentTime = 0;
+        this.bgAudioElement.onloadedmetadata = null;
         this.bgAudioElement.onended = null;
         this.bgAudioElement.onerror = null;
         this.bgAudioElement.removeAttribute("src");
@@ -487,12 +488,12 @@ export class BellSymphonyGame extends BaseGame {
       const safeAudioUrl = `./assets/audio/${song.audioFile.split("/").map(encodeURIComponent).join("/")}`;
       this.bgAudioElement = new Audio(safeAudioUrl);
       this.bgAudioElement.volume = 0.82;
-      this.bgAudioElement.addEventListener("loadedmetadata", () => {
+      this.bgAudioElement.onloadedmetadata = () => {
         if (this.bgAudioElement && !isNaN(this.bgAudioElement.duration) && this.bgAudioElement.duration > 5) {
           this.songDuration = Math.max(this.songDuration, this.bgAudioElement.duration + 1.2);
         }
-      });
-      this.bgAudioElement.addEventListener("ended", () => {
+      };
+      this.bgAudioElement.onended = () => {
         if (this.gameState === "playing" && !this.isGameOver) {
           const hasPendingNotes = this.notes.some(n => !n.hit && !n.missed && n.targetTime >= this.currentTime - 0.2);
           const delay = hasPendingNotes ? 1400 : 500;
@@ -502,10 +503,10 @@ export class BellSymphonyGame extends BaseGame {
             }
           }, delay);
         }
-      });
-      this.bgAudioElement.addEventListener("error", (e) => {
+      };
+      this.bgAudioElement.onerror = (e) => {
         console.error("❌ Error cargando pista de audio:", safeAudioUrl, e);
-      });
+      };
       // Audio precargado listo para reproducirse cuando termine la cuenta regresiva
     } catch (e) {
       console.error("Error al inicializar Audio:", e);

@@ -185,9 +185,7 @@ export class SnowballTargetGame extends BaseGame {
   }
 
   private createImage(src: string): HTMLImageElement {
-    const img = new Image();
-    img.src = src;
-    return img;
+    return this.getImage(src);
   }
 
   // ============================================================================
