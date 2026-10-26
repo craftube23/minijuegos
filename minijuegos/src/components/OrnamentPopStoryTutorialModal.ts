@@ -243,18 +243,18 @@ export class OrnamentPopStoryTutorialModal {
       case "story":
         visualHTML = `
           <div class="ski-stage stage-toy-story" style="background: radial-gradient(circle at 50% 50%, #3B1E10 0%, #170904 100%);">
-            <div class="toy-story-scene" style="gap: 18px;">
+            <div class="toy-story-scene" style="gap: 10px; height: auto; min-height: 0;">
               <div class="toy-falling-gifts-demo">
-                <img src="./assets/images/regalo-estilizado-rojo.webp" alt="Regalo" class="gift-fall gift-fall-1" style="width: 60px; height: 60px; object-fit: contain;" />
-                <img src="./assets/images/galleta-jengibre.webp" alt="Galleta" class="gift-fall gift-fall-2" style="width: 60px; height: 60px; object-fit: contain;" />
-                <img src="./assets/images/caramelo-menta.webp" alt="Caramelo" class="gift-fall gift-fall-3" style="width: 58px; height: 58px; object-fit: contain;" />
+                <img src="./assets/images/regalo-estilizado-rojo.webp" alt="Regalo" class="gift-fall gift-fall-1" style="width: 38px; height: 38px; object-fit: contain;" />
+                <img src="./assets/images/galleta-jengibre.webp" alt="Galleta" class="gift-fall gift-fall-2" style="width: 40px; height: 40px; object-fit: contain;" />
+                <img src="./assets/images/caramelo-menta.webp" alt="Caramelo" class="gift-fall gift-fall-3" style="width: 36px; height: 36px; object-fit: contain;" />
               </div>
-              <div class="toy-bag-hero-wrapper">
+              <div class="toy-bag-hero-wrapper" style="margin-top: 0;">
                 <div class="toy-bag-golden-glow" style="background: radial-gradient(circle, rgba(0,229,255,0.45), transparent 70%);"></div>
-                <img src="./assets/images/icon-ninja-regalos.webp" alt="Ninja Regalos" class="toy-bag-hero-img" style="width: 120px; height: 120px; object-fit: contain;" />
+                <img src="./assets/images/icon-ninja-regalos.webp" alt="Ninja Regalos" class="toy-bag-hero-img" style="max-width: 80px; max-height: 75px; object-fit: contain;" />
               </div>
             </div>
-            <div class="stage-story-badge" style="background: rgba(255,215,0,0.18); border-color: #FFD700;">
+            <div class="stage-story-badge" style="position: relative; top: auto; bottom: auto; margin-top: 6px; background: rgba(255,215,0,0.18); border-color: #FFD700; padding: 3px 10px; font-size: 0.65rem;">
               <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="story-star-badge" />
               <span>OBJETIVO: ¡REBANA TODO EN DOS MITADES!</span>
             </div>

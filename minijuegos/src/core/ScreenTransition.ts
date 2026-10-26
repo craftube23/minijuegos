@@ -149,8 +149,9 @@ export class ScreenTransition {
 
       steps.forEach(({ text, subtext, soundStep, delay }) => {
         setTimeout(() => {
+          const isWord = text.length > 2;
           overlay.innerHTML = `
-            <div class="countdown-number">${text}</div>
+            <div class="countdown-number ${isWord ? "countdown-word" : ""}">${text}</div>
             <div class="countdown-subtext">${subtext}</div>
           `;
 

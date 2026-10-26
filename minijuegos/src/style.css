@@ -769,9 +769,14 @@ html, body {
 
 .countdown-number {
   font-family: var(--font-festive);
-  font-size: clamp(4.5rem, 16vw, 9rem);
+  font-size: clamp(3rem, 12vw, 7.5rem);
   font-weight: 900;
   color: #FFF275;
+  text-align: center;
+  max-width: 94vw;
+  box-sizing: border-box;
+  white-space: nowrap;
+  line-height: 1.1;
   text-shadow: 
     0 4px 0 #B8860B,
     0 8px 0 #7A1E1E,
@@ -779,6 +784,13 @@ html, body {
     0 0 50px rgba(255, 215, 0, 0.9);
   animation: countdownPop 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   letter-spacing: 2px;
+}
+
+.countdown-number.countdown-word {
+  font-size: clamp(1.8rem, 8vw, 4.6rem);
+  letter-spacing: 1px;
+  max-width: 90vw;
+  padding: 0 8px;
 }
 
 .countdown-subtext {
@@ -2935,6 +2947,28 @@ html, body {
 }
 
 /* ==========================================================================
+   ADAPTACIÓN DINÁMICA DE FONDO POR ORIENTACIÓN
+   Horizontal/Landscape: Fondo panorámico 16:9 completo (casitas y aldea visible)
+   Vertical/Portrait: Fondo vertical para evitar bandas laterales
+   ========================================================================== */
+@media (orientation: portrait) {
+  body {
+    background-image: url('../public/assets/images/fondo-empresas-vertical.webp');
+  }
+  #kiosk-app {
+    background-image: url('../public/assets/images/fondo-empresas-vertical.webp');
+  }
+  .attract-layer {
+    background-image: radial-gradient(circle at center, rgba(22, 54, 102, 0.45) 0%, rgba(7, 17, 30, 0.75) 100%),
+                      url('../public/assets/images/fondo-empresas-vertical.webp');
+  }
+  .menu-layer {
+    background-image: radial-gradient(circle at center, rgba(15, 36, 68, 0.70) 0%, rgba(6, 14, 26, 0.92) 100%),
+                      url('../public/assets/images/fondo-empresas-vertical.webp');
+  }
+}
+
+/* ==========================================================================
    RESPONSIVE PARA TELÉFONOS MÓVILES (SMARTPHONES Y PANTALLAS ANGOSTAS)
    ========================================================================== */
 @media (max-width: 600px) {
@@ -3137,32 +3171,38 @@ html, body {
    ========================================================================== */
 @media (max-height: 540px) {
   .kiosk-header {
-    height: 48px;
-    min-height: 48px;
-    padding: env(safe-area-inset-top, 0px) 10px 0 10px;
-    padding-left: max(10px, env(safe-area-inset-left, 0px));
-    padding-right: max(10px, env(safe-area-inset-right, 0px));
+    height: 36px;
+    min-height: 36px;
+    padding: 0 8px;
+    padding-left: max(8px, env(safe-area-inset-left, 0px));
+    padding-right: max(8px, env(safe-area-inset-right, 0px));
   }
 
   .header-logo {
-    height: 34px;
-    max-height: 34px;
-    max-width: 140px;
+    height: 24px;
+    max-height: 24px;
+    max-width: 110px;
     transform: none;
   }
 
   .kiosk-btn {
-    min-height: 34px;
-    min-width: 34px;
-    padding: 4px 10px;
-    font-size: 0.82rem;
-    border-radius: 8px;
-    gap: 4px;
+    min-height: 26px;
+    min-width: 26px;
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    border-radius: 6px;
+    gap: 3px;
+  }
+
+  .kiosk-btn svg {
+    width: 14px !important;
+    height: 14px !important;
   }
 
   .kiosk-footer-carousel {
-    height: 48px;
-    min-height: 48px;
+    height: 34px;
+    min-height: 34px;
+    border-top-width: 2px;
   }
 
   .kiosk-swiper .swiper-slide.banner-slide {
@@ -3430,48 +3470,64 @@ html, body {
    ========================================================================== */
 @media (max-height: 420px) {
   .kiosk-header {
-    height: 42px;
-    min-height: 42px;
+    height: 30px;
+    min-height: 30px;
+    padding: 0 6px;
+    padding-left: max(6px, env(safe-area-inset-left, 0px));
+    padding-right: max(6px, env(safe-area-inset-right, 0px));
   }
 
   .header-logo {
-    height: 28px;
-    max-height: 28px;
-    max-width: 120px;
+    height: 19px;
+    max-height: 19px;
+    max-width: 90px;
   }
 
   .kiosk-btn {
-    min-height: 30px;
-    min-width: 30px;
-    padding: 3px 8px;
-    font-size: 0.75rem;
+    min-height: 22px;
+    min-width: 22px;
+    padding: 1px 5px;
+    font-size: 0.65rem;
+    border-radius: 5px;
+    gap: 2px;
+  }
+
+  .kiosk-btn svg {
+    width: 12px !important;
+    height: 12px !important;
   }
 
   .kiosk-footer-carousel {
-    height: 40px;
-    min-height: 40px;
+    height: 26px;
+    min-height: 26px;
+    border-top-width: 1.5px;
+  }
+
+  .banner-hero-container,
+  .banner-event-container {
+    gap: 5px;
+    padding: 1px 6px;
   }
 
   .banner-logo-card {
-    height: 32px;
-    width: 68px;
-    padding: 1px 3px;
-    border-radius: 6px;
+    height: 20px;
+    width: 44px;
+    padding: 1px 2px;
+    border-radius: 4px;
   }
 
   .event-logo-emblem {
-    height: 32px;
-    width: 46px;
+    height: 20px;
+    width: 32px;
   }
 
   .banner-headline {
-    font-size: 0.72rem;
-    line-height: 1.05;
+    font-size: 0.62rem;
+    line-height: 1;
   }
 
   .banner-subline {
-    font-size: 0.6rem;
-    line-height: 1.05;
+    display: none;
   }
 
   .banner-badge-wrapper {
@@ -6669,7 +6725,13 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(10px, 2.5vh, 25px);
+  padding: clamp(6px, 1.5vh, 16px);
+  padding-top: max(6px, env(safe-area-inset-top, 6px));
+  padding-right: max(6px, env(safe-area-inset-right, 6px));
+  padding-bottom: max(6px, calc(env(safe-area-inset-bottom, 6px) + 6px));
+  padding-left: max(6px, env(safe-area-inset-left, 6px));
+  overflow-y: auto;
+  box-sizing: border-box;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -6690,7 +6752,8 @@ html, body {
   position: relative;
   z-index: 2;
   width: min(920px, 95vw);
-  max-height: 92vh;
+  max-height: min(96vh, 96dvh);
+  max-height: calc(100dvh - 12px);
   display: flex;
   flex-direction: column;
   background: linear-gradient(175deg, rgba(18, 38, 70, 0.96) 0%, rgba(9, 19, 38, 0.98) 100%);
@@ -6698,6 +6761,7 @@ html, body {
   border-radius: 24px;
   box-shadow: 0 16px 50px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 229, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   overflow: hidden;
+  box-sizing: border-box;
   animation: skiCardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -6868,11 +6932,20 @@ html, body {
 }
 
 /* Cuerpo Principal */
+.ski-tutorial-header {
+  flex-shrink: 0;
+}
+
+.ski-stepper-bar {
+  flex-shrink: 0;
+}
+
 .ski-tutorial-body {
-  padding: 16px 24px;
-  flex: 1;
+  padding: 14px 22px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
-  min-height: 310px;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   align-items: center;
 }
@@ -7455,14 +7528,15 @@ html, body {
 
 /* Pie del Modal */
 .ski-tutorial-footer {
-  padding: 12px 24px 16px;
+  padding: 10px 20px calc(env(safe-area-inset-bottom, 0px) + 8px);
   border-top: 1px solid rgba(255, 215, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(6, 14, 28, 0.75);
-  flex-wrap: wrap;
-  gap: 12px;
+  background: rgba(6, 14, 28, 0.88);
+  flex-shrink: 0;
+  gap: 10px;
+  box-sizing: border-box;
 }
 
 /* Checkbox no volver a mostrar */
@@ -10906,4 +10980,355 @@ html, body {
 /* Ocultar permanentemente la opción de no volver a mostrar tutorial */
 .ski-remember-box, .ski-checkbox-container {
   display: none !important;
+}
+
+
+/* ==============================================================================
+   PROMPT FLOTANTE PARA MODO HORIZONTAL / LANDSCAPE EN DISPOSITIVOS MÓVILES
+   ============================================================================== */
+.landscape-prompt-banner {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(14, 38, 70, 0.95) 0%, rgba(6, 17, 34, 0.98) 100%);
+  border: 1.5px solid #FFD700;
+  border-radius: 24px;
+  padding: 8px 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), 0 0 15px rgba(255, 215, 0, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: promptSlideIn 0.35s ease-out;
+  max-width: 94vw;
+  pointer-events: auto;
+}
+
+@keyframes promptSlideIn {
+  from { opacity: 0; transform: translate(-50%, -20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.prompt-icon-spin {
+  font-size: 1.4rem;
+  animation: phoneRotateAnim 2.4s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+}
+
+@keyframes phoneRotateAnim {
+  0%, 20% { transform: rotate(0deg); }
+  45%, 75% { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.prompt-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.prompt-text strong {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  color: #FFD700;
+  font-weight: 800;
+}
+
+.prompt-text span {
+  font-family: var(--font-main);
+  font-size: 0.7rem;
+  color: #E2E8F0;
+}
+
+.btn-prompt-rotate {
+  background: linear-gradient(135deg, #00E676 0%, #00B0FF 100%);
+  border: 1px solid #FFFFFF;
+  border-radius: 14px;
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 5px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 230, 118, 0.4);
+  transition: transform 0.15s ease;
+}
+
+.btn-prompt-rotate:active {
+  transform: scale(0.92);
+}
+
+.btn-prompt-close {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+}
+
+/* ==============================================================================
+   RESPONSIVIDAD AVANZADA PARA TUTORIALES Y MODALES EN MÓVILES (PORTRAIT Y LANDSCAPE)
+   ============================================================================== */
+@media (max-width: 768px) {
+  .ski-tutorial-card {
+    max-height: min(96vh, 96dvh);
+    max-height: calc(100dvh - 8px);
+    width: min(96vw, 560px);
+    border-radius: 18px;
+  }
+  .ski-tutorial-header {
+    padding: 8px 14px 6px;
+    gap: 10px;
+  }
+  .ski-emblem-box {
+    width: 38px;
+    height: 38px;
+  }
+  .ski-header-title {
+    font-size: 1.1rem;
+  }
+  .ski-stepper-bar {
+    padding: 4px 10px;
+    gap: 4px;
+  }
+  .ski-tutorial-body {
+    padding: 8px 14px;
+  }
+  .ski-step-view {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .ski-visual-column {
+    height: clamp(100px, 18vh, 150px);
+  }
+  .ski-info-title {
+    font-size: 1.05rem;
+  }
+  .ski-info-story {
+    font-size: 0.8rem;
+    line-height: 1.25;
+  }
+  .ski-tutorial-footer {
+    padding: 8px 12px calc(env(safe-area-inset-bottom, 0px) + 6px);
+    gap: 8px;
+  }
+  .ski-nav-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-ski-nav {
+    padding: 7px 12px;
+    font-size: 0.78rem;
+  }
+  .btn-ski-action-play {
+    padding: 7px 14px;
+    font-size: 0.85rem;
+  }
+  .countdown-number {
+    font-size: clamp(2.6rem, 11vw, 4.8rem);
+  }
+  .countdown-number.countdown-word {
+    font-size: clamp(1.6rem, 7.5vw, 2.7rem);
+    letter-spacing: 0.5px;
+  }
+}
+
+@media (max-height: 540px) {
+  .ski-tutorial-card {
+    max-height: calc(100dvh - 6px);
+    max-height: calc(100vh - 6px);
+    width: min(98vw, 780px);
+    border-radius: 16px;
+  }
+  .ski-tutorial-header {
+    padding: 4px 12px;
+    gap: 8px;
+  }
+  .ski-emblem-box {
+    width: 30px;
+    height: 30px;
+  }
+  .ski-header-title {
+    font-size: 0.95rem;
+  }
+  .ski-stepper-bar {
+    padding: 2px 8px;
+    gap: 4px;
+  }
+  .ski-step-pill {
+    padding: 2px 6px;
+    font-size: 0.68rem;
+  }
+  .ski-tutorial-body {
+    padding: 6px 12px;
+  }
+  .ski-step-view {
+    grid-template-columns: 1fr 1.2fr;
+    gap: 10px;
+  }
+  .ski-visual-column {
+    height: clamp(80px, 32vh, 135px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  .stage-story-badge {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    margin: 4px auto 0 !important;
+    padding: 2px 8px !important;
+    font-size: 0.62rem !important;
+    border-width: 1px !important;
+    z-index: 5 !important;
+  }
+  .santa-hero-story,
+  .toy-bag-hero-img {
+    width: auto !important;
+    height: auto !important;
+    max-height: clamp(45px, 14vh, 60px) !important;
+    max-width: 75px !important;
+    object-fit: contain !important;
+  }
+  .toy-story-scene {
+    height: auto !important;
+    min-height: 0 !important;
+    gap: 6px !important;
+  }
+  .toy-bag-hero-wrapper {
+    margin-top: 0 !important;
+  }
+  .gift-fall {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  .ski-stage {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 4px !important;
+    overflow: hidden !important;
+  }
+  .stage-mountain-peak {
+    padding-bottom: 2px !important;
+  }
+  .controls-overlay-cues {
+    padding: 2px 6px !important;
+    gap: 4px !important;
+  }
+  .touch-cue-box, .keys-cue-box {
+    padding: 2px 6px !important;
+  }
+  .cue-label {
+    font-size: 0.58rem !important;
+  }
+  .cue-hint {
+    font-size: 0.55rem !important;
+  }
+  .toy-points-grid {
+    gap: 4px !important;
+    padding: 2px !important;
+  }
+  .toy-point-card {
+    padding: 2px !important;
+  }
+  .point-single-star img,
+  .star-pulse-img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 32px !important;
+  }
+  .point-badge-tag {
+    font-size: 0.52rem !important;
+    padding: 1px 4px !important;
+  }
+  .point-label {
+    font-size: 0.58rem !important;
+  }
+  .slalom-demo-card {
+    padding: 2px 5px !important;
+  }
+  .demo-gate-img, .demo-ramp-img {
+    max-height: 34px !important;
+  }
+  .demo-santa-gate, .demo-santa-jump {
+    max-height: 30px !important;
+  }
+  .demo-card-header {
+    font-size: 0.55rem !important;
+  }
+  .hazard-split {
+    padding: 2px !important;
+  }
+  .hazard-props-row img {
+    max-height: 24px !important;
+    width: auto !important;
+  }
+  .demo-santa-crash, .demo-star-power {
+    max-height: 30px !important;
+    width: auto !important;
+  }
+  .split-title-bar {
+    font-size: 0.55rem !important;
+    padding: 1px 5px !important;
+  }
+  .turbo-tip-text {
+    font-size: 0.54rem !important;
+    line-height: 1.15 !important;
+  }
+  .ski-info-column {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    min-height: 0 !important;
+  }
+  .ski-info-badge {
+    padding: 1px 6px !important;
+    font-size: 0.6rem !important;
+  }
+  .ski-info-title {
+    font-size: 0.85rem !important;
+    margin-bottom: 2px !important;
+  }
+  .ski-info-story {
+    font-size: 0.7rem !important;
+    line-height: 1.18 !important;
+  }
+  .ski-protip-box {
+    padding: 2px 6px !important;
+    margin-top: 2px !important;
+    font-size: 0.62rem !important;
+  }
+  .ski-tutorial-footer {
+    padding: 4px 12px calc(env(safe-area-inset-bottom, 0px) + 4px);
+    gap: 6px;
+  }
+  .btn-ski-nav {
+    padding: 4px 10px;
+    font-size: 0.72rem;
+  }
+  .btn-ski-action-play {
+    padding: 5px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Ocultar carrusel inferior publicitario durante partida activa en pantallas de poca altura para máxima área de juego */
+@media (max-height: 500px) {
+  body.game-active .kiosk-footer-carousel {
+    display: none !important;
+  }
 }

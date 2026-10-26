@@ -46,6 +46,9 @@ export class KioskHeader {
         <button id="btn-audio" class="kiosk-btn" title="Sonido">
           <span id="audio-icon">${getIconSvg(isMuted ? "volumeOff" : "volumeOn", { size: 22 })}</span>
         </button>
+        <button id="btn-rotate" class="kiosk-btn btn-rotate-kiosk" title="Girar Pantalla (Horizontal)">
+          <span style="font-size: 1.15rem; line-height: 1;">🔄</span>
+        </button>
         <button id="btn-fullscreen" class="kiosk-btn" title="Pantalla Completa">
           <span>${getIconSvg("sparkles", { size: 20 })}</span>
         </button>
@@ -56,6 +59,14 @@ export class KioskHeader {
   private setupEvents(): void {
     const btnHome = this.container.querySelector("#btn-home");
     const btnAudio = this.container.querySelector("#btn-audio");
+    const btnRotate = this.container.querySelector("#btn-rotate");
+    btnRotate?.addEventListener("click", () => {
+      this.audio.playTap();
+      if ((window as any).kioskApp?.tryLockLandscape) {
+        (window as any).kioskApp.tryLockLandscape();
+      }
+    });
+
     const btnFullscreen = this.container.querySelector("#btn-fullscreen");
     const audioIcon = this.container.querySelector("#audio-icon");
 
