@@ -3230,8 +3230,8 @@ html, body {
   }
 
   .kiosk-footer-carousel {
-    height: clamp(72px, 9.5vh, 86px);
-    min-height: 72px;
+    height: clamp(92px, 12.5vh, 108px);
+    min-height: 92px;
     border-top-width: 2.5px;
   }
 
@@ -3240,52 +3240,81 @@ html, body {
   }
 
   .kiosk-swiper .kiosk-swiper-pagination {
-    bottom: 2px !important;
-    padding: 1px 6px;
-    gap: 4px;
+    bottom: 3px !important;
+    padding: 1px 8px;
+    gap: 5px;
   }
 
   .banner-hero-container,
   .banner-event-container {
-    gap: clamp(8px, 1.2vw, 16px);
-    padding: 3px clamp(12px, 2vw, 28px);
+    gap: clamp(10px, 1.6vw, 24px);
+    padding: 4px clamp(14px, 2.5vw, 36px) 10px clamp(14px, 2.5vw, 36px);
     height: 100%;
     box-sizing: border-box;
     display: flex;
     align-items: center;
   }
 
+  .banner-text-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 4px;
+    min-width: 0;
+  }
+
+  .banner-kicker,
+  .event-kicker {
+    margin-bottom: 2px;
+  }
+
+  .kicker-pill {
+    padding: 2px 8px;
+    font-size: 0.72rem;
+  }
+
   .banner-logo-card {
-    height: clamp(48px, 6.2vh, 60px);
-    width: clamp(96px, 13vw, 135px);
-    padding: 3px 6px;
-    border-radius: 10px;
+    height: clamp(56px, 7.5vh, 72px);
+    width: clamp(110px, 14vw, 155px);
+    padding: 4px 8px;
+    border-radius: 12px;
   }
 
   .banner-logo-card.fit-compact {
-    width: clamp(68px, 9vw, 92px);
+    width: clamp(75px, 10vw, 105px);
   }
 
   .event-logo-emblem {
-    height: clamp(46px, 6vh, 58px);
-    width: clamp(55px, 7.5vw, 75px);
+    height: clamp(52px, 7vh, 68px);
+    width: clamp(65px, 8.5vw, 88px);
   }
 
   .banner-headline {
-    font-size: clamp(0.85rem, 1.25vw, 1.15rem);
-    line-height: 1.16;
+    font-size: clamp(0.92rem, 1.35vw, 1.25rem);
+    line-height: 1.15;
     margin: 1px 0;
   }
 
   .banner-subline {
-    font-size: clamp(0.68rem, 0.95vw, 0.82rem);
-    line-height: 1.16;
+    font-size: clamp(0.72rem, 1vw, 0.86rem);
+    line-height: 1.18;
+  }
+
+  .banner-highlights-row {
+    margin-top: 3px;
+    gap: 6px;
+  }
+
+  .banner-highlight-chip {
+    padding: 1.5px 7px;
+    font-size: 0.7rem;
   }
 
   .banner-badge-pill {
-    padding: 3px 10px;
-    font-size: clamp(0.68rem, 0.9vw, 0.82rem);
-    border-bottom-width: 2px;
+    padding: 4px 12px;
+    font-size: clamp(0.72rem, 0.95vw, 0.88rem);
+    border-bottom-width: 2.5px;
   }
 
   .event-pill {
