@@ -3149,32 +3149,38 @@ html, body {
    ========================================================================== */
 @media (max-height: 540px) {
   .kiosk-header {
-    height: 48px;
-    min-height: 48px;
-    padding: env(safe-area-inset-top, 0px) 10px 0 10px;
-    padding-left: max(10px, env(safe-area-inset-left, 0px));
-    padding-right: max(10px, env(safe-area-inset-right, 0px));
+    height: 36px;
+    min-height: 36px;
+    padding: 0 8px;
+    padding-left: max(8px, env(safe-area-inset-left, 0px));
+    padding-right: max(8px, env(safe-area-inset-right, 0px));
   }
 
   .header-logo {
-    height: 34px;
-    max-height: 34px;
-    max-width: 140px;
+    height: 24px;
+    max-height: 24px;
+    max-width: 110px;
     transform: none;
   }
 
   .kiosk-btn {
-    min-height: 34px;
-    min-width: 34px;
-    padding: 4px 10px;
-    font-size: 0.82rem;
-    border-radius: 8px;
-    gap: 4px;
+    min-height: 26px;
+    min-width: 26px;
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    border-radius: 6px;
+    gap: 3px;
+  }
+
+  .kiosk-btn svg {
+    width: 14px !important;
+    height: 14px !important;
   }
 
   .kiosk-footer-carousel {
-    height: 48px;
-    min-height: 48px;
+    height: 34px;
+    min-height: 34px;
+    border-top-width: 2px;
   }
 
   .kiosk-swiper .swiper-slide.banner-slide {
@@ -3442,48 +3448,64 @@ html, body {
    ========================================================================== */
 @media (max-height: 420px) {
   .kiosk-header {
-    height: 42px;
-    min-height: 42px;
+    height: 30px;
+    min-height: 30px;
+    padding: 0 6px;
+    padding-left: max(6px, env(safe-area-inset-left, 0px));
+    padding-right: max(6px, env(safe-area-inset-right, 0px));
   }
 
   .header-logo {
-    height: 28px;
-    max-height: 28px;
-    max-width: 120px;
+    height: 19px;
+    max-height: 19px;
+    max-width: 90px;
   }
 
   .kiosk-btn {
-    min-height: 30px;
-    min-width: 30px;
-    padding: 3px 8px;
-    font-size: 0.75rem;
+    min-height: 22px;
+    min-width: 22px;
+    padding: 1px 5px;
+    font-size: 0.65rem;
+    border-radius: 5px;
+    gap: 2px;
+  }
+
+  .kiosk-btn svg {
+    width: 12px !important;
+    height: 12px !important;
   }
 
   .kiosk-footer-carousel {
-    height: 40px;
-    min-height: 40px;
+    height: 26px;
+    min-height: 26px;
+    border-top-width: 1.5px;
+  }
+
+  .banner-hero-container,
+  .banner-event-container {
+    gap: 5px;
+    padding: 1px 6px;
   }
 
   .banner-logo-card {
-    height: 32px;
-    width: 68px;
-    padding: 1px 3px;
-    border-radius: 6px;
+    height: 20px;
+    width: 44px;
+    padding: 1px 2px;
+    border-radius: 4px;
   }
 
   .event-logo-emblem {
-    height: 32px;
-    width: 46px;
+    height: 20px;
+    width: 32px;
   }
 
   .banner-headline {
-    font-size: 0.72rem;
-    line-height: 1.05;
+    font-size: 0.62rem;
+    line-height: 1;
   }
 
   .banner-subline {
-    font-size: 0.6rem;
-    line-height: 1.05;
+    display: none;
   }
 
   .banner-badge-wrapper {

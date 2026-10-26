@@ -68,9 +68,12 @@ export class GameHUD {
 
     const isNarrow = state.width < 520;
     const isShort = state.height < 500;
-    const hudH = Math.round(isShort
-      ? Math.max(40, Math.min(52, state.height * 0.11))
-      : Math.max(48, Math.min(62, state.height * 0.080)));
+    const isUltraShort = state.height < 420;
+    const hudH = Math.round(isUltraShort
+      ? 26
+      : (isShort
+        ? Math.max(28, Math.min(36, state.height * 0.085))
+        : Math.max(48, Math.min(62, state.height * 0.080))));
 
     // 1. BARRA BASE SUPERIOR: Totalmente opaca (#0A1422) para que ningún elemento inferior traspase
     const hudGrad = ctx.createLinearGradient(0, 0, 0, hudH);
@@ -86,22 +89,26 @@ export class GameHUD {
     ctx.fillStyle = "#F1C40F";
     ctx.fillRect(0, hudH - 1.5, state.width, 1.5);
 
-    const fontMain = Math.round(isShort
-      ? (isNarrow ? Math.max(11, state.width * 0.033) : Math.max(13, Math.min(18, state.height * 0.045)))
-      : (isNarrow ? Math.max(12, state.width * 0.034) : Math.max(14, Math.min(20, state.width * 0.030))));
-    const fontSub = Math.round(isShort
-      ? (isNarrow ? Math.max(8.5, state.width * 0.024) : Math.max(9.5, Math.min(13, state.height * 0.034)))
-      : (isNarrow ? Math.max(9, state.width * 0.025) : Math.max(10, Math.min(13, state.width * 0.024))));
+    const fontMain = Math.round(isUltraShort
+      ? 11
+      : (isShort
+        ? (isNarrow ? Math.max(10, state.width * 0.028) : Math.max(11, Math.min(14, state.height * 0.038)))
+        : (isNarrow ? Math.max(12, state.width * 0.034) : Math.max(14, Math.min(20, state.width * 0.030)))));
+    const fontSub = Math.round(isUltraShort
+      ? 8
+      : (isShort
+        ? (isNarrow ? Math.max(7.5, state.width * 0.020) : Math.max(8, Math.min(11, state.height * 0.028)))
+        : (isNarrow ? Math.max(9, state.width * 0.025) : Math.max(10, Math.min(13, state.width * 0.024)))));
 
     const paddingX = Math.round(Math.max(6, state.width * 0.02));
-    const plaqueH = Math.round(isShort ? 28 : 34);
+    const plaqueH = Math.round(isUltraShort ? 20 : (isShort ? 24 : 34));
     const plaqueY = Math.round((hudH - plaqueH) / 2);
 
     // 2. PLACA DE PUNTUACIÓN (Izquierda - Estilo Medallón Arcade)
     const scoreStr = `${state.score}`;
     ctx.font = `900 ${fontMain}px 'Titan One', 'Fredoka', cursive, sans-serif`;
     const scoreTextW = ctx.measureText(scoreStr).width;
-    const starRadius = Math.round(Math.min(plaqueH * 0.34, 12));
+    const starRadius = Math.round(isUltraShort ? 7 : Math.min(plaqueH * 0.34, 12));
     const scorePlaqueW = Math.round(scoreTextW + starRadius * 2 + (isNarrow ? 16 : 24));
     const scorePlaqueX = paddingX;
 
@@ -151,15 +158,15 @@ export class GameHUD {
     const recordTextW = ctx.measureText(recordLabel).width;
     const recordPlaqueW = Math.round(recordTextW + (isNarrow ? 12 : 16));
 
-    const clockIconR = Math.round(Math.min(plaqueH * 0.28, 10));
+    const clockIconR = Math.round(isUltraShort ? 6 : Math.min(plaqueH * 0.28, 10));
     ctx.font = `900 ${fontMain * 0.95}px 'Titan One', 'Fredoka', cursive, sans-serif`;
     const timeTextW = ctx.measureText(timeFormatted).width;
     const clockPlaqueW = Math.round(timeTextW + clockIconR * 2 + (isNarrow ? 14 : 18));
 
     // 3. CENTRO: VIDAS (o Cronómetro si no hay vidas)
     if (state.showLives) {
-      const iconSize = Math.round(Math.max(8, Math.min(13, plaqueH * 0.36)));
-      const iconGap = Math.round(iconSize * 2.0);
+      const iconSize = Math.round(isUltraShort ? 8 : (isShort ? 10 : Math.max(8, Math.min(13, plaqueH * 0.36))));
+      const iconGap = Math.round(iconSize * 1.8);
       const totalIconsW = state.maxLives * iconGap;
       const centerTrayW = Math.round(totalIconsW + 12);
 

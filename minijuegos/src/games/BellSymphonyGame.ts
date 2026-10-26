@@ -332,7 +332,7 @@ export class BellSymphonyGame extends BaseGame {
     this.laneStartX = (this.width - totalTrackWidth) / 2;
     // Línea de impacto adaptativa: no muy pegada al fondo en pantallas cortas
     this.hitLineY = this.height < 500
-      ? Math.max(this.height * 0.76, this.height - 75)
+      ? Math.max(this.height * 0.72, this.height - 54)
       : this.height * 0.80;
   }
 
@@ -1887,20 +1887,24 @@ export class BellSymphonyGame extends BaseGame {
     // Badge de Rango en Vivo (Live Grade Rank)
     const rankInfo = this.calculateRank();
     const totalTrackW = this.laneWidth * 4;
-    const rankBadgeX = Math.min(this.laneStartX + totalTrackW - 35, this.width - 55);
-    const rankBadgeY = 72;
+    const isShortTrack = this.height < 500;
+    const rankBadgeX = Math.min(this.laneStartX + totalTrackW - (isShortTrack ? 24 : 35), this.width - 45);
+    const hudTopH = isShortTrack ? 28 : 50;
+    const rankBadgeY = isShortTrack ? (hudTopH + 12) : 72;
+    const badgeW = isShortTrack ? 40 : 56;
+    const badgeH = isShortTrack ? 24 : 36;
     
     ctx.save();
     ctx.translate(rankBadgeX, rankBadgeY);
     ctx.fillStyle = "rgba(4, 16, 32, 0.88)";
     ctx.strokeStyle = rankInfo.color;
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = isShortTrack ? 1.8 : 2.5;
     ctx.beginPath();
-    ctx.roundRect(-28, -18, 56, 36, 8);
+    ctx.roundRect(-badgeW / 2, -badgeH / 2, badgeW, badgeH, 6);
     ctx.fill();
     ctx.stroke();
 
-    ctx.font = "900 19px 'Outfit', sans-serif";
+    ctx.font = `900 ${isShortTrack ? 13 : 19}px 'Outfit', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = rankInfo.color;
@@ -1943,14 +1947,21 @@ export class BellSymphonyGame extends BaseGame {
     ctx.save();
     ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
 
-    const hudH = Math.max(44, Math.min(68, this.height * 0.075));
-    const cardX = 30 + slideOffsetX;
-    const cardY = hudH + 26;
+    const isShort = this.height < 500;
+    const hudH = isShort ? 28 : Math.max(44, Math.min(68, this.height * 0.075));
+    const cardX = (isShort ? 14 : 30) + slideOffsetX;
+    const cardY = hudH + (isShort ? 4 : 26);
 
-    // Rótulo de Estilo Guitar Hero / Rock Navideño
-    const titleFont = Math.max(16, Math.min(26, this.width * 0.046));
-    const authorFont = Math.max(12, Math.min(17, this.width * 0.032));
-    const creditFont = Math.max(9.5, Math.min(12.5, this.width * 0.024));
+    // Rótulo de Estilo Guitar Hero / Rock Navideño compacto en pantallas cortas
+    const titleFont = isShort
+      ? Math.max(11, Math.min(14, this.height * 0.044))
+      : Math.max(16, Math.min(26, this.width * 0.046));
+    const authorFont = isShort
+      ? Math.max(8.5, Math.min(10.5, this.height * 0.030))
+      : Math.max(12, Math.min(17, this.width * 0.032));
+    const creditFont = isShort
+      ? Math.max(7, Math.min(8.5, this.height * 0.022))
+      : Math.max(9.5, Math.min(12.5, this.width * 0.024));
 
     // 1. TÍTULO DE LA CANCIÓN
     ctx.font = `900 ${titleFont}px 'Cinzel Decorative', 'Outfit', sans-serif`;

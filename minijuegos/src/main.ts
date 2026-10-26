@@ -283,7 +283,9 @@ class KioskApp {
   public handleResize(): void {
     const container = this.canvas.parentElement;
     const width = container && container.clientWidth > 0 ? container.clientWidth : window.innerWidth;
-    const height = container && container.clientHeight > 0 ? container.clientHeight : (window.innerHeight - 130);
+    const height = container && container.clientHeight > 0
+      ? container.clientHeight
+      : (window.innerHeight > window.innerWidth ? window.innerHeight - 130 : window.innerHeight - 60);
 
     if (width > 0 && height > 0) {
       // Buffer físico = lógico × DPR (máx. 2). Los juegos y los toques usan coordenadas lógicas.

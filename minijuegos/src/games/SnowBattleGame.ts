@@ -2370,10 +2370,11 @@ export class SnowBattleGame extends BaseGame {
     const currentProgress = Math.min(range, Math.max(0, this.enemiesDefeatedCount - prevThreshold));
     const pct = Math.min(1.0, currentProgress / range);
 
+    const isShortPhase = h < 500;
     const barW = Math.min(380, w * 0.72);
-    const barH = 22;
+    const barH = isShortPhase ? 16 : 22;
     const barX = (w - barW) / 2;
-    const barY = 96;
+    const barY = isShortPhase ? 32 : 96;
 
     ctx.save();
     // Marco exterior con relieve y sombra
@@ -2422,10 +2423,12 @@ export class SnowBattleGame extends BaseGame {
       ctx.font = `900 ${Math.round(28 * scale)}px sans-serif`;
       ctx.lineWidth = 5;
       ctx.strokeStyle = "rgba(0,0,0,0.45)";
+      const isShortCombo = h < 500;
+      const comboY = isShortCombo ? 62 : 150;
       const label = `COMBO ${this.combo}  ·  x${this.comboMultiplier}`;
-      ctx.strokeText(label, w / 2, 150);
+      ctx.strokeText(label, w / 2, comboY);
       ctx.fillStyle = "#FFD700";
-      ctx.fillText(label, w / 2, 150);
+      ctx.fillText(label, w / 2, comboY);
     }
 
     // Power-ups activos
