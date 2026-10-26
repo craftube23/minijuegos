@@ -125,6 +125,7 @@ interface BladePoint {
   x: number;
   y: number;
   age: number;
+  pointerId?: number;
 }
 
 interface DroppedCross {
@@ -187,10 +188,8 @@ export class OrnamentPopGame extends BaseGame {
   private banners: FloatingBanner[] = [];
   private nextTargetId = 1;
 
-  // Hoja de espada táctil
-  private isSwiping = false;
-  private lastPointerX = 0;
-  private lastPointerY = 0;
+  // Hoja de espada táctil (multitouch seguro)
+  private activePointers = new Map<number, { lastX: number; lastY: number }>();
   private bladePoints: BladePoint[] = [];
 
   // Sistema de Combo por Tajo
@@ -286,8 +285,8 @@ export class OrnamentPopGame extends BaseGame {
     this.droppedCrosses = [];
     this.banners = [];
     this.bladePoints = [];
+    this.activePointers.clear();
 
-    this.isSwiping = false;
     this.swipeSliceCount = 0;
     this.swipeComboWindow = 0;
     this.totalSlicedCount = 0;
@@ -303,42 +302,47 @@ export class OrnamentPopGame extends BaseGame {
     this.spawnTimer = 0.45;
     this.animClock = 0;
 
-    this.input.onPointerDown = (_id: number, x: number, y: number) => {
+    this.input.onPointerDown = (id: number, x: number, y: number) => {
       if (!this.isRunning || this.isGameOver) return;
       if (this.pointInRect(x, y, this.helpBtnRect)) {
         this.audio.playTap();
         this.onOpenTutorial?.();
         return;
       }
-      this.isSwiping = true;
-      this.lastPointerX = x;
-      this.lastPointerY = y;
-      this.bladePoints = [{ x, y, age: 0 }];
+      this.activePointers.set(id, { lastX: x, lastY: y });
+      this.bladePoints.push({ x, y, age: 0, pointerId: id });
       this.checkSegmentCuts(x - 8, y - 8, x + 8, y + 8);
     };
 
-    this.input.onPointerMove = (_id: number, x: number, y: number) => {
+    this.input.onPointerMove = (id: number, x: number, y: number) => {
       if (!this.isRunning || this.isGameOver) return;
-      if (!this.isSwiping) {
-        this.lastPointerX = x;
-        this.lastPointerY = y;
+      let ptr = this.activePointers.get(id);
+      if (!ptr) {
+        this.activePointers.set(id, { lastX: x, lastY: y });
         return;
       }
-      const dist = Math.hypot(x - this.lastPointerX, y - this.lastPointerY);
-      if (dist >= 4) {
-        this.checkSegmentCuts(this.lastPointerX, this.lastPointerY, x, y);
-        this.lastPointerX = x;
-        this.lastPointerY = y;
-        this.bladePoints.push({ x, y, age: 0 });
-        if (this.bladePoints.length > 16) {
+      const dist = Math.hypot(x - ptr.lastX, y - ptr.lastY);
+      // Prevenir bug láser multitáctil: solo cortar dentro del rango de swipe continuo (4px a 130px)
+      if (dist >= 4 && dist <= 130) {
+        this.checkSegmentCuts(ptr.lastX, ptr.lastY, x, y);
+        ptr.lastX = x;
+        ptr.lastY = y;
+        this.bladePoints.push({ x, y, age: 0, pointerId: id });
+        if (this.bladePoints.length > 32) {
           this.bladePoints.shift();
         }
+      } else if (dist > 130) {
+        // Salto brusco / multitouch cross-read: reposicionar sin cortar toda la pantalla
+        ptr.lastX = x;
+        ptr.lastY = y;
       }
     };
 
-    this.input.onPointerUp = () => {
-      this.isSwiping = false;
-      this.flushSwipeCombo();
+    this.input.onPointerUp = (id: number) => {
+      this.activePointers.delete(id);
+      if (this.activePointers.size === 0) {
+        this.flushSwipeCombo();
+      }
     };
 
     this.addBanner(
@@ -1168,17 +1172,18 @@ export class OrnamentPopGame extends BaseGame {
     if (this.sponsors.length === 0) return;
     const sponsor = this.sponsors[this.billboardSponsorIdx % this.sponsors.length];
     const w = this.width;
-    const boardW = Math.min(340, w * 0.36);
-    const boardH = 68;
-    const boardX = (w - boardW) * 0.5;
-    const boardY = 128;
+    const isShort = this.height < 500;
+    const boardW = isShort ? Math.min(220, w * 0.3) : Math.min(340, w * 0.36);
+    const boardH = isShort ? 32 : 68;
+    const boardX = isShort ? 14 : (w - boardW) * 0.5;
+    const boardY = isShort ? this.height - boardH - 8 : 128;
 
     ctx.save();
 
     // Resplandor cuando se activa un patrocinador o combo
     if (this.billboardGlowTimer > 0 || this.isLogoPowerUpActive) {
       ctx.shadowColor = sponsor.themeColor;
-      ctx.shadowBlur = 22;
+      ctx.shadowBlur = isShort ? 12 : 22;
     }
 
     // Marco de madera noble y bronce del Dojo
@@ -1187,25 +1192,25 @@ export class OrnamentPopGame extends BaseGame {
     bgGrad.addColorStop(1, "rgba(16, 8, 5, 0.95)");
     ctx.fillStyle = bgGrad;
     ctx.strokeStyle = this.isLogoPowerUpActive ? "#00E676" : "#FFD700";
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = isShort ? 1.5 : 2.5;
     ctx.beginPath();
-    ctx.roundRect(boardX, boardY, boardW, boardH, 16);
+    ctx.roundRect(boardX, boardY, boardW, boardH, isShort ? 10 : 16);
     ctx.fill();
     ctx.stroke();
     ctx.shadowBlur = 0;
 
     // Medallón claro a la izquierda para máxima legibilidad del logo
-    const logoBoxW = 92;
-    const logoBoxH = boardH - 12;
-    const logoBoxX = boardX + 8;
-    const logoBoxY = boardY + 6;
+    const logoBoxW = isShort ? 44 : 92;
+    const logoBoxH = boardH - (isShort ? 6 : 12);
+    const logoBoxX = boardX + (isShort ? 4 : 8);
+    const logoBoxY = boardY + (isShort ? 3 : 6);
     ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
     ctx.beginPath();
-    ctx.roundRect(logoBoxX, logoBoxY, logoBoxW, logoBoxH, 11);
+    ctx.roundRect(logoBoxX, logoBoxY, logoBoxW, logoBoxH, isShort ? 6 : 11);
     ctx.fill();
 
     if (sponsor.logo.complete && sponsor.logo.naturalWidth > 0) {
-      const pad = 6;
+      const pad = isShort ? 2 : 6;
       const maxW = logoBoxW - pad * 2;
       const maxH = logoBoxH - pad * 2;
       const scale = Math.min(maxW / sponsor.logo.naturalWidth, maxH / sponsor.logo.naturalHeight);
@@ -1221,27 +1226,37 @@ export class OrnamentPopGame extends BaseGame {
     }
 
     // Textos del patrocinador a la derecha
-    const textX = logoBoxX + logoBoxW + 12;
-    const maxTextW = boardW - logoBoxW - 28;
+    const textX = logoBoxX + logoBoxW + (isShort ? 6 : 12);
+    const maxTextW = boardW - logoBoxW - (isShort ? 14 : 28);
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
 
-    ctx.fillStyle = "#FFD700";
-    ctx.font = "900 10px 'Nunito', sans-serif";
-    ctx.fillText(
-      this.isLogoPowerUpActive ? "¡PODER PATROCINADOR x2 ACTIVO!" : "PATROCINADOR DEL DOJO",
-      textX,
-      boardY + 18,
-      maxTextW
-    );
+    if (isShort) {
+      ctx.fillStyle = "#FFD700";
+      ctx.font = "900 9px 'Nunito', sans-serif";
+      ctx.fillText(this.isLogoPowerUpActive ? "¡PODER x2!" : "PATROCINADOR", textX, boardY + 10, maxTextW);
 
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "900 15px 'Nunito', sans-serif";
-    ctx.fillText(sponsor.name.toUpperCase(), textX, boardY + 36, maxTextW);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "900 11px 'Nunito', sans-serif";
+      ctx.fillText(sponsor.name.toUpperCase(), textX, boardY + 22, maxTextW);
+    } else {
+      ctx.fillStyle = "#FFD700";
+      ctx.font = "900 10px 'Nunito', sans-serif";
+      ctx.fillText(
+        this.isLogoPowerUpActive ? "¡PODER PATROCINADOR x2 ACTIVO!" : "PATROCINADOR DEL DOJO",
+        textX,
+        boardY + 18,
+        maxTextW
+      );
 
-    ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
-    ctx.font = "700 11px 'Nunito', sans-serif";
-    ctx.fillText(sponsor.tagline, textX, boardY + 53, maxTextW);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "900 15px 'Nunito', sans-serif";
+      ctx.fillText(sponsor.name.toUpperCase(), textX, boardY + 36, maxTextW);
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
+      ctx.font = "700 11px 'Nunito', sans-serif";
+      ctx.fillText(sponsor.tagline, textX, boardY + 53, maxTextW);
+    }
 
     ctx.restore();
   }
@@ -1263,103 +1278,142 @@ export class OrnamentPopGame extends BaseGame {
   }
 
   private drawTopStatusBarAndTimerGauge(ctx: CanvasRenderingContext2D): void {
-    const barY = 82;
-    const barH = 38;
+    const isShort = this.height < 500;
+    const hudH = this.height < 420 ? 26 : (isShort ? 30 : 54);
+    const barY = isShort ? hudH + 4 : 82;
+    const barH = isShort ? 24 : 38;
     const secs = Math.max(0, Math.ceil(this.timeRemaining));
     const isLowTime = this.timeRemaining <= 10;
 
     ctx.save();
 
     // 1. Placa Izquierda: Cortes y Oleada
-    const leftW = 215;
-    const leftX = 18;
+    const leftW = isShort ? 165 : 215;
+    const leftX = 14;
     ctx.fillStyle = "rgba(20, 12, 8, 0.88)";
     ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.roundRect(leftX, barY, leftW, barH, 19);
+    ctx.roundRect(leftX, barY, leftW, barH, barH * 0.5);
     ctx.fill();
     ctx.stroke();
 
     ctx.fillStyle = "#FFD700";
-    ctx.font = "900 13px 'Nunito', sans-serif";
+    ctx.font = isShort ? "900 11px 'Nunito', sans-serif" : "900 13px 'Nunito', sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.fillText(`CORTES: ${this.totalSlicedCount} • OLEADA ${this.waveNumber}`, leftX + 16, barY + barH * 0.5);
+    ctx.fillText(`CORTES: ${this.totalSlicedCount} • OLEADA ${this.waveNumber}`, leftX + 12, barY + barH * 0.5);
 
     // 2. Placa Central: Barra Visual de Tiempo + Indicador de Reloj Dorado (+5s)
-    const timerW = Math.min(350, this.width * 0.36);
-    const timerX = (this.width - timerW) * 0.5;
-    const pulse = isLowTime ? 1 + Math.sin(this.animClock * 16) * 0.04 : 1;
+    if (!isShort) {
+      const timerW = Math.min(350, this.width * 0.36);
+      const timerX = (this.width - timerW) * 0.5;
+      const pulse = isLowTime ? 1 + Math.sin(this.animClock * 16) * 0.04 : 1;
 
-    ctx.save();
-    ctx.translate(timerX + timerW * 0.5, barY + barH * 0.5);
-    ctx.scale(pulse, pulse);
-    ctx.translate(-(timerX + timerW * 0.5), -(barY + barH * 0.5));
+      ctx.save();
+      ctx.translate(timerX + timerW * 0.5, barY + barH * 0.5);
+      ctx.scale(pulse, pulse);
+      ctx.translate(-(timerX + timerW * 0.5), -(barY + barH * 0.5));
 
-    ctx.fillStyle = isLowTime
-      ? "rgba(90, 10, 18, 0.94)"
-      : this.timeAddedFlash > 0
-      ? "rgba(8, 75, 48, 0.94)"
-      : "rgba(20, 12, 8, 0.9)";
-    ctx.strokeStyle = isLowTime ? "#FF1744" : this.timeAddedFlash > 0 ? "#00E676" : "#FFD700";
-    ctx.lineWidth = isLowTime || this.timeAddedFlash > 0 ? 3 : 2;
-    ctx.beginPath();
-    ctx.roundRect(timerX, barY, timerW, barH, 19);
-    ctx.fill();
-    ctx.stroke();
-
-    // Barra de progreso de tiempo interna
-    const fillRatio = Math.max(0, Math.min(1, this.timeRemaining / this.initialDuration));
-    const innerPad = 5;
-    const fillW = Math.max(0, (timerW - innerPad * 2) * fillRatio);
-    if (fillW > 0) {
-      const barGrad = ctx.createLinearGradient(timerX, barY, timerX + timerW, barY);
-      if (isLowTime) {
-        barGrad.addColorStop(0, "rgba(255, 23, 68, 0.55)");
-        barGrad.addColorStop(1, "rgba(255, 145, 0, 0.55)");
-      } else {
-        barGrad.addColorStop(0, "rgba(0, 230, 118, 0.42)");
-        barGrad.addColorStop(1, "rgba(0, 229, 255, 0.42)");
-      }
-      ctx.fillStyle = barGrad;
+      ctx.fillStyle = isLowTime
+        ? "rgba(90, 10, 18, 0.94)"
+        : this.timeAddedFlash > 0
+        ? "rgba(8, 75, 48, 0.94)"
+        : "rgba(20, 12, 8, 0.9)";
+      ctx.strokeStyle = isLowTime ? "#FF1744" : this.timeAddedFlash > 0 ? "#00E676" : "#FFD700";
+      ctx.lineWidth = isLowTime || this.timeAddedFlash > 0 ? 3 : 2;
       ctx.beginPath();
-      ctx.roundRect(timerX + innerPad, barY + innerPad, fillW, barH - innerPad * 2, 14);
+      ctx.roundRect(timerX, barY, timerW, barH, 19);
       ctx.fill();
-    }
+      ctx.stroke();
 
-    // Icono del Reloj Dorado a la izquierda de la barra
-    if (this.clockImg.complete && this.clockImg.naturalWidth > 0) {
-      ctx.drawImage(this.clockImg, timerX + 10, barY + 3, 32, 32);
-    }
+      // Barra de progreso de tiempo interna
+      const fillRatio = Math.max(0, Math.min(1, this.timeRemaining / this.initialDuration));
+      const innerPad = 5;
+      const fillW = Math.max(0, (timerW - innerPad * 2) * fillRatio);
+      if (fillW > 0) {
+        const barGrad = ctx.createLinearGradient(timerX, barY, timerX + timerW, barY);
+        if (isLowTime) {
+          barGrad.addColorStop(0, "rgba(255, 23, 68, 0.55)");
+          barGrad.addColorStop(1, "rgba(255, 145, 0, 0.55)");
+        } else {
+          barGrad.addColorStop(0, "rgba(0, 230, 118, 0.42)");
+          barGrad.addColorStop(1, "rgba(0, 229, 255, 0.42)");
+        }
+        ctx.fillStyle = barGrad;
+        ctx.beginPath();
+        ctx.roundRect(timerX + innerPad, barY + innerPad, fillW, barH - innerPad * 2, 14);
+        ctx.fill();
+      }
 
-    ctx.fillStyle = isLowTime ? "#FF8A80" : "#FFFFFF";
-    ctx.font = "900 14px 'Nunito', sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(
-      isLowTime
-        ? `¡TIEMPO: ${secs}s! ¡CORTA EL RELOJ +5s!`
-        : `TIEMPO: ${secs}s • RELOJ DORADO = +5s`,
-      timerX + timerW * 0.5 + 10,
-      barY + barH * 0.5
-    );
-    ctx.restore();
+      // Icono del Reloj Dorado a la izquierda de la barra
+      if (this.clockImg.complete && this.clockImg.naturalWidth > 0) {
+        ctx.drawImage(this.clockImg, timerX + 10, barY + 3, 32, 32);
+      }
+
+      ctx.fillStyle = isLowTime ? "#FF8A80" : "#FFFFFF";
+      ctx.font = "900 14px 'Nunito', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        isLowTime
+          ? `¡TIEMPO: ${secs}s! ¡CORTA EL RELOJ +5s!`
+          : `TIEMPO: ${secs}s • RELOJ DORADO = +5s`,
+        timerX + timerW * 0.5 + 10,
+        barY + barH * 0.5
+      );
+      ctx.restore();
+    } else {
+      // En modo apaisado compacto, mostrar una pequeña píldora sutil
+      const bonusW = 165;
+      const bonusX = (this.width - bonusW) * 0.5;
+      ctx.save();
+      ctx.fillStyle = isLowTime
+        ? "rgba(180, 20, 30, 0.92)"
+        : this.timeAddedFlash > 0
+        ? "rgba(0, 180, 80, 0.92)"
+        : "rgba(24, 14, 10, 0.85)";
+      ctx.strokeStyle = isLowTime ? "#FF1744" : this.timeAddedFlash > 0 ? "#00E676" : "#FFD700";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(bonusX, barY, bonusW, barH, barH * 0.5);
+      ctx.fill();
+      ctx.stroke();
+
+      if (this.clockImg.complete && this.clockImg.naturalWidth > 0) {
+        ctx.drawImage(this.clockImg, bonusX + 6, barY + 2, 20, 20);
+      }
+
+      ctx.fillStyle = isLowTime ? "#FFCDD2" : "#FFD700";
+      ctx.font = "900 10px 'Nunito', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(
+        isLowTime
+          ? `¡TIEMPO BAJO: ${secs}s!`
+          : this.timeAddedFlash > 0
+          ? "¡+5s TIEMPO EXTRA!"
+          : "RELOJ DORADO = +5s",
+        bonusX + bonusW * 0.5 + 8,
+        barY + barH * 0.5
+      );
+      ctx.restore();
+    }
 
     // 3. Botón Tutorial a la derecha
-    const helpW = 116;
-    const helpX = this.width - helpW - 18;
+    const helpW = isShort ? 88 : 116;
+    const helpX = this.width - helpW - 14;
     this.helpBtnRect = { x: helpX, y: barY, w: helpW, h: barH };
 
     ctx.fillStyle = "rgba(24, 14, 10, 0.88)";
     ctx.strokeStyle = "#00E5FF";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.roundRect(helpX, barY, helpW, barH, 19);
+    ctx.roundRect(helpX, barY, helpW, barH, barH * 0.5);
     ctx.fill();
     ctx.stroke();
 
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = "900 12px 'Nunito', sans-serif";
+    ctx.font = isShort ? "900 10px 'Nunito', sans-serif" : "900 12px 'Nunito', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("? TUTORIAL", helpX + helpW * 0.5, barY + barH * 0.5);
 
@@ -1711,6 +1765,11 @@ export class OrnamentPopGame extends BaseGame {
     for (let i = 1; i < this.bladePoints.length; i++) {
       const p0 = this.bladePoints[i - 1];
       const p1 = this.bladePoints[i];
+      // Evitar unir trazos de dedos distintos o distancias mayores a 130px
+      if (p0.pointerId !== p1.pointerId) continue;
+      const d = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+      if (d > 130) continue;
+
       const ratio = i / this.bladePoints.length;
       const alpha = Math.max(0, 1 - p1.age / 0.13) * ratio;
 

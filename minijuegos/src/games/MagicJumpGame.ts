@@ -400,9 +400,10 @@ export class MagicJumpGame extends BaseGame {
     this.playerH = Math.round(this.playerW * 1.21);
 
     // Botones táctiles inferiores para kiosco táctil y móviles
-    const btnW = Math.min(160, Math.max(108, Math.round(w * 0.25)));
-    const btnH = Math.max(48, Math.min(62, Math.round(h * 0.055)));
-    const btnY = Math.min(h - btnH - 12, h * 0.91);
+    const isShort = h < 500;
+    const btnW = isShort ? Math.min(110, Math.max(75, Math.round(w * 0.16))) : Math.min(160, Math.max(108, Math.round(w * 0.25)));
+    const btnH = isShort ? Math.max(32, Math.min(42, Math.round(h * 0.08))) : Math.max(48, Math.min(62, Math.round(h * 0.055)));
+    const btnY = Math.min(h - btnH - (isShort ? 6 : 12), h * (isShort ? 0.88 : 0.91));
 
     this.btnLeftRect = {
       x: 16,
@@ -2065,34 +2066,35 @@ export class MagicJumpGame extends BaseGame {
 
     ctx.globalAlpha = alpha;
 
-    const bannerW = Math.min(this.width * 0.85, 360);
-    const bannerH = 58;
+    const isShort = this.height < 500;
+    const bannerW = isShort ? Math.min(this.width * 0.6, 260) : Math.min(this.width * 0.85, 360);
+    const bannerH = isShort ? 34 : 58;
     const bannerX = (this.width - bannerW) / 2;
-    const bannerY = this.height * 0.22;
+    const bannerY = isShort ? 36 : this.height * 0.22;
 
     ctx.shadowColor = "#FFD700";
-    ctx.shadowBlur = 18;
+    ctx.shadowBlur = isShort ? 10 : 18;
     const grad = ctx.createLinearGradient(bannerX, bannerY, bannerX, bannerY + bannerH);
     grad.addColorStop(0, "rgba(255, 215, 0, 0.95)");
     grad.addColorStop(1, "rgba(255, 145, 0, 0.95)");
 
     ctx.fillStyle = grad;
-    this.roundRect(ctx, bannerX, bannerY, bannerW, bannerH, 16);
+    this.roundRect(ctx, bannerX, bannerY, bannerW, bannerH, isShort ? 10 : 16);
     ctx.fill();
 
     ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = isShort ? 1.5 : 2.5;
     ctx.stroke();
 
     ctx.fillStyle = "#0F172A";
-    ctx.font = "900 16px 'Titan One', 'Fredoka', sans-serif";
+    ctx.font = isShort ? "900 12px 'Titan One', 'Fredoka', sans-serif" : "900 16px 'Titan One', 'Fredoka', sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(this.activeBanner.text, this.width / 2, bannerY + 20);
+    ctx.fillText(this.activeBanner.text, this.width / 2, isShort ? bannerY + 12 : bannerY + 20);
 
     ctx.fillStyle = "#7C2D12";
-    ctx.font = "800 12px 'Titan One', 'Fredoka', sans-serif";
-    ctx.fillText(this.activeBanner.subtext, this.width / 2, bannerY + 40);
+    ctx.font = isShort ? "800 10px 'Titan One', 'Fredoka', sans-serif" : "800 12px 'Titan One', 'Fredoka', sans-serif";
+    ctx.fillText(this.activeBanner.subtext, this.width / 2, isShort ? bannerY + 25 : bannerY + 40);
 
     ctx.restore();
   }

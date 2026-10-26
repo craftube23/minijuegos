@@ -11154,11 +11154,141 @@ html, body {
     gap: 10px;
   }
   .ski-visual-column {
-    height: clamp(90px, 35vh, 150px);
+    height: clamp(80px, 32vh, 135px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  .stage-story-badge {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    margin: 4px auto 0 !important;
+    padding: 2px 8px !important;
+    font-size: 0.62rem !important;
+    border-width: 1px !important;
+    z-index: 5 !important;
+  }
+  .santa-hero-story,
+  .toy-bag-hero-img {
+    width: auto !important;
+    height: auto !important;
+    max-height: clamp(45px, 14vh, 60px) !important;
+    max-width: 75px !important;
+    object-fit: contain !important;
+  }
+  .toy-story-scene {
+    height: auto !important;
+    min-height: 0 !important;
+    gap: 6px !important;
+  }
+  .toy-bag-hero-wrapper {
+    margin-top: 0 !important;
+  }
+  .gift-fall {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  .ski-stage {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 4px !important;
+    overflow: hidden !important;
+  }
+  .stage-mountain-peak {
+    padding-bottom: 2px !important;
+  }
+  .controls-overlay-cues {
+    padding: 2px 6px !important;
+    gap: 4px !important;
+  }
+  .touch-cue-box, .keys-cue-box {
+    padding: 2px 6px !important;
+  }
+  .cue-label {
+    font-size: 0.58rem !important;
+  }
+  .cue-hint {
+    font-size: 0.55rem !important;
+  }
+  .toy-points-grid {
+    gap: 4px !important;
+    padding: 2px !important;
+  }
+  .toy-point-card {
+    padding: 2px !important;
+  }
+  .point-single-star img,
+  .star-pulse-img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 32px !important;
+  }
+  .point-badge-tag {
+    font-size: 0.52rem !important;
+    padding: 1px 4px !important;
+  }
+  .point-label {
+    font-size: 0.58rem !important;
+  }
+  .slalom-demo-card {
+    padding: 2px 5px !important;
+  }
+  .demo-gate-img, .demo-ramp-img {
+    max-height: 34px !important;
+  }
+  .demo-santa-gate, .demo-santa-jump {
+    max-height: 30px !important;
+  }
+  .demo-card-header {
+    font-size: 0.55rem !important;
+  }
+  .hazard-split {
+    padding: 2px !important;
+  }
+  .hazard-props-row img {
+    max-height: 24px !important;
+    width: auto !important;
+  }
+  .demo-santa-crash, .demo-star-power {
+    max-height: 30px !important;
+    width: auto !important;
+  }
+  .split-title-bar {
+    font-size: 0.55rem !important;
+    padding: 1px 5px !important;
+  }
+  .turbo-tip-text {
+    font-size: 0.54rem !important;
+    line-height: 1.15 !important;
+  }
+  .ski-info-column {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    min-height: 0 !important;
+  }
+  .ski-info-badge {
+    padding: 1px 6px !important;
+    font-size: 0.6rem !important;
+  }
+  .ski-info-title {
+    font-size: 0.85rem !important;
+    margin-bottom: 2px !important;
   }
   .ski-info-story {
-    font-size: 0.75rem;
-    line-height: 1.2;
+    font-size: 0.7rem !important;
+    line-height: 1.18 !important;
+  }
+  .ski-protip-box {
+    padding: 2px 6px !important;
+    margin-top: 2px !important;
+    font-size: 0.62rem !important;
   }
   .ski-tutorial-footer {
     padding: 4px 12px calc(env(safe-area-inset-bottom, 0px) + 4px);
@@ -11171,5 +11301,12 @@ html, body {
   .btn-ski-action-play {
     padding: 5px 12px;
     font-size: 0.8rem;
+  }
+}
+
+/* Ocultar carrusel inferior publicitario durante partida activa en pantallas de poca altura para máxima área de juego */
+@media (max-height: 500px) {
+  body.game-active .kiosk-footer-carousel {
+    display: none !important;
   }
 }

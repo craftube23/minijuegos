@@ -411,6 +411,8 @@ class KioskApp {
         this.particles,
         () => {
           this.appState = "menu";
+      document.body.classList.remove("game-active");
+          document.body.classList.remove("game-active");
           this.attractScreen.hide();
           this.gameOverModal.hide();
           this.instructionsModal.hide();
@@ -707,6 +709,8 @@ class KioskApp {
         }
         this.currentGame = bellGame;
         this.appState = "playing";
+    document.body.classList.add("game-active");
+        document.body.classList.add("game-active");
         this.isTransitioning = false;
         this.attractScreen.hide();
         this.gameMenu.hide();
@@ -764,6 +768,8 @@ class KioskApp {
           }
           this.input.reset();
           this.appState = "menu";
+      document.body.classList.remove("game-active");
+          document.body.classList.remove("game-active");
           this.hideAllModals();
           this.gameMenu.show();
           this.resetInactivity();
@@ -780,6 +786,7 @@ class KioskApp {
       this.isTransitioning = false;
       this.input.reset();
       this.appState = "menu";
+      document.body.classList.remove("game-active");
       this.hideAllModals();
       this.gameMenu.show();
       this.resetInactivity();
@@ -884,6 +891,7 @@ class KioskApp {
     this.audio.pauseMenuBGM();
     this.currentGame = game;
     this.appState = "playing";
+    document.body.classList.add("game-active");
     this.isTransitioning = true;
     this.tryLockLandscape();
     this.updateLandscapePrompt();
@@ -929,6 +937,7 @@ class KioskApp {
     this.audio.pauseMenuBGM();
     this.currentGame = game;
     this.appState = "playing";
+    document.body.classList.add("game-active");
     this.isTransitioning = false;
     this.tryLockLandscape();
     this.updateLandscapePrompt();
@@ -963,6 +972,7 @@ class KioskApp {
    */
   private handleGameOver(result: GameResult): void {
     this.appState = "gameover";
+    document.body.classList.remove("game-active");
     this.audio.resumeMenuBGM();
     this.audio.playVictory();
     this.gameOverModal.show(result);
@@ -980,6 +990,7 @@ class KioskApp {
     this.audio.resumeMenuBGM();
     this.isTransitioning = false;
     this.appState = "attract";
+    document.body.classList.remove("game-active");
     this.gameMenu.hide();
     this.gameOverModal.hide();
     this.instructionsModal.hide();

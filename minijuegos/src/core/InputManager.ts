@@ -151,7 +151,7 @@ export class InputManager {
     if (!touch && !this.isPointerDown) return;
 
     const { x, y } = this.getCanvasCoordinates(e.clientX, e.clientY);
-    const prev = this.lastPosition || { x, y };
+    const prev = touch ? { x: touch.x, y: touch.y } : (this.lastPosition || { x, y });
     const dx = x - prev.x;
     const dy = y - prev.y;
 
