@@ -316,8 +316,9 @@ export class SnowBattleGame extends BaseGame {
     this.isDying = false;
     this.deathTimer = 0;
 
-    this.px = w / 2;
-    this.py = h * 0.6;
+    const startBounds = this.getArenaBounds();
+    this.px = (startBounds.left + startBounds.right) / 2;
+    this.py = startBounds.top + startBounds.height * 0.55;
     this.pvx = 0;
     this.pvy = 0;
     this.facing = "down";
@@ -451,7 +452,12 @@ export class SnowBattleGame extends BaseGame {
 
     if (imgReady(this.backgroundImg)) {
       const img = this.backgroundImg;
-      const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+      const isPortrait = h > w;
+      // En modo horizontal (16:9), la plaza se expande en toda su gloria
+      // En vertical, ajustamos la escala para que la zona de combate central no quede cortada
+      const s = isPortrait
+        ? Math.max(w / (img.naturalWidth * 0.72), h / img.naturalHeight)
+        : Math.max(w / img.naturalWidth, h / img.naturalHeight);
       const dw = img.naturalWidth * s;
       const dh = img.naturalHeight * s;
       const dx = (w - dw) / 2;
@@ -1570,9 +1576,11 @@ export class SnowBattleGame extends BaseGame {
 
   private drawBackground(ctx: CanvasRenderingContext2D, w: number, h: number): void {
     if (imgReady(this.backgroundImg)) {
-      // Cover
       const img = this.backgroundImg;
-      const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+      const isPortrait = h > w;
+      const s = isPortrait
+        ? Math.max(w / (img.naturalWidth * 0.72), h / img.naturalHeight)
+        : Math.max(w / img.naturalWidth, h / img.naturalHeight);
       const dw = img.naturalWidth * s;
       const dh = img.naturalHeight * s;
       ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);

@@ -210,6 +210,77 @@ class KioskApp {
   }
 
   /**
+   * Intento inteligente de orientar la pantalla en horizontal (Landscape) en móviles y tablets.
+   * Solicita pantalla completa si el navegador lo requiere antes de ScreenOrientation.lock('landscape').
+   */
+  public async tryLockLandscape(): Promise<void> {
+    if (getKioskNativeDiagnostics().isNative) {
+      return;
+    }
+    const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    if (!isTouch) return;
+
+    try {
+      if (screen.orientation && "lock" in screen.orientation) {
+        await (screen.orientation as any).lock("landscape").catch(() => {});
+      }
+    } catch {}
+
+    try {
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen().catch(() => {});
+        if (screen.orientation && "lock" in screen.orientation) {
+          await (screen.orientation as any).lock("landscape").catch(() => {});
+        }
+      }
+    } catch {}
+
+    setTimeout(() => this.handleResize(), 150);
+  }
+
+  private landscapePromptDismissed = false;
+
+  public updateLandscapePrompt(): void {
+    const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const isPlaying = this.appState === "playing";
+    const existing = document.getElementById("landscape-prompt");
+
+    if (isTouch && isPortrait && isPlaying && !this.landscapePromptDismissed) {
+      if (!existing) {
+        const prompt = document.createElement("div");
+        prompt.id = "landscape-prompt";
+        prompt.className = "landscape-prompt-banner";
+        prompt.innerHTML = `
+          <div class="prompt-icon-spin">📱🔄</div>
+          <div class="prompt-text">
+            <strong>¡Modo Horizontal Recomendado!</strong>
+            <span>Gira tu teléfono para ver la plaza completa</span>
+          </div>
+          <button id="btn-lock-landscape" class="btn-prompt-rotate">Girar ↻</button>
+          <button id="btn-dismiss-rotate" class="btn-prompt-close" title="Cerrar">✕</button>
+        `;
+        const mainEl = document.getElementById("kiosk-main") || document.body;
+        mainEl.appendChild(prompt);
+
+        prompt.querySelector("#btn-lock-landscape")?.addEventListener("click", () => {
+          this.tryLockLandscape();
+          prompt.remove();
+        });
+
+        prompt.querySelector("#btn-dismiss-rotate")?.addEventListener("click", () => {
+          this.landscapePromptDismissed = true;
+          prompt.remove();
+        });
+      }
+    } else {
+      if (existing) {
+        existing.remove();
+      }
+    }
+  }
+
+  /**
    * Ajusta el Canvas y los juegos a la resolución exacta del dispositivo
    */
   public handleResize(): void {
@@ -232,6 +303,7 @@ class KioskApp {
         game.resize(width, height);
       });
     }
+    this.updateLandscapePrompt();
   }
 
   /**
@@ -670,6 +742,8 @@ class KioskApp {
     if (this.isTransitioning) return;
     this.audio.resumeMenuBGM();
 
+    this.landscapePromptDismissed = false;
+    this.updateLandscapePrompt();
     if (withTransition && this.appState !== "attract") {
       this.isTransitioning = true;
       const mainContainer = document.getElementById("kiosk-main") || document.body;
@@ -812,6 +886,8 @@ class KioskApp {
     this.currentGame = game;
     this.appState = "playing";
     this.isTransitioning = true;
+    this.tryLockLandscape();
+    this.updateLandscapePrompt();
 
     this.hideAllModals();
 
@@ -855,6 +931,8 @@ class KioskApp {
     this.currentGame = game;
     this.appState = "playing";
     this.isTransitioning = false;
+    this.tryLockLandscape();
+    this.updateLandscapePrompt();
 
     this.hideAllModals();
 

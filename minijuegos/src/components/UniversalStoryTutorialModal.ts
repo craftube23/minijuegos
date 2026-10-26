@@ -666,6 +666,9 @@ export class UniversalStoryTutorialModal {
       this.audio.playPowerUp();
       confetti({ particleCount: 45, spread: 60, origin: { y: 0.65 } });
       this.savePreferences();
+      if ((window as any).kioskApp?.tryLockLandscape) {
+        (window as any).kioskApp.tryLockLandscape();
+      }
       this.hide();
       if (this.onPlayGame) {
         this.onPlayGame(this.currentGameId);
