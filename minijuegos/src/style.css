@@ -384,26 +384,27 @@ html, body {
   max-width: 440px;
 }
 
-/* En modo horizontal / landscape, adaptamos a 3 o 5 columnas para que quepan sin desbordar ni cortarse */
+/* En modo horizontal / landscape, adaptamos a 3 columnas (o 4 en monitores ultra anchos) para proporciones nobles */
 @media (orientation: landscape), (min-aspect-ratio: 1.2/1) {
   .menu-grid {
-    max-width: 1280px;
-    gap: clamp(8px, 1.2vw, 14px);
-    padding-bottom: 8px;
+    max-width: 1200px;
+    gap: clamp(10px, 1.4vw, 16px);
+    padding-bottom: 14px;
+    justify-content: center;
   }
   .menu-grid .game-card-fantasy {
-    flex: 0 1 calc(33.333% - 12px);
-    max-width: clamp(200px, 24vw, 260px);
+    flex: 0 1 calc(33.333% - 14px);
+    max-width: clamp(270px, 28vw, 340px);
   }
 }
 
-@media (orientation: landscape) and (min-width: 1040px) {
+@media (orientation: landscape) and (min-width: 1360px) {
   .menu-grid {
-    max-width: 1360px;
+    max-width: 1400px;
   }
   .menu-grid .game-card-fantasy {
-    flex: 0 1 calc(20% - 12px);
-    max-width: 230px;
+    flex: 0 1 calc(25% - 14px);
+    max-width: 310px;
   }
 }
 
@@ -655,8 +656,9 @@ html, body {
   bottom: 6.8%;
   left: 50%;
   transform: translateX(-50%);
-  width: 55%;
-  height: 11.8%;
+  width: 72%;
+  max-width: 175px;
+  height: 12.5%;
   background: transparent;
   border: none;
   border-radius: 12px;
@@ -667,7 +669,9 @@ html, body {
   cursor: pointer;
   box-shadow: none;
   z-index: 10;
-  padding: 0;
+  padding: 0 4px;
+  box-sizing: border-box;
+  white-space: nowrap;
   transition: transform 0.08s ease;
 }
 
@@ -678,18 +682,20 @@ html, body {
 
 .btn-play-label {
   font-family: var(--font-card-title);
-  font-size: clamp(1rem, 2.1vw, 1.35rem);
+  font-size: clamp(0.85rem, 1.25vw, 1.15rem);
   font-weight: 900;
   color: #3E1E04;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.5px;
   text-shadow: 0 1px 0 rgba(255, 245, 200, 0.8);
+  white-space: nowrap;
 }
 
 .btn-play-arrow {
   color: #FFFFFF;
-  font-size: clamp(0.82rem, 1.6vw, 1.05rem);
+  font-size: clamp(0.72rem, 1vw, 0.95rem);
   -webkit-text-stroke: 1.2px #3E1E04;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+  flex-shrink: 0;
 }
 
 /* Adaptación del color del texto del botón según la placa de cada tema */
@@ -3195,38 +3201,38 @@ html, body {
    ========================================================================== */
 @media (orientation: landscape) and (max-height: 768px), (max-height: 680px) {
   .kiosk-header {
-    height: 36px;
-    min-height: 36px;
-    padding: 0 8px;
-    padding-left: max(8px, env(safe-area-inset-left, 0px));
-    padding-right: max(8px, env(safe-area-inset-right, 0px));
+    height: clamp(44px, 6.5vh, 54px);
+    min-height: 44px;
+    padding: 0 clamp(8px, 1.5vw, 16px);
+    padding-left: max(clamp(8px, 1.5vw, 16px), env(safe-area-inset-left, 0px));
+    padding-right: max(clamp(8px, 1.5vw, 16px), env(safe-area-inset-right, 0px));
   }
 
   .header-logo {
-    height: 24px;
-    max-height: 24px;
-    max-width: 110px;
+    height: clamp(28px, 4.8vh, 38px);
+    max-height: 38px;
+    max-width: 140px;
     transform: none;
   }
 
   .kiosk-btn {
-    min-height: 26px;
-    min-width: 26px;
-    padding: 2px 7px;
-    font-size: 0.72rem;
-    border-radius: 6px;
-    gap: 3px;
+    min-height: 30px;
+    min-width: 30px;
+    padding: 3px 9px;
+    font-size: 0.78rem;
+    border-radius: 8px;
+    gap: 4px;
   }
 
   .kiosk-btn svg {
-    width: 14px !important;
-    height: 14px !important;
+    width: 16px !important;
+    height: 16px !important;
   }
 
   .kiosk-footer-carousel {
-    height: 34px;
-    min-height: 34px;
-    border-top-width: 2px;
+    height: clamp(72px, 9.5vh, 86px);
+    min-height: 72px;
+    border-top-width: 2.5px;
   }
 
   .kiosk-swiper .swiper-slide.banner-slide {
@@ -3234,44 +3240,51 @@ html, body {
   }
 
   .kiosk-swiper .kiosk-swiper-pagination {
-    display: none;
+    bottom: 2px !important;
+    padding: 1px 6px;
+    gap: 4px;
   }
 
   .banner-hero-container,
   .banner-event-container {
-    gap: 8px;
-    padding: 2px clamp(10px, 2.5vw, 20px);
+    gap: clamp(8px, 1.2vw, 16px);
+    padding: 3px clamp(12px, 2vw, 28px);
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
   }
 
   .banner-logo-card {
-    height: 38px;
-    width: 84px;
-    padding: 2px 4px;
-    border-radius: 8px;
+    height: clamp(48px, 6.2vh, 60px);
+    width: clamp(96px, 13vw, 135px);
+    padding: 3px 6px;
+    border-radius: 10px;
   }
 
   .banner-logo-card.fit-compact {
-    width: 56px;
+    width: clamp(68px, 9vw, 92px);
   }
 
   .event-logo-emblem {
-    height: 38px;
-    width: 55px;
+    height: clamp(46px, 6vh, 58px);
+    width: clamp(55px, 7.5vw, 75px);
   }
 
   .banner-headline {
-    font-size: 0.78rem;
-    line-height: 1.1;
+    font-size: clamp(0.85rem, 1.25vw, 1.15rem);
+    line-height: 1.16;
+    margin: 1px 0;
   }
 
   .banner-subline {
-    font-size: 0.65rem;
-    line-height: 1.1;
+    font-size: clamp(0.68rem, 0.95vw, 0.82rem);
+    line-height: 1.16;
   }
 
   .banner-badge-pill {
-    padding: 2px 8px;
-    font-size: 0.65rem;
+    padding: 3px 10px;
+    font-size: clamp(0.68rem, 0.9vw, 0.82rem);
     border-bottom-width: 2px;
   }
 
@@ -3364,7 +3377,7 @@ html, body {
   }
 
   .menu-grid .game-card-fantasy {
-    max-width: 280px;
+    max-width: clamp(270px, 28vw, 330px);
   }
 
   .btn-fantasy-back-landing {
