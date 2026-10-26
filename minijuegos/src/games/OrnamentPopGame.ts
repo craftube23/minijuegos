@@ -1153,64 +1153,54 @@ export class OrnamentPopGame extends BaseGame {
     dojoGrad.addColorStop(1, "rgba(12, 6, 3, 0.92)");
     ctx.fillStyle = dojoGrad;
     ctx.fillRect(0, 0, w, h);
-
-    ctx.strokeStyle = "rgba(255, 193, 110, 0.06)";
-    ctx.lineWidth = 2;
-    const plankStep = Math.max(65, Math.floor(h / 9));
-    for (let y = plankStep; y < h; y += plankStep) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(w, y);
-      ctx.stroke();
-    }
   }
 
   /**
-   * Cartelera / Estandarte publicitario de Patrocinadores integrado en el muro del Dojo
+   * Cartelera / Estandarte publicitario de Patrocinadores integrado en el Dojo
    */
   private drawDojoSponsorBillboard(ctx: CanvasRenderingContext2D): void {
     if (this.sponsors.length === 0) return;
     const sponsor = this.sponsors[this.billboardSponsorIdx % this.sponsors.length];
     const w = this.width;
     const isShort = this.height < 500;
-    const boardW = isShort ? Math.min(220, w * 0.3) : Math.min(340, w * 0.36);
-    const boardH = isShort ? 32 : 68;
+    const boardW = isShort ? Math.min(290, w * 0.40) : Math.min(340, w * 0.36);
+    const boardH = isShort ? 50 : 68;
     const boardX = isShort ? 14 : (w - boardW) * 0.5;
-    const boardY = isShort ? this.height - boardH - 8 : 128;
+    const boardY = isShort ? this.height - boardH - 10 : 128;
 
     ctx.save();
 
     // Resplandor cuando se activa un patrocinador o combo
     if (this.billboardGlowTimer > 0 || this.isLogoPowerUpActive) {
       ctx.shadowColor = sponsor.themeColor;
-      ctx.shadowBlur = isShort ? 12 : 22;
+      ctx.shadowBlur = isShort ? 14 : 22;
     }
 
     // Marco de madera noble y bronce del Dojo
     const bgGrad = ctx.createLinearGradient(boardX, boardY, boardX, boardY + boardH);
-    bgGrad.addColorStop(0, "rgba(30, 16, 10, 0.92)");
-    bgGrad.addColorStop(1, "rgba(16, 8, 5, 0.95)");
+    bgGrad.addColorStop(0, "rgba(30, 16, 10, 0.94)");
+    bgGrad.addColorStop(1, "rgba(16, 8, 5, 0.97)");
     ctx.fillStyle = bgGrad;
     ctx.strokeStyle = this.isLogoPowerUpActive ? "#00E676" : "#FFD700";
-    ctx.lineWidth = isShort ? 1.5 : 2.5;
+    ctx.lineWidth = isShort ? 2 : 2.5;
     ctx.beginPath();
-    ctx.roundRect(boardX, boardY, boardW, boardH, isShort ? 10 : 16);
+    ctx.roundRect(boardX, boardY, boardW, boardH, isShort ? 12 : 16);
     ctx.fill();
     ctx.stroke();
     ctx.shadowBlur = 0;
 
     // Medallón claro a la izquierda para máxima legibilidad del logo
-    const logoBoxW = isShort ? 44 : 92;
-    const logoBoxH = boardH - (isShort ? 6 : 12);
-    const logoBoxX = boardX + (isShort ? 4 : 8);
-    const logoBoxY = boardY + (isShort ? 3 : 6);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
+    const logoBoxW = isShort ? 70 : 92;
+    const logoBoxH = boardH - (isShort ? 10 : 12);
+    const logoBoxX = boardX + (isShort ? 6 : 8);
+    const logoBoxY = boardY + (isShort ? 5 : 6);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.98)";
     ctx.beginPath();
-    ctx.roundRect(logoBoxX, logoBoxY, logoBoxW, logoBoxH, isShort ? 6 : 11);
+    ctx.roundRect(logoBoxX, logoBoxY, logoBoxW, logoBoxH, isShort ? 8 : 11);
     ctx.fill();
 
     if (sponsor.logo.complete && sponsor.logo.naturalWidth > 0) {
-      const pad = isShort ? 2 : 6;
+      const pad = isShort ? 4 : 6;
       const maxW = logoBoxW - pad * 2;
       const maxH = logoBoxH - pad * 2;
       const scale = Math.min(maxW / sponsor.logo.naturalWidth, maxH / sponsor.logo.naturalHeight);
@@ -1226,19 +1216,28 @@ export class OrnamentPopGame extends BaseGame {
     }
 
     // Textos del patrocinador a la derecha
-    const textX = logoBoxX + logoBoxW + (isShort ? 6 : 12);
-    const maxTextW = boardW - logoBoxW - (isShort ? 14 : 28);
+    const textX = logoBoxX + logoBoxW + (isShort ? 10 : 12);
+    const maxTextW = boardW - logoBoxW - (isShort ? 18 : 28);
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
 
     if (isShort) {
-      ctx.fillStyle = "#FFD700";
-      ctx.font = "900 9px 'Nunito', sans-serif";
-      ctx.fillText(this.isLogoPowerUpActive ? "¡PODER x2!" : "PATROCINADOR", textX, boardY + 10, maxTextW);
+      ctx.fillStyle = this.isLogoPowerUpActive ? "#00E676" : "#FFD700";
+      ctx.font = "900 10px 'Nunito', sans-serif";
+      ctx.fillText(
+        this.isLogoPowerUpActive ? "¡PODER x2 ACTIVADO!" : "PATROCINADOR OFICIAL",
+        textX,
+        boardY + 12,
+        maxTextW
+      );
 
       ctx.fillStyle = "#FFFFFF";
-      ctx.font = "900 11px 'Nunito', sans-serif";
-      ctx.fillText(sponsor.name.toUpperCase(), textX, boardY + 22, maxTextW);
+      ctx.font = "900 14px 'Titan One', 'Fredoka', 'Nunito', sans-serif";
+      ctx.fillText(sponsor.name.toUpperCase(), textX, boardY + 26, maxTextW);
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.font = "700 10.5px 'Nunito', sans-serif";
+      ctx.fillText(sponsor.tagline, textX, boardY + 39, maxTextW);
     } else {
       ctx.fillStyle = "#FFD700";
       ctx.font = "900 10px 'Nunito', sans-serif";
@@ -1280,15 +1279,16 @@ export class OrnamentPopGame extends BaseGame {
   private drawTopStatusBarAndTimerGauge(ctx: CanvasRenderingContext2D): void {
     const isShort = this.height < 500;
     const hudH = this.height < 420 ? 26 : (isShort ? 30 : 54);
-    const barY = isShort ? hudH + 4 : 82;
-    const barH = isShort ? 24 : 38;
+    const powerBannerH = this.isLogoPowerUpActive ? 24 : 0;
+    const barY = isShort ? hudH + powerBannerH + 6 : 82;
+    const barH = isShort ? 22 : 38;
     const secs = Math.max(0, Math.ceil(this.timeRemaining));
     const isLowTime = this.timeRemaining <= 10;
 
     ctx.save();
 
     // 1. Placa Izquierda: Cortes y Oleada
-    const leftW = isShort ? 165 : 215;
+    const leftW = isShort ? 160 : 215;
     const leftX = 14;
     ctx.fillStyle = "rgba(20, 12, 8, 0.88)";
     ctx.strokeStyle = "#FFD700";
@@ -1299,7 +1299,7 @@ export class OrnamentPopGame extends BaseGame {
     ctx.stroke();
 
     ctx.fillStyle = "#FFD700";
-    ctx.font = isShort ? "900 11px 'Nunito', sans-serif" : "900 13px 'Nunito', sans-serif";
+    ctx.font = isShort ? "900 10.5px 'Nunito', sans-serif" : "900 13px 'Nunito', sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
     ctx.fillText(`CORTES: ${this.totalSlicedCount} • OLEADA ${this.waveNumber}`, leftX + 12, barY + barH * 0.5);
@@ -1362,17 +1362,15 @@ export class OrnamentPopGame extends BaseGame {
         barY + barH * 0.5
       );
       ctx.restore();
-    } else {
-      // En modo apaisado compacto, mostrar una pequeña píldora sutil
+    } else if (isLowTime || this.timeAddedFlash > 0) {
+      // En modo apaisado compacto, solo mostrar píldora central si hay alerta o bono +5s
       const bonusW = 165;
       const bonusX = (this.width - bonusW) * 0.5;
       ctx.save();
       ctx.fillStyle = isLowTime
         ? "rgba(180, 20, 30, 0.92)"
-        : this.timeAddedFlash > 0
-        ? "rgba(0, 180, 80, 0.92)"
-        : "rgba(24, 14, 10, 0.85)";
-      ctx.strokeStyle = isLowTime ? "#FF1744" : this.timeAddedFlash > 0 ? "#00E676" : "#FFD700";
+        : "rgba(0, 180, 80, 0.92)";
+      ctx.strokeStyle = isLowTime ? "#FF1744" : "#00E676";
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.roundRect(bonusX, barY, bonusW, barH, barH * 0.5);
@@ -1380,19 +1378,17 @@ export class OrnamentPopGame extends BaseGame {
       ctx.stroke();
 
       if (this.clockImg.complete && this.clockImg.naturalWidth > 0) {
-        ctx.drawImage(this.clockImg, bonusX + 6, barY + 2, 20, 20);
+        ctx.drawImage(this.clockImg, bonusX + 6, barY + 2, 18, 18);
       }
 
-      ctx.fillStyle = isLowTime ? "#FFCDD2" : "#FFD700";
+      ctx.fillStyle = isLowTime ? "#FFCDD2" : "#FFFFFF";
       ctx.font = "900 10px 'Nunito', sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(
         isLowTime
           ? `¡TIEMPO BAJO: ${secs}s!`
-          : this.timeAddedFlash > 0
-          ? "¡+5s TIEMPO EXTRA!"
-          : "RELOJ DORADO = +5s",
+          : "¡+5s TIEMPO EXTRA!",
         bonusX + bonusW * 0.5 + 8,
         barY + barH * 0.5
       );
@@ -1400,7 +1396,7 @@ export class OrnamentPopGame extends BaseGame {
     }
 
     // 3. Botón Tutorial a la derecha
-    const helpW = isShort ? 88 : 116;
+    const helpW = isShort ? 78 : 116;
     const helpX = this.width - helpW - 14;
     this.helpBtnRect = { x: helpX, y: barY, w: helpW, h: barH };
 
@@ -1413,7 +1409,7 @@ export class OrnamentPopGame extends BaseGame {
     ctx.stroke();
 
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = isShort ? "900 10px 'Nunito', sans-serif" : "900 12px 'Nunito', sans-serif";
+    ctx.font = isShort ? "900 9.5px 'Nunito', sans-serif" : "900 12px 'Nunito', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("? TUTORIAL", helpX + helpW * 0.5, barY + barH * 0.5);
 
@@ -1685,15 +1681,18 @@ export class OrnamentPopGame extends BaseGame {
       ctx.drawImage(img, -drawSize * 0.5, -drawSize * 0.5, drawSize, drawSize);
       ctx.restore();
 
-      ctx.save();
-      ctx.rotate(h.cutAngle);
-      ctx.strokeStyle = h.seamColor;
-      ctx.lineWidth = 3.5;
-      ctx.beginPath();
-      ctx.moveTo(-h.r * 0.85, 0);
-      ctx.lineTo(h.r * 0.85, 0);
-      ctx.stroke();
-      ctx.restore();
+      if (h.life < 0.12) {
+        ctx.save();
+        ctx.rotate(h.cutAngle);
+        ctx.globalAlpha = h.alpha * (1 - h.life / 0.12);
+        ctx.strokeStyle = h.seamColor;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(-h.r * 0.85, 0);
+        ctx.lineTo(h.r * 0.85, 0);
+        ctx.stroke();
+        ctx.restore();
+      }
 
       ctx.restore();
     }

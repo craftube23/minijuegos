@@ -202,7 +202,7 @@ export class SnowBattleGame extends BaseGame {
   private yetiHitImg: HTMLImageElement;
   private yetiSlamImg: HTMLImageElement;
   private snowballImg: HTMLImageElement;
-  private starImg: HTMLImageElement;
+  private puRicochetImg: HTMLImageElement;
   private clockImg: HTMLImageElement;
   private puTripleImg: HTMLImageElement;
   private puShieldImg: HTMLImageElement;
@@ -276,7 +276,7 @@ export class SnowBattleGame extends BaseGame {
     this.yetiHitImg = this.getImage(base + "yeti-boss-hit.webp");
     this.yetiSlamImg = this.getImage(base + "yeti-boss-slam.webp");
     this.snowballImg = this.getImage(base + "snowball-proj.webp");
-        this.starImg = this.getImage(base + "estrella_con_logo.webp");
+    this.puRicochetImg = this.getImage(base + "bola-arcoiris.webp");
     this.clockImg = this.getImage(base + "reloj-magico-tiempo.webp");
     this.puTripleImg = this.getImage(base + "pu-triple.webp");
     this.puShieldImg = this.getImage(base + "pu-shield.webp");
@@ -1132,7 +1132,7 @@ export class SnowBattleGame extends BaseGame {
         id: "ricochet",
         title: "Rebote en Enemigos",
         desc: "¡Al golpear a un invasor, la bola rebota hacia otro cercano!",
-        spriteImg: this.starImg,
+        spriteImg: this.puRicochetImg,
         tag: "REBOTE EN CADENA",
         color: "#FFB300",
         level: (this.upgradeLevels.ricochet || 0) + 1,
@@ -1223,7 +1223,7 @@ export class SnowBattleGame extends BaseGame {
     ctx.save();
 
     // 1. Fondo oscurecido con desenfoque simulado
-    ctx.fillStyle = "rgba(7, 18, 38, 0.85)";
+    ctx.fillStyle = "rgba(7, 18, 38, 0.90)";
     ctx.fillRect(0, 0, w, h);
 
     // 2. Título superior con resplandor dorado
@@ -1231,17 +1231,22 @@ export class SnowBattleGame extends BaseGame {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    const titleY = h * 0.18;
-    ctx.font = `900 ${Math.round(38 * animPulse)}px 'Titan One', 'Fredoka', sans-serif`;
+    const isShort = h < 520;
+    const titleY = isShort ? 26 : h * 0.16;
+    ctx.font = `900 ${isShort ? 22 : Math.round(36 * animPulse)}px 'Titan One', 'Fredoka', sans-serif`;
     ctx.shadowColor = "#FFD700";
     ctx.shadowBlur = 8;
     ctx.fillStyle = "#FFD700";
     ctx.fillText("¡MEJORA DE PODER!", w * 0.5, titleY);
 
     ctx.shadowBlur = 0;
-    ctx.font = "700 18px sans-serif";
+    ctx.font = isShort ? "700 11px sans-serif" : "700 16px sans-serif";
     ctx.fillStyle = "#E1F5FE";
-    ctx.fillText("¡Derrotaste suficientes invasores! Elige 1 mejora para Rodolfo:", w * 0.5, titleY + 45);
+    ctx.fillText(
+      isShort ? "¡Derrotaste suficientes invasores! Elige 1 mejora:" : "¡Derrotaste suficientes invasores! Elige 1 mejora para Rodolfo:",
+      w * 0.5,
+      isShort ? titleY + 20 : titleY + 40
+    );
 
     // 3. Renderizado de las 3 tarjetas de mejora
     const count = this.currentUpgradeOptions.length;
@@ -1263,16 +1268,16 @@ export class SnowBattleGame extends BaseGame {
         this.renderUpgradeCardHorizontal(ctx, opt, cardX, cardY, cardW, cardH);
       }
     } else {
-      // Formato Panorámico: 3 tarjetas lado a lado
-      const cardW = Math.min(270, (w * 0.9) / 3 - 20);
-      const cardH = Math.min(340, h * 0.52);
-      const totalCardsW = count * cardW + (count - 1) * 24;
+      // Formato Panorámico (Móvil horizontal o PC): 3 tarjetas lado a lado
+      const cardY = isShort ? titleY + 34 : h * 0.26;
+      const cardH = Math.min(isShort ? 265 : 340, h - cardY - (isShort ? 10 : 20));
+      const cardW = Math.min(isShort ? 225 : 270, Math.floor((w - 36 - (count - 1) * 14) / count));
+      const totalCardsW = count * cardW + (count - 1) * 14;
       const startX = (w - totalCardsW) / 2;
-      const cardY = h * 0.28;
 
       for (let i = 0; i < count; i++) {
         const opt = this.currentUpgradeOptions[i];
-        const cardX = startX + i * (cardW + 24);
+        const cardX = startX + i * (cardW + 14);
 
         this.upgradeCardRects.push({ opt, x: cardX, y: cardY, w: cardW, h: cardH });
         this.renderUpgradeCardVertical(ctx, opt, cardX, cardY, cardW, cardH);
@@ -1377,92 +1382,106 @@ export class SnowBattleGame extends BaseGame {
   ): void {
     ctx.save();
 
+    const isShort = h < 300;
+
     const grad = ctx.createLinearGradient(x, y, x, y + h);
     grad.addColorStop(0, "#1A2E4C");
     grad.addColorStop(1, "#0D182A");
     ctx.fillStyle = grad;
 
     ctx.strokeStyle = opt.color;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2.5;
     ctx.shadowColor = opt.color;
     ctx.shadowBlur = 6;
 
     ctx.beginPath();
-    ctx.roundRect(x, y, w, h, 20);
+    ctx.roundRect(x, y, w, h, isShort ? 14 : 20);
     ctx.fill();
     ctx.stroke();
 
     ctx.shadowBlur = 0;
 
-    // Tag
+    // 1. Tag superior
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = "900 12px sans-serif";
+    ctx.font = `900 ${isShort ? 10 : 12}px sans-serif`;
     ctx.fillStyle = opt.color;
-    ctx.fillText(opt.tag, x + w * 0.5, y + 28);
+    const tagY = y + (isShort ? 16 : 24);
+    ctx.fillText(opt.tag, x + w * 0.5, tagY);
 
-    // Emblema e Ícono Stylized 2D Game Art
-    const iconBoxSize = 78;
+    // 2. Emblema e Ícono Stylized 2D Game Art
+    const iconBoxSize = isShort ? 50 : 72;
     const iconBoxX = x + (w - iconBoxSize) * 0.5;
-    const iconBoxY = y + 52;
+    const iconBoxY = y + (isShort ? 28 : 46);
 
     ctx.save();
-    ctx.fillStyle = "rgba(7, 18, 38, 0.6)";
+    ctx.fillStyle = "rgba(7, 18, 38, 0.65)";
     ctx.strokeStyle = opt.color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
-    ctx.roundRect(iconBoxX, iconBoxY, iconBoxSize, iconBoxSize, 14);
+    ctx.roundRect(iconBoxX, iconBoxY, iconBoxSize, iconBoxSize, isShort ? 10 : 14);
     ctx.fill();
     ctx.stroke();
 
     if (imgReady(opt.spriteImg)) {
       ctx.shadowColor = opt.color;
       ctx.shadowBlur = 6;
-      const pad = 10;
+      const pad = isShort ? 5 : 8;
       ctx.drawImage(opt.spriteImg, iconBoxX + pad, iconBoxY + pad, iconBoxSize - pad * 2, iconBoxSize - pad * 2);
     }
     ctx.restore();
 
-    // Título
-    ctx.font = "900 20px 'Titan One', 'Fredoka', sans-serif";
+    // 3. Título
+    const titleY = iconBoxY + iconBoxSize + (isShort ? 14 : 22);
+    ctx.font = `900 ${isShort ? 13 : 18}px 'Titan One', 'Fredoka', sans-serif`;
     ctx.fillStyle = "#FFFFFF";
-    ctx.fillText(opt.title, x + w * 0.5, y + 152);
+    ctx.fillText(opt.title, x + w * 0.5, titleY, w - 16);
 
-    // Nivel
-    ctx.font = "900 13px sans-serif";
+    // 4. Nivel
+    const levelY = titleY + (isShort ? 16 : 22);
+    ctx.font = `900 ${isShort ? 10 : 12}px sans-serif`;
     ctx.fillStyle = "#FFD700";
-    ctx.fillText(`NIVEL ${opt.level} / ${opt.maxLevel}`, x + w * 0.5, y + 178);
+    ctx.fillText(`NIVEL ${opt.level} / ${opt.maxLevel}`, x + w * 0.5, levelY);
 
-    // Descripción multi-línea
-    ctx.font = "500 13px sans-serif";
-    ctx.fillStyle = "#B0BEC5";
+    // 5. Botón inferior (Primero calcular posición del botón para evitar cualquier colisión con el texto)
+    const btnW = w - (isShort ? 24 : 36);
+    const btnH = isShort ? 30 : 36;
+    const btnX = x + (w - btnW) * 0.5;
+    const btnY = y + h - (isShort ? 38 : 48);
+
+    // 6. Descripción multi-línea (adaptable, cabe estrictamente entre levelY y btnY)
+    ctx.font = `500 ${isShort ? 10.5 : 12.5}px sans-serif`;
+    ctx.fillStyle = "#CFD8DC";
     const words = opt.desc.split(" ");
     let line = "";
-    let lineY = y + 215;
+    let lineY = levelY + (isShort ? 14 : 20);
+    const lineStep = isShort ? 14 : 17;
+    const maxDescY = btnY - 8;
+
     for (const word of words) {
       const testLine = line + word + " ";
-      if (ctx.measureText(testLine).width > w - 30 && line !== "") {
-        ctx.fillText(line, x + w * 0.5, lineY);
+      if (ctx.measureText(testLine).width > w - 24 && line !== "") {
+        if (lineY <= maxDescY) {
+          ctx.fillText(line, x + w * 0.5, lineY);
+        }
         line = word + " ";
-        lineY += 18;
+        lineY += lineStep;
       } else {
         line = testLine;
       }
     }
-    ctx.fillText(line, x + w * 0.5, lineY);
+    if (lineY <= maxDescY) {
+      ctx.fillText(line, x + w * 0.5, lineY);
+    }
 
-    // Botón inferior
-    const btnW = w - 40;
-    const btnH = 38;
-    const btnX = x + 20;
-    const btnY = y + h - 52;
+    // Dibujar el botón "¡ELEGIR!"
     ctx.fillStyle = opt.color;
     ctx.beginPath();
-    ctx.roundRect(btnX, btnY, btnW, btnH, 10);
+    ctx.roundRect(btnX, btnY, btnW, btnH, 8);
     ctx.fill();
 
     ctx.fillStyle = "#0A192F";
-    ctx.font = "900 14px sans-serif";
+    ctx.font = `900 ${isShort ? 12 : 14}px sans-serif`;
     ctx.fillText("¡ELEGIR!", x + w * 0.5, btnY + btnH * 0.5);
 
     ctx.restore();
