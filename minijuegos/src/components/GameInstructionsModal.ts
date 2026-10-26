@@ -483,7 +483,7 @@ export class GameInstructionsModal {
         <div class="instructions-emblem-header">
           <div class="instructions-emblem-aura"></div>
           <div class="instructions-medallion-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="instructions-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="instructions-feria-seal" />
           </div>
         </div>
 

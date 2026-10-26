@@ -163,7 +163,7 @@ export class WorkshopChaosStoryTutorialModal {
         <!-- Encabezado con medallón oficial -->
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="ski-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE</span>
@@ -272,14 +272,14 @@ export class WorkshopChaosStoryTutorialModal {
                 </div>
               </div>
               <div class="workshop-flying-toys-cluster">
-                <img src="./assets/images/regalo-estilizado-dorado.png" alt="Dorado" class="flying-toy toy-1" />
-                <img src="./assets/images/robot.png" alt="Robot" class="flying-toy toy-2" />
-                <img src="./assets/images/osito.png" alt="Osito" class="flying-toy toy-3" />
-                <img src="./assets/images/coche-juguete.png" alt="Coche" class="flying-toy toy-4" />
+                <img src="./assets/images/regalo-estilizado-dorado.webp" alt="Dorado" class="flying-toy toy-1" />
+                <img src="./assets/images/robot.webp" alt="Robot" class="flying-toy toy-2" />
+                <img src="./assets/images/osito.webp" alt="Osito" class="flying-toy toy-3" />
+                <img src="./assets/images/coche-juguete.webp" alt="Coche" class="flying-toy toy-4" />
               </div>
             </div>
             <div class="stage-story-badge">
-              <img src="./assets/images/estrella con logo.png" alt="Estrella" class="story-star-badge" />
+              <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="story-star-badge" />
               <span>MISIÓN: ¡RESCATA LOS JUGUETES ANTES DE QUE CAIGAN!</span>
             </div>
           </div>
@@ -292,7 +292,7 @@ export class WorkshopChaosStoryTutorialModal {
             <!-- Pista animada de toque al vuelo con feedback de combo -->
             <div class="workshop-touch-demo-stage">
               <div class="demo-flying-target" id="demo-fly-toy">
-                <img src="./assets/images/robot.png" alt="Robot Volando" class="demo-toy-img" />
+                <img src="./assets/images/robot.webp" alt="Robot Volando" class="demo-toy-img" />
                 <div class="demo-tap-burst" id="demo-tap-burst">
                   ${getIconSvg("sparkles", { size: 28, color: "#FFD700" })}
                 </div>
@@ -332,8 +332,8 @@ export class WorkshopChaosStoryTutorialModal {
               <div class="toy-point-card card-classic">
                 <div class="point-badge-tag">+10 PTS</div>
                 <div class="point-images-duo">
-                  <img src="./assets/images/regalo-estilizado-rojo.png" alt="Regalo Rojo" />
-                  <img src="./assets/images/regalo-estilizado-verde.png" alt="Regalo Verde" />
+                  <img src="./assets/images/regalo-estilizado-rojo.webp" alt="Regalo Rojo" />
+                  <img src="./assets/images/regalo-estilizado-verde.webp" alt="Regalo Verde" />
                 </div>
                 <span class="point-label">Cajas Clásicas</span>
               </div>
@@ -342,8 +342,8 @@ export class WorkshopChaosStoryTutorialModal {
               <div class="toy-point-card card-special">
                 <div class="point-badge-tag tag-purple">+15 A +25 PTS</div>
                 <div class="point-images-duo">
-                  <img src="./assets/images/robot.png" alt="Robot" />
-                  <img src="./assets/images/coche-juguete.png" alt="Coche" />
+                  <img src="./assets/images/robot.webp" alt="Robot" />
+                  <img src="./assets/images/coche-juguete.webp" alt="Coche" />
                 </div>
                 <span class="point-label">Robots & Coches</span>
               </div>
@@ -352,7 +352,7 @@ export class WorkshopChaosStoryTutorialModal {
               <div class="toy-point-card card-star">
                 <div class="point-badge-tag tag-gold">+50 PTS • CARGA FIEBRE</div>
                 <div class="point-single-star">
-                  <img src="./assets/images/regalo-estilizado-dorado.png" alt="Regalo Dorado" class="star-pulse-img" />
+                  <img src="./assets/images/regalo-estilizado-dorado.webp" alt="Regalo Dorado" class="star-pulse-img" />
                 </div>
                 <span class="point-label">¡Logos de Patrocinador!</span>
               </div>
@@ -375,7 +375,7 @@ export class WorkshopChaosStoryTutorialModal {
               <!-- Regalo defectuoso -->
               <div class="hazard-card card-defective">
                 <div class="hazard-title-badge badge-ice">CAJA DEFECTUOSA</div>
-                <img src="./assets/images/regalo-defectuoso.png" alt="Defectuoso" class="hazard-sprite-img" />
+                <img src="./assets/images/regalo-defectuoso.webp" alt="Defectuoso" class="hazard-sprite-img" />
                 <span class="hazard-penalty-tag tag-red">-25 PTS • HUMO Y EXPLOSIÓN</span>
               </div>
             </div>

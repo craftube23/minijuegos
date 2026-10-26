@@ -136,7 +136,7 @@ export class UniversalStoryTutorialModal {
         <!-- Encabezado con medallón oficial -->
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="ski-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE</span>
@@ -255,11 +255,11 @@ export class UniversalStoryTutorialModal {
             <div class="ski-stage stage-story">
               <div class="stage-sky-backdrop"></div>
               <div class="stage-mountain-peak">
-                <img src="./assets/images/santa-ski-straight.png" alt="Santa Esquiador" class="santa-hero-story" />
+                <img src="./assets/images/santa-ski-straight.webp" alt="Santa Esquiador" class="santa-hero-story" />
                 <div class="santa-snow-pedestal"></div>
               </div>
               <div class="stage-story-badge">
-                <img src="./assets/images/estrella con logo.png" alt="Estrella Feria" class="story-star-badge" />
+                <img src="./assets/images/estrella con logo.webp" alt="Estrella Feria" class="story-star-badge" />
                 <span>OBJETIVO: INAUGURAR LA FERIA DEL JUGUETE</span>
               </div>
             </div>
@@ -269,7 +269,7 @@ export class UniversalStoryTutorialModal {
             <div class="ski-stage stage-controls">
               <div class="stage-controls-track">
                 <div class="santa-control-demo" id="santa-control-demo">
-                  <img src="./assets/images/santa-ski-straight.png" alt="Santa" id="santa-demo-sprite" class="demo-skier-img" />
+                  <img src="./assets/images/santa-ski-straight.webp" alt="Santa" id="santa-demo-sprite" class="demo-skier-img" />
                 </div>
               </div>
               <div class="controls-overlay-cues">
@@ -296,16 +296,16 @@ export class UniversalStoryTutorialModal {
               <div class="slalom-demo-card">
                 <div class="demo-card-header"><span class="card-chip chip-green">PUERTA DE ESLALON</span><span class="card-pts">+150 PTS • TURBO</span></div>
                 <div class="demo-card-visual gate-visual">
-                  <img src="./assets/images/puerta-eslalon-3d.png" alt="Puerta" class="demo-gate-img" />
-                  <img src="./assets/images/santa-ski-straight.png" alt="Santa" class="demo-santa-gate" />
+                  <img src="./assets/images/puerta-eslalon-3d.webp" alt="Puerta" class="demo-gate-img" />
+                  <img src="./assets/images/santa-ski-straight.webp" alt="Santa" class="demo-santa-gate" />
                   <div class="turbo-burst-badge">¡TURBO ESLALON!</div>
                 </div>
               </div>
               <div class="slalom-demo-card">
                 <div class="demo-card-header"><span class="card-chip chip-cyan">RAMPA DE SALTO</span><span class="card-pts">+300 PTS • TRUCO 360°</span></div>
                 <div class="demo-card-visual ramp-visual">
-                  <img src="./assets/images/rampa-esqui-downhill.png" alt="Rampa" class="demo-ramp-img" />
-                  <img src="./assets/images/santa-ski-jump.png" alt="Salto" class="demo-santa-jump" />
+                  <img src="./assets/images/rampa-esqui-downhill.webp" alt="Rampa" class="demo-ramp-img" />
+                  <img src="./assets/images/santa-ski-jump.webp" alt="Salto" class="demo-santa-jump" />
                   <div class="jump-sparkle-badge">¡GRAN SALTO 360°!</div>
                 </div>
               </div>
@@ -318,18 +318,18 @@ export class UniversalStoryTutorialModal {
                 <div class="split-title-bar bar-danger"><span>⛔ PELIGROS (-1 VIDA)</span></div>
                 <div class="hazard-props-row">
                   <div class="prop-hazard-item"><img src="./assets/images/arbol.webp" alt="Pino" /><span>Pino</span></div>
-                  <div class="prop-hazard-item"><img src="./assets/images/obstaculo-muneco-estilizado.png" alt="Muñeco" /><span>Muñeco</span></div>
+                  <div class="prop-hazard-item"><img src="./assets/images/obstaculo-muneco-estilizado.webp" alt="Muñeco" /><span>Muñeco</span></div>
                   <div class="prop-hazard-item"><div class="mini-wood-billboard"><span class="mini-bb-label">CARTEL</span></div><span>Cartel</span></div>
                 </div>
                 <div class="crash-preview-box">
-                  <img src="./assets/images/santa-ski-crash.png" alt="Choque" class="demo-santa-crash" />
+                  <img src="./assets/images/santa-ski-crash.webp" alt="Choque" class="demo-santa-crash" />
                   <span class="crash-alert-tag">¡GOLPE Y RACHA PERDIDA!</span>
                 </div>
               </div>
               <div class="hazard-split turbo-side">
                 <div class="split-title-bar bar-turbo"><span>⭐ SÚPER TURBO (+250 PTS)</span></div>
                 <div class="turbo-power-showcase">
-                  <img src="./assets/images/estrella con logo.png" alt="Estrella" class="demo-star-power" />
+                  <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="demo-star-power" />
                   <div class="turbo-smash-demo"><span class="smash-impact-star">💥</span><span class="smash-tag">¡ARRASA TODO!</span></div>
                 </div>
                 <p class="turbo-tip-text">Al agarrar la Estrella serás invencible y demolerás los carteles a tu paso.</p>
@@ -341,7 +341,7 @@ export class UniversalStoryTutorialModal {
             <div class="ski-stage stage-yeti">
               <div class="yeti-chase-arena">
                 <img src="./assets/images/yeti-run1.webp" alt="Yeti" class="demo-yeti-monster" id="demo-yeti-sprite" />
-                <div class="yeti-chase-target"><img src="./assets/images/santa-ski-straight.png" alt="Santa" class="demo-santa-flee" /></div>
+                <div class="yeti-chase-target"><img src="./assets/images/santa-ski-straight.webp" alt="Santa" class="demo-santa-flee" /></div>
                 <div class="yeti-warning-banner"><span>⚠️</span><span>¡EL YETI TE PERSIGUE!</span></div>
               </div>
               <div class="yeti-escape-tips">
@@ -361,11 +361,11 @@ export class UniversalStoryTutorialModal {
             <div class="ski-stage stage-story">
               <div class="stage-sky-backdrop"></div>
               <div class="stage-mountain-peak">
-                <img src="./assets/images/rodolfo-battle-down-1.png" alt="Rodolfo" class="santa-hero-story" />
+                <img src="./assets/images/rodolfo-battle-down-1.webp" alt="Rodolfo" class="santa-hero-story" />
                 <div class="santa-snow-pedestal"></div>
               </div>
               <div class="stage-story-badge">
-                <img src="./assets/images/estrella con logo.png" alt="Estrella Feria" class="story-star-badge" />
+                <img src="./assets/images/estrella con logo.webp" alt="Estrella Feria" class="story-star-badge" />
                 <span>OBJETIVO: DEFENDER LA PLAZA NEVADA 45 SEGUNDOS</span>
               </div>
             </div>
@@ -374,7 +374,7 @@ export class UniversalStoryTutorialModal {
           return `
             <div class="ski-stage stage-controls">
               <div class="stage-controls-track">
-                <img src="./assets/images/rodolfo-battle-side-1.png" alt="Rodolfo" class="universal-control-demo-img" id="universal-demo-hero" />
+                <img src="./assets/images/rodolfo-battle-side-1.webp" alt="Rodolfo" class="universal-control-demo-img" id="universal-demo-hero" />
               </div>
               <div class="controls-overlay-cues">
                 <div class="touch-cue-box">
@@ -401,17 +401,17 @@ export class UniversalStoryTutorialModal {
                 <div class="split-title-bar bar-danger"><span>⛔ ENEMIGOS (-1 ❤ AL TOCARTE)</span></div>
                 <div class="hazard-props-row">
                   <div class="prop-hazard-item"><img src="./assets/images/snowman-evil-1.webp" alt="Muñeco malvado" /><span>Muñeco • 2 golpes</span></div>
-                  <div class="prop-hazard-item"><img src="./assets/images/elf-mischief-1.png" alt="Duende travieso" /><span>Duende • 1 golpe</span></div>
+                  <div class="prop-hazard-item"><img src="./assets/images/elf-mischief-1.webp" alt="Duende travieso" /><span>Duende • 1 golpe</span></div>
                 </div>
                 <div class="crash-preview-box">
-                  <img src="./assets/images/rodolfo-battle-hit.png" alt="Rodolfo golpeado" class="demo-santa-crash" />
+                  <img src="./assets/images/rodolfo-battle-hit.webp" alt="Rodolfo golpeado" class="demo-santa-crash" />
                   <span class="crash-alert-tag">¡GOLPE Y COMBO PERDIDO!</span>
                 </div>
               </div>
               <div class="hazard-split turbo-side">
                 <div class="split-title-bar bar-turbo"><span>🔥 COMBOS HASTA x3</span></div>
                 <div class="turbo-power-showcase">
-                  <img src="./assets/images/snowball-proj.png" alt="Bola de nieve" class="demo-star-power" />
+                  <img src="./assets/images/snowball-proj.webp" alt="Bola de nieve" class="demo-star-power" />
                   <div class="turbo-smash-demo"><span class="smash-impact-star">💥</span><span class="smash-tag">¡ELIMINACIONES SEGUIDAS!</span></div>
                 </div>
                 <p class="turbo-tip-text">Cada 5 eliminaciones sin recibir daño tus puntos suben +0.5x.</p>
@@ -424,10 +424,10 @@ export class UniversalStoryTutorialModal {
               <div class="hazard-split turbo-side" style="grid-column: span 2;">
                 <div class="split-title-bar bar-turbo"><span>🎁 POWER-UPS DE LOS ENEMIGOS</span></div>
                 <div class="hazard-props-row" style="margin: 18px 0;">
-                  <div class="prop-hazard-item"><img src="./assets/images/pu-triple.png" alt="Disparo triple" /><span>Disparo Triple</span></div>
-                  <div class="prop-hazard-item"><img src="./assets/images/pu-shield.png" alt="Escudo de nariz" /><span>Nariz Brillante</span></div>
-                  <div class="prop-hazard-item"><img src="./assets/images/pu-cookie.png" alt="Galleta" /><span>Galleta +1 ❤</span></div>
-                  <div class="prop-hazard-item"><img src="./assets/images/estrella con logo.png" alt="Logo patrocinador" /><span>Logo x2 pts</span></div>
+                  <div class="prop-hazard-item"><img src="./assets/images/pu-triple.webp" alt="Disparo triple" /><span>Disparo Triple</span></div>
+                  <div class="prop-hazard-item"><img src="./assets/images/pu-shield.webp" alt="Escudo de nariz" /><span>Nariz Brillante</span></div>
+                  <div class="prop-hazard-item"><img src="./assets/images/pu-cookie.webp" alt="Galleta" /><span>Galleta +1 ❤</span></div>
+                  <div class="prop-hazard-item"><img src="./assets/images/estrella con logo.webp" alt="Logo patrocinador" /><span>Logo x2 pts</span></div>
                 </div>
               </div>
             </div>
@@ -437,7 +437,7 @@ export class UniversalStoryTutorialModal {
             <div class="ski-stage stage-yeti">
               <div class="yeti-chase-arena">
                 <img src="./assets/images/yeti-boss-1.webp" alt="Yeti" class="demo-yeti-monster" />
-                <div class="yeti-chase-target"><img src="./assets/images/rodolfo-battle-down-1.png" alt="Rodolfo" class="demo-santa-flee" /></div>
+                <div class="yeti-chase-target"><img src="./assets/images/rodolfo-battle-down-1.webp" alt="Rodolfo" class="demo-santa-flee" /></div>
                 <div class="yeti-warning-banner"><span>⚠️</span><span>¡EL YETI LLEGA A LOS 30 s!</span></div>
               </div>
               <div class="yeti-escape-tips">
@@ -460,7 +460,7 @@ export class UniversalStoryTutorialModal {
               <img src="${this.getHeroImageForGame(gameId)}" alt="Hero" class="universal-hero-img" />
             </div>
             <div class="stage-story-badge">
-              <img src="./assets/images/estrella con logo.png" alt="Feria" class="story-star-badge" />
+              <img src="./assets/images/estrella con logo.webp" alt="Feria" class="story-star-badge" />
               <span>MISIÓN OFICIAL DE LA FERIA MÁGICA</span>
             </div>
           </div>
@@ -497,14 +497,14 @@ export class UniversalStoryTutorialModal {
             <div class="slalom-demo-card">
               <div class="demo-card-header"><span class="card-chip chip-green">OBJETIVOS CLAVE</span><span class="card-pts">+PUNTOS & COMBOS</span></div>
               <div class="demo-card-visual">
-                <img src="./assets/images/regalo-estilizado-rojo.png" alt="Regalo" style="width: 70px; height: 70px; object-fit: contain;" />
+                <img src="./assets/images/regalo-estilizado-rojo.webp" alt="Regalo" style="width: 70px; height: 70px; object-fit: contain;" />
                 <div class="turbo-burst-badge">¡SUMA PUNTOS!</div>
               </div>
             </div>
             <div class="slalom-demo-card">
               <div class="demo-card-header"><span class="card-chip chip-cyan">LOGOS PATROCINADORES</span><span class="card-pts">PODER x2 / STAR POWER</span></div>
               <div class="demo-card-visual">
-                <img src="./assets/images/estrella con logo.png" alt="Estrella" style="width: 70px; height: 70px; object-fit: contain;" />
+                <img src="./assets/images/estrella con logo.webp" alt="Estrella" style="width: 70px; height: 70px; object-fit: contain;" />
                 <div class="jump-sparkle-badge">¡SUPER PODER!</div>
               </div>
             </div>
@@ -534,23 +534,23 @@ export class UniversalStoryTutorialModal {
   private getHeroImageForGame(gameId: string): string {
     const map: Record<string, string> = {
       "toy-catch": "./assets/images/bolsa de regalos.webp",
-      "bell-symphony": "./assets/images/icon-campanas.png",
+      "bell-symphony": "./assets/images/icon-campanas.webp",
       "tree-melody": "./assets/images/icon-tambor.png",
-      "flying-elf": "./assets/images/elfo-volador.png",
-      "magic-pairs": "./assets/images/icon-cartas.png",
-      "santa-hills": "./assets/images/santa-trineo.png",
+      "flying-elf": "./assets/images/elfo-volador.webp",
+      "magic-pairs": "./assets/images/icon-cartas.webp",
+      "santa-hills": "./assets/images/santa-trineo.webp",
       "snowball-target": "./assets/images/icon-resortera.png",
       "workshop-chaos": "./assets/images/juguete-cuerda.png",
-      "christmas-jump": "./assets/images/elfo-saltador.png",
+      "christmas-jump": "./assets/images/elfo-saltador.webp",
       "gift-tower": "./assets/images/caja-regalo.png",
       "polar-express": "./assets/images/locomotora.png",
       "ice-breaker": "./assets/images/paleta-caramelo.png",
       "ornament-pop": "./assets/images/canon-caramelo.png",
       "toy-match": "./assets/images/vitrina-juguetes.png",
-      "santa-ski": "./assets/images/santa-ski-straight.png",
-      "snow-battle": "./assets/images/rodolfo-battle-down-1.png"
+      "santa-ski": "./assets/images/santa-ski-straight.webp",
+      "snow-battle": "./assets/images/rodolfo-battle-down-1.webp"
     };
-    return map[gameId] || "./assets/images/medallon-feria.png";
+    return map[gameId] || "./assets/images/medallon-feria.webp";
   }
 
   private playEntranceAnimation(): void {
@@ -588,12 +588,12 @@ export class UniversalStoryTutorialModal {
         this.stepInterval = setInterval(() => {
           dir *= -1;
           if (dir === 1) {
-            sprite.src = "./assets/images/santa-ski-right.png";
+            sprite.src = "./assets/images/santa-ski-right.webp";
             gsap.to(demoBox, { x: 50, rotation: 8, duration: 0.55, ease: "power1.inOut" });
             if (keyRight) keyRight.classList.add("key-active");
             if (keyLeft) keyLeft.classList.remove("key-active");
           } else {
-            sprite.src = "./assets/images/santa-ski-left.png";
+            sprite.src = "./assets/images/santa-ski-left.webp";
             gsap.to(demoBox, { x: -50, rotation: -8, duration: 0.55, ease: "power1.inOut" });
             if (keyLeft) keyLeft.classList.add("key-active");
             if (keyRight) keyRight.classList.remove("key-active");

@@ -147,7 +147,7 @@ export class PolarExpressStoryTutorialModal {
 
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/icon-expreso-polar.png" alt="Expreso Polar" class="ski-feria-seal" />
+            <img src="./assets/images/icon-expreso-polar.webp" alt="Expreso Polar" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE • FERROCARRIL REAL</span>
@@ -261,7 +261,7 @@ export class PolarExpressStoryTutorialModal {
               <div class="polar-demo-convoy" id="polar-demo-convoy">
                 <img src="./assets/images/vagon-expreso.webp" alt="Vagón" class="polar-demo-wagon-img" />
                 <div class="polar-demo-coupler"></div>
-                <img src="./assets/images/locomotora-lateral.png" alt="Locomotora" class="polar-demo-loco-img" />
+                <img src="./assets/images/locomotora-lateral.webp" alt="Locomotora" class="polar-demo-loco-img" />
                 <div class="polar-demo-beam"></div>
               </div>
               <div class="polar-demo-golden-rail"></div>
@@ -279,7 +279,7 @@ export class PolarExpressStoryTutorialModal {
               <div class="polar-lane-row" id="polar-lane-2"><span class="polar-lane-chip">VÍA 3</span><div class="polar-lane-rail"></div></div>
               <div class="polar-lane-mover" id="polar-lane-mover">
                 <img src="./assets/images/vagon-expreso.webp" alt="Vagón" class="mover-wagon" />
-                <img src="./assets/images/locomotora-lateral.png" alt="Locomotora" class="mover-loco" />
+                <img src="./assets/images/locomotora-lateral.webp" alt="Locomotora" class="mover-loco" />
               </div>
             </div>
             <div class="polar-controls-bar">
@@ -307,12 +307,12 @@ export class PolarExpressStoryTutorialModal {
             </div>
             <div class="polar-collectibles-row">
               <div class="polar-col-card">
-                <img src="./assets/images/regalo-estilizado-rojo.png" alt="Regalo" />
+                <img src="./assets/images/regalo-estilizado-rojo.webp" alt="Regalo" />
                 <span class="col-title">REGALOS</span>
                 <span class="col-pts">+50 PTS • +14%</span>
               </div>
               <div class="polar-col-card">
-                <img src="./assets/images/estrella con logo.png" alt="Estrella" />
+                <img src="./assets/images/estrella con logo.webp" alt="Estrella" />
                 <span class="col-title">ESTRELLA</span>
                 <span class="col-pts">+150 PTS • +30%</span>
               </div>
@@ -333,15 +333,15 @@ export class PolarExpressStoryTutorialModal {
                 <div class="split-title-bar bar-danger">OBSTÁCULOS DE VÍA</div>
                 <div class="polar-obstacles-mini">
                   <div class="polar-obs-item">
-                    <img src="./assets/images/obstaculo-barrera-tren.png" alt="Barrera" />
+                    <img src="./assets/images/obstaculo-barrera-tren.webp" alt="Barrera" />
                     <span>Barrera</span>
                   </div>
                   <div class="polar-obs-item">
-                    <img src="./assets/images/obstaculo-muneco.png" alt="Muñeco" />
+                    <img src="./assets/images/obstaculo-muneco.webp" alt="Muñeco" />
                     <span>Muñeco</span>
                   </div>
                   <div class="polar-obs-item">
-                    <img src="./assets/images/obstaculo-cristal.png" alt="Cristal" />
+                    <img src="./assets/images/obstaculo-cristal.webp" alt="Cristal" />
                     <span>Cristal</span>
                   </div>
                 </div>
@@ -351,7 +351,7 @@ export class PolarExpressStoryTutorialModal {
               <div class="polar-split-card">
                 <div class="split-title-bar bar-turbo">ESCUDO ROMPEHIELOS</div>
                 <div class="polar-turbo-showcase">
-                  <img src="./assets/images/regalo-estilizado-dorado.png" alt="Regalo Dorado" class="polar-gold-gift" />
+                  <img src="./assets/images/regalo-estilizado-dorado.webp" alt="Regalo Dorado" class="polar-gold-gift" />
                   <div class="polar-smash-info">
                     <span class="polar-smash-badge">¡DEMOLICIÓN +120!</span>
                     <p>El Regalo Patrocinador o Caldera al 100% activa el escudo que lanza obstáculos por los aires.</p>

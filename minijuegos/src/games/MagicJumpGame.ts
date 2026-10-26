@@ -242,20 +242,20 @@ export class MagicJumpGame extends BaseGame {
     ];
 
     // Carga de sprites Stylized 2D Game Concept Art
-    this.spritePlayer = this.getImage("./assets/images/elfo-saltador.png");
-    this.spritePlatTronco = this.getImage("./assets/images/plataforma-tronco.png");
-    this.spritePlatHielo = this.getImage("./assets/images/plataforma-hielo.png");
-    this.spritePlatDorada = this.getImage("./assets/images/plataforma-dorada.png");
-    this.spritePlatNube = this.getImage("./assets/images/plataforma-nube.png");
+    this.spritePlayer = this.getImage("./assets/images/elfo-saltador.webp");
+    this.spritePlatTronco = this.getImage("./assets/images/plataforma-tronco.webp");
+    this.spritePlatHielo = this.getImage("./assets/images/plataforma-hielo.webp");
+    this.spritePlatDorada = this.getImage("./assets/images/plataforma-dorada.webp");
+    this.spritePlatNube = this.getImage("./assets/images/plataforma-nube.webp");
     this.spriteCandyCane = this.getImage("./assets/images/baston-caramelo.webp");
     this.spriteBumper = this.getImage("./assets/images/bumper-polar.webp");
-    this.spriteGoblin = this.getImage("./assets/images/duende-hielo.png");
-    this.spriteRocket = this.getImage("./assets/images/cohete-navideno.png");
-    this.spriteStar = this.getImage("./assets/images/estrella con logo.png");
-    this.spriteGift = this.getImage("./assets/images/regalo-estilizado-rojo.png");
-    this.spriteClock = this.getImage("./assets/images/reloj-magico-tiempo.png");
-    this.spriteArrowLeft = this.getImage("./assets/images/flecha-izq.png");
-    this.spriteArrowRight = this.getImage("./assets/images/flecha-der.png");
+    this.spriteGoblin = this.getImage("./assets/images/duende-hielo.webp");
+    this.spriteRocket = this.getImage("./assets/images/cohete-navideno.webp");
+    this.spriteStar = this.getImage("./assets/images/estrella con logo.webp");
+    this.spriteGift = this.getImage("./assets/images/regalo-estilizado-rojo.webp");
+    this.spriteClock = this.getImage("./assets/images/reloj-magico-tiempo.webp");
+    this.spriteArrowLeft = this.getImage("./assets/images/flecha-izq.webp");
+    this.spriteArrowRight = this.getImage("./assets/images/flecha-der.webp");
 
     this.initSkyStars();
     this.initSnowFlakes();
@@ -472,7 +472,7 @@ export class MagicJumpGame extends BaseGame {
     const laneOrder: number[] = [];
     for (let l = 0; l < numLanes; l++) laneOrder.push(l);
     laneOrder.sort(() => Math.random() - 0.5);
-    const count = numLanes >= 3 ? 2 : (numLanes === 2 ? (Math.random() < 0.35 ? 2 : 1) : 1);
+    const count = numLanes >= 3 ? (Math.random() < 0.35 ? 2 : 1) : 1;
     const chosenLanes = laneOrder.slice(0, count);
 
     let hasSolidPlatform = false;
@@ -481,8 +481,27 @@ export class MagicJumpGame extends BaseGame {
       const lane = chosenLanes[idx];
       const laneMinX = lane * laneWidth + 18;
       const laneMaxX = (lane + 1) * laneWidth - platW - 18;
-      const platX = Math.max(laneMinX, Math.min(laneMaxX, laneMinX + Math.random() * Math.max(0, laneMaxX - laneMinX)));
-      const platY = y + (idx === 0 ? (Math.random() - 0.5) * 10 : 26 + Math.random() * 20);
+      let platX = Math.max(laneMinX, Math.min(laneMaxX, laneMinX + Math.random() * Math.max(0, laneMaxX - laneMinX)));
+      const platY = y + (idx === 0 ? (Math.random() - 0.5) * 8 : -32 - Math.random() * 15);
+
+      // Anticolision estricta: asegurar que no se solape con plataformas existentes en un radio vertical de 70px
+      const minVerticalGap = platH + 34;
+      const nearbyPlats = this.platforms.filter((p) => Math.abs(p.y - platY) < minVerticalGap);
+      let overlaps = false;
+      for (const other of nearbyPlats) {
+        if (Math.abs(other.x - platX) < platW + 24) {
+          overlaps = true;
+          if (other.x > w * 0.5) {
+            platX = Math.max(18, other.x - platW - 28);
+          } else {
+            platX = Math.min(w - platW - 18, other.x + other.w + 28);
+          }
+          break;
+        }
+      }
+      if (overlaps && nearbyPlats.some((other) => Math.abs(other.x - platX) < platW + 16)) {
+        continue;
+      }
 
       // Probabilidades según altitud
       const rand = idx === 0 ? 0.25 + Math.random() * 0.75 : Math.random();
@@ -1542,6 +1561,14 @@ export class MagicJumpGame extends BaseGame {
     const time = this.animTimer;
 
     this.platforms.forEach((plat) => {
+      // Sombra de contacto suave bajo la plataforma
+      ctx.save();
+      ctx.fillStyle = "rgba(10, 18, 36, 0.28)";
+      ctx.beginPath();
+      ctx.ellipse(plat.x + plat.w / 2, plat.y + plat.h + 2, plat.w * 0.44, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
       ctx.save();
 
       // Efecto squish al rebotar
@@ -1617,7 +1644,7 @@ export class MagicJumpGame extends BaseGame {
           }
         }
       } else if (plat.type === "cloud") {
-        // Nube de malvavisco mágica (plataforma-nube.png)
+        // Nube de malvavisco mágica (plataforma-nube.webp)
         if (plat.cloudAlpha !== undefined) {
           ctx.globalAlpha = Math.min(ctx.globalAlpha, plat.cloudAlpha);
         }
@@ -1629,7 +1656,7 @@ export class MagicJumpGame extends BaseGame {
           ctx.fill();
         }
       } else if (plat.type === "fragile") {
-        // Plataforma de Hielo Cristalino (plataforma-hielo.png)
+        // Plataforma de Hielo Cristalino (plataforma-hielo.webp)
         if (plat.broken && plat.breakRot !== undefined) {
           // Dibujar dos mitades de hielo quebrándose
           const halfW = plat.w * 0.5;
@@ -1658,7 +1685,7 @@ export class MagicJumpGame extends BaseGame {
           }
         }
       } else {
-        // Plataforma Tronco Nevada (plataforma-tronco.png) para "normal", "moving" y "spring"
+        // Plataforma Tronco Nevada (plataforma-tronco.webp) para "normal", "moving" y "spring"
         if (this.spritePlatTronco && this.spritePlatTronco.complete && this.spritePlatTronco.naturalWidth > 0) {
           ctx.drawImage(this.spritePlatTronco, plat.x, drawY - plat.h * 0.15, plat.w, plat.h * 1.3);
         } else {

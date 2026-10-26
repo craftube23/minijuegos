@@ -311,10 +311,10 @@ export class BellSymphonyGame extends BaseGame {
 
     // Carga de Sprites HD reutilizando caché
     this.bgImage = this.getImage("./assets/images/fondo-habitacion.webp");
-    this.imgArrowLeft = this.getImage("./assets/images/flecha-izq.png");
-    this.imgArrowDown = this.getImage("./assets/images/flecha-abajo.png");
-    this.imgArrowUp = this.getImage("./assets/images/flecha-arriba.png");
-    this.imgArrowRight = this.getImage("./assets/images/flecha-der.png");
+    this.imgArrowLeft = this.getImage("./assets/images/flecha-izq.webp");
+    this.imgArrowDown = this.getImage("./assets/images/flecha-abajo.webp");
+    this.imgArrowUp = this.getImage("./assets/images/flecha-arriba.webp");
+    this.imgArrowRight = this.getImage("./assets/images/flecha-der.webp");
     this.imgLogoFair = this.getImage("./assets/logos/Feria-magica-del-jugete-sin-fondo.webp");
     this.imgLogoCampus = this.getImage("./assets/logos/logo-campus-sin-fondo.webp");
 

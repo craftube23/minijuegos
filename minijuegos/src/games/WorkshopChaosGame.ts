@@ -136,15 +136,15 @@ export class WorkshopChaosGame extends BaseGame {
 
     // Carga de Sprites Oficiales
     this.bgImage = this.loadImage("./assets/images/fondo-habitacion.webp");
-    this.spriteGiftRed = this.loadImage("./assets/images/regalo-estilizado-rojo.png");
-    this.spriteGiftGreen = this.loadImage("./assets/images/regalo-estilizado-verde.png");
-    this.spriteGiftBlue = this.loadImage("./assets/images/regalo-estilizado-azul.png");
-    this.spriteGiftGold = this.loadImage("./assets/images/regalo-estilizado-dorado.png");
-    this.spriteBear = this.loadImage("./assets/images/osito.png");
-    this.spriteRobot = this.loadImage("./assets/images/robot.png");
-    this.spriteCar = this.loadImage("./assets/images/coche-juguete.png");
+    this.spriteGiftRed = this.loadImage("./assets/images/regalo-estilizado-rojo.webp");
+    this.spriteGiftGreen = this.loadImage("./assets/images/regalo-estilizado-verde.webp");
+    this.spriteGiftBlue = this.loadImage("./assets/images/regalo-estilizado-azul.webp");
+    this.spriteGiftGold = this.loadImage("./assets/images/regalo-estilizado-dorado.webp");
+    this.spriteBear = this.loadImage("./assets/images/osito.webp");
+    this.spriteRobot = this.loadImage("./assets/images/robot.webp");
+    this.spriteCar = this.loadImage("./assets/images/coche-juguete.webp");
     this.spriteCoal = this.loadImage("./assets/images/carbon.webp");
-    this.spriteDefective = this.loadImage("./assets/images/regalo-defectuoso.png");
+    this.spriteDefective = this.loadImage("./assets/images/regalo-defectuoso.webp");
 
     // Carga de Logotipos Oficiales de la Feria y Patrocinadores
     this.fairLogo = this.loadImage("./assets/logos/clean-feria-magica.webp");
@@ -804,6 +804,10 @@ export class WorkshopChaosGame extends BaseGame {
       ctx.rotate(obj.rotation);
       ctx.scale(obj.scale, obj.scale);
 
+      ctx.shadowColor = "rgba(10, 20, 40, 0.32)";
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 4;
+
       const sprite = this.getSpriteForType(obj.type);
       const size = obj.radius * 2;
 
@@ -933,6 +937,12 @@ export class WorkshopChaosGame extends BaseGame {
     const machineY = this.height - machineHeight;
 
     ctx.save();
+
+    // Sombra superior de la máquina sobre el fondo
+    ctx.save();
+    ctx.fillStyle = "rgba(0, 0, 0, 0.42)";
+    ctx.fillRect(0, machineY - 6, this.width, 6);
+    ctx.restore();
 
     // 1. Cuerpo principal de madera rústica y latón
     const grad = ctx.createLinearGradient(0, machineY, 0, this.height);

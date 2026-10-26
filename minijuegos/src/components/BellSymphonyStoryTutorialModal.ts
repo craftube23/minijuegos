@@ -157,7 +157,7 @@ export class BellSymphonyStoryTutorialModal {
         <!-- Encabezado con medallón oficial -->
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="ski-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE</span>
@@ -259,25 +259,25 @@ export class BellSymphonyStoryTutorialModal {
             <div class="bell-story-scene">
               <div class="bell-belfry-arch">
                 <div class="bell-glow-halo"></div>
-                <img src="./assets/images/icon-campanas.png" alt="Campanas Mágicas" class="bell-belfry-hero-img" />
+                <img src="./assets/images/icon-campanas.webp" alt="Campanas Mágicas" class="bell-belfry-hero-img" />
               </div>
               <div class="bell-notes-cascade">
                 <div class="music-floating-note note-red">
-                  <img src="./assets/images/flecha-izq.png" alt="Nota Roja" />
+                  <img src="./assets/images/flecha-izq.webp" alt="Nota Roja" />
                 </div>
                 <div class="music-floating-note note-gold">
-                  <img src="./assets/images/flecha-abajo.png" alt="Nota Dorada" />
+                  <img src="./assets/images/flecha-abajo.webp" alt="Nota Dorada" />
                 </div>
                 <div class="music-floating-note note-green">
-                  <img src="./assets/images/flecha-arriba.png" alt="Nota Verde" />
+                  <img src="./assets/images/flecha-arriba.webp" alt="Nota Verde" />
                 </div>
                 <div class="music-floating-note note-blue">
-                  <img src="./assets/images/flecha-der.png" alt="Nota Azul" />
+                  <img src="./assets/images/flecha-der.webp" alt="Nota Azul" />
                 </div>
               </div>
             </div>
             <div class="stage-story-badge">
-              <img src="./assets/images/estrella con logo.png" alt="Estrella" class="story-star-badge" />
+              <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="story-star-badge" />
               <span>MISIÓN: ¡HAZ REPICAR EL CAMPANARIO REAL!</span>
             </div>
           </div>
@@ -293,7 +293,7 @@ export class BellSymphonyStoryTutorialModal {
                 <span class="lane-header-pill">ROJO</span>
                 <div class="lane-track-strip">
                   <div class="sim-falling-note note-sim-0">
-                    <img src="./assets/images/flecha-izq.png" alt="Izquierda" />
+                    <img src="./assets/images/flecha-izq.webp" alt="Izquierda" />
                   </div>
                 </div>
                 <div class="fret-target-ring ring-red">
@@ -305,7 +305,7 @@ export class BellSymphonyStoryTutorialModal {
                 <span class="lane-header-pill">DORADO</span>
                 <div class="lane-track-strip">
                   <div class="sim-falling-note note-sim-1">
-                    <img src="./assets/images/flecha-abajo.png" alt="Abajo" />
+                    <img src="./assets/images/flecha-abajo.webp" alt="Abajo" />
                   </div>
                 </div>
                 <div class="fret-target-ring ring-gold">
@@ -317,7 +317,7 @@ export class BellSymphonyStoryTutorialModal {
                 <span class="lane-header-pill">VERDE</span>
                 <div class="lane-track-strip">
                   <div class="sim-falling-note note-sim-2">
-                    <img src="./assets/images/flecha-arriba.png" alt="Arriba" />
+                    <img src="./assets/images/flecha-arriba.webp" alt="Arriba" />
                   </div>
                 </div>
                 <div class="fret-target-ring ring-green">
@@ -329,7 +329,7 @@ export class BellSymphonyStoryTutorialModal {
                 <span class="lane-header-pill">AZUL</span>
                 <div class="lane-track-strip">
                   <div class="sim-falling-note note-sim-3">
-                    <img src="./assets/images/flecha-der.png" alt="Derecha" />
+                    <img src="./assets/images/flecha-der.webp" alt="Derecha" />
                   </div>
                 </div>
                 <div class="fret-target-ring ring-blue">
@@ -375,7 +375,7 @@ export class BellSymphonyStoryTutorialModal {
                 <div class="sustain-lane-backdrop"></div>
                 <div class="sustain-beam-glow">
                   <div class="sustain-head-bubble">
-                    <img src="./assets/images/flecha-abajo.png" alt="Sustain Head" />
+                    <img src="./assets/images/flecha-abajo.webp" alt="Sustain Head" />
                   </div>
                   <div class="sustain-lightning-trail"></div>
                   <div class="sustain-tail-cap"></div>
@@ -444,7 +444,7 @@ export class BellSymphonyStoryTutorialModal {
                 </div>
                 <div class="star-power-demo-bar">
                   <div class="star-bar-fill">
-                    <img src="./assets/images/estrella con logo.png" alt="Star" class="star-bar-icon" />
+                    <img src="./assets/images/estrella con logo.webp" alt="Star" class="star-bar-icon" />
                     <span>¡MODO ESTRELLA ACTIVO!</span>
                   </div>
                 </div>

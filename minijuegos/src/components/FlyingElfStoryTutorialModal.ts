@@ -156,7 +156,7 @@ export class FlyingElfStoryTutorialModal {
         <!-- Encabezado con medallón oficial -->
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="ski-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE</span>
@@ -258,17 +258,17 @@ export class FlyingElfStoryTutorialModal {
             <div class="elf-story-skyline">
               <div class="elf-hero-floating-box">
                 <div class="elf-glider-aura"></div>
-                <img src="./assets/images/elfo-volador.png" alt="Elfo Volador" class="elf-hero-sprite" />
+                <img src="./assets/images/elfo-volador.webp" alt="Elfo Volador" class="elf-hero-sprite" />
                 <div class="elf-sparkle-trail"></div>
               </div>
               <div class="floating-night-gifts">
-                <img src="./assets/images/regalo-rojo.png" alt="Regalo" class="gift-floating-1" />
+                <img src="./assets/images/regalo-rojo.webp" alt="Regalo" class="gift-floating-1" />
                 <img src="./assets/images/baston-caramelo.webp" alt="Caramelo" class="gift-floating-2" />
-                <img src="./assets/images/regalo-verde.png" alt="Regalo" class="gift-floating-3" />
+                <img src="./assets/images/regalo-verde.webp" alt="Regalo" class="gift-floating-3" />
               </div>
             </div>
             <div class="stage-story-badge">
-              <img src="./assets/images/estrella con logo.png" alt="Estrella" class="story-star-badge" />
+              <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="story-star-badge" />
               <span>MISIÓN: ¡RESCATA LOS REGALOS SOBRE LA VILLA!</span>
             </div>
           </div>
@@ -282,7 +282,7 @@ export class FlyingElfStoryTutorialModal {
             <div class="elf-flight-demo-track">
               <div class="flight-dotted-path"></div>
               <div class="elf-demo-glider" id="elf-demo-glider">
-                <img src="./assets/images/elfo-volador.png" alt="Elfo" class="demo-elf-sprite" />
+                <img src="./assets/images/elfo-volador.webp" alt="Elfo" class="demo-elf-sprite" />
                 <div class="elf-thrust-particles"></div>
               </div>
               <div class="flight-thrust-hint-badge" id="flight-thrust-hint">
@@ -324,8 +324,8 @@ export class FlyingElfStoryTutorialModal {
               <div class="toy-point-card card-classic">
                 <div class="point-badge-tag">+100 A +150 PTS</div>
                 <div class="point-images-duo">
-                  <img src="./assets/images/regalo-rojo.png" alt="Regalo Rojo" />
-                  <img src="./assets/images/regalo-verde.png" alt="Regalo Verde" />
+                  <img src="./assets/images/regalo-rojo.webp" alt="Regalo Rojo" />
+                  <img src="./assets/images/regalo-verde.webp" alt="Regalo Verde" />
                 </div>
                 <span class="point-label">Regalos de la Villa</span>
               </div>
@@ -335,7 +335,7 @@ export class FlyingElfStoryTutorialModal {
                 <div class="point-badge-tag tag-purple">+200 PTS</div>
                 <div class="point-images-duo">
                   <img src="./assets/images/baston-caramelo.webp" alt="Bastón Caramelo" />
-                  <img src="./assets/images/osito.png" alt="Peluche" />
+                  <img src="./assets/images/osito.webp" alt="Peluche" />
                 </div>
                 <span class="point-label">Dulces y Juguetes</span>
               </div>
@@ -344,7 +344,7 @@ export class FlyingElfStoryTutorialModal {
               <div class="toy-point-card card-star">
                 <div class="point-badge-tag tag-gold">+300 PTS • SÚPER IMÁN</div>
                 <div class="point-single-star">
-                  <img src="./assets/images/estrella con logo.png" alt="Estrella" class="star-pulse-img" />
+                  <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="star-pulse-img" />
                 </div>
                 <span class="point-label">¡Atrae Todos los Regalos!</span>
               </div>
@@ -367,7 +367,7 @@ export class FlyingElfStoryTutorialModal {
               <!-- Estalactitas de hielo -->
               <div class="hazard-card card-icicle">
                 <div class="hazard-title-badge badge-ice">ESTALACTITAS DE HIELO</div>
-                <img src="./assets/images/obstaculo-cristal.png" alt="Hielo" class="hazard-sprite-img" />
+                <img src="./assets/images/obstaculo-cristal.webp" alt="Hielo" class="hazard-sprite-img" />
                 <span class="hazard-penalty-tag tag-red">-1 VIDA • ESQUIVA POR ABAJO</span>
               </div>
             </div>

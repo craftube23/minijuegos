@@ -161,7 +161,7 @@ export class SantaHillsStoryTutorialModal {
         <!-- Encabezado con medallón oficial -->
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="ski-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE</span>
@@ -264,18 +264,18 @@ export class SantaHillsStoryTutorialModal {
               <div class="hills-crest-slope">
                 <div class="hills-sleigh-box">
                   <div class="sleigh-gold-aura"></div>
-                  <img src="./assets/images/santa-trineo.png" alt="Trineo de Santa" class="hills-sleigh-sprite" />
+                  <img src="./assets/images/santa-trineo.webp" alt="Trineo de Santa" class="hills-sleigh-sprite" />
                   <div class="hills-snow-spray"></div>
                 </div>
               </div>
               <div class="hills-floating-gifts">
-                <img src="./assets/images/regalo-rojo.png" alt="Regalo" class="hills-gift-1" />
-                <img src="./assets/images/osito.png" alt="Osito" class="hills-gift-2" />
-                <img src="./assets/images/regalo-verde.png" alt="Regalo" class="hills-gift-3" />
+                <img src="./assets/images/regalo-rojo.webp" alt="Regalo" class="hills-gift-1" />
+                <img src="./assets/images/osito.webp" alt="Osito" class="hills-gift-2" />
+                <img src="./assets/images/regalo-verde.webp" alt="Regalo" class="hills-gift-3" />
               </div>
             </div>
             <div class="stage-story-badge">
-              <img src="./assets/images/estrella con logo.png" alt="Estrella" class="story-star-badge" />
+              <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="story-star-badge" />
               <span>MISIÓN: ¡RESCATA LOS REGALOS POR LAS COLINAS!</span>
             </div>
           </div>
@@ -293,7 +293,7 @@ export class SantaHillsStoryTutorialModal {
                 </svg>
               </div>
               <div class="hills-demo-sleigh" id="hills-demo-sleigh">
-                <img src="./assets/images/santa-trineo.png" alt="Trineo" class="sleigh-jump-sprite" />
+                <img src="./assets/images/santa-trineo.webp" alt="Trineo" class="sleigh-jump-sprite" />
               </div>
               <div class="hills-trick-bubble" id="hills-trick-bubble">
                 <span>¡DOBLE SALTO 360°!</span>
@@ -332,8 +332,8 @@ export class SantaHillsStoryTutorialModal {
               <div class="toy-point-card card-classic">
                 <div class="point-badge-tag">+100 A +150 PTS</div>
                 <div class="point-images-duo">
-                  <img src="./assets/images/regalo-rojo.png" alt="Regalo Rojo" />
-                  <img src="./assets/images/regalo-verde.png" alt="Regalo Verde" />
+                  <img src="./assets/images/regalo-rojo.webp" alt="Regalo Rojo" />
+                  <img src="./assets/images/regalo-verde.webp" alt="Regalo Verde" />
                 </div>
                 <span class="point-label">Regalos de Nieve</span>
               </div>
@@ -342,8 +342,8 @@ export class SantaHillsStoryTutorialModal {
               <div class="toy-point-card card-special">
                 <div class="point-badge-tag tag-purple">+200 A +250 PTS</div>
                 <div class="point-images-duo">
-                  <img src="./assets/images/osito.png" alt="Osito" />
-                  <img src="./assets/images/robot.png" alt="Robot" />
+                  <img src="./assets/images/osito.webp" alt="Osito" />
+                  <img src="./assets/images/robot.webp" alt="Robot" />
                 </div>
                 <span class="point-label">Juguetes de Fábrica</span>
               </div>
@@ -352,7 +352,7 @@ export class SantaHillsStoryTutorialModal {
               <div class="toy-point-card card-star">
                 <div class="point-badge-tag tag-gold">+300 PTS • TRINEO DORADO</div>
                 <div class="point-single-star">
-                  <img src="./assets/images/medallon-feria.png" alt="Medallón Feria" class="star-pulse-img" />
+                  <img src="./assets/images/medallon-feria.webp" alt="Medallón Feria" class="star-pulse-img" />
                 </div>
                 <span class="point-label">¡Super Imán x2 & Turbo!</span>
               </div>
@@ -368,14 +368,14 @@ export class SantaHillsStoryTutorialModal {
               <!-- Troncos y Rocas -->
               <div class="hazard-card card-log">
                 <div class="hazard-title-badge">TRONCOS Y ROCAS</div>
-                <img src="./assets/images/obstaculo-tronco.png" alt="Tronco" class="hazard-sprite-img" />
+                <img src="./assets/images/obstaculo-tronco.webp" alt="Tronco" class="hazard-sprite-img" />
                 <span class="hazard-penalty-tag tag-red">-1 VIDA • SALTA POR ENCIMA</span>
               </div>
 
               <!-- Muñeco de Nieve & Hielo -->
               <div class="hazard-card card-snowman">
                 <div class="hazard-title-badge badge-ice">MUÑECOS Y CRISTALES</div>
-                <img src="./assets/images/obstaculo-muneco.png" alt="Muñeco" class="hazard-sprite-img" />
+                <img src="./assets/images/obstaculo-muneco.webp" alt="Muñeco" class="hazard-sprite-img" />
                 <span class="hazard-penalty-tag tag-red">-1 VIDA • FRENA TU TRINEO</span>
               </div>
             </div>

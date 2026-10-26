@@ -218,22 +218,22 @@ export class SantaHillsGame extends BaseGame {
 
     const load = (src: string): HTMLImageElement => this.getImage(src);
 
-    this.imgSantaSleigh = load("./assets/images/santa-trineo.png");
-    this.imgGiftRed = load("./assets/images/regalo-rojo.png");
-    this.imgGiftGreen = load("./assets/images/regalo-verde.png");
+    this.imgSantaSleigh = load("./assets/images/santa-trineo.webp");
+    this.imgGiftRed = load("./assets/images/regalo-rojo.webp");
+    this.imgGiftGreen = load("./assets/images/regalo-verde.webp");
     this.imgCandy = load("./assets/images/baston-caramelo.webp");
-    this.imgTeddy = load("./assets/images/osito.png");
-    this.imgRobot = load("./assets/images/robot.png");
+    this.imgTeddy = load("./assets/images/osito.webp");
+    this.imgRobot = load("./assets/images/robot.webp");
     this.imgRock = load("./assets/images/carbon.webp");
-    this.imgIce = load("./assets/images/hielo.png");
-    this.imgSnowman = load("./assets/images/obstaculo-muneco.png");
-    this.imgCrystal = load("./assets/images/obstaculo-cristal.png");
-    this.imgLog = load("./assets/images/obstaculo-tronco.png");
+    this.imgIce = load("./assets/images/hielo.webp");
+    this.imgSnowman = load("./assets/images/obstaculo-muneco.webp");
+    this.imgCrystal = load("./assets/images/obstaculo-cristal.webp");
+    this.imgLog = load("./assets/images/obstaculo-tronco.webp");
     this.imgTree = load("./assets/images/arbol.webp");
     this.imgHouse = load("./assets/images/casa-navidena-clean.webp");
     this.imgSignFeria = load("./assets/images/cartel-feria.webp");
     this.imgSignSponsor = load("./assets/images/cartel-sponsor.webp");
-    this.imgMedallonFeria = load("./assets/images/medallon-feria.png");
+    this.imgMedallonFeria = load("./assets/images/medallon-feria.webp");
     this.imgBgSeamless = load("./assets/images/fondo-villa-seamless.jpg");
   }
 

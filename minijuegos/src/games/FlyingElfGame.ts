@@ -58,8 +58,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#FFD700",
     glowColor: "rgba(255, 215, 0, 0.45)",
     accentColor: "#DC2626",
-    spritePath: "./assets/images/elfo-volador.png",
-    iconPath: "./assets/images/icon-elfo-feria.png",
+    spritePath: "./assets/images/elfo-volador.webp",
+    iconPath: "./assets/images/icon-elfo-feria.webp",
     soundNote: 0
   },
   {
@@ -73,8 +73,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#00E5FF",
     glowColor: "rgba(0, 229, 255, 0.45)",
     accentColor: "#0284C7",
-    spritePath: "./assets/images/elfo-volador-campus.png",
-    iconPath: "./assets/images/icon-elfo-campus.png",
+    spritePath: "./assets/images/elfo-volador-campus.webp",
+    iconPath: "./assets/images/icon-elfo-campus.webp",
     soundNote: 2
   },
   {
@@ -88,8 +88,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#38BDF8",
     glowColor: "rgba(56, 189, 248, 0.45)",
     accentColor: "#0B4F9C",
-    spritePath: "./assets/images/elfo-volador-cajasan.png",
-    iconPath: "./assets/images/icon-elfo-cajasan.png",
+    spritePath: "./assets/images/elfo-volador-cajasan.webp",
+    iconPath: "./assets/images/icon-elfo-cajasan.webp",
     soundNote: 4
   },
   {
@@ -103,8 +103,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#FBBF24",
     glowColor: "rgba(251, 191, 36, 0.45)",
     accentColor: "#DC2626",
-    spritePath: "./assets/images/elfo-volador-practi.png",
-    iconPath: "./assets/images/icon-elfo-practi.png",
+    spritePath: "./assets/images/elfo-volador-practi.webp",
+    iconPath: "./assets/images/icon-elfo-practi.webp",
     soundNote: 1
   },
   {
@@ -118,8 +118,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#F472B6",
     glowColor: "rgba(244, 114, 182, 0.45)",
     accentColor: "#F59E0B",
-    spritePath: "./assets/images/elfo-volador-mariposa.png",
-    iconPath: "./assets/images/icon-elfo-mariposa.png",
+    spritePath: "./assets/images/elfo-volador-mariposa.webp",
+    iconPath: "./assets/images/icon-elfo-mariposa.webp",
     soundNote: 3
   },
   {
@@ -133,8 +133,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#94A3B8",
     glowColor: "rgba(148, 163, 184, 0.45)",
     accentColor: "#1E3A8A",
-    spritePath: "./assets/images/elfo-volador-angelus.png",
-    iconPath: "./assets/images/icon-elfo-angelus.png",
+    spritePath: "./assets/images/elfo-volador-angelus.webp",
+    iconPath: "./assets/images/icon-elfo-angelus.webp",
     soundNote: 5
   },
   {
@@ -148,8 +148,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#EF4444",
     glowColor: "rgba(239, 68, 68, 0.45)",
     accentColor: "#1E293B",
-    spritePath: "./assets/images/elfo-volador-factor.png",
-    iconPath: "./assets/images/icon-elfo-factor.png",
+    spritePath: "./assets/images/elfo-volador-factor.webp",
+    iconPath: "./assets/images/icon-elfo-factor.webp",
     soundNote: 6
   },
   {
@@ -163,8 +163,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#38BDF8",
     glowColor: "rgba(56, 189, 248, 0.45)",
     accentColor: "#0284C7",
-    spritePath: "./assets/images/elfo-volador-fundalas.png",
-    iconPath: "./assets/images/icon-elfo-fundalas.png",
+    spritePath: "./assets/images/elfo-volador-fundalas.webp",
+    iconPath: "./assets/images/icon-elfo-fundalas.webp",
     soundNote: 2
   },
   {
@@ -178,8 +178,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#4ADE80",
     glowColor: "rgba(74, 222, 128, 0.45)",
     accentColor: "#EAB308",
-    spritePath: "./assets/images/elfo-volador-imebu.png",
-    iconPath: "./assets/images/icon-elfo-imebu.png",
+    spritePath: "./assets/images/elfo-volador-imebu.webp",
+    iconPath: "./assets/images/icon-elfo-imebu.webp",
     soundNote: 4
   }
 ];
@@ -333,7 +333,7 @@ export class FlyingElfGame extends BaseGame {
 
     // 3. Obstáculos Ilustrados 2D (Casa navideña con tejado/chimenea y Estalactitas)
     this.imgHouseObstacle = this.getImage("./assets/images/casa-obstaculo.webp");
-    this.imgIcicle = this.getImage("./assets/images/estalactita-hielo.png");
+    this.imgIcicle = this.getImage("./assets/images/estalactita-hielo.webp");
 
     // 4. Carteles de Publicidad con Logos Integrados de Todos los Patrocinadores
     const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu"];
@@ -345,12 +345,12 @@ export class FlyingElfGame extends BaseGame {
     this.imgTree = this.getImage("./assets/images/arbol.webp");
 
     // 6. Coleccionables Ilustrados 2D
-    this.imgGiftRed = this.getImage("./assets/images/regalo-rojo.png");
-    this.imgGiftGreen = this.getImage("./assets/images/regalo-verde.png");
-    this.imgGiftRed2 = this.getImage("./assets/images/regalo-rojo2.png");
+    this.imgGiftRed = this.getImage("./assets/images/regalo-rojo.webp");
+    this.imgGiftGreen = this.getImage("./assets/images/regalo-verde.webp");
+    this.imgGiftRed2 = this.getImage("./assets/images/regalo-rojo2.webp");
     this.imgCandy = this.getImage("./assets/images/baston-caramelo.webp");
-    this.imgTeddy = this.getImage("./assets/images/osito.png");
-    this.imgStarLogo = this.getImage("./assets/images/estrella con logo.png");
+    this.imgTeddy = this.getImage("./assets/images/osito.webp");
+    this.imgStarLogo = this.getImage("./assets/images/estrella con logo.webp");
 
     // Configuración del sistema de 5 Vidas
     this.showLives = false; // Se mostrará una vez inicie el vuelo activo tras la cuenta regresiva
@@ -2262,6 +2262,14 @@ export class FlyingElfGame extends BaseGame {
     ctx.save();
     for (const obs of this.obstacles) {
       if (obs.type === "house") {
+        // Sombra de contacto de la casa sobre la nieve
+        ctx.save();
+        ctx.fillStyle = "rgba(10, 20, 45, 0.38)";
+        ctx.beginPath();
+        ctx.ellipse(obs.x + obs.width / 2, obs.y + obs.height - 2, obs.width * 0.52, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
         if (this.imgHouseObstacle.complete && this.imgHouseObstacle.naturalWidth > 0) {
           ctx.drawImage(this.imgHouseObstacle, obs.x, obs.y, obs.width, obs.height);
         } else {

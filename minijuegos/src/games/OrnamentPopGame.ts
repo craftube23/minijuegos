@@ -239,22 +239,22 @@ export class OrnamentPopGame extends BaseGame {
     this.showLives = false;
 
     this.bgImg = this.getImage("./assets/images/fondo-habitacion.webp");
-    this.pinataImg = this.getImage("./assets/images/pinata-estrella.png");
-    this.gingerbreadImg = this.getImage("./assets/images/galleta-jengibre.png");
+    this.pinataImg = this.getImage("./assets/images/pinata-estrella.webp");
+    this.gingerbreadImg = this.getImage("./assets/images/galleta-jengibre.webp");
     this.peppermintImg = this.getImage("./assets/images/caramelo-menta.webp");
-    this.clockImg = this.getImage("./assets/images/reloj-magico-tiempo.png");
-    this.freezeCrystalImg = this.getImage("./assets/images/fruta-cristal-hielo.png");
+    this.clockImg = this.getImage("./assets/images/reloj-magico-tiempo.webp");
+    this.freezeCrystalImg = this.getImage("./assets/images/fruta-cristal-hielo.webp");
     this.frenzyOrbImg = this.getImage("./assets/images/bola-arcoiris.webp");
     this.bombImg = this.getImage("./assets/images/bomba-carbon-dorada.webp");
-    this.duendeImg = this.getImage("./assets/images/duende-hielo.png");
+    this.duendeImg = this.getImage("./assets/images/duende-hielo.webp");
     this.frozenGiftImg = this.getImage("./assets/images/bloque-regalo-congelado.webp");
-    this.giftRedImg = this.getImage("./assets/images/regalo-estilizado-rojo.png");
-    this.giftGreenImg = this.getImage("./assets/images/regalo-estilizado-verde.png");
-    this.giftBlueImg = this.getImage("./assets/images/regalo-estilizado-azul.png");
-    this.giftGoldImg = this.getImage("./assets/images/regalo-estilizado-dorado.png");
-    this.bearImg = this.getImage("./assets/images/osito.png");
-    this.robotImg = this.getImage("./assets/images/robot.png");
-    this.carImg = this.getImage("./assets/images/coche-juguete.png");
+    this.giftRedImg = this.getImage("./assets/images/regalo-estilizado-rojo.webp");
+    this.giftGreenImg = this.getImage("./assets/images/regalo-estilizado-verde.webp");
+    this.giftBlueImg = this.getImage("./assets/images/regalo-estilizado-azul.webp");
+    this.giftGoldImg = this.getImage("./assets/images/regalo-estilizado-dorado.webp");
+    this.bearImg = this.getImage("./assets/images/osito.webp");
+    this.robotImg = this.getImage("./assets/images/robot.webp");
+    this.carImg = this.getImage("./assets/images/coche-juguete.webp");
 
     this.sponsors = Object.entries(SPONSOR_CATALOG).map(([key, cfg]) => ({
       key,
@@ -1436,6 +1436,14 @@ export class OrnamentPopGame extends BaseGame {
   private drawFlyingTargets(ctx: CanvasRenderingContext2D): void {
     for (const t of this.targets) {
       if (t.sliced) continue;
+
+      // Sombra proyectada en la pared del dojo (sensación de profundidad 3D)
+      ctx.save();
+      ctx.fillStyle = "rgba(10, 5, 2, 0.40)";
+      ctx.beginPath();
+      ctx.ellipse(t.x + 16, t.y + 22, t.r * 0.95, t.r * 0.55, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
 
       ctx.save();
       ctx.translate(t.x, t.y);

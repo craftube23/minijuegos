@@ -17,10 +17,10 @@
  *    - ¡Haz giros cerrados, salta en rampas o activa el Super Turbo Dorado para escapar!
  *    - Sprites dedicados: `yeti-run1.webp`, `yeti-run2.webp`, `yeti-dizzy.webp`.
  * 4. Posturas y Sprites de Acción de Santa:
- *    - `santa-ski-left.png`: Carving a la izquierda con spray de nieve.
- *    - `santa-ski-right.png`: Carving a la derecha.
- *    - `santa-ski-jump.png`: Salto acrobático / voltereta mortal aérea con esquís en V.
- *    - `santa-ski-crash.png`: Golpe con estrellas mareadas y esquís botados.
+ *    - `santa-ski-left.webp`: Carving a la izquierda con spray de nieve.
+ *    - `santa-ski-right.webp`: Carving a la derecha.
+ *    - `santa-ski-jump.webp`: Salto acrobático / voltereta mortal aérea con esquís en V.
+ *    - `santa-ski-crash.webp`: Golpe con estrellas mareadas y esquís botados.
  * 5. Banderines y Rampas con Integración 3D en la Nieve:
  *    - Postes clavados en montículos de nieve con sombras proyectadas reales.
  *    - Rampas en perspectiva de descenso frontal con flechas de aceleración.
@@ -186,6 +186,7 @@ export class SantaSkiGame extends BaseGame {
   private trackTimer = 0;
   private snowSpray: SnowSprayParticle[] = [];
   private ghostTrail: { x: number; y: number; pose: SantaPose; tilt: number; alpha: number }[] = [];
+  private ghostSpawnTimer = 0;
 
   // Nieve ambiental
   // Nieve ambiental profesional en 3 capas y ventisca
@@ -245,12 +246,12 @@ export class SantaSkiGame extends BaseGame {
     this.inGameMusicVolume = 0.45;
 
     // Sprites 2D unificados de Santa (mismo estilo, proporciones y modelo de personaje)
-    this.santaStraightImg = this.getImage("./assets/images/santa-ski-straight.png");
+    this.santaStraightImg = this.getImage("./assets/images/santa-ski-straight.webp");
     this.santaStraight2Img = this.getImage("./assets/images/santa-ski-straight-2.webp");
-    this.santaLeftImg = this.getImage("./assets/images/santa-ski-left.png");
-    this.santaRightImg = this.getImage("./assets/images/santa-ski-right.png");
-    this.santaJumpImg = this.getImage("./assets/images/santa-ski-jump.png");
-    this.santaCrashImg = this.getImage("./assets/images/santa-ski-crash.png");
+    this.santaLeftImg = this.getImage("./assets/images/santa-ski-left.webp");
+    this.santaRightImg = this.getImage("./assets/images/santa-ski-right.webp");
+    this.santaJumpImg = this.getImage("./assets/images/santa-ski-jump.webp");
+    this.santaCrashImg = this.getImage("./assets/images/santa-ski-crash.webp");
 
     // Sprites del Yeti
     this.yetiRun1Img = this.getImage("./assets/images/yeti-run1.webp");
@@ -259,20 +260,20 @@ export class SantaSkiGame extends BaseGame {
     this.yetiDizzyImg = this.getImage("./assets/images/yeti-dizzy.webp");
 
     // Props y obstáculos
-    this.rampImg = this.getImage("./assets/images/rampa-esqui.png");
-    this.gateImg = this.getImage("./assets/images/puerta-eslalon.png");
+    this.rampImg = this.getImage("./assets/images/rampa-esqui.webp");
+    this.gateImg = this.getImage("./assets/images/puerta-eslalon.webp");
     this.treeImg = this.getImage("./assets/images/arbol.webp");
-    this.snowmanImg = this.getImage("./assets/images/obstaculo-muneco.png");
-    this.crystalImg = this.getImage("./assets/images/obstaculo-cristal.png");
-    this.logImg = this.getImage("./assets/images/obstaculo-tronco.png");
+    this.snowmanImg = this.getImage("./assets/images/obstaculo-muneco.webp");
+    this.crystalImg = this.getImage("./assets/images/obstaculo-cristal.webp");
+    this.logImg = this.getImage("./assets/images/obstaculo-tronco.webp");
     this.chaletImg = this.getImage("./assets/images/casa-navidena-clean.webp");
-    this.starImg = this.getImage("./assets/images/estrella con logo.png");
+    this.starImg = this.getImage("./assets/images/estrella con logo.webp");
 
     this.giftImgs = [
-      this.getImage("./assets/images/regalo-estilizado-rojo.png"),
-      this.getImage("./assets/images/regalo-estilizado-verde.png"),
-      this.getImage("./assets/images/regalo-estilizado-azul.png"),
-      this.getImage("./assets/images/regalo-estilizado-dorado.png")
+      this.getImage("./assets/images/regalo-estilizado-rojo.webp"),
+      this.getImage("./assets/images/regalo-estilizado-verde.webp"),
+      this.getImage("./assets/images/regalo-estilizado-azul.webp"),
+      this.getImage("./assets/images/regalo-estilizado-dorado.webp")
     ];
 
     this.sponsors = [
@@ -924,15 +925,21 @@ export class SantaSkiGame extends BaseGame {
       if (sp.alpha <= 0) this.snowSpray.splice(i, 1);
     }
 
-    // Estela fantasma durante Turbo
+    // Estela fantasma durante Turbo (espaciada limpiamente para evitar apilamiento)
     if (this.turboTimer > 0 && this.crashTimer <= 0) {
-      this.ghostTrail.push({
-        x: this.worldX,
-        y: this.worldY,
-        pose: this.currentPose,
-        tilt: this.tilt,
-        alpha: 0.55
-      });
+      this.ghostSpawnTimer += dt;
+      if (this.ghostSpawnTimer >= 0.08) {
+        this.ghostSpawnTimer = 0;
+        this.ghostTrail.push({
+          x: this.worldX,
+          y: this.worldY,
+          pose: this.currentPose,
+          tilt: this.tilt,
+          alpha: 0.38
+        });
+      }
+    } else {
+      this.ghostSpawnTimer = 0;
     }
 
     for (let i = this.ghostTrail.length - 1; i >= 0; i--) {
@@ -1558,14 +1565,33 @@ export class SantaSkiGame extends BaseGame {
           drawFitted(ctx, this.snowmanImg, sx, sy, ent.w, ent.h);
         }
       } else if (ent.kind === "crystal") {
+        // Sombra de contacto en la nieve para el cristal
+        ctx.fillStyle = "rgba(45, 75, 125, 0.32)";
+        ctx.beginPath();
+        ctx.ellipse(sx + ent.w / 2, sy + ent.h - 5, ent.w * 0.42, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
         if (imgReady(this.crystalImg)) {
           drawFitted(ctx, this.crystalImg, sx, sy, ent.w, ent.h);
         }
       } else if (ent.kind === "log") {
+        // Sombra y montículo de nieve de contacto para el tronco
+        ctx.fillStyle = "rgba(45, 75, 125, 0.40)";
+        ctx.beginPath();
+        ctx.ellipse(sx + ent.w / 2, sy + ent.h - 4, ent.w * 0.46, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "rgba(220, 240, 255, 0.90)";
+        ctx.beginPath();
+        ctx.ellipse(sx + ent.w / 2, sy + ent.h - 6, ent.w * 0.38, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
         if (imgReady(this.logImg)) {
           drawFitted(ctx, this.logImg, sx, sy, ent.w, ent.h);
         }
       } else if (ent.kind === "chalet") {
+        ctx.fillStyle = "rgba(40, 70, 110, 0.38)";
+        ctx.beginPath();
+        ctx.ellipse(sx + ent.w / 2, sy + ent.h - 6, ent.w * 0.48, 14, 0, 0, Math.PI * 2);
+        ctx.fill();
         if (imgReady(this.chaletImg)) {
           drawFitted(ctx, this.chaletImg, sx, sy, ent.w, ent.h);
         }
@@ -1587,10 +1613,7 @@ export class SantaSkiGame extends BaseGame {
       }
     }
 
-    // 4. Dibujar al Yeti de Nieve si está activo
-    if (this.yetiActive) {
-      this.drawYeti(ctx);
-    }
+
 
     // 5. Partículas de spray de nieve y nubes de polvo (Snow Carving Powder Puffs)
     ctx.save();
@@ -1615,10 +1638,19 @@ export class SantaSkiGame extends BaseGame {
     }
     ctx.restore();
 
-    // 6. Dibujar a Santa en el centro de la pantalla
+    // 6. Oclusión 2.5D Dinámica: quien esté más abajo en la colina va al frente
     const santaScreenX = this.worldX - this.cameraX;
     const santaScreenY = this.worldY - this.cameraY;
-    this.drawSantaPose(ctx, santaScreenX, santaScreenY, t);
+
+    if (this.yetiActive && this.yetiWorldY > this.worldY) {
+      this.drawSantaPose(ctx, santaScreenX, santaScreenY, t);
+      this.drawYeti(ctx);
+    } else {
+      if (this.yetiActive) {
+        this.drawYeti(ctx);
+      }
+      this.drawSantaPose(ctx, santaScreenX, santaScreenY, t);
+    }
 
     // 7. Ráfagas y estelas de ventisca alpina (Wind Wisps)
     ctx.save();

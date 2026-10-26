@@ -163,7 +163,7 @@ export class SnowballTargetStoryTutorialModal {
         <!-- Encabezado con medallón oficial -->
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="ski-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE</span>
@@ -267,19 +267,19 @@ export class SnowballTargetStoryTutorialModal {
                 <div class="carnival-lamp-glow"></div>
                 <div class="target-carnival-shelf shelf-top">
                   <div class="shelf-toy toy-robot-anim">
-                    <img src="./assets/images/robot.png" alt="Robot" />
+                    <img src="./assets/images/robot.webp" alt="Robot" />
                   </div>
                   <div class="shelf-bullseye">
-                    <img src="./assets/images/medallon-feria.png" alt="Diana Feria" />
+                    <img src="./assets/images/medallon-feria.webp" alt="Diana Feria" />
                   </div>
                   <div class="shelf-toy toy-teddy-anim">
-                    <img src="./assets/images/osito.png" alt="Osito" />
+                    <img src="./assets/images/osito.webp" alt="Osito" />
                   </div>
                 </div>
               </div>
             </div>
             <div class="stage-story-badge">
-              <img src="./assets/images/estrella con logo.png" alt="Estrella" class="story-star-badge" />
+              <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="story-star-badge" />
               <span>MISIÓN: ¡DERRIBA TODAS LAS DIANAS EN LA FERIA!</span>
             </div>
           </div>
@@ -294,7 +294,7 @@ export class SnowballTargetStoryTutorialModal {
               <div class="demo-shelf-wood"></div>
               <!-- Diana en bisagra -->
               <div class="demo-hinge-target" id="demo-hinge-target">
-                <img src="./assets/images/medallon-feria.png" alt="Diana" class="hinge-target-img" />
+                <img src="./assets/images/medallon-feria.webp" alt="Diana" class="hinge-target-img" />
                 <div class="target-splat-burst" id="demo-target-splat">
                   ${getIconSvg("sparkles", { size: 24, color: "#FFFFFF" })}
                 </div>
@@ -342,8 +342,8 @@ export class SnowballTargetStoryTutorialModal {
               <div class="toy-point-card card-classic">
                 <div class="point-badge-tag">+150 A +200 PTS</div>
                 <div class="point-images-duo">
-                  <img src="./assets/images/osito.png" alt="Osito" />
-                  <img src="./assets/images/robot.png" alt="Robot" />
+                  <img src="./assets/images/osito.webp" alt="Osito" />
+                  <img src="./assets/images/robot.webp" alt="Robot" />
                 </div>
                 <span class="point-label">Dianas y Juguetes</span>
               </div>
@@ -352,8 +352,8 @@ export class SnowballTargetStoryTutorialModal {
               <div class="toy-point-card card-special">
                 <div class="point-badge-tag tag-purple">+300 A +350 PTS</div>
                 <div class="point-images-duo">
-                  <img src="./assets/images/regalo-rojo2.png" alt="Regalo" />
-                  <img src="./assets/images/elfo-volador.png" alt="Elfo Travieso" />
+                  <img src="./assets/images/regalo-rojo2.webp" alt="Regalo" />
+                  <img src="./assets/images/elfo-volador.webp" alt="Elfo Travieso" />
                 </div>
                 <span class="point-label">Regalos & Elfo Pillo</span>
               </div>
@@ -362,7 +362,7 @@ export class SnowballTargetStoryTutorialModal {
               <div class="toy-point-card card-star">
                 <div class="point-badge-tag tag-gold">+500 PTS • SUPERPODERES</div>
                 <div class="point-single-star">
-                  <img src="./assets/images/estrella con logo.png" alt="Estrella" class="star-pulse-img" />
+                  <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="star-pulse-img" />
                 </div>
                 <span class="point-label">¡Triple Tiro & Mega-Bola!</span>
               </div>
@@ -385,7 +385,7 @@ export class SnowballTargetStoryTutorialModal {
               <!-- Cristal de hielo -->
               <div class="hazard-card card-ice">
                 <div class="hazard-title-badge badge-ice">CRISTAL HELADO</div>
-                <img src="./assets/images/obstaculo-cristal.png" alt="Cristal Helado" class="hazard-sprite-img" />
+                <img src="./assets/images/obstaculo-cristal.webp" alt="Cristal Helado" class="hazard-sprite-img" />
                 <span class="hazard-penalty-tag tag-red">-200 PTS • CONGELA LA MIRA</span>
               </div>
             </div>

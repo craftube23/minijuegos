@@ -158,7 +158,7 @@ export class SantaSkiStoryTutorialModal {
         <!-- Encabezado con medallón de la Feria Mágica -->
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="ski-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE</span>
@@ -254,11 +254,11 @@ export class SantaSkiStoryTutorialModal {
               <div class="animated-snowflakes-box"></div>
             </div>
             <div class="stage-mountain-peak">
-              <img src="./assets/images/santa-ski-straight.png" alt="Santa Esquiador" class="santa-hero-story" />
+              <img src="./assets/images/santa-ski-straight.webp" alt="Santa Esquiador" class="santa-hero-story" />
               <div class="santa-snow-pedestal"></div>
             </div>
             <div class="stage-story-badge">
-              <img src="./assets/images/estrella con logo.png" alt="Estrella Feria" class="story-star-badge" />
+              <img src="./assets/images/estrella con logo.webp" alt="Estrella Feria" class="story-star-badge" />
               <span>OBJETIVO: INAUGURAR LA FERIA DEL JUGUETE</span>
             </div>
           </div>
@@ -271,7 +271,7 @@ export class SantaSkiStoryTutorialModal {
             <div class="stage-controls-track">
               <div class="track-carve-lines"></div>
               <div class="santa-control-demo" id="santa-control-demo">
-                <img src="./assets/images/santa-ski-straight.png" alt="Santa" id="santa-demo-sprite" class="demo-skier-img" />
+                <img src="./assets/images/santa-ski-straight.webp" alt="Santa" id="santa-demo-sprite" class="demo-skier-img" />
                 <div class="demo-ski-spray" id="demo-ski-spray"></div>
               </div>
             </div>
@@ -310,8 +310,8 @@ export class SantaSkiStoryTutorialModal {
                 <span class="card-pts">+150 PTS • TURBO</span>
               </div>
               <div class="demo-card-visual gate-visual">
-                <img src="./assets/images/puerta-eslalon-3d.png" alt="Puerta Eslalon" class="demo-gate-img" />
-                <img src="./assets/images/santa-ski-straight.png" alt="Santa Cruzando" class="demo-santa-gate" />
+                <img src="./assets/images/puerta-eslalon-3d.webp" alt="Puerta Eslalon" class="demo-gate-img" />
+                <img src="./assets/images/santa-ski-straight.webp" alt="Santa Cruzando" class="demo-santa-gate" />
                 <div class="turbo-burst-badge">¡TURBO ESLALON!</div>
               </div>
             </div>
@@ -322,8 +322,8 @@ export class SantaSkiStoryTutorialModal {
                 <span class="card-pts">+300 PTS • SALTO 360°</span>
               </div>
               <div class="demo-card-visual ramp-visual">
-                <img src="./assets/images/rampa-esqui-downhill.png" alt="Rampa" class="demo-ramp-img" />
-                <img src="./assets/images/santa-ski-jump.png" alt="Santa en el Aire" class="demo-santa-jump" />
+                <img src="./assets/images/rampa-esqui-downhill.webp" alt="Rampa" class="demo-ramp-img" />
+                <img src="./assets/images/santa-ski-jump.webp" alt="Santa en el Aire" class="demo-santa-jump" />
                 <div class="jump-sparkle-badge">¡GRAN SALTO 360°!</div>
               </div>
             </div>
@@ -344,7 +344,7 @@ export class SantaSkiStoryTutorialModal {
                   <span>Pino</span>
                 </div>
                 <div class="prop-hazard-item">
-                  <img src="./assets/images/obstaculo-muneco-estilizado.png" alt="Muñeco" />
+                  <img src="./assets/images/obstaculo-muneco-estilizado.webp" alt="Muñeco" />
                   <span>Muñeco</span>
                 </div>
                 <div class="prop-hazard-item">
@@ -355,7 +355,7 @@ export class SantaSkiStoryTutorialModal {
                 </div>
               </div>
               <div class="crash-preview-box">
-                <img src="./assets/images/santa-ski-crash.png" alt="Choque en Nieve" class="demo-santa-crash" />
+                <img src="./assets/images/santa-ski-crash.webp" alt="Choque en Nieve" class="demo-santa-crash" />
                 <span class="crash-alert-tag">¡GOLPE Y RACHA PERDIDA!</span>
               </div>
             </div>
@@ -365,7 +365,7 @@ export class SantaSkiStoryTutorialModal {
                 <span>SÚPER TURBO (+250 PTS)</span>
               </div>
               <div class="turbo-power-showcase">
-                <img src="./assets/images/estrella con logo.png" alt="Estrella Dorada" class="demo-star-power" />
+                <img src="./assets/images/estrella con logo.webp" alt="Estrella Dorada" class="demo-star-power" />
                 <div class="turbo-smash-demo">
                   <span class="smash-impact-star">${getIconSvg("sparkles", { size: 24, color: "#FFD700" })}</span>
                   <span class="smash-tag">¡ARRASA Y DEMUELE TODO!</span>
@@ -384,7 +384,7 @@ export class SantaSkiStoryTutorialModal {
               <div class="yeti-frost-aura"></div>
               <img src="./assets/images/yeti-run1.webp" alt="Yeti de Nieve" class="demo-yeti-monster" id="demo-yeti-sprite" />
               <div class="yeti-chase-target">
-                <img src="./assets/images/santa-ski-straight.png" alt="Santa Huyendo" class="demo-santa-flee" />
+                <img src="./assets/images/santa-ski-straight.webp" alt="Santa Huyendo" class="demo-santa-flee" />
               </div>
               <div class="yeti-warning-banner">
                 <span class="yeti-skull-icon">${getIconSvg("shield", { size: 16, color: "#FF1744" })}</span>
@@ -485,12 +485,12 @@ export class SantaSkiStoryTutorialModal {
     this.stepInterval = setInterval(() => {
       dir *= -1;
       if (dir === 1) {
-        sprite.src = "./assets/images/santa-ski-right.png";
+        sprite.src = "./assets/images/santa-ski-right.webp";
         gsap.to(demoBox, { x: 55, rotation: 8, duration: 0.55, ease: "power1.inOut" });
         if (keyRight) keyRight.classList.add("key-active");
         if (keyLeft) keyLeft.classList.remove("key-active");
       } else {
-        sprite.src = "./assets/images/santa-ski-left.png";
+        sprite.src = "./assets/images/santa-ski-left.webp";
         gsap.to(demoBox, { x: -55, rotation: -8, duration: 0.55, ease: "power1.inOut" });
         if (keyLeft) keyLeft.classList.add("key-active");
         if (keyRight) keyRight.classList.remove("key-active");

@@ -76,7 +76,7 @@ export class GameOverModal {
         <div class="modal-emblem-header">
           <div class="modal-emblem-aura"></div>
           <div class="modal-medallion-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="modal-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="modal-feria-seal" />
             ${isRecord ? `<div class="record-crown-badge">${getIconSvg("crown", { size: 22, color: "#FFD700", fill: "#FFD700" })}</div>` : ""}
           </div>
         </div>

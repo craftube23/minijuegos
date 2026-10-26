@@ -108,14 +108,14 @@ export class ToyMatchGame extends BaseGame {
 
     this.bgImg = this.getImage("./assets/images/fondo-habitacion.webp");
     this.tileSprites = [
-      this.getImage("./assets/images/osito.png"),
-      this.getImage("./assets/images/robot.png"),
-      this.getImage("./assets/images/coche-juguete.png"),
-      this.getImage("./assets/images/regalo-estilizado-dorado.png"),
+      this.getImage("./assets/images/osito.webp"),
+      this.getImage("./assets/images/robot.webp"),
+      this.getImage("./assets/images/coche-juguete.webp"),
+      this.getImage("./assets/images/regalo-estilizado-dorado.webp"),
       this.getImage("./assets/images/bola-roja.webp"),
       this.getImage("./assets/images/bola-azul.webp")
     ];
-    this.starImg = this.getImage("./assets/images/estrella con logo.png");
+    this.starImg = this.getImage("./assets/images/estrella con logo.webp");
 
     this.sponsors = [
       { id: "campus", name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.webp") },
@@ -657,6 +657,10 @@ export class ToyMatchGame extends BaseGame {
         ctx.scale(bounce, bounce);
 
         const col = KIND_COLORS[tile.kind] || "#FFD700";
+        ctx.save();
+        ctx.shadowColor = "rgba(0, 0, 0, 0.35)";
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 4;
         ctx.fillStyle = tile.isBomb ? "rgba(255, 215, 0, 0.42)" : `${col}28`;
         ctx.strokeStyle = tile.isBomb ? "#FFD700" : `${col}88`;
         ctx.lineWidth = tile.isBomb ? 3 : 2;
@@ -664,6 +668,7 @@ export class ToyMatchGame extends BaseGame {
         roundRectPath(ctx, -pad, -pad, pad * 2, pad * 2, 12);
         ctx.fill();
         ctx.stroke();
+        ctx.restore();
 
         const spr = tile.isBomb ? this.starImg : this.tileSprites[tile.kind];
         const sprSize = cellSize * 0.72;

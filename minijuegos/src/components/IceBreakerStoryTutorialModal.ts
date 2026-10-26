@@ -43,11 +43,11 @@ export class IceBreakerStoryTutorialModal {
   private readonly steps: IceBreakerStepData[] = [
     {
       tag: "CAPÍTULO 1 • LA HISTORIA",
-      title: "¡8 Bóvedas Glaciales y 1 Sola Vida!",
+      title: "¡14 Bóvedas Glaciales Aleatorias y 1 Sola Vida!",
       badge: "SIN LÍMITE DE TIEMPO",
       badgeColor: "#00E5FF",
       storyText:
-        "Una helada polar ha encerrado los juguetes de la <strong>Feria Mágica del Juguete</strong> a lo largo de <strong>8 niveles con formaciones únicas</strong> (<em>El Arco Polar, El Gran Pino de Cristal, El Corazón Navideño, La Fortaleza del Cascanueces, El Carrusel Móvil</em> y más). Juegas <strong>sin reloj</strong> pero con <strong>1 sola vida</strong>: si dejas caer todas las esferas activas al vacío, terminará tu partida.",
+        "Una helada polar ha encerrado los juguetes de la <strong>Feria Mágica del Juguete</strong> a lo largo de <strong>14 formaciones artísticas aleatorias</strong> (<em>El Arco Polar, El Gran Pino de Cristal, El Corazón Navideño, La Fortaleza del Cascanueces, El Carrusel Móvil</em> y más). Juegas <strong>sin reloj</strong> pero con <strong>1 sola vida</strong>: si dejas caer todas las esferas activas al vacío, terminará tu partida.",
       proTip: "¡Superar cada formación te otorga +500 puntos de bonificación y desbloquea el siguiente diseño glacial!",
       visualType: "story"
     },
@@ -147,7 +147,7 @@ export class IceBreakerStoryTutorialModal {
 
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/icon-rompe-hielos.png" alt="Rompe-Hielos" class="ski-feria-seal" />
+            <img src="./assets/images/icon-rompe-hielos.webp" alt="Rompe-Hielos" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE • BÓVEDA DE CRISTAL</span>
@@ -256,12 +256,12 @@ export class IceBreakerStoryTutorialModal {
             <div class="ice-demo-bricks-row">
               <img src="./assets/images/bloque-hielo-cristal.webp" alt="Hielo" class="ice-demo-brick-img" />
               <img src="./assets/images/bloque-regalo-congelado.webp" alt="Regalo" class="ice-demo-brick-img" />
-              <img src="./assets/images/bloque-hielo-dorado.png" alt="Acorazado" class="ice-demo-brick-img" />
+              <img src="./assets/images/bloque-hielo-dorado.webp" alt="Acorazado" class="ice-demo-brick-img" />
             </div>
             <div class="ice-demo-arena-mid">
-              <img src="./assets/images/esfera-rompehielos.png" alt="Esfera" class="ice-demo-orb-img" id="ice-demo-orb" />
+              <img src="./assets/images/esfera-rompehielos.webp" alt="Esfera" class="ice-demo-orb-img" id="ice-demo-orb" />
             </div>
-            <img src="./assets/images/paleta-rompehielos.png" alt="Paleta" class="ice-demo-paddle-img" id="ice-demo-paddle" />
+            <img src="./assets/images/paleta-rompehielos.webp" alt="Paleta" class="ice-demo-paddle-img" id="ice-demo-paddle" />
           </div>
         `;
 
@@ -270,8 +270,8 @@ export class IceBreakerStoryTutorialModal {
           <div class="ice-demo-stage">
             <div class="ice-aim-preview">
               <div class="ice-aim-ray" id="ice-aim-ray"></div>
-              <img src="./assets/images/esfera-rompehielos.png" alt="Esfera" class="ice-aim-orb" />
-              <img src="./assets/images/paleta-rompehielos.png" alt="Paleta" class="ice-demo-paddle-img" id="ice-ctrl-paddle" />
+              <img src="./assets/images/esfera-rompehielos.webp" alt="Esfera" class="ice-aim-orb" />
+              <img src="./assets/images/paleta-rompehielos.webp" alt="Paleta" class="ice-demo-paddle-img" id="ice-ctrl-paddle" />
             </div>
             <div class="polar-controls-bar">
               <span class="polar-ctrl-hint">DESLIZA DEDO</span>
@@ -299,7 +299,7 @@ export class IceBreakerStoryTutorialModal {
                 <span class="b-pts">RESCATA JUGUETE • +95</span>
               </div>
               <div class="ice-brick-card">
-                <img src="./assets/images/bloque-hielo-dorado.png" alt="Acorazado Dorado" />
+                <img src="./assets/images/bloque-hielo-dorado.webp" alt="Acorazado Dorado" />
                 <span class="b-title">ACORAZADO DORADO</span>
                 <span class="b-pts">2 GOLPES • +160 PTS</span>
               </div>
@@ -317,21 +317,21 @@ export class IceBreakerStoryTutorialModal {
           <div class="ice-demo-stage">
             <div class="ice-powers-grid">
               <div class="ice-power-pill">
-                <img src="./assets/images/estrella con logo.png" alt="Multi-Esfera" />
+                <img src="./assets/images/estrella con logo.webp" alt="Multi-Esfera" />
                 <div>
                   <strong>MULTI-ESFERA x3</strong>
                   <span>Divide tu tiro en 3 esferas mágicas</span>
                 </div>
               </div>
               <div class="ice-power-pill">
-                <img src="./assets/images/regalo-estilizado-dorado.png" alt="Esfera de Fuego" />
+                <img src="./assets/images/regalo-estilizado-dorado.webp" alt="Esfera de Fuego" />
                 <div>
                   <strong>ESFERA DE FUEGO SOLAR</strong>
                   <span>Derrite y atraviesa bloques sin rebotar</span>
                 </div>
               </div>
               <div class="ice-power-pill">
-                <img src="./assets/images/estalactita-hielo.png" alt="Cañón de Carámbanos" />
+                <img src="./assets/images/estalactita-hielo.webp" alt="Cañón de Carámbanos" />
                 <div>
                   <strong>CAÑÓN DE CARÁMBANOS</strong>
                   <span>Torretas dobles que disparan desde la paleta</span>

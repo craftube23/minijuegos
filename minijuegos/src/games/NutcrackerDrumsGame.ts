@@ -136,7 +136,7 @@ export class NutcrackerDrumsGame extends BaseGame {
 
     // Carga de Sprites de alta definición reutilizando caché
     this.bgRoom = this.getImage("./assets/images/fondo-habitacion.webp");
-    this.elfSprite = this.getImage("./assets/images/elfo-baterista.png");
+    this.elfSprite = this.getImage("./assets/images/elfo-baterista.webp");
   }
 
   public override resize(width: number, height: number): void {

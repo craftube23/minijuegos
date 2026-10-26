@@ -35,7 +35,7 @@ import {
   drawSponsorMedallion
 } from "./shared/gameDraw";
 
-type BrickKind = "ice" | "gift-red" | "gift-green" | "gift-blue" | "gold" | "sponsor";
+type BrickKind = "ice" | "crystal" | "gift-red" | "gift-green" | "gift-blue" | "gold" | "sponsor";
 type DropPowerKind = "multiball" | "wide" | "fireball" | "cannon" | "shield";
 
 interface SponsorInfo {
@@ -89,27 +89,29 @@ interface LevelBlueprint {
 
 const LEVEL_BLUEPRINTS: LevelBlueprint[] = [
   {
-    name: "NIVEL 1 • EL ARCO POLAR",
+    name: "EL GRAN PINO DE CRISTAL",
     grid: [
-      "IIASSAII",
-      "IRGGGGRI",
-      "IRBBBBRI",
-      "IAAIIAAI",
-      "I..SS..I"
+      "....SS....",
+      "...I..I...",
+      "..IC..CI..",
+      ".IGRRRRGI.",
+      "ICGGGGGGCI",
+      "...AAAA..."
     ],
     bumpers: [
-      { nx: 0.28, ny: 0.54, r: 24 },
-      { nx: 0.72, ny: 0.54, r: 24 }
+      { nx: 0.24, ny: 0.55, r: 24 },
+      { nx: 0.76, ny: 0.55, r: 24 }
     ]
   },
   {
-    name: "NIVEL 2 • EL GRAN PINO DE CRISTAL",
+    name: "EL CORAZÓN DE LA NAVIDAD",
     grid: [
-      "..SS....",
-      ".IGAAGI.",
-      "IGRSSRGI",
-      "IGBBBBGI",
-      "IIAAAAII"
+      ".CC....CC.",
+      "CRRSSSSRRC",
+      "CGGGGGGGGC",
+      ".CBBBBBBC.",
+      "..IAAAAI..",
+      "...ICCI..."
     ],
     bumpers: [
       { nx: 0.22, ny: 0.56, r: 24 },
@@ -118,27 +120,29 @@ const LEVEL_BLUEPRINTS: LevelBlueprint[] = [
     ]
   },
   {
-    name: "NIVEL 3 • EL CORAZÓN DE LA NAVIDAD",
+    name: "LA ESTRELLA POLAR",
     grid: [
-      ".RR..RR.",
-      "RBBSSRBR",
-      "RGGGGGGR",
-      ".IRBBRI.",
-      "..IAAI.."
+      "....SS....",
+      "...ICCI...",
+      "..IAAAAI..",
+      "CIARRRRAIC",
+      "..IAAAAI..",
+      "...ICCI...",
+      "....II...."
     ],
     bumpers: [
-      { nx: 0.26, ny: 0.54, r: 25 },
-      { nx: 0.74, ny: 0.54, r: 25 }
+      { nx: 0.25, ny: 0.54, r: 25 },
+      { nx: 0.75, ny: 0.54, r: 25 }
     ]
   },
   {
-    name: "NIVEL 4 • FORTALEZA DEL CASCANUECES",
+    name: "EL TRINEO MÁGICO DE SANTA",
     grid: [
-      "AASSSSAA",
-      "ARGGGGRA",
-      "ABIIIIBA",
-      "AARSSRAA",
-      "AAGGGGAA"
+      "..RRGG....",
+      ".BSSSSB...",
+      "CCCCCCCC..",
+      "A......A..",
+      "AAAAAAAAAA"
     ],
     bumpers: [
       { nx: 0.50, ny: 0.52, r: 26 },
@@ -147,13 +151,13 @@ const LEVEL_BLUEPRINTS: LevelBlueprint[] = [
     ]
   },
   {
-    name: "NIVEL 5 • EL COPO DE NIEVE BOREAL",
+    name: "EL COPO DE NIEVE BOREAL",
     grid: [
-      "AIISSSIA",
-      "IAAGGIAA",
-      "SRAAAARS",
-      "IAAGGIAA",
-      "AIISSSIA"
+      "...IIII...",
+      ".C..SS..C.",
+      "I..AAAA..I",
+      ".C..SS..C.",
+      "...IIII..."
     ],
     bumpers: [
       { nx: 0.28, ny: 0.54, r: 25 },
@@ -161,29 +165,30 @@ const LEVEL_BLUEPRINTS: LevelBlueprint[] = [
     ]
   },
   {
-    name: "NIVEL 6 • EL CARRUSEL GLACIAL",
+    name: "LA FORTALEZA DEL CASCANUECES",
     grid: [
-      "ISAAAASI",
-      "IRGBBGRI",
-      "ISBBBBSI",
-      "IRGGGGRI",
-      "IAAIIAAI"
+      "AA......AA",
+      "AA.SSSS.AA",
+      "AC.RRRR.CA",
+      "AC......CA",
+      "AC......CA"
     ],
     bumpers: [
       { nx: 0.25, ny: 0.54, r: 24 },
       { nx: 0.50, ny: 0.58, r: 25 },
       { nx: 0.75, ny: 0.54, r: 24 }
     ],
-    movingRows: [1, 3]
+    movingRows: [1, 2]
   },
   {
-    name: "NIVEL 7 • LA BÓVEDA DE DIAMANTE",
+    name: "LA CAMPANA DE NAVIDAD",
     grid: [
-      "..AAAA..",
-      ".IAASSAI",
-      "ARGGGGRA",
-      "ABSSSSBA",
-      "..IIAA.."
+      "....AA....",
+      "...ISSI...",
+      "..IRGGRI..",
+      ".ICCCCCI..",
+      "CCCCCCCCCC",
+      "....AA...."
     ],
     bumpers: [
       { nx: 0.22, ny: 0.54, r: 24 },
@@ -192,13 +197,13 @@ const LEVEL_BLUEPRINTS: LevelBlueprint[] = [
     ]
   },
   {
-    name: "NIVEL 8 • LA CORONA REAL DE LA FERIA",
+    name: "LA CORONA REAL DE LA FERIA",
     grid: [
-      "SAIAAIAS",
-      "AARRRRAA",
-      "AGSSSSGA",
-      "ABIIIIBA",
-      "AAAAAAAA"
+      "A..A..A..A",
+      "AS.A..A.SA",
+      "ARCGGGCRA.",
+      "ACSSSSCA..",
+      "AAAAAAAAAA"
     ],
     bumpers: [
       { nx: 0.25, ny: 0.54, r: 24 },
@@ -206,6 +211,97 @@ const LEVEL_BLUEPRINTS: LevelBlueprint[] = [
       { nx: 0.75, ny: 0.54, r: 24 }
     ],
     movingRows: [1, 3]
+  },
+  {
+    name: "EL BASTÓN DE CARAMELO MÁGICO",
+    grid: [
+      "..RRRR....",
+      ".RA..AR...",
+      "....AAR...",
+      "....RRA...",
+      "....AAR...",
+      "....RRA...",
+      "....AAR..."
+    ],
+    bumpers: [
+      { nx: 0.25, ny: 0.55, r: 25 },
+      { nx: 0.75, ny: 0.55, r: 25 }
+    ]
+  },
+  {
+    name: "EL MUÑECO DE NIEVE GLACIAL",
+    grid: [
+      "...AAAA...",
+      "..ACSSCA..",
+      "...CCCC...",
+      "..CRRRRC..",
+      ".CGGGGGGC.",
+      "CBBBBBBBBC"
+    ],
+    bumpers: [
+      { nx: 0.22, ny: 0.55, r: 24 },
+      { nx: 0.78, ny: 0.55, r: 24 }
+    ]
+  },
+  {
+    name: "LA BOTA NAVIDEÑA DE REGALOS",
+    grid: [
+      ".RRGGSS...",
+      ".CCCCCC...",
+      ".CCCCCC...",
+      ".CCCCCCCC.",
+      ".CCCCCCCC.",
+      "..AAAAAA.."
+    ],
+    bumpers: [
+      { nx: 0.65, ny: 0.52, r: 25 },
+      { nx: 0.25, ny: 0.58, r: 24 }
+    ]
+  },
+  {
+    name: "EL GRAN REGALO MÁGICO",
+    grid: [
+      "..SS..SS..",
+      "..SS..SS..",
+      "RRRRSSRRRR",
+      "SSSSSSSSSS",
+      "GGGGSSGGGG",
+      "GGGGSSGGGG"
+    ],
+    bumpers: [
+      { nx: 0.22, ny: 0.56, r: 24 },
+      { nx: 0.78, ny: 0.56, r: 24 }
+    ]
+  },
+  {
+    name: "EL ÁNGEL DE CRISTAL",
+    grid: [
+      "C........C",
+      "CC..SS..CC",
+      "CCRRAARRCC",
+      ".C.G..G.C.",
+      "..C....C.."
+    ],
+    bumpers: [
+      { nx: 0.30, ny: 0.54, r: 25 },
+      { nx: 0.50, ny: 0.58, r: 25 },
+      { nx: 0.70, ny: 0.54, r: 25 }
+    ]
+  },
+  {
+    name: "EL RENO RODOLFO",
+    grid: [
+      "A..A..A..A",
+      ".A.A..A.A.",
+      "..CAAAAC..",
+      "..C.RR.C..",
+      "...CSSC...",
+      "....CC...."
+    ],
+    bumpers: [
+      { nx: 0.24, ny: 0.55, r: 24 },
+      { nx: 0.76, ny: 0.55, r: 24 }
+    ]
   }
 ];
 
@@ -292,6 +388,7 @@ export class IceBreakerGame extends BaseGame {
 
   private wave = 1;
   private currentLevelTitle = LEVEL_BLUEPRINTS[0].name;
+  private levelDeck: number[] = [];
   private combo = 0;
   private wideTimer = 0;
   private fireballTimer = 0;
@@ -344,23 +441,23 @@ export class IceBreakerGame extends BaseGame {
     this.inGameMusicVolume = 0.42;
 
     this.bgImg = this.getImage("./assets/images/fondo-villa-montanas.jpg");
-    this.paddleImg = this.getImage("./assets/images/paleta-rompehielos.png");
-    this.orbImg = this.getImage("./assets/images/esfera-rompehielos.png");
+    this.paddleImg = this.getImage("./assets/images/paleta-rompehielos.webp");
+    this.orbImg = this.getImage("./assets/images/esfera-rompehielos.webp");
     this.brickIceImg = this.getImage("./assets/images/bloque-hielo-cristal.webp");
-    this.brickGoldImg = this.getImage("./assets/images/bloque-hielo-dorado.png");
+    this.brickGoldImg = this.getImage("./assets/images/bloque-hielo-dorado.webp");
     this.brickGiftImg = this.getImage("./assets/images/bloque-regalo-congelado.webp");
     this.bumperImg = this.getImage("./assets/images/bumper-polar.webp");
-    this.icicleImg = this.getImage("./assets/images/estalactita-hielo.png");
+    this.icicleImg = this.getImage("./assets/images/estalactita-hielo.webp");
 
-    this.giftRedImg = this.getImage("./assets/images/regalo-estilizado-rojo.png");
-    this.giftGreenImg = this.getImage("./assets/images/regalo-estilizado-verde.png");
-    this.giftBlueImg = this.getImage("./assets/images/regalo-estilizado-azul.png");
-    this.giftGoldImg = this.getImage("./assets/images/regalo-estilizado-dorado.png");
-    this.starImg = this.getImage("./assets/images/estrella con logo.png");
+    this.giftRedImg = this.getImage("./assets/images/regalo-estilizado-rojo.webp");
+    this.giftGreenImg = this.getImage("./assets/images/regalo-estilizado-verde.webp");
+    this.giftBlueImg = this.getImage("./assets/images/regalo-estilizado-azul.webp");
+    this.giftGoldImg = this.getImage("./assets/images/regalo-estilizado-dorado.webp");
+    this.starImg = this.getImage("./assets/images/estrella con logo.webp");
     this.candyImg = this.getImage("./assets/images/baston-caramelo.webp");
-    this.bearImg = this.getImage("./assets/images/osito.png");
-    this.robotImg = this.getImage("./assets/images/robot.png");
-    this.carImg = this.getImage("./assets/images/coche-juguete.png");
+    this.bearImg = this.getImage("./assets/images/osito.webp");
+    this.robotImg = this.getImage("./assets/images/robot.webp");
+    this.carImg = this.getImage("./assets/images/coche-juguete.webp");
 
     this.sponsors = [
       { id: "campus", name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.webp") },
@@ -476,18 +573,30 @@ export class IceBreakerGame extends BaseGame {
 
   private buildBrickGrid(wave: number): void {
     const { left, arenaW, top, paddleY } = this.getArenaBounds();
-    const bp = LEVEL_BLUEPRINTS[(wave - 1) % LEVEL_BLUEPRINTS.length];
-    const cycle = Math.floor((wave - 1) / LEVEL_BLUEPRINTS.length);
-    this.currentLevelTitle = cycle > 0 ? `${bp.name} ★${cycle + 1}` : bp.name;
+    // Mazo aleatorio sin repetir hasta agotar todas las formaciones
+    if (this.levelDeck.length === 0) {
+      const indices = Array.from({ length: LEVEL_BLUEPRINTS.length }, (_, i) => i);
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      this.levelDeck = indices;
+    }
 
-    const cols = 8;
-    const padX = 16;
-    const gapX = 8;
+    const bpIndex = this.levelDeck.pop() ?? 0;
+    const bp = LEVEL_BLUEPRINTS[bpIndex];
+    const cycle = Math.floor((wave - 1) / LEVEL_BLUEPRINTS.length);
+    this.currentLevelTitle = `NIVEL ${wave} • ${bp.name}${cycle > 0 ? ` ★${cycle + 1}` : ''}`;
+    const shouldFlip = Math.random() < 0.5;
+
+    const numRows = bp.grid.length;
+    const cols = Math.max(...bp.grid.map((r) => r.length));
+    const padX = 14;
+    const gapX = 7;
     const usableW = arenaW - padX * 2 - gapX * (cols - 1);
     const bw = usableW / cols;
     const arenaH = Math.max(200, paddleY - top);
-    const numRows = bp.grid.length;
-    const maxGridH = Math.min(195, arenaH * 0.38);
+    const maxGridH = Math.min(235, arenaH * 0.40);
     const gapY = Math.max(5, Math.min(7, Math.round(maxGridH * 0.035)));
     const bh = Math.max(26, Math.min(36, Math.floor((maxGridH - (numRows - 1) * gapY) / numRows)));
 
@@ -495,7 +604,7 @@ export class IceBreakerGame extends BaseGame {
     let sponsorIdx = wave;
 
     for (let r = 0; r < bp.grid.length; r++) {
-      const rowStr = bp.grid[r];
+      const rowStr = shouldFlip ? bp.grid[r].split("").reverse().join("") : bp.grid[r];
       const isMovingRow = bp.movingRows?.includes(r) || (cycle > 0 && r % 2 === 1);
       const rowSpeed = isMovingRow ? (r % 2 === 0 ? 1 : -1) * (38 + wave * 4) : 0;
 
@@ -511,34 +620,39 @@ export class IceBreakerGame extends BaseGame {
 
         if (ch === "S") {
           kind = "sponsor";
-          hp = 1;
+          hp = 2; // Cofre de Patrocinador: 2 golpes
           points = 260;
           sponsor = this.sponsors[sponsorIdx % this.sponsors.length];
           sponsorIdx++;
           color = "#FFD700";
         } else if (ch === "A") {
           kind = "gold";
-          hp = 2 + (cycle > 0 ? 1 : 0);
-          points = 160;
+          hp = 3 + (cycle > 0 ? 1 : 0); // Bloque Acorazado Dorado: 3 golpes
+          points = 180;
           color = "#FFD700";
+        } else if (ch === "C") {
+          kind = "crystal";
+          hp = 2; // Cristal Reforzado: 2 golpes
+          points = 110;
+          color = "#29B6F6";
         } else if (ch === "R") {
           kind = "gift-red";
-          hp = 1;
+          hp = 2; // Regalo Rojo Congelado: 2 golpes
           points = 95;
           color = "#FF2A4D";
         } else if (ch === "G") {
           kind = "gift-green";
-          hp = 1;
+          hp = 2; // Regalo Verde Congelado: 2 golpes
           points = 95;
           color = "#00E676";
         } else if (ch === "B") {
           kind = "gift-blue";
-          hp = 1;
+          hp = 2; // Regalo Azul Congelado: 2 golpes
           points = 95;
           color = "#2979FF";
         } else {
           kind = "ice";
-          hp = 1;
+          hp = 1; // Hielo Escarchado Básico: 1 golpe
           points = 60;
           color = "#00E5FF";
         }
@@ -563,15 +677,18 @@ export class IceBreakerGame extends BaseGame {
       }
     }
 
-    this.bumpers = bp.bumpers.map((b) => ({
-      nx: b.nx,
-      ny: b.ny,
-      x: left + arenaW * b.nx,
-      y: top + arenaH * b.ny,
-      r: b.r,
-      hitPop: 0,
-      ringProgress: 0
-    }));
+    this.bumpers = bp.bumpers.map((b) => {
+      const nx = shouldFlip ? (1 - b.nx) : b.nx;
+      return {
+        nx,
+        ny: b.ny,
+        x: left + arenaW * nx,
+        y: top + arenaH * b.ny,
+        r: b.r,
+        hitPop: 0,
+        ringProgress: 0
+      };
+    });
   }
 
   private repositionArenaGeometry(): void {
@@ -840,13 +957,13 @@ export class IceBreakerGame extends BaseGame {
         const dy = b.y - closestY;
 
         if (dx * dx + dy * dy <= b.r * b.r) {
-          if (this.fireballTimer <= 0) {
-            if (Math.abs(dx) > Math.abs(dy)) {
-              b.vx = -b.vx;
-            } else {
-              b.vy = -b.vy;
-            }
+          // Rebote físico: La esfera solar rebota naturalmente sin glitch de atravesar infinito
+          if (Math.abs(dx) > Math.abs(dy)) {
+            b.vx = -b.vx;
+          } else {
+            b.vy = -b.vy;
           }
+
           // Pequeño incremento de velocidad por cada bloque impactado
           const hitSpd = Math.hypot(b.vx, b.vy);
           if (hitSpd > 1 && hitSpd < maxSpd) {
@@ -854,7 +971,28 @@ export class IceBreakerGame extends BaseGame {
             b.vx *= boost;
             b.vy *= boost;
           }
-          this.damageBrick(br, this.fireballTimer > 0 ? 2 : 1, b.x, b.y);
+
+          // Daño balanceado: La Esfera Solar inflige 2 de daño directo + explosión ígnea en área
+          const isSolar = this.fireballTimer > 0;
+          const directDmg = isSolar ? 2 : 1;
+          this.damageBrick(br, directDmg, b.x, b.y);
+
+          // Explosión en área para la Esfera Solar (daño splash 1 HP a bloques adyacentes)
+          if (isSolar) {
+            this.particles.emitBurst(b.x, b.y, "#FF9100", 14);
+            this.audio.playCatchItem(1.3);
+            const splashRadius = Math.max(br.w, br.h) * 1.35;
+            for (const neighbor of this.bricks) {
+              if (neighbor !== br && neighbor.alive) {
+                const ncx = neighbor.x + neighbor.w / 2;
+                const ncy = neighbor.y + neighbor.h / 2;
+                const distSq = (ncx - b.x) * (ncx - b.x) + (ncy - b.y) * (ncy - b.y);
+                if (distSq <= splashRadius * splashRadius) {
+                  this.damageBrick(neighbor, 1, ncx, ncy);
+                }
+              }
+            }
+          }
           break;
         }
       }
@@ -976,8 +1114,8 @@ export class IceBreakerGame extends BaseGame {
     }
 
     if (br.kind === "sponsor" && br.sponsor) {
-      this.fireballTimer = Math.max(this.fireballTimer, 6.5);
-      this.triggerLogoPowerUp(br.sponsor.id, 6);
+      this.fireballTimer = Math.max(this.fireballTimer, 3.8);
+      this.triggerLogoPowerUp(br.sponsor.id, 3.5);
       this.particles.emitBurst(cx, cy, "#FFD700", 20);
       this.addFloatingText(`¡${br.sponsor.name.toUpperCase()} SOLAR! +${pts}`, cx, cy, "#FFD700", 1.3);
     } else {
@@ -987,7 +1125,9 @@ export class IceBreakerGame extends BaseGame {
       this.addFloatingText(label, cx, cy, br.color, 1.08);
     }
 
-    if (br.kind === "sponsor" || Math.random() < 0.28) {
+    // Probabilidad de cápsula aumentada: 100% en patrocinador, 60% en regalos, 40% en bloques
+    const dropRate = br.kind === "sponsor" ? 1.0 : (br.kind.startsWith("gift") ? 0.60 : 0.40);
+    if (Math.random() < dropRate) {
       const kinds: DropPowerKind[] = ["multiball", "wide", "fireball", "cannon", "shield"];
       const kind = br.kind === "sponsor" ? "multiball" : kinds[Math.floor(Math.random() * kinds.length)];
       this.drops.push({
@@ -1031,23 +1171,23 @@ export class IceBreakerGame extends BaseGame {
       }
     } else if (d.kind === "wide") {
       this.addScore(130);
-      this.wideTimer = 9.5;
+      this.wideTimer = 5.0;
       label = "¡PALETA GIGANTE!";
       col = "#00E676";
     } else if (d.kind === "fireball") {
       this.addScore(150);
-      this.fireballTimer = 6.5;
+      this.fireballTimer = 3.8;
       label = "¡ESFERA DE FUEGO SOLAR!";
       col = "#FF9100";
     } else if (d.kind === "cannon") {
       this.addScore(160);
-      this.cannonTimer = 7.5;
+      this.cannonTimer = 4.5;
       this.cannonShotCooldown = 0.1;
       label = "¡CAÑÓN DE CARÁMBANOS!";
       col = "#00E5FF";
     } else {
       this.addScore(150);
-      this.shieldTimer = 12.0;
+      this.shieldTimer = 6.5;
       label = "¡ESCUDO GLACIAL BASE!";
       col = "#80DEEA";
     }
@@ -1281,6 +1421,20 @@ export class IceBreakerGame extends BaseGame {
 
     if (br.kind === "ice" && imgReady(this.brickIceImg)) {
       ctx.drawImage(this.brickIceImg, x - 2, y - 3, br.w + 4, br.h + 6);
+    } else if (br.kind === "crystal") {
+      if (imgReady(this.brickIceImg)) {
+        ctx.save();
+        ctx.filter = "hue-rotate(25deg) brightness(1.15)";
+        ctx.drawImage(this.brickIceImg, x - 2, y - 3, br.w + 4, br.h + 6);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = br.color;
+        roundRectPath(ctx, x, y, br.w, br.h, 8);
+        ctx.fill();
+      }
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.75)";
+      ctx.lineWidth = 1.6;
+      ctx.strokeRect(x + 3, y + 3, br.w - 6, br.h - 6);
     } else if (br.kind === "gold" && imgReady(this.brickGoldImg)) {
       ctx.drawImage(this.brickGoldImg, x - 2, y - 2, br.w + 4, br.h + 4);
     } else if (br.kind === "gift-red" && imgReady(this.brickGiftImg)) {
@@ -1303,7 +1457,7 @@ export class IceBreakerGame extends BaseGame {
     if (br.maxHp > 1 && br.hp < br.maxHp) {
       const cx = x + br.w / 2;
       const cy = y + br.h / 2;
-      ctx.strokeStyle = "#00E5FF";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.95)";
       ctx.lineWidth = 2.4;
       ctx.beginPath();
       ctx.moveTo(cx - 16, y + 6);
@@ -1312,7 +1466,21 @@ export class IceBreakerGame extends BaseGame {
       ctx.lineTo(cx + 18, y + br.h - 6);
       ctx.moveTo(cx - 3, cy);
       ctx.lineTo(cx - 12, y + br.h - 7);
+      if (br.hp === 1 && br.maxHp >= 3) {
+        ctx.moveTo(cx + 10, cy - 5);
+        ctx.lineTo(cx + 20, cy - 2);
+        ctx.moveTo(cx - 8, y + 4);
+        ctx.lineTo(cx - 16, cy + 4);
+      }
       ctx.stroke();
+
+      // Indicadores de HP restantes en la base del bloque
+      for (let h = 0; h < br.hp; h++) {
+        ctx.fillStyle = "#FFD700";
+        ctx.beginPath();
+        ctx.arc(x + 8 + h * 9, y + br.h - 8, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
 
     ctx.restore();

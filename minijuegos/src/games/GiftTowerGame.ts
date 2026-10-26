@@ -5,8 +5,8 @@
  *
  * Apilador arcade de alta fidelidad estilo Tower Bloxx / Icy Tower / Stacker:
  * - Estética Stylized 2D Game Art / Fantasy Game Concept Art (Supercell / Disney Klaus).
- * - Grúa mecánica navideña con carro de vapor y engranajes dorados (grua-carro-navideno.png).
- * - Garra mecánica festiva articulada con apertura elástica (garra-gancho-navideno.png).
+ * - Grúa mecánica navideña con carro de vapor y engranajes dorados (grua-carro-navideno.webp).
+ * - Garra mecánica festiva articulada con apertura elástica (garra-gancho-navideno.webp).
  * - Mecánica clásica de Stacker con rebanado físico de sobrantes (overhang slicing):
  *     * ¡Alineación Perfecta (<= 4px)! Destello magnético, notas musicales en escala
  *       y expansión restauradora de la base.
@@ -17,7 +17,7 @@
  * - Variedad de regalos temáticos:
  *     * Cajas clásicas: Rojo Carmesí, Verde Pino, Azul Boreal.
  *     * Regalo Dorado de Patrocinador (cada 5 pisos): +500 pts y expansión masiva de la torre.
- *     * Regalo Joyero Real (regalo-estilizado-morado.png): +750 pts y fuegos artificiales.
+ *     * Regalo Joyero Real (regalo-estilizado-morado.webp): +750 pts y fuegos artificiales.
  *     * Caja Reloj Mágico: Restaura +1 Vida o +10s de tiempo.
  * - Balanceo y física pendular de la torre según el centro de masas.
  * - Hitos de altura con banners celebratorios y fanfarria cada 5 pisos.
@@ -153,17 +153,17 @@ export class GiftTowerGame extends BaseGame {
 
     // Carga de fondos y sprites Stylized 2D Game Concept Art
     this.bgImage = this.getImage("./assets/images/fondo-nieve.webp");
-    this.spritePedestal = this.getImage("./assets/images/pedestal-torre-regalos.png");
-    this.spriteTrolley = this.getImage("./assets/images/grua-carro-navideno.png");
-    this.spriteClaw = this.getImage("./assets/images/garra-gancho-navideno.png");
-    this.spriteClock = this.getImage("./assets/images/reloj-magico-tiempo.png");
+    this.spritePedestal = this.getImage("./assets/images/pedestal-torre-regalos.webp");
+    this.spriteTrolley = this.getImage("./assets/images/grua-carro-navideno.webp");
+    this.spriteClaw = this.getImage("./assets/images/garra-gancho-navideno.webp");
+    this.spriteClock = this.getImage("./assets/images/reloj-magico-tiempo.webp");
 
     this.boxSprites = [
-      this.getImage("./assets/images/regalo-estilizado-rojo.png"),
-      this.getImage("./assets/images/regalo-estilizado-verde.png"),
-      this.getImage("./assets/images/regalo-estilizado-azul.png"),
-      this.getImage("./assets/images/regalo-estilizado-dorado.png"),
-      this.getImage("./assets/images/regalo-estilizado-morado.png")
+      this.getImage("./assets/images/regalo-estilizado-rojo.webp"),
+      this.getImage("./assets/images/regalo-estilizado-verde.webp"),
+      this.getImage("./assets/images/regalo-estilizado-azul.webp"),
+      this.getImage("./assets/images/regalo-estilizado-dorado.webp"),
+      this.getImage("./assets/images/regalo-estilizado-morado.webp")
     ];
 
     this.sponsors = [
@@ -631,6 +631,14 @@ export class GiftTowerGame extends BaseGame {
     const pedH = pedW * (546 / 1188);
     const pedSurface = this.groundY - this.cameraY;
 
+    // Sombra de contacto del pedestal en el suelo nevado
+    ctx.save();
+    ctx.fillStyle = "rgba(10, 25, 60, 0.32)";
+    ctx.beginPath();
+    ctx.ellipse(w / 2, pedSurface + pedH * 0.65, pedW * 0.48, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
     if (imgReady(this.spritePedestal)) {
       ctx.drawImage(this.spritePedestal, (w - pedW) / 2, pedSurface - pedH * 0.22, pedW, pedH);
     } else {
@@ -684,6 +692,18 @@ export class GiftTowerGame extends BaseGame {
     // 6. Bloque en caída libre
     if (this.dropping) {
       const d = this.dropping;
+      const targetY = this.towerTopY - this.cameraY;
+      const currentY = d.bottom - this.cameraY;
+      const distance = Math.max(0, targetY - currentY);
+      if (distance > 0 && distance < 450) {
+        const shadowAlpha = (1 - distance / 450) * 0.40;
+        ctx.save();
+        ctx.fillStyle = `rgba(10, 20, 40, ${shadowAlpha.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.ellipse(d.cx, targetY, d.width * 0.44, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
       this.drawBox(ctx, d.cx, d.bottom - this.cameraY, d.width, d.kind, 0, d.gold ? d.logo : undefined, d.sponsor);
     }
 
@@ -716,6 +736,14 @@ export class GiftTowerGame extends BaseGame {
     const bh = this.boxH;
     const sy = 1 - squash * 0.16;
     const sx = 1 + squash * 0.12;
+
+    // Sombra de contacto entre bloques apilados
+    ctx.save();
+    ctx.fillStyle = "rgba(10, 20, 40, 0.28)";
+    ctx.beginPath();
+    ctx.ellipse(cx, bottomScreen, bw * 0.46, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
 
     ctx.save();
     ctx.translate(cx, bottomScreen);
@@ -817,7 +845,7 @@ export class GiftTowerGame extends BaseGame {
     ctx.fill();
     ctx.restore();
 
-    // 2. Carro de Grúa Mecánica (grua-carro-navideno.png)
+    // 2. Carro de Grúa Mecánica (grua-carro-navideno.webp)
     const trolleyW = 68;
     const trolleyH = 62;
     if (imgReady(this.spriteTrolley)) {
@@ -842,7 +870,7 @@ export class GiftTowerGame extends BaseGame {
     ctx.stroke();
     ctx.restore();
 
-    // 4. Garra mecánica articulada (garra-gancho-navideno.png)
+    // 4. Garra mecánica articulada (garra-gancho-navideno.webp)
     const clawW = 56;
     const clawH = 60;
     ctx.save();

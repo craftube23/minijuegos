@@ -13,11 +13,11 @@
  * - Combos por eliminaciones consecutivas (se reinicia al recibir daño).
  *
  * ASSETS (./assets/images/) — si un PNG aún no existe se dibuja un fallback vectorial:
- *   rodolfo-battle-down-1.png, rodolfo-battle-up-1.png, rodolfo-battle-side-1.png,
- *   rodolfo-battle-hit.png, snowman-evil-1.webp, snowman-evil-hit.webp,
- *   elf-mischief-1.png, yeti-boss-1.webp, yeti-boss-hit.webp, snowball-proj.png,
- *   pu-triple.png, pu-shield.png, pu-cookie.png, heart-ui.png,
- *   fondo-plaza-nevada.png, snow-battle-portada.png (portada del menú)
+ *   rodolfo-battle-down-1.webp, rodolfo-battle-up-1.webp, rodolfo-battle-side-1.png,
+ *   rodolfo-battle-hit.webp, snowman-evil-1.webp, snowman-evil-hit.webp,
+ *   elf-mischief-1.webp, yeti-boss-1.webp, yeti-boss-hit.webp, snowball-proj.webp,
+ *   pu-triple.webp, pu-shield.webp, pu-cookie.webp, heart-ui.webp,
+ *   fondo-plaza-nevada.webp, snow-battle-portada.png (portada del menú)
  */
 
 import { BaseGame } from "../core/BaseGame";
@@ -45,6 +45,8 @@ interface Enemy {
   wobble: number;
   attackTimer?: number;
   defeatTimer?: number;
+  abilityCooldown?: number;
+  isDashing?: boolean;
 }
 
 interface Snowball {
@@ -53,6 +55,27 @@ interface Snowball {
   vx: number;
   vy: number;
   life: number;
+  bounces?: number;
+  lastHitId?: number;
+}
+
+interface UpgradeOption {
+  id: string;
+  title: string;
+  desc: string;
+  spriteImg: HTMLImageElement;
+  tag: string;
+  color: string;
+  level: number;
+  maxLevel: number;
+}
+
+interface UpgradeCardRect {
+  opt: UpgradeOption;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
 }
 
 interface PowerUp {
@@ -122,11 +145,36 @@ export class SnowBattleGame extends BaseGame {
   // Entidades
   private enemies: Enemy[] = [];
   private snowballs: Snowball[] = [];
+  private enemySnowballs: Snowball[] = [];
   private powerUps: PowerUp[] = [];
   private survivalTime = 0;
   private combo = 0;
   private comboPulse = 0;
   private lastDt = 1 / 60;
+
+  // Sistema de mejoras estilo Roguelike / Vampire Survivors
+  private enemiesDefeatedCount = 0;
+  private nextUpgradeKillThreshold = 10;
+  private upgradeLevel = 0;
+  private isUpgradeModalActive = false;
+  private currentUpgradeOptions: UpgradeOption[] = [];
+  private upgradeCardRects: UpgradeCardRect[] = [];
+  private upgradeAnimTimer = 0;
+
+  // Modificadores de mejoras acumuladas
+  private statFireRateMult = 1.0;
+  private statDamage = 1;
+  private statSpeedMult = 1.0;
+  private statFrostAuraRadius = 90;
+  private statRicochet = 0;
+  private upgradeLevels: Record<string, number> = {
+    fire_rate: 0,
+    heavy_snow: 0,
+    speed: 0,
+    frost_aura: 0,
+    heart_boost: 0,
+    ricochet: 0
+  };
 
   // Copos decorativos de fondo
   private flakes: { x: number; y: number; r: number; vy: number; vx: number }[] = [];
@@ -154,6 +202,8 @@ export class SnowBattleGame extends BaseGame {
   private yetiHitImg: HTMLImageElement;
   private yetiSlamImg: HTMLImageElement;
   private snowballImg: HTMLImageElement;
+  private starImg: HTMLImageElement;
+  private clockImg: HTMLImageElement;
   private puTripleImg: HTMLImageElement;
   private puShieldImg: HTMLImageElement;
   private puCookieImg: HTMLImageElement;
@@ -187,9 +237,9 @@ export class SnowBattleGame extends BaseGame {
     this.rodolfoSprites = {
       right: {
         step1: this.getImage(base + "rodolfo-battle-right-1.webp"),
-        pass: this.getImage(base + "rodolfo-battle-right-pass.png"),
-        step2: this.getImage(base + "rodolfo-battle-right-2.png"),
-        stop: this.getImage(base + "rodolfo-battle-right-stop.png")
+        pass: this.getImage(base + "rodolfo-battle-right-pass.webp"),
+        step2: this.getImage(base + "rodolfo-battle-right-2.webp"),
+        stop: this.getImage(base + "rodolfo-battle-right-stop.webp")
       },
       left: {
         step1: this.getImage(base + "rodolfo-battle-left-1.webp"),
@@ -198,39 +248,41 @@ export class SnowBattleGame extends BaseGame {
         stop: this.getImage(base + "rodolfo-battle-left-stop.webp")
       },
       down: {
-        step1: this.getImage(base + "rodolfo-battle-down-1.png"),
+        step1: this.getImage(base + "rodolfo-battle-down-1.webp"),
         pass: this.getImage(base + "rodolfo-battle-down-pass.webp"),
-        step2: this.getImage(base + "rodolfo-battle-down-2.png"),
+        step2: this.getImage(base + "rodolfo-battle-down-2.webp"),
         stop: this.getImage(base + "rodolfo-battle-down-stop.webp")
       },
       up: {
-        step1: this.getImage(base + "rodolfo-battle-up-1.png"),
-        pass: this.getImage(base + "rodolfo-battle-up-pass.png"),
-        step2: this.getImage(base + "rodolfo-battle-up-2.png"),
-        stop: this.getImage(base + "rodolfo-battle-up-stop.png")
+        step1: this.getImage(base + "rodolfo-battle-up-1.webp"),
+        pass: this.getImage(base + "rodolfo-battle-up-pass.webp"),
+        step2: this.getImage(base + "rodolfo-battle-up-2.webp"),
+        stop: this.getImage(base + "rodolfo-battle-up-stop.webp")
       }
     };
-    this.rodolfoHitImg = this.getImage(base + "rodolfo-battle-hit.png");
+    this.rodolfoHitImg = this.getImage(base + "rodolfo-battle-hit.webp");
     this.rodolfoDeadImg = this.getImage(base + "rodolfo-battle-dead.webp");
     this.snowmanImg = this.getImage(base + "snowman-evil-1.webp");
     this.snowmanImg2 = this.getImage(base + "snowman-evil-2.webp");
     this.snowmanHitImg = this.getImage(base + "snowman-evil-hit.webp");
     this.snowmanAtkImg = this.getImage(base + "snowman-evil-attack.webp");
     this.snowmanDeadImg = this.getImage(base + "snowman-evil-dead.webp");
-    this.elfImg = this.getImage(base + "elf-mischief-1.png");
-    this.elfImg2 = this.getImage(base + "elf-mischief-2.png");
+    this.elfImg = this.getImage(base + "elf-mischief-1.webp");
+    this.elfImg2 = this.getImage(base + "elf-mischief-2.webp");
     this.elfHitImg = this.getImage(base + "elf-mischief-hit.webp");
     this.elfAtkImg = this.getImage(base + "elf-mischief-attack.webp");
     this.yetiImg = this.getImage(base + "yeti-boss-1.webp");
     this.yetiImg2 = this.getImage(base + "yeti-boss-2.webp");
     this.yetiHitImg = this.getImage(base + "yeti-boss-hit.webp");
     this.yetiSlamImg = this.getImage(base + "yeti-boss-slam.webp");
-    this.snowballImg = this.getImage(base + "snowball-proj.png");
-    this.puTripleImg = this.getImage(base + "pu-triple.png");
-    this.puShieldImg = this.getImage(base + "pu-shield.png");
-    this.puCookieImg = this.getImage(base + "pu-cookie.png");
-    this.heartImg = this.getImage(base + "heart-ui.png");
-    this.backgroundImg = this.getImage(base + "fondo-plaza-nevada.png");
+    this.snowballImg = this.getImage(base + "snowball-proj.webp");
+        this.starImg = this.getImage(base + "estrella_con_logo.webp");
+    this.clockImg = this.getImage(base + "reloj-magico-tiempo.webp");
+    this.puTripleImg = this.getImage(base + "pu-triple.webp");
+    this.puShieldImg = this.getImage(base + "pu-shield.webp");
+    this.puCookieImg = this.getImage(base + "pu-cookie.webp");
+    this.heartImg = this.getImage(base + "heart-ui.webp");
+    this.backgroundImg = this.getImage(base + "fondo-plaza-nevada.webp");
 
     for (let i = 0; i < 60; i++) {
       this.flakes.push({
@@ -277,9 +329,31 @@ export class SnowBattleGame extends BaseGame {
 
     this.enemies = [];
     this.snowballs = [];
+    this.enemySnowballs = [];
     this.powerUps = [];
     this.nextYetiTime = 25;
     this.yetiCount = 0;
+
+    // Reinicio completo de mejoras y fases al perder / reiniciar
+    this.enemiesDefeatedCount = 0;
+    this.nextUpgradeKillThreshold = 10;
+    this.upgradeLevel = 0;
+    this.isUpgradeModalActive = false;
+    this.currentUpgradeOptions = [];
+    this.upgradeCardRects = [];
+    this.statFireRateMult = 1.0;
+    this.statDamage = 1;
+    this.statSpeedMult = 1.0;
+    this.statFrostAuraRadius = 90;
+    this.statRicochet = 0;
+    this.upgradeLevels = {
+      fire_rate: 0,
+      heavy_snow: 0,
+      speed: 0,
+      frost_aura: 0,
+      heart_boost: 0,
+      ricochet: 0
+    };
     this.spawnTimer = 0.8;
     this.combo = 0;
     this.comboPulse = 0;
@@ -288,7 +362,9 @@ export class SnowBattleGame extends BaseGame {
     this.joystick.attach();
 
     window.removeEventListener("keydown", this.handleKeyDown);
+    this.canvas.removeEventListener("pointerdown", this.handleUpgradePointerDown);
     window.addEventListener("keydown", this.handleKeyDown);
+    this.canvas.addEventListener("pointerdown", this.handleUpgradePointerDown);
 
     this.addFloatingText("¡DEFIENDE LA PLAZA!", w / 2, h * 0.42, "#FFD700", 1.4);
   }
@@ -296,6 +372,7 @@ export class SnowBattleGame extends BaseGame {
   public override endGame(extraData?: Parameters<BaseGame["endGame"]>[0]): void {
     this.joystick.detach();
     window.removeEventListener("keydown", this.handleKeyDown);
+    this.canvas.removeEventListener("pointerdown", this.handleUpgradePointerDown);
     super.endGame(extraData);
   }
 
@@ -303,6 +380,7 @@ export class SnowBattleGame extends BaseGame {
     super.destroy();
     this.joystick.detach();
     window.removeEventListener("keydown", this.handleKeyDown);
+    this.canvas.removeEventListener("pointerdown", this.handleUpgradePointerDown);
   }
 
   private get elapsed(): number {
@@ -322,6 +400,12 @@ export class SnowBattleGame extends BaseGame {
     const w = this.width || 1024;
     const h = this.height || 768;
 
+    // Si el modal de mejoras est activo, pausar el tiempo del juego
+    if (this.isUpgradeModalActive) {
+      this.upgradeAnimTimer += dt;
+      return;
+    }
+
     this.updateFlakes(dt, w, h);
     if (this.isFinishing) return;
     this.survivalTime += dt;
@@ -335,6 +419,7 @@ export class SnowBattleGame extends BaseGame {
     this.updateSpawning(dt, w, h);
     this.updateFiring(dt);
     this.updateSnowballs(dt, w, h);
+    this.updateEnemySnowballs(dt);
     this.updateEnemies(dt);
     this.updatePowerUps(dt);
 
@@ -402,8 +487,8 @@ export class SnowBattleGame extends BaseGame {
 
   private updatePlayer(dt: number, _w: number, _h: number): void {
     const js = this.joystick;
-    const targetVx = js.x * js.magnitude * PLAYER_SPEED;
-    const targetVy = js.y * js.magnitude * PLAYER_SPEED;
+    const targetVx = js.x * js.magnitude * (PLAYER_SPEED * this.statSpeedMult);
+    const targetVy = js.y * js.magnitude * (PLAYER_SPEED * this.statSpeedMult);
     const accel = Math.min(1, dt * 12);
     this.pvx += (targetVx - this.pvx) * accel;
     this.pvy += (targetVy - this.pvy) * accel;
@@ -535,10 +620,12 @@ export class SnowBattleGame extends BaseGame {
       x = this.px < (bounds.left + bounds.right) / 2 ? bounds.right + offset : bounds.left - offset;
     }
 
+    // Balance equilibrado: reducido ~10% de HP para un combate más dinámico y satisfactorio
+    const extraHp = Math.floor(this.upgradeLevel * 1.3);
     const stats: Record<EnemyKind, { r: number; hp: number; speed: number }> = {
-      snowman: { r: 36, hp: 2, speed: 90 },
-      elf: { r: 26, hp: 1, speed: 195 },
-      yeti: { r: 72, hp: 10, speed: 60 }
+      snowman: { r: 36, hp: 3 + extraHp, speed: 85 },
+      elf: { r: 26, hp: 2 + Math.floor(extraHp * 0.7), speed: 180 },
+      yeti: { r: 72, hp: 16 + extraHp * 4, speed: 60 }
     };
     const s = stats[kind];
     this.enemies.push({
@@ -581,7 +668,7 @@ export class SnowBattleGame extends BaseGame {
     if (this.fireTimer > 0) return;
     const target = this.findNearestEnemy();
     if (!target) return;
-    this.fireTimer = FIRE_INTERVAL;
+    this.fireTimer = FIRE_INTERVAL / this.statFireRateMult;
 
     const baseAngle = Math.atan2(target.y - this.py, target.x - this.px);
     const spread = (14 * Math.PI) / 180;
@@ -592,10 +679,39 @@ export class SnowBattleGame extends BaseGame {
         y: this.py + Math.sin(a) * 30,
         vx: Math.cos(a) * SNOWBALL_SPEED,
         vy: Math.sin(a) * SNOWBALL_SPEED,
-        life: 1.6
+        life: 1.6,
+        bounces: this.statRicochet
       });
     }
     this.audio.playWhoosh();
+  }
+
+
+  private updateEnemySnowballs(dt: number): void {
+    const bounds = this.getArenaBounds();
+    for (let i = this.enemySnowballs.length - 1; i >= 0; i--) {
+      const b = this.enemySnowballs[i];
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      b.life -= dt;
+
+      const hitWall = b.x <= bounds.left || b.x >= bounds.right || b.y <= bounds.top || b.y >= bounds.bottom;
+      let consumed = b.life <= 0 || hitWall;
+
+      if (!consumed && (this.invulnerable <= 0 && this.shieldTimer <= 0) && !this.isDying) {
+        if (Math.hypot(b.x - this.px, b.y - this.py) < PLAYER_RADIUS + 8) {
+          this.lives--;
+          this.invulnerable = INVULNERABLE_TIME;
+          this.combo = 0;
+          this.triggerShake(0.25, 7);
+          this.particles.emitBurst(this.px, this.py, "#FF1744", 12);
+          this.audio.playElfHit();
+          consumed = true;
+        }
+      }
+
+      if (consumed) this.enemySnowballs.splice(i, 1);
+    }
   }
 
   private updateSnowballs(dt: number, _w: number, _h: number): void {
@@ -621,11 +737,49 @@ export class SnowBattleGame extends BaseGame {
         this.particles.emitBurst(clampX, clampY, "#E0F7FA", 6);
         this.particles.emitBurst(clampX, clampY, "#FFFFFF", 4);
       } else if (!consumed) {
-        for (const e of this.enemies) {
+        for (let ei = 0; ei < this.enemies.length; ei++) {
+          const e = this.enemies[ei];
           if (e.hp > 0 && Math.hypot(e.x - b.x, e.y - b.y) < e.r + 10) {
-            this.damageEnemy(e, 1);
+            // Si la bola ya golpe a este enemigo en el rebote anterior, ignorarlo
+            if (b.lastHitId === ei) continue;
+
+            this.damageEnemy(e, this.statDamage);
             this.particles.emitBurst(b.x, b.y, "#FFFFFF", 8);
-            consumed = true;
+
+            // Mecnica de Rebote en Enemigos (Ricochet Chain)
+            if ((b.bounces || 0) > 0) {
+              b.bounces = (b.bounces || 0) - 1;
+              b.lastHitId = ei;
+
+              // Buscar el enemigo ms cercano distinto a este
+              let nextEnemy: Enemy | null = null;
+              let nextDist = 420;
+              for (let ni = 0; ni < this.enemies.length; ni++) {
+                if (ni === ei) continue;
+                const ne = this.enemies[ni];
+                if (ne.hp > 0 && (ne.defeatTimer ?? 0) <= 0) {
+                  const d = Math.hypot(ne.x - b.x, ne.y - b.y);
+                  if (d < nextDist) {
+                    nextDist = d;
+                    nextEnemy = ne;
+                  }
+                }
+              }
+
+              if (nextEnemy) {
+                const ang = Math.atan2(nextEnemy.y - b.y, nextEnemy.x - b.x);
+                b.vx = Math.cos(ang) * SNOWBALL_SPEED * 1.05;
+                b.vy = Math.sin(ang) * SNOWBALL_SPEED * 1.05;
+                b.life = 1.3;
+                this.particles.emitBurst(b.x, b.y, "#FFD700", 10);
+                this.audio.playCatchItem(1.4);
+                consumed = false;
+              } else {
+                consumed = true;
+              }
+            } else {
+              consumed = true;
+            }
             break;
           }
         }
@@ -645,6 +799,10 @@ export class SnowBattleGame extends BaseGame {
   private onEnemyDefeated(e: Enemy): void {
     e.defeatTimer = 0.35;
     this.combo++;
+    this.enemiesDefeatedCount++;
+    if (this.enemiesDefeatedCount >= this.nextUpgradeKillThreshold) {
+      this.triggerUpgradeSelection();
+    }
     this.comboPulse = 0.35;
     const basePoints = e.kind === "yeti" ? 1500 : e.kind === "snowman" ? 100 : 75;
     const points = Math.round(basePoints * this.comboMultiplier);
@@ -696,6 +854,71 @@ export class SnowBattleGame extends BaseGame {
 
   private updateEnemies(dt: number): void {
     for (const e of this.enemies) {
+      // Efecto de Ventisca Congelante: permite entrar libremente a los enemigos, ralentiza un 30% y causa daño continuo leve
+
+      const dx = this.px - e.x;
+      const dy = this.py - e.y;
+      const d = Math.hypot(dx, dy) || 1;
+
+      // ======================================================================
+      // HABILIDADES ESPECIALES DE ENEMIGOS (ACTIVAS A PARTIR DE FASE 3)
+      // ======================================================================
+      if (this.upgradeLevel >= 3 && (e.defeatTimer ?? 0) <= 0) {
+        if (e.abilityCooldown === undefined) {
+          e.abilityCooldown = 2.5 + Math.random() * 3.0;
+        } else {
+          e.abilityCooldown -= dt;
+        }
+
+        // Habilidad 1: Muñeco de Nieve lanza bola de nieve helada a distancia
+        if (e.kind === "snowman" && e.abilityCooldown <= 0 && d > 140 && d < 550) {
+          e.abilityCooldown = 4.0 + Math.random() * 2.0;
+          e.attackTimer = 0.4;
+          const shotAng = Math.atan2(this.py - e.y, this.px - e.x);
+          this.enemySnowballs.push({
+            x: e.x + Math.cos(shotAng) * (e.r + 8),
+            y: e.y + Math.sin(shotAng) * (e.r + 8),
+            vx: Math.cos(shotAng) * 260,
+            vy: Math.sin(shotAng) * 260,
+            life: 2.2
+          });
+          this.particles.emitBurst(e.x, e.y, "#B0BEC5", 6);
+          this.audio.playWhoosh();
+        }
+
+        // Habilidad 2: Duende Travieso realiza embestida rápida (Dash de aceleración)
+        if (e.kind === "elf" && e.abilityCooldown <= 0 && d > 120 && d < 400) {
+          e.abilityCooldown = 5.0 + Math.random() * 2.5;
+          e.isDashing = true;
+          this.particles.emitBurst(e.x, e.y, "#00E5FF", 8);
+          setTimeout(() => { e.isDashing = false; }, 650);
+        }
+
+        // Habilidad 3: Yeti ejecuta Pisotón Sísmico (Slam) que sacude la plaza
+        if (e.kind === "yeti" && e.abilityCooldown <= 0) {
+          e.abilityCooldown = 7.0 + Math.random() * 3.0;
+          e.attackTimer = 0.6;
+          this.triggerShake(0.35, 6);
+          this.particles.emitBurst(e.x, e.y, "#00E5FF", 22);
+          this.audio.playRunnerHit();
+          if (d < e.r + PLAYER_RADIUS + 90) {
+            this.pvx += (this.px - e.x) * 4.5;
+            this.pvy += (this.py - e.y) * 4.5;
+          }
+        }
+      }
+
+      let currentSpeed = e.speed * (e.isDashing ? 2.1 : 1.0);
+      if ((this.upgradeLevels.frost_aura || 0) > 0 && (e.defeatTimer ?? 0) <= 0) {
+        const dToPlayer = Math.hypot(e.x - this.px, e.y - this.py);
+        if (dToPlayer < this.statFrostAuraRadius + e.r) {
+          currentSpeed = e.speed * 0.70;
+          if (Math.random() < 0.035) {
+            this.damageEnemy(e, 1);
+            this.particles.emitBurst(e.x, e.y, "#E040FB", 3);
+          }
+        }
+      }
       if ((e.defeatTimer ?? 0) > 0) {
         e.defeatTimer = (e.defeatTimer ?? 0) - dt;
         continue;
@@ -703,9 +926,6 @@ export class SnowBattleGame extends BaseGame {
       if ((e.attackTimer ?? 0) > 0) {
         e.attackTimer = (e.attackTimer ?? 0) - dt;
       }
-      const dx = this.px - e.x;
-      const dy = this.py - e.y;
-      const d = Math.hypot(dx, dy) || 1;
       e.wobble += dt * (e.kind === "elf" ? 9 : 4);
       if (d < e.r + PLAYER_RADIUS + 35 && (e.attackTimer ?? 0) <= 0) {
         e.attackTimer = 0.35;
@@ -722,8 +942,8 @@ export class SnowBattleGame extends BaseGame {
         mx /= n;
         my /= n;
       }
-      e.x += mx * e.speed * dt;
-      e.y += my * e.speed * dt;
+      e.x += mx * currentSpeed * dt;
+      e.y += my * currentSpeed * dt;
       if (e.hitFlash > 0) e.hitFlash -= dt;
       if (e.shieldTick > 0) e.shieldTick -= dt;
 
@@ -731,7 +951,7 @@ export class SnowBattleGame extends BaseGame {
       if (this.shieldTimer > 0 && d < e.r + PLAYER_RADIUS + 26) {
         if (e.shieldTick <= 0) {
           e.shieldTick = 0.3;
-          this.damageEnemy(e, 1);
+          this.damageEnemy(e, this.statDamage);
           this.particles.emitBurst(e.x, e.y, "#FF1744", 10);
           // Empuje hacia afuera
           e.x -= mx * 30;
@@ -831,6 +1051,417 @@ export class SnowBattleGame extends BaseGame {
   // RENDERIZADO
   // ==========================================================================
 
+
+  // ==========================================================================
+  // SISTEMA DE MEJORAS ROGUELIKE (UPGRADE SELECTION)
+  // ==========================================================================
+  private triggerUpgradeSelection(): void {
+    if (this.isUpgradeModalActive || this.isDying || this.isGameOver) return;
+    this.isUpgradeModalActive = true;
+    this.upgradeAnimTimer = 0;
+    this.upgradeLevel++;
+
+    // Siguiente umbral con escalado progresivo (+10, +14, +18...)
+    this.nextUpgradeKillThreshold += 10 + this.upgradeLevel * 4;
+
+    this.audio.playPowerUp();
+    this.particles.emitConfetti(this.width, 50);
+
+    // Desconectar momentaneamente el joystick para no interferir con los toques
+    this.joystick.detach();
+
+    // Pool de mejoras posibles
+    const allPool: UpgradeOption[] = [
+      {
+        id: "fire_rate",
+        title: "Ametralladora Polar",
+        desc: "Dispara bolas de nieve un +30% más rápido.",
+        spriteImg: this.puTripleImg,
+        tag: "CADENCIA DE TIRO",
+        color: "#00E5FF",
+        level: (this.upgradeLevels.fire_rate || 0) + 1,
+        maxLevel: 4
+      },
+      {
+        id: "heavy_snow",
+        title: "Bola de Nieve Gigante",
+        desc: "Aumenta el daño de impacto en +1 punto y tamaño de bola.",
+        spriteImg: this.snowballImg,
+        tag: "POTENCIA DE IMPACTO",
+        color: "#FF5252",
+        level: (this.upgradeLevels.heavy_snow || 0) + 1,
+        maxLevel: 4
+      },
+      {
+        id: "speed",
+        title: "Patines de Hielo Mágico",
+        desc: "Rodolfo se desplaza un +22% más ágil por la plaza.",
+        spriteImg: this.clockImg,
+        tag: "MOVILIDAD VELOZ",
+        color: "#69F0AE",
+        level: (this.upgradeLevels.speed || 0) + 1,
+        maxLevel: 3
+      },
+      {
+        id: "frost_aura",
+        title: "Ventisca Congelante",
+        desc: "Genera una ventisca mística que congela y daña enemigos.",
+        spriteImg: this.puShieldImg,
+        tag: "AURA DEFENSIVA",
+        color: "#E040FB",
+        level: (this.upgradeLevels.frost_aura || 0) + 1,
+        maxLevel: 3
+      },
+      {
+        id: "heart_boost",
+        title: "Galleta de Vida Extra",
+        desc: "Restaura 1 corazón y aumenta tu vida máxima.",
+        spriteImg: this.puCookieImg,
+        tag: "SUPERVIVENCIA",
+        color: "#FFD700",
+        level: (this.upgradeLevels.heart_boost || 0) + 1,
+        maxLevel: 3
+      },
+      {
+        id: "ricochet",
+        title: "Rebote en Enemigos",
+        desc: "¡Al golpear a un invasor, la bola rebota hacia otro cercano!",
+        spriteImg: this.starImg,
+        tag: "REBOTE EN CADENA",
+        color: "#FFB300",
+        level: (this.upgradeLevels.ricochet || 0) + 1,
+        maxLevel: 3
+      }
+    ];
+
+    const available = allPool.filter((u) => (this.upgradeLevels[u.id] || 0) < u.maxLevel);
+    available.sort(() => Math.random() - 0.5);
+    this.currentUpgradeOptions = available.slice(0, 3);
+  }
+
+  private applyUpgrade(id: string): void {
+    this.upgradeLevels[id] = (this.upgradeLevels[id] || 0) + 1;
+
+    // ¡Aumenta la vida de los enemigos con cada nivel de mejora!
+    for (const e of this.enemies) {
+      if (e.hp > 0) {
+        e.maxHp += 1;
+        e.hp += 1;
+      }
+    }
+
+    switch (id) {
+      case "fire_rate":
+        this.statFireRateMult += 0.30;
+        this.addFloatingText("¡CADENCIA +30%!", this.px, this.py - 60, "#00E5FF", 1.4);
+        break;
+      case "heavy_snow":
+        this.statDamage += 1;
+        this.addFloatingText("¡DAÑO AUMENTADO!", this.px, this.py - 60, "#FF5252", 1.4);
+        break;
+      case "speed":
+        this.statSpeedMult += 0.22;
+        this.addFloatingText("¡VELOCIDAD +22%!", this.px, this.py - 60, "#69F0AE", 1.4);
+        break;
+      case "frost_aura":
+        this.statFrostAuraRadius += 25;
+        this.addFloatingText("¡AURA CONGELANTE!", this.px, this.py - 60, "#E040FB", 1.4);
+        break;
+      case "heart_boost":
+        this.maxLives = Math.min(6, this.maxLives + 1);
+        this.lives = Math.min(this.maxLives, this.lives + 1);
+        this.addFloatingText("¡+1 VIDA EXTRA!", this.px, this.py - 60, "#FFD700", 1.4);
+        break;
+      case "ricochet":
+        this.statRicochet += 1;
+        this.addFloatingText("¡REBOTE EN MUROS!", this.px, this.py - 60, "#FFB300", 1.4);
+        break;
+    }
+
+    this.audio.playCatchItem(1.5);
+    this.particles.emitBurst(this.px, this.py, "#FFD700", 25);
+    this.particles.emitBurst(this.px, this.py, "#FFFFFF", 20);
+
+    // Cerrar modal y reanudar juego
+    this.isUpgradeModalActive = false;
+    this.currentUpgradeOptions = [];
+    this.upgradeCardRects = [];
+    this.joystick.attach();
+  }
+
+  private handleUpgradePointerDown = (e: PointerEvent): void => {
+    if (!this.isUpgradeModalActive) return;
+    const rect = this.canvas.getBoundingClientRect();
+    const sx = this.width / rect.width;
+    const sy = this.height / rect.height;
+    const clickX = (e.clientX - rect.left) * sx;
+    const clickY = (e.clientY - rect.top) * sy;
+
+    for (const card of this.upgradeCardRects) {
+      if (
+        clickX >= card.x &&
+        clickX <= card.x + card.w &&
+        clickY >= card.y &&
+        clickY <= card.y + card.h
+      ) {
+        this.applyUpgrade(card.opt.id);
+        break;
+      }
+    }
+  };
+
+  /** Dibuja el modal de mejoras flotante tipo Vampire Survivors */
+  private drawUpgradeModal(ctx: CanvasRenderingContext2D, w: number, h: number): void {
+    if (!this.isUpgradeModalActive || this.currentUpgradeOptions.length === 0) return;
+
+    ctx.save();
+
+    // 1. Fondo oscurecido con desenfoque simulado
+    ctx.fillStyle = "rgba(7, 18, 38, 0.85)";
+    ctx.fillRect(0, 0, w, h);
+
+    // 2. Título superior con resplandor dorado
+    const animPulse = 1.0 + Math.sin(this.upgradeAnimTimer * 5) * 0.04;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const titleY = h * 0.18;
+    ctx.font = `900 ${Math.round(38 * animPulse)}px 'Titan One', 'Fredoka', sans-serif`;
+    ctx.shadowColor = "#FFD700";
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = "#FFD700";
+    ctx.fillText("¡MEJORA DE PODER!", w * 0.5, titleY);
+
+    ctx.shadowBlur = 0;
+    ctx.font = "700 18px sans-serif";
+    ctx.fillStyle = "#E1F5FE";
+    ctx.fillText("¡Derrotaste suficientes invasores! Elige 1 mejora para Rodolfo:", w * 0.5, titleY + 45);
+
+    // 3. Renderizado de las 3 tarjetas de mejora
+    const count = this.currentUpgradeOptions.length;
+    const isVertical = h > w * 1.2;
+    this.upgradeCardRects = [];
+
+    if (isVertical) {
+      // Formato Tótem Vertical: 3 tarjetas apiladas verticalmente
+      const cardW = Math.min(w * 0.88, 480);
+      const cardH = Math.min(130, h * 0.14);
+      let startY = h * 0.32;
+
+      for (let i = 0; i < count; i++) {
+        const opt = this.currentUpgradeOptions[i];
+        const cardX = (w - cardW) / 2;
+        const cardY = startY + i * (cardH + 20);
+
+        this.upgradeCardRects.push({ opt, x: cardX, y: cardY, w: cardW, h: cardH });
+        this.renderUpgradeCardHorizontal(ctx, opt, cardX, cardY, cardW, cardH);
+      }
+    } else {
+      // Formato Panorámico: 3 tarjetas lado a lado
+      const cardW = Math.min(270, (w * 0.9) / 3 - 20);
+      const cardH = Math.min(340, h * 0.52);
+      const totalCardsW = count * cardW + (count - 1) * 24;
+      const startX = (w - totalCardsW) / 2;
+      const cardY = h * 0.28;
+
+      for (let i = 0; i < count; i++) {
+        const opt = this.currentUpgradeOptions[i];
+        const cardX = startX + i * (cardW + 24);
+
+        this.upgradeCardRects.push({ opt, x: cardX, y: cardY, w: cardW, h: cardH });
+        this.renderUpgradeCardVertical(ctx, opt, cardX, cardY, cardW, cardH);
+      }
+    }
+
+    ctx.restore();
+  }
+
+  private renderUpgradeCardHorizontal(
+    ctx: CanvasRenderingContext2D,
+    opt: UpgradeOption,
+    x: number,
+    y: number,
+    w: number,
+    h: number
+  ): void {
+    ctx.save();
+
+    // Fondo de tarjeta con gradiente
+    const grad = ctx.createLinearGradient(x, y, x, y + h);
+    grad.addColorStop(0, "#1A2E4C");
+    grad.addColorStop(1, "#0D182A");
+    ctx.fillStyle = grad;
+
+    ctx.strokeStyle = opt.color;
+    ctx.lineWidth = 3;
+    ctx.shadowColor = opt.color;
+    ctx.shadowBlur = 6;
+
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 18);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+
+    // Emblema e Ícono Stylized 2D Game Art
+    const iconBoxSize = Math.min(68, h * 0.72);
+    const iconBoxX = x + 24;
+    const iconBoxY = y + (h - iconBoxSize) / 2;
+
+    // Resplandor de marco para el ícono
+    ctx.save();
+    ctx.fillStyle = "rgba(7, 18, 38, 0.6)";
+    ctx.strokeStyle = opt.color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(iconBoxX, iconBoxY, iconBoxSize, iconBoxSize, 12);
+    ctx.fill();
+    ctx.stroke();
+
+    if (imgReady(opt.spriteImg)) {
+      ctx.shadowColor = opt.color;
+      ctx.shadowBlur = 10;
+      const pad = 8;
+      ctx.drawImage(opt.spriteImg, iconBoxX + pad, iconBoxY + pad, iconBoxSize - pad * 2, iconBoxSize - pad * 2);
+    }
+    ctx.restore();
+
+    // Contenido textual
+    ctx.textAlign = "left";
+
+    // Tag superior
+    ctx.font = "900 12px sans-serif";
+    ctx.fillStyle = opt.color;
+    ctx.fillText(opt.tag, x + 108, y + 26);
+
+    // Nivel
+    ctx.textAlign = "right";
+    ctx.font = "900 13px sans-serif";
+    ctx.fillStyle = "#FFD700";
+    ctx.fillText(`NIVEL ${opt.level}/${opt.maxLevel}`, x + w - 24, y + 26);
+
+    // Título de la mejora
+    ctx.textAlign = "left";
+    ctx.font = "900 20px 'Titan One', 'Fredoka', sans-serif";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(opt.title, x + 108, y + 54);
+
+    // Descripción
+    ctx.font = "500 14px sans-serif";
+    ctx.fillStyle = "#B0BEC5";
+    ctx.fillText(opt.desc, x + 108, y + 84);
+
+    // Botón / Indicador de pulsar
+    ctx.textAlign = "right";
+    ctx.font = "900 13px sans-serif";
+    ctx.fillStyle = opt.color;
+    ctx.fillText("¡TOCA PARA ELEGIR! ▶", x + w - 24, y + h - 22);
+
+    ctx.restore();
+  }
+
+  private renderUpgradeCardVertical(
+    ctx: CanvasRenderingContext2D,
+    opt: UpgradeOption,
+    x: number,
+    y: number,
+    w: number,
+    h: number
+  ): void {
+    ctx.save();
+
+    const grad = ctx.createLinearGradient(x, y, x, y + h);
+    grad.addColorStop(0, "#1A2E4C");
+    grad.addColorStop(1, "#0D182A");
+    ctx.fillStyle = grad;
+
+    ctx.strokeStyle = opt.color;
+    ctx.lineWidth = 3;
+    ctx.shadowColor = opt.color;
+    ctx.shadowBlur = 6;
+
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 20);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+
+    // Tag
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "900 12px sans-serif";
+    ctx.fillStyle = opt.color;
+    ctx.fillText(opt.tag, x + w * 0.5, y + 28);
+
+    // Emblema e Ícono Stylized 2D Game Art
+    const iconBoxSize = 78;
+    const iconBoxX = x + (w - iconBoxSize) * 0.5;
+    const iconBoxY = y + 52;
+
+    ctx.save();
+    ctx.fillStyle = "rgba(7, 18, 38, 0.6)";
+    ctx.strokeStyle = opt.color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(iconBoxX, iconBoxY, iconBoxSize, iconBoxSize, 14);
+    ctx.fill();
+    ctx.stroke();
+
+    if (imgReady(opt.spriteImg)) {
+      ctx.shadowColor = opt.color;
+      ctx.shadowBlur = 6;
+      const pad = 10;
+      ctx.drawImage(opt.spriteImg, iconBoxX + pad, iconBoxY + pad, iconBoxSize - pad * 2, iconBoxSize - pad * 2);
+    }
+    ctx.restore();
+
+    // Título
+    ctx.font = "900 20px 'Titan One', 'Fredoka', sans-serif";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(opt.title, x + w * 0.5, y + 152);
+
+    // Nivel
+    ctx.font = "900 13px sans-serif";
+    ctx.fillStyle = "#FFD700";
+    ctx.fillText(`NIVEL ${opt.level} / ${opt.maxLevel}`, x + w * 0.5, y + 178);
+
+    // Descripción multi-línea
+    ctx.font = "500 13px sans-serif";
+    ctx.fillStyle = "#B0BEC5";
+    const words = opt.desc.split(" ");
+    let line = "";
+    let lineY = y + 215;
+    for (const word of words) {
+      const testLine = line + word + " ";
+      if (ctx.measureText(testLine).width > w - 30 && line !== "") {
+        ctx.fillText(line, x + w * 0.5, lineY);
+        line = word + " ";
+        lineY += 18;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line, x + w * 0.5, lineY);
+
+    // Botón inferior
+    const btnW = w - 40;
+    const btnH = 38;
+    const btnX = x + 20;
+    const btnY = y + h - 52;
+    ctx.fillStyle = opt.color;
+    ctx.beginPath();
+    ctx.roundRect(btnX, btnY, btnW, btnH, 10);
+    ctx.fill();
+
+    ctx.fillStyle = "#0A192F";
+    ctx.font = "900 14px sans-serif";
+    ctx.fillText("¡ELEGIR!", x + w * 0.5, btnY + btnH * 0.5);
+
+    ctx.restore();
+  }
+
   protected onDraw(ctx: CanvasRenderingContext2D): void {
     const w = this.width || 1024;
     const h = this.height || 768;
@@ -844,7 +1475,7 @@ export class SnowBattleGame extends BaseGame {
       ctx.strokeStyle = "rgba(0, 229, 255, 0.40)";
       ctx.lineWidth = 3.5;
       ctx.shadowColor = "#00E5FF";
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 6;
       const rad = 14;
       ctx.beginPath();
       ctx.roundRect(bounds.left, bounds.top, bounds.width, bounds.height, rad);
@@ -885,6 +1516,39 @@ export class SnowBattleGame extends BaseGame {
 
     // Bolas de nieve
     for (const b of this.snowballs) this.drawSnowball(ctx, b.x, b.y, 10);
+    // Bolas de nieve enemigas Stylized 2D (con núcleo de hielo carmesí y halo de escarcha)
+    for (const b of this.enemySnowballs) {
+      ctx.save();
+      // Resplandor exterior
+      const grad = ctx.createRadialGradient(b.x, b.y, 3, b.x, b.y, 14);
+      grad.addColorStop(0, "#FF8A80");
+      grad.addColorStop(0.6, "#E53935");
+      grad.addColorStop(1, "rgba(213, 0, 0, 0)");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, 14, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Núcleo cristalino
+      ctx.fillStyle = "#FFFFFF";
+      ctx.strokeStyle = "#D50000";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Pequeñas chispas de escarcha rotatorias
+      for (let si = 0; si < 3; si++) {
+        const sAng = t * 7 + (si * Math.PI * 2 / 3);
+        const sx = b.x + Math.cos(sAng) * 9;
+        const sy = b.y + Math.sin(sAng) * 9;
+        ctx.fillStyle = "#FFCDD2";
+        ctx.fillRect(sx - 1.5, sy - 1.5, 3, 3);
+      }
+      ctx.restore();
+    }
+
 
     this.drawPlayer(ctx, t);
 
@@ -901,6 +1565,7 @@ export class SnowBattleGame extends BaseGame {
 
     this.joystick.draw(ctx, this.lastDt);
     this.drawStatusOverlay(ctx, w, h);
+    this.drawUpgradeModal(ctx, w, h);
   }
 
   private drawBackground(ctx: CanvasRenderingContext2D, w: number, h: number): void {
@@ -991,6 +1656,48 @@ export class SnowBattleGame extends BaseGame {
   private drawPlayer(ctx: CanvasRenderingContext2D, t: number): void {
     const x = this.px;
     const y = this.py;
+    // Ventisca / Aura Congelante visible alrededor de Rodolfo
+    if ((this.upgradeLevels.frost_aura || 0) > 0) {
+      ctx.save();
+      const auraR = this.statFrostAuraRadius;
+      const pulse = 1.0 + Math.sin(t * 6) * 0.06;
+      const r = auraR * pulse;
+
+      // Gradiente radial místico
+      const auraGrad = ctx.createRadialGradient(x, y, r * 0.45, x, y, r);
+      auraGrad.addColorStop(0, "rgba(224, 64, 251, 0.0)");
+      auraGrad.addColorStop(0.65, "rgba(224, 64, 251, 0.16)");
+      auraGrad.addColorStop(0.9, "rgba(0, 229, 255, 0.28)");
+      auraGrad.addColorStop(1, "rgba(255, 255, 255, 0.55)");
+
+      ctx.fillStyle = auraGrad;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Borde de escarcha con destellos
+      ctx.strokeStyle = "rgba(0, 229, 255, 0.65)";
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = "#00E5FF";
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Copos y cristales girando en el vórtice del aura
+      const crystalCount = 6;
+      for (let ci = 0; ci < crystalCount; ci++) {
+        const cAng = t * 3.5 + (ci * (Math.PI * 2 / crystalCount));
+        const cx = x + Math.cos(cAng) * (r * 0.88);
+        const cy = y + Math.sin(cAng) * (r * 0.88);
+        ctx.fillStyle = "#E0F7FA";
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
 
     if (this.isDying) {
       this.drawShadow(ctx, x, y + PLAYER_RADIUS * 0.9, PLAYER_RADIUS * 0.95);
@@ -1231,7 +1938,33 @@ export class SnowBattleGame extends BaseGame {
       } else {
         img = Math.sin(e.wobble) > 0 || !imgReady(this.elfImg2) ? this.elfImg : this.elfImg2;
       }
+      if (e.isDashing) {
+        ctx.save();
+        ctx.globalAlpha = 0.45;
+        const trailImg = imgReady(this.elfAtkImg) ? this.elfAtkImg : img;
+        if (trailImg && imgReady(trailImg)) {
+          this.drawSprite(ctx, trailImg, e.x - (this.px - e.x) * 0.08, e.y - (this.py - e.y) * 0.08, e.r * 2.6, false, 0, 1.0, 1.0);
+        }
+        ctx.restore();
+      }
     } else {
+      if (isAttacking) {
+        // Onda expansiva de escarcha rúnica generada por el pisotón del Yeti
+        ctx.save();
+        const shockRadius = e.r * 2.2 * (1 - (e.attackTimer || 0) / 0.6);
+        ctx.strokeStyle = "rgba(0, 229, 255, 0.75)";
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, shockRadius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, shockRadius * 0.7, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
       if (flash && imgReady(this.yetiHitImg)) {
         img = this.yetiHitImg;
       } else if (isAttacking && imgReady(this.yetiSlamImg)) {
@@ -1619,6 +2352,61 @@ export class SnowBattleGame extends BaseGame {
     ctx.save();
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+
+
+    // ------------------------------------------------------------------------
+    // BARRA DE PROGRESO DE FASE / MEJORA (Stylized 2D Game HUD)
+    // ------------------------------------------------------------------------
+    const prevThreshold = this.upgradeLevel === 0 ? 0 : this.nextUpgradeKillThreshold - (10 + this.upgradeLevel * 4);
+    const range = Math.max(1, this.nextUpgradeKillThreshold - prevThreshold);
+    const currentProgress = Math.min(range, Math.max(0, this.enemiesDefeatedCount - prevThreshold));
+    const pct = Math.min(1.0, currentProgress / range);
+
+    const barW = Math.min(380, w * 0.72);
+    const barH = 22;
+    const barX = (w - barW) / 2;
+    const barY = 96;
+
+    ctx.save();
+    // Marco exterior con relieve y sombra
+    ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = "rgba(10, 25, 47, 0.88)";
+    ctx.strokeStyle = "#FFD700";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.roundRect(barX, barY, barW, barH, 12);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+
+    // Relleno de barra con gradiente dorado/cian festivo
+    if (pct > 0.02) {
+      const fillW = Math.max(14, (barW - 6) * pct);
+      const barGrad = ctx.createLinearGradient(barX + 3, barY + 3, barX + 3 + fillW, barY + barH - 6);
+      barGrad.addColorStop(0, "#00E5FF");
+      barGrad.addColorStop(0.5, "#76FF03");
+      barGrad.addColorStop(1, "#FFD700");
+      ctx.fillStyle = barGrad;
+      ctx.beginPath();
+      ctx.roundRect(barX + 3, barY + 3, fillW, barH - 6, 8);
+      ctx.fill();
+
+      // Brillo en la cresta de la barra
+      ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+      ctx.fillRect(barX + 5, barY + 4, fillW - 4, (barH - 8) * 0.4);
+    }
+
+    // Texto de la barra de fase
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "900 11px 'Titan One', 'Fredoka', sans-serif";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.shadowColor = "rgba(0,0,0,0.8)";
+    ctx.shadowBlur = 4;
+    ctx.fillText(`FASE ${this.upgradeLevel + 1}  •  ${currentProgress} / ${range} INVASORES`, w / 2, barY + barH * 0.52);
+    ctx.restore();
 
     // Combo
     if (this.combo >= 2) {

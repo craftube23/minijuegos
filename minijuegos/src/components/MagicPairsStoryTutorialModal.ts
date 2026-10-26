@@ -162,7 +162,7 @@ export class MagicPairsStoryTutorialModal {
         <!-- Encabezado con medallón oficial -->
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="ski-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE</span>
@@ -265,24 +265,24 @@ export class MagicPairsStoryTutorialModal {
               <div class="pairs-cards-fan">
                 <div class="fan-card fan-card-1">
                   <div class="card-back-ornament">
-                    <img src="./assets/images/medallon-feria.png" alt="Dorso" />
+                    <img src="./assets/images/medallon-feria.webp" alt="Dorso" />
                   </div>
                 </div>
                 <div class="fan-card fan-card-hero">
                   <div class="card-face-content">
-                    <img src="./assets/images/osito.png" alt="Osito de Peluche" />
+                    <img src="./assets/images/osito.webp" alt="Osito de Peluche" />
                     <span class="card-hero-caption">¡PAREJA!</span>
                   </div>
                 </div>
                 <div class="fan-card fan-card-3">
                   <div class="card-back-ornament">
-                    <img src="./assets/images/estrella con logo.png" alt="Dorso" />
+                    <img src="./assets/images/estrella con logo.webp" alt="Dorso" />
                   </div>
                 </div>
               </div>
             </div>
             <div class="stage-story-badge">
-              <img src="./assets/images/estrella con logo.png" alt="Estrella" class="story-star-badge" />
+              <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="story-star-badge" />
               <span>MISIÓN: ¡EMPAREJA TODOS LOS JUGUETES MÁGICOS!</span>
             </div>
           </div>
@@ -297,10 +297,10 @@ export class MagicPairsStoryTutorialModal {
               <div class="demo-card demo-card-0" id="card-sim-0">
                 <div class="demo-card-inner">
                   <div class="demo-card-back">
-                    <img src="./assets/images/medallon-feria.png" alt="Dorso" />
+                    <img src="./assets/images/medallon-feria.webp" alt="Dorso" />
                   </div>
                   <div class="demo-card-front">
-                    <img src="./assets/images/osito.png" alt="Osito" />
+                    <img src="./assets/images/osito.webp" alt="Osito" />
                   </div>
                 </div>
               </div>
@@ -308,10 +308,10 @@ export class MagicPairsStoryTutorialModal {
               <div class="demo-card demo-card-1" id="card-sim-1">
                 <div class="demo-card-inner">
                   <div class="demo-card-back">
-                    <img src="./assets/images/medallon-feria.png" alt="Dorso" />
+                    <img src="./assets/images/medallon-feria.webp" alt="Dorso" />
                   </div>
                   <div class="demo-card-front">
-                    <img src="./assets/images/robot.png" alt="Robot" />
+                    <img src="./assets/images/robot.webp" alt="Robot" />
                   </div>
                 </div>
               </div>
@@ -319,10 +319,10 @@ export class MagicPairsStoryTutorialModal {
               <div class="demo-card demo-card-2" id="card-sim-2">
                 <div class="demo-card-inner">
                   <div class="demo-card-back">
-                    <img src="./assets/images/medallon-feria.png" alt="Dorso" />
+                    <img src="./assets/images/medallon-feria.webp" alt="Dorso" />
                   </div>
                   <div class="demo-card-front">
-                    <img src="./assets/images/osito.png" alt="Osito" />
+                    <img src="./assets/images/osito.webp" alt="Osito" />
                   </div>
                 </div>
               </div>
@@ -330,10 +330,10 @@ export class MagicPairsStoryTutorialModal {
               <div class="demo-card demo-card-3" id="card-sim-3">
                 <div class="demo-card-inner">
                   <div class="demo-card-back">
-                    <img src="./assets/images/medallon-feria.png" alt="Dorso" />
+                    <img src="./assets/images/medallon-feria.webp" alt="Dorso" />
                   </div>
                   <div class="demo-card-front">
-                    <img src="./assets/images/robot.png" alt="Robot" />
+                    <img src="./assets/images/robot.webp" alt="Robot" />
                   </div>
                 </div>
               </div>
@@ -355,8 +355,8 @@ export class MagicPairsStoryTutorialModal {
               <div class="toy-point-card card-classic">
                 <div class="point-badge-tag">+200 PTS</div>
                 <div class="point-images-duo">
-                  <img src="./assets/images/osito.png" alt="Osito" />
-                  <img src="./assets/images/robot.png" alt="Robot" />
+                  <img src="./assets/images/osito.webp" alt="Osito" />
+                  <img src="./assets/images/robot.webp" alt="Robot" />
                 </div>
                 <span class="point-label">Juguetes Clásicos</span>
               </div>
@@ -365,7 +365,7 @@ export class MagicPairsStoryTutorialModal {
               <div class="toy-point-card card-special">
                 <div class="point-badge-tag tag-purple">+300 PTS</div>
                 <div class="point-images-duo">
-                  <img src="./assets/images/elfo-volador.png" alt="Elfo Volador" />
+                  <img src="./assets/images/elfo-volador.webp" alt="Elfo Volador" />
                   <img src="./assets/images/baston-caramelo.webp" alt="Bastón" />
                 </div>
                 <span class="point-label">Elfo & Dulces</span>
@@ -375,7 +375,7 @@ export class MagicPairsStoryTutorialModal {
               <div class="toy-point-card card-star">
                 <div class="point-badge-tag tag-gold">+500 PTS • PODER ESPECIAL</div>
                 <div class="point-single-star">
-                  <img src="./assets/images/estrella con logo.png" alt="Estrella con Logo" class="star-pulse-img" />
+                  <img src="./assets/images/estrella con logo.webp" alt="Estrella con Logo" class="star-pulse-img" />
                 </div>
                 <span class="point-label">¡Logos de Patrocinador!</span>
               </div>

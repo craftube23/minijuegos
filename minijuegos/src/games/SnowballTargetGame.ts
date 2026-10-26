@@ -1,17 +1,29 @@
 /**
  * ==============================================================================
- * JUEGO: 🎯 TIRO AL BLANCO NAVIDEÑO (Snowball Carnival Target Gallery - Pro Edition)
+ * JUEGO: 🎯 TIRO AL BLANCO NAVIDEÑO (Snowball Carnival Target Gallery - Pro Deluxe)
  * ==============================================================================
  * 
  * Experiencia arcade festiva de alta producción en estilo Stylized 2D Game Concept Art:
- * - Escenario cinemático de caseta de feria navideña en alta resolución con faroles cálidos y guirnaldas.
- * - Resortera mágica interactiva con física elástica, retroceso elástico y destello de escarcha en boca de disparo.
- * - Dianas con física de bisagra real: al recibir el impacto giran hacia atrás sobre su eje y caen con rebote.
- * - Gran variedad de blancos: Dianas de caramelo, muñecos de nieve, robots de cuerda, ositos, renos dorados de jackpot y dianas de patrocinadores oficiales.
- * - Modo Fiebre Navideña (Fever Mode): Luces de marquesina animadas, bolas de nieve cometa doradas y multiplicador x2/x4.
- * - Salpicaduras de nieve con micro-gotas que chorrean suavemente y se disipan.
- * - Efectos de sonido sintetizados a 0ms de latencia: chasquido de resortera, golpe de madera en diana y campanas mágicas.
- * - Retícula / Crosshair arcade con rubí central, retroceso reactivo y anillo giratorio.
+ * - Galería de feria navideña en carrusel continuo: NUNCA se detiene ni se queda vacía.
+ *   Los blancos fluyen sin cesar en rieles cinéticos y repisas mecánicas.
+ * - Gran elenco de enemigos y blancos festivos:
+ *   * Muñecos de Nieve Lanzadores (wind-up con advertencia de bola de nieve a la pantalla)
+ *   * Elfos Traviesos hiper-ágiles con fintas y bonus
+ *   * Duendes del Hielo que intentan escarchar objetivos
+ *   * Piñatas Doradas de Jackpot (multi-hit de 2 toques con lluvia de monedas)
+ *   * Galletas de Jengibre saltarinas y Relojes Mágicos de Tiempo Extra
+ *   * Dianas concéntricas clásicas, Robots de cuerda, Ositos y Regalos sorpresa
+ * - SUPERPODERES ESPECTACULARES DE PATROCINADORES:
+ *   * ⚡ CAMPUSLANDS: Metralladora de Plasma de Nieve (Ráfaga continua hiper-rápida)
+ *   * ❄️ CAJASAN: Ventisca Glacial (Congela todo y desata explosiones de hielo en cadena)
+ *   * 💣 PRACTI AREPA: Super-Mortero de Santa (Mega-explosión que limpia la pantalla)
+ *   * 🦋 DULCES MARIPOSA: Reloj de Hadas (+5s y Dulce Frenesí x2)
+ *   * 🛡️ ÁNGELUS SEGURIDAD: Escudo Angelical (Purifica carbón e hielo en regalos)
+ *   * 💥 FACTOR HUMANO: Ultra-Multiplicador Cósmico x4
+ *   * 🎯 FUNDALAS: Puntería Rúnica Divina con Ricochet Teledirigido
+ *   * 💰 IMEBU: Lluvia Dorada de Monedas y Jackpot Emprendedor
+ * - Retícula rúnica arcade con auto-bloqueo magnético y resortera elástica con destellos.
+ * - Sonidos sintetizados ultra-reactivos a 0ms de latencia.
  */
 
 import { BaseGame } from "../core/BaseGame";
@@ -22,38 +34,45 @@ import { BRANDING, type LogoConfig } from "../config/branding";
 
 export type TargetType =
   | "bullseye"        // Diana concéntrica clásica (+200)
-  | "toy_robot"       // Robot mecánico en riel (+150)
-  | "toy_bear"        // Osito de peluche en riel (+150)
+  | "toy_robot"       // Robot de hojalata (+180)
+  | "toy_bear"        // Osito de peluche (+180)
   | "gift_box"        // Regalo festivo sorpresa (+300)
-  | "sponsor_target"  // ¡Diana oficial de Patrocinador con SUPERPODER exclusivo! (+500)
-  | "coal"            // Barril de carbón (-150 y rompe combo)
-  | "ice_spike"       // Cristal de hielo espinoso (-200 y congela resortera)
-  | "grumpy_snowman"  // Muñeco de nieve gruñón (-100 y arroja bola a la pantalla)
-  | "mischievous_elf";// Elfo travieso veloz (+350 bonus al acertarle)
+  | "pinata_star"     // Piñata festiva de jackpot (2 HP, +600)
+  | "gingerbread"     // Galleta de jengibre saltarina (+250)
+  | "magic_clock"     // Reloj dorado mágico (+5s tiempo extra!)
+  | "sponsor_target"  // Diana oficial de Patrocinador con SUPERPODER
+  | "mischievous_elf" // Elfo travieso veloz (+400)
+  | "grumpy_snowman"  // Muñeco de nieve lanzador (arroja bola si no se abate a tiempo)
+  | "ice_goblin"      // Duende del hielo pillo (+320)
+  | "ice_spike"       // Cristal de hielo congelante (-150)
+  | "coal";           // Barril de carbón (-150)
 
 export interface GalleryTarget {
   id: number;
   type: TargetType;
-  shelfIndex: number; // 0: Arriba, 1: Medio, 2: Abajo
+  shelfIndex: number; // 0: Superior, 1: Media, 2: Inferior
   x: number;
   y: number;
   width: number;
   height: number;
-  vx: number; // Velocidad horizontal
-  minX: number;
-  maxX: number;
-  isPeek: boolean; // ¿Se asoma y se oculta?
+  vx: number;
+  hp: number;
+  maxHp: number;
+  isPeek: boolean;
   peekTimer: number;
   peekDuration: number;
-  peekOffset: number; // 0 = visible, 1 = completamente oculto
+  peekOffset: number; // 0 = visible, 1 = oculto
+  attackTimer?: number; // Para muñeco gruñón
   isHit: boolean;
   hitTimer: number;
-  hingePitch: number; // 0 a 90 grados (giro hacia atrás al ser abatida)
-  wobbleAngle: number; // Oscilación elástica
+  hingePitch: number; // 0 a 90 grados
+  wobbleAngle: number;
   splatOnTarget?: { dx: number; dy: number; r: number };
   points: number;
   sponsorId?: string;
   wobblePhase: number;
+  bobPhase: number;
+  isFrozen?: boolean;
 }
 
 export interface FlyingSnowball {
@@ -63,12 +82,13 @@ export interface FlyingSnowball {
   targetY: number;
   currentX: number;
   currentY: number;
-  progress: number; // 0 a 1
+  progress: number;
   flightDuration: number;
   scale: number;
   arcHeight: number;
   isSpecial: boolean;
   isFever: boolean;
+  isGatling?: boolean;
   themeColor: string;
 }
 
@@ -81,27 +101,45 @@ export interface SnowSplat {
   splatPoints: { dx: number; dy: number; r: number; dripY: number }[];
 }
 
+export interface LightningArc {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  life: number;
+  color: string;
+}
+
 export class SnowballTargetGame extends BaseGame {
-  // Sprites e Ilustraciones HD
+  // Sprites e Ilustraciones 2D Stylized
   private bgCarnivalImage: HTMLImageElement;
   private spriteSnowman: HTMLImageElement;
+  private spriteSnowmanAttack: HTMLImageElement;
   private spriteTeddy: HTMLImageElement;
   private spriteRobot: HTMLImageElement;
   private spriteGiftRed: HTMLImageElement;
   private spriteGiftGreen: HTMLImageElement;
+  private spriteGiftGold: HTMLImageElement;
   private spriteCoal: HTMLImageElement;
   private spriteMedallion: HTMLImageElement;
   private spriteIceSpike: HTMLImageElement;
   private spriteElf: HTMLImageElement;
+  private spriteElfAttack: HTMLImageElement;
+  private spriteDuendeHielo: HTMLImageElement;
+  private spritePinata: HTMLImageElement;
+  private spriteClock: HTMLImageElement;
+  private spriteGingerbread: HTMLImageElement;
+  private spriteRocket: HTMLImageElement;
 
-  // Estado del Juego
+  // Estado del Mundo
   private targets: GalleryTarget[] = [];
   private nextTargetId: number = 1;
   private targetSpawnTimer: number = 0;
   private flyingSnowballs: FlyingSnowball[] = [];
   private snowSplats: SnowSplat[] = [];
+  private lightningArcs: LightningArc[] = [];
 
-  // Mira / Retícula Arcade
+  // Mira / Retícula Rúnica Arcade
   private crosshairX: number = 0;
   private crosshairY: number = 0;
   private crosshairVisible: boolean = false;
@@ -109,29 +147,36 @@ export class SnowballTargetGame extends BaseGame {
   private crosshairAngle: number = 0;
 
   // Resortera Elástica Interactiva
-  private slingshotSnapTimer: number = 0; // Rebote elástico
+  private slingshotSnapTimer: number = 0;
   private slingshotAngle: number = 0;
+  private rapidFireTimer: number = 0;
 
   // Modo Fiebre / Frenesí Navideño
   private isFeverMode: boolean = false;
   private feverTimer: number = 0;
-  private readonly FEVER_DURATION: number = 5.0;
+  private readonly FEVER_DURATION: number = 5.5;
   private feverMarqueeOffset: number = 0;
 
-  // Habilidades Especiales Exclusivas de los Patrocinadores
-  private tripleShotTimer: number = 0;   // Campuslands: 3 bolas a la vez
-  private slowMoTimer: number = 0;       // Cajasan: dianas al 30% de velocidad
-  private giantBallTimer: number = 0;    // Practi Arepa: mega-bola con onda expansiva
-  private shieldTimer: number = 0;       // Ángelus: escudo protector contra carbón/hielo
-  private ultraMultTimer: number = 0;    // Factor Humano: multiplicador x3
-  private magnetAimTimer: number = 0;    // Fundalas: puntería mágica teledirigida
+  // SUPERPODERES ESPECTACULARES DE PATROCINADORES
+  private gatlingTimer: number = 0;         // Campuslands: Ráfaga de plasma continuo
+  private blizzardFreezeTimer: number = 0;  // Cajasan: Ventisca y explosión en cadena
+  private megaMortarTimer: number = 0;      // Practi Arepa: Mortero gigante de Santa
+  private fairyTimeTimer: number = 0;       // Dulces Mariposa: Reloj de hadas + bono
+  private divineShieldTimer: number = 0;    // Ángelus Seguridad: Escudo purificador
+  private cosmicMultTimer: number = 0;      // Factor Humano: Multiplicador x4
+  private arcaneAimTimer: number = 0;       // Fundalas: Puntería rúnica teledirigida
   private activeAbilityName: string = "";
   private activeAbilityColor: string = "#FFD700";
 
   // Penalizaciones y Efectos de Enemigos
-  private frostFreezeTimer: number = 0;  // Cristal de hielo: resortera congelada
-  private cameraSplatTimer: number = 0;  // Muñeco gruñón: mancha de nieve en la pantalla
+  private frostFreezeTimer: number = 0;     // Resortera congelada por cristal
+  private cameraSplatTimer: number = 0;     // Muñeco gruñón: mancha en la pantalla
   private cameraSplatAlpha: number = 0;
+
+  // Sistema de Oleadas Especiales (Rush Waves)
+  private rushEventTimer: number = 0;
+  private currentRushBanner: string = "";
+  private rushBannerTimer: number = 0;
 
   // Métricas, Combo y Puntuación
   private combo: number = 0;
@@ -140,7 +185,6 @@ export class SnowballTargetGame extends BaseGame {
   private shotsFired: number = 0;
   private perfectHits: number = 0;
   private lastShotTime: number = 0;
-  private readonly SHOT_COOLDOWN: number = 0.11;
 
   // Repisas
   private shelfY: number[] = [0, 0, 0];
@@ -159,51 +203,47 @@ export class SnowballTargetGame extends BaseGame {
   ) {
     super(
       "snowball-target",
-      "Tiro al Blanco Navideño",
-      "¡Apunta con la resortera mágica y derriba las dianas y regalos de la feria!",
+      "¡Tiro al Blanco Navideño!",
+      "¡Dispara con la resortera mágica! Abate juguetes, muñecos y dianas con superpoderes.",
       canvas,
       input,
       audio,
       particles
     );
 
-    // Música festiva enérgica
-    this.inGameMusicPath = "./assets/audio/We Wish You a Merry Christmas.mp3";
-    this.inGameMusicVolume = 0.52;
+    this.inGameMusicPath = "./assets/audio/Up on the Housetop.mp3";
+    this.inGameMusicVolume = 0.46;
 
-    // Carga de Sprites HD
-    this.bgCarnivalImage = this.createImage("./assets/images/fondo-tiro-al-blanco.webp");
-    this.spriteSnowman = this.createImage("./assets/images/obstaculo-muneco.png");
-    this.spriteTeddy = this.createImage("./assets/images/osito.png");
-    this.spriteRobot = this.createImage("./assets/images/robot.png");
-    this.spriteGiftRed = this.createImage("./assets/images/regalo-rojo2.png");
-    this.spriteGiftGreen = this.createImage("./assets/images/regalo-verde.png");
-    this.spriteCoal = this.createImage("./assets/images/carbon.webp");
-    this.spriteMedallion = this.createImage("./assets/images/medallon-feria.png");
-    this.spriteIceSpike = this.createImage("./assets/images/obstaculo-cristal.png");
-    this.spriteElf = this.createImage("./assets/images/elfo-volador.png");
+    // Carga de Sprites 100% WebP Oficiales
+    this.bgCarnivalImage = this.getImage("./assets/images/fondo-tiro-al-blanco.webp");
+    this.spriteSnowman = this.getImage("./assets/images/snowman-evil-1.webp");
+    this.spriteSnowmanAttack = this.getImage("./assets/images/snowman-evil-attack.webp");
+    this.spriteTeddy = this.getImage("./assets/images/osito.webp");
+    this.spriteRobot = this.getImage("./assets/images/robot.webp");
+    this.spriteGiftRed = this.getImage("./assets/images/regalo-estilizado-rojo.webp");
+    this.spriteGiftGreen = this.getImage("./assets/images/regalo-estilizado-verde.webp");
+    this.spriteGiftGold = this.getImage("./assets/images/regalo-estilizado-dorado.webp");
+    this.spriteCoal = this.getImage("./assets/images/carbon.webp");
+    this.spriteMedallion = this.getImage("./assets/images/medallon-feria.webp");
+    this.spriteIceSpike = this.getImage("./assets/images/obstaculo-cristal.webp");
+    this.spriteElf = this.getImage("./assets/images/elf-mischief-1.webp");
+    this.spriteElfAttack = this.getImage("./assets/images/elf-mischief-attack.webp");
+    this.spriteDuendeHielo = this.getImage("./assets/images/duende-hielo.webp");
+    this.spritePinata = this.getImage("./assets/images/pinata-estrella.webp");
+    this.spriteClock = this.getImage("./assets/images/reloj-magico-tiempo.webp");
+    this.spriteGingerbread = this.getImage("./assets/images/galleta-jengibre.webp");
+    this.spriteRocket = this.getImage("./assets/images/cohete-navideno.webp");
   }
-
-  private createImage(src: string): HTMLImageElement {
-    return this.getImage(src);
-  }
-
-  // ============================================================================
-  // CICLO DE VIDA (LIFECYCLE)
-  // ============================================================================
 
   public override resize(width: number, height: number): void {
     super.resize(width, height);
     this.recalculateShelves();
-    this.initAmbientSnow();
   }
 
   private recalculateShelves(): void {
-    // Coordenadas calibradas al milímetro con el fondo ilustrado de la caseta
-    this.shelfLeft = this.width * 0.22;
-    this.shelfRight = this.width * 0.78;
+    this.shelfLeft = this.width * 0.20;
+    this.shelfRight = this.width * 0.80;
 
-    // 3 repisas alineadas exactamente con los rieles de madera ilustrados
     this.shelfY[0] = this.height * 0.455; // Repisa superior
     this.shelfY[1] = this.height * 0.588; // Repisa central
     this.shelfY[2] = this.height * 0.728; // Repisa inferior
@@ -216,12 +256,12 @@ export class SnowballTargetGame extends BaseGame {
 
   private initAmbientSnow(): void {
     this.ambientSnowDrift = [];
-    const count = Math.min(35, Math.floor(this.width / 30));
+    const count = Math.min(45, Math.floor(this.width / 25));
     for (let i = 0; i < count; i++) {
       this.ambientSnowDrift.push({
         x: Math.random() * this.width,
         y: Math.random() * this.height,
-        speed: 18 + Math.random() * 28,
+        speed: 20 + Math.random() * 30,
         size: 1.5 + Math.random() * 2.5
       });
     }
@@ -233,6 +273,7 @@ export class SnowballTargetGame extends BaseGame {
     this.targets = [];
     this.flyingSnowballs = [];
     this.snowSplats = [];
+    this.lightningArcs = [];
     this.combo = 0;
     this.maxCombo = 0;
     this.hitsCount = 0;
@@ -241,29 +282,34 @@ export class SnowballTargetGame extends BaseGame {
     this.targetSpawnTimer = 0;
     this.lastShotTime = 0;
     this.crosshairRecoil = 0;
-    this.crosshairVisible = false; // Permanece oculta hasta la primera interacción
+    this.crosshairVisible = false;
     this.crosshairX = this.width / 2;
     this.crosshairY = this.height * 0.58;
     this.isFeverMode = false;
     this.feverTimer = 0;
     this.slingshotSnapTimer = 0;
+    this.rapidFireTimer = 0;
+    this.rushEventTimer = 0;
+    this.currentRushBanner = "";
+    this.rushBannerTimer = 0;
 
-    // Reset de Habilidades de Patrocinadores y Efectos de Enemigos
-    this.tripleShotTimer = 0;
-    this.slowMoTimer = 0;
-    this.giantBallTimer = 0;
-    this.shieldTimer = 0;
-    this.ultraMultTimer = 0;
-    this.magnetAimTimer = 0;
+    // Reset de Superpoderes
+    this.gatlingTimer = 0;
+    this.blizzardFreezeTimer = 0;
+    this.megaMortarTimer = 0;
+    this.fairyTimeTimer = 0;
+    this.divineShieldTimer = 0;
+    this.cosmicMultTimer = 0;
+    this.arcaneAimTimer = 0;
     this.activeAbilityName = "";
     this.frostFreezeTimer = 0;
     this.cameraSplatTimer = 0;
     this.cameraSplatAlpha = 0;
 
-    // Poblar inicialmente cada repisa
+    // Poblado continuo inicial
     this.spawnInitialTargets();
 
-    // Controles táctiles / puntero
+    // Controles táctiles / puntero reactivos
     this.input.onPointerDown = (_pointerId: number, x: number, y: number) => {
       if (!this.isRunning || this.isGameOver) return;
       this.crosshairX = x;
@@ -279,134 +325,146 @@ export class SnowballTargetGame extends BaseGame {
     };
   }
 
+  /**
+   * Poblado balanceado de inicio: 8 blancos vibrantes distribuidos
+   */
   private spawnInitialTargets(): void {
     const sw = this.shelfRight - this.shelfLeft;
-    // Repisa 0 (Arriba): Diana de Patrocinador + Regalo Sorpresa
-    this.spawnTargetOnShelf(0, "sponsor_target", this.shelfLeft + sw * 0.30);
-    this.spawnTargetOnShelf(0, "gift_box", this.shelfLeft + sw * 0.70);
+    // Repisa 0 (Arriba): Reloj Mágico + Galleta + Medallón Patrocinador
+    this.spawnTargetOnShelf(0, "magic_clock", this.shelfLeft + sw * 0.22);
+    this.spawnTargetOnShelf(0, "sponsor_target", this.shelfLeft + sw * 0.50);
+    this.spawnTargetOnShelf(0, "gingerbread", this.shelfLeft + sw * 0.78);
 
-    // Repisa 1 (Medio): Diana clásica + Robot + Elfo Pillo Enemigo
-    this.spawnTargetOnShelf(1, "bullseye", this.shelfLeft + sw * 0.22);
-    this.spawnTargetOnShelf(1, "toy_robot", this.shelfLeft + sw * 0.50);
-    this.spawnTargetOnShelf(1, "mischievous_elf", this.shelfLeft + sw * 0.78);
+    // Repisa 1 (Medio): Diana clásica + Piñata Dorada + Duende del Hielo
+    this.spawnTargetOnShelf(1, "bullseye", this.shelfLeft + sw * 0.20);
+    this.spawnTargetOnShelf(1, "pinata_star", this.shelfLeft + sw * 0.50);
+    this.spawnTargetOnShelf(1, "ice_goblin", this.shelfLeft + sw * 0.80);
 
-    // Repisa 2 (Abajo): Muñeco de nieve gruñón + Cristal de Hielo + Osito
-    this.spawnTargetOnShelf(2, "grumpy_snowman", this.shelfLeft + sw * 0.26);
-    this.spawnTargetOnShelf(2, "toy_bear", this.shelfLeft + sw * 0.54);
-    this.spawnTargetOnShelf(2, "ice_spike", this.shelfLeft + sw * 0.82);
+    // Repisa 2 (Abajo): Muñeco de Nieve Lanzador + Elfo Travieso + Regalo
+    this.spawnTargetOnShelf(2, "grumpy_snowman", this.shelfLeft + sw * 0.25);
+    this.spawnTargetOnShelf(2, "gift_box", this.shelfLeft + sw * 0.55);
+    this.spawnTargetOnShelf(2, "mischievous_elf", this.shelfLeft + sw * 0.82);
   }
 
+  /**
+   * Genera un objetivo dinámicamente en una repisa
+   */
   private spawnTargetOnShelf(shelfIndex: number, forcedType?: TargetType, fixedX?: number): void {
     const shelfY = this.shelfY[shelfIndex];
-
-    const shelfScale = shelfIndex === 0 ? 0.78 : (shelfIndex === 1 ? 0.90 : 1.05);
+    const shelfScale = shelfIndex === 0 ? 0.80 : (shelfIndex === 1 ? 0.92 : 1.05);
     const baseSize = Math.min(this.width * 0.12, 68) * shelfScale;
 
-    // Márgenes seguros para que nunca toquen ni invadan los pilares laterales
-    const minX = this.shelfLeft + baseSize * 0.65;
-    const maxX = this.shelfRight - baseSize * 0.65;
+    const minX = this.shelfLeft + baseSize * 0.55;
+    const maxX = this.shelfRight - baseSize * 0.55;
 
-    // Posición horizontal con prevención rigurosa de solapamiento
     let x = fixedX;
     if (x === undefined) {
-      const minDistance = baseSize * 1.45;
-      const existingOnShelf = this.targets.filter(t => !t.isHit && t.shelfIndex === shelfIndex);
-
-      let bestX = minX + Math.random() * (maxX - minX);
-      let foundValid = false;
-
-      // Buscar un hueco libre en la repisa
-      for (let attempt = 0; attempt < 12; attempt++) {
+      // Si el carrusel de riel está activo, generar desde los extremos de la pantalla
+      if (shelfIndex === 0) {
+        // Repisa 0 avanza de Izquierda a Derecha
+        x = minX - 30;
+      } else if (shelfIndex === 1) {
+        // Repisa 1 avanza de Derecha a Izquierda
+        x = maxX + 30;
+      } else {
+        // Repisa 2 es de pop-up / emboscada
         const candidateX = minX + Math.random() * (maxX - minX);
-        const tooClose = existingOnShelf.some(t => Math.abs(t.x - candidateX) < minDistance);
-        if (!tooClose) {
-          bestX = candidateX;
-          foundValid = true;
-          break;
-        }
+        const existingOnShelf = this.targets.filter(t => !t.isHit && t.shelfIndex === shelfIndex);
+        const tooClose = existingOnShelf.some(t => Math.abs(t.x - candidateX) < baseSize * 1.3);
+        if (tooClose && existingOnShelf.length >= 3) return;
+        x = candidateX;
       }
-
-      // Si la repisa está copada, no encimar objetivos
-      if (!foundValid && existingOnShelf.length >= 3) {
-        return;
-      }
-      x = bestX;
     }
 
-    // Determinar tipo
+    // Selección rica y variada de blancos
     let type: TargetType = forcedType ?? "bullseye";
     if (!forcedType) {
       const roll = Math.random();
       if (this.isFeverMode) {
-        // En Modo Fiebre: Abundancia de logos patrocinadores y dianas doradas
-        if (roll < 0.40) type = "sponsor_target";
-        else if (roll < 0.70) type = "bullseye";
-        else if (roll < 0.85) type = "gift_box";
+        if (roll < 0.35) type = "sponsor_target";
+        else if (roll < 0.55) type = "pinata_star";
+        else if (roll < 0.75) type = "magic_clock";
+        else if (roll < 0.90) type = "gingerbread";
         else type = "mischievous_elf";
       } else {
-        // Variedad dinámica con enemigos y patrocinadores con superpoderes
-        if (roll < 0.22) type = "sponsor_target";      // ¡LOGOS CON PODERES!
-        else if (roll < 0.38) type = "bullseye";        // Diana
-        else if (roll < 0.48) type = "toy_robot";       // Robot
-        else if (roll < 0.58) type = "toy_bear";        // Osito
-        else if (roll < 0.68) type = "gift_box";        // Regalo
-        else if (roll < 0.78) type = "mischievous_elf"; // Enemigo: Elfo travieso
-        else if (roll < 0.86) type = "grumpy_snowman";  // Enemigo: Muñeco gruñón
-        else if (roll < 0.93) type = "ice_spike";       // Enemigo: Cristal helado
-        else type = "coal";                             // Enemigo: Carbón
+        if (roll < 0.18) type = "sponsor_target";      // ¡Superpoderes de marcas!
+        else if (roll < 0.30) type = "grumpy_snowman";  // Enemigo atacante
+        else if (roll < 0.42) type = "ice_goblin";      // Duende helado
+        else if (roll < 0.52) type = "mischievous_elf"; // Elfo veloz
+        else if (roll < 0.62) type = "pinata_star";     // Piñata 2-hit jackpot
+        else if (roll < 0.70) type = "magic_clock";     // Reloj +5s
+        else if (roll < 0.78) type = "gingerbread";     // Jengibre
+        else if (roll < 0.86) type = "gift_box";        // Regalo
+        else if (roll < 0.93) type = "bullseye";        // Diana concéntrica
+        else if (roll < 0.97) type = "ice_spike";       // Obstáculo congelante
+        else type = "coal";                             // Obstáculo carbón
       }
     }
 
-    let points = 150;
+    let points = 200;
     let vx = 0;
     let isPeek = false;
     let peekDuration = 2.4;
     let sponsorId: string | undefined = undefined;
+    let hp = 1;
 
     switch (type) {
       case "bullseye":
         points = 200;
-        vx = (Math.random() < 0.5 ? -1 : 1) * (20 + Math.random() * 26);
+        vx = (shelfIndex === 1 ? -1 : 1) * (35 + Math.random() * 25);
         break;
       case "toy_robot":
       case "toy_bear":
-        points = 150;
-        vx = (Math.random() < 0.5 ? -1 : 1) * (28 + Math.random() * 30);
+        points = 180;
+        vx = (shelfIndex === 1 ? -1 : 1) * (30 + Math.random() * 25);
         break;
       case "gift_box":
         points = 300;
-        vx = (Math.random() < 0.5 ? -1 : 1) * (36 + Math.random() * 32);
+        vx = (shelfIndex === 1 ? -1 : 1) * (40 + Math.random() * 25);
+        break;
+      case "pinata_star":
+        points = 600;
+        hp = 2; // Requiere 2 toques
+        vx = (shelfIndex === 1 ? -1 : 1) * 28;
+        break;
+      case "gingerbread":
+        points = 250;
+        vx = (shelfIndex === 1 ? -1 : 1) * (45 + Math.random() * 30);
+        break;
+      case "magic_clock":
+        points = 350;
+        vx = 55 + Math.random() * 25; // Flota velozmente en la repisa superior
         break;
       case "sponsor_target": {
         points = 500;
         const sponsors = BRANDING.getAllSponsors();
         const randSponsor = sponsors[Math.floor(Math.random() * sponsors.length)];
         sponsorId = randSponsor.id;
-        vx = (Math.random() < 0.5 ? -1 : 1) * (24 + Math.random() * 26);
+        vx = (shelfIndex === 1 ? -1 : 1) * (32 + Math.random() * 24);
         break;
       }
       case "mischievous_elf":
-        // Enemigo veloz y escurridizo que da alto bonus si lo cazas
-        points = 350;
-        vx = (Math.random() < 0.5 ? -1 : 1) * (58 + Math.random() * 35);
+        points = 400;
+        vx = (Math.random() < 0.5 ? -1 : 1) * (65 + Math.random() * 35);
         break;
       case "grumpy_snowman":
-        // Enemigo que se asoma; si no le das, arroja bola de nieve a la pantalla
-        points = 220;
-        isPeek = true;
-        peekDuration = 1.9 + Math.random() * 0.6;
-        break;
-      case "ice_spike":
-        // Obstáculo congelante que inhabilita temporalmente la resortera
-        points = -200;
+        points = 250;
         isPeek = true;
         peekDuration = 2.4;
         break;
-      case "coal":
-        // Barril de carbón que rompe combo
+      case "ice_goblin":
+        points = 320;
+        vx = (Math.random() < 0.5 ? -1 : 1) * (42 + Math.random() * 24);
+        break;
+      case "ice_spike":
         points = -150;
         isPeek = true;
         peekDuration = 2.6;
+        break;
+      case "coal":
+        points = -150;
+        isPeek = true;
+        peekDuration = 2.8;
         break;
     }
 
@@ -419,19 +477,22 @@ export class SnowballTargetGame extends BaseGame {
       width: baseSize,
       height: baseSize,
       vx,
-      minX,
-      maxX,
+      hp,
+      maxHp: hp,
       isPeek,
       peekTimer: peekDuration,
       peekDuration,
       peekOffset: isPeek ? 1.0 : 0.0,
+      attackTimer: type === "grumpy_snowman" ? 2.2 : undefined,
       isHit: false,
       hitTimer: 0,
       hingePitch: 0,
       wobbleAngle: 0,
       points,
       sponsorId,
-      wobblePhase: Math.random() * Math.PI * 2
+      wobblePhase: Math.random() * Math.PI * 2,
+      bobPhase: Math.random() * Math.PI * 2,
+      isFrozen: this.blizzardFreezeTimer > 0
     });
   }
 
@@ -441,9 +502,9 @@ export class SnowballTargetGame extends BaseGame {
 
   private shootSnowball(targetX: number, targetY: number): void {
     const now = Date.now() / 1000;
-    if (now - this.lastShotTime < this.SHOT_COOLDOWN) return;
+    const cooldown = this.gatlingTimer > 0 ? 0.075 : (this.isFeverMode ? 0.09 : 0.11);
+    if (now - this.lastShotTime < cooldown) return;
 
-    // Si la resortera está congelada por cristal de hielo
     if (this.frostFreezeTimer > 0) {
       this.playWoodClackSound(220);
       this.triggerShake(0.12, 3);
@@ -454,34 +515,33 @@ export class SnowballTargetGame extends BaseGame {
     this.lastShotTime = now;
     this.shotsFired++;
     this.crosshairRecoil = 1.0;
-    this.slingshotSnapTimer = 0.22; // Dispara retroceso elástico de la resortera
+    this.slingshotSnapTimer = 0.22;
 
-    // Sonido de disparo (Whip / Snap elástico)
     this.playSlingshotSound();
 
     const startX = this.width / 2;
     const startY = this.height * 0.91 - 24;
 
-    // Calcular ángulo de apuntado de la resortera
     this.slingshotAngle = Math.atan2(targetX - startX, startY - targetY);
 
-    const isGiant = this.giantBallTimer > 0;
+    const isMega = this.megaMortarTimer > 0;
+    const isGatling = this.gatlingTimer > 0;
     const themeColor = this.isFeverMode
       ? "#FFD700"
-      : (isGiant ? "#FF9100" : (this.activeLogo ? this.activeLogo.themeColor : "#FFFFFF"));
+      : (isMega ? "#FF6D00" : (isGatling ? "#00E5FF" : (this.activeLogo ? this.activeLogo.themeColor : "#FFFFFF")));
 
-    // Disparo principal
-    this.createFlyingBall(startX, startY, targetX, targetY, isGiant, themeColor);
+    // 1. Disparo principal
+    this.createFlyingBall(startX, startY, targetX, targetY, isMega, themeColor, isGatling);
 
-    // Habilidad Triple Disparo (Campuslands)
-    if (this.tripleShotTimer > 0) {
-      const spreadX = Math.min(100, this.width * 0.12);
-      this.createFlyingBall(startX, startY, targetX - spreadX, targetY - 10, false, "#00E5FF");
-      this.createFlyingBall(startX, startY, targetX + spreadX, targetY - 10, false, "#00E5FF");
+    // 2. Disparo Gatling / Triple continuo (Campuslands)
+    if (isGatling) {
+      const spread = Math.min(85, this.width * 0.10);
+      this.createFlyingBall(startX, startY, targetX - spread, targetY - 12, false, "#00E5FF", true);
+      this.createFlyingBall(startX, startY, targetX + spread, targetY - 12, false, "#00E5FF", true);
     }
 
-    // Destello de escarcha en la boca de la resortera
-    this.particles.emitBurst(startX, startY - 25, themeColor, 8);
+    // Destello de escarcha en boca de resortera
+    this.particles.emitBurst(startX, startY - 25, themeColor, isMega ? 20 : (isGatling ? 14 : 8));
   }
 
   private createFlyingBall(
@@ -489,8 +549,9 @@ export class SnowballTargetGame extends BaseGame {
     startY: number,
     targetX: number,
     targetY: number,
-    isGiant: boolean,
-    themeColor: string
+    isMega: boolean,
+    themeColor: string,
+    isGatling: boolean = false
   ): void {
     this.flyingSnowballs.push({
       startX,
@@ -500,28 +561,42 @@ export class SnowballTargetGame extends BaseGame {
       currentX: startX,
       currentY: startY,
       progress: 0,
-      flightDuration: isGiant ? 0.18 : 0.15,
-      scale: isGiant ? 2.2 : 1.0,
-      arcHeight: Math.min(85, Math.abs(targetY - startY) * 0.20),
-      isSpecial: this.activeLogo !== null || isGiant,
+      flightDuration: isMega ? 0.19 : (isGatling ? 0.11 : 0.14),
+      scale: isMega ? 2.6 : (isGatling ? 1.2 : 1.35),
+      arcHeight: Math.min(85, Math.abs(targetY - startY) * 0.18),
+      isSpecial: this.activeLogo !== null || isMega || isGatling,
       isFever: this.isFeverMode,
+      isGatling,
       themeColor
     });
   }
 
   protected onUpdate(dt: number): void {
     this.lanternFlicker += dt * 3.8;
-    this.crosshairAngle += dt * 2.5;
+    this.crosshairAngle += dt * 2.8;
     this.crosshairRecoil = Math.max(0, this.crosshairRecoil - dt * 5.5);
-    this.feverMarqueeOffset += dt * 40;
+    this.feverMarqueeOffset += dt * 45;
 
-    // Temporizador de retroceso elástico de la resortera
-    if (this.slingshotSnapTimer > 0) {
-      this.slingshotSnapTimer -= dt;
-      if (this.slingshotSnapTimer < 0) this.slingshotSnapTimer = 0;
+    // Disparo continuo al mantener pulsado (Gatling o Modo Fiebre)
+    const pointer = this.input.getPrimaryPointer();
+    if (pointer && pointer.isDown && (this.gatlingTimer > 0 || this.isFeverMode)) {
+      this.rapidFireTimer += dt;
+      if (this.rapidFireTimer >= (this.gatlingTimer > 0 ? 0.08 : 0.10)) {
+        this.rapidFireTimer = 0;
+        this.crosshairX = pointer.x;
+        this.crosshairY = pointer.y;
+        this.crosshairVisible = true;
+        this.shootSnowball(pointer.x, pointer.y);
+      }
+    } else {
+      this.rapidFireTimer = 0;
     }
 
-    // Modo Fiebre / Frenesí
+    if (this.slingshotSnapTimer > 0) {
+      this.slingshotSnapTimer = Math.max(0, this.slingshotSnapTimer - dt);
+    }
+
+    // Modo Fiebre
     if (this.isFeverMode) {
       this.feverTimer -= dt;
       if (this.feverTimer <= 0) {
@@ -530,19 +605,33 @@ export class SnowballTargetGame extends BaseGame {
       }
     }
 
-    // Actualizar temporizadores de Superpoderes de Patrocinadores
-    if (this.tripleShotTimer > 0) this.tripleShotTimer = Math.max(0, this.tripleShotTimer - dt);
-    if (this.slowMoTimer > 0) this.slowMoTimer = Math.max(0, this.slowMoTimer - dt);
-    if (this.giantBallTimer > 0) this.giantBallTimer = Math.max(0, this.giantBallTimer - dt);
-    if (this.shieldTimer > 0) this.shieldTimer = Math.max(0, this.shieldTimer - dt);
-    if (this.ultraMultTimer > 0) this.ultraMultTimer = Math.max(0, this.ultraMultTimer - dt);
-    if (this.magnetAimTimer > 0) this.magnetAimTimer = Math.max(0, this.magnetAimTimer - dt);
+    // Temporizadores de Superpoderes Épicos
+    if (this.gatlingTimer > 0) this.gatlingTimer = Math.max(0, this.gatlingTimer - dt);
+    if (this.blizzardFreezeTimer > 0) this.blizzardFreezeTimer = Math.max(0, this.blizzardFreezeTimer - dt);
+    if (this.megaMortarTimer > 0) this.megaMortarTimer = Math.max(0, this.megaMortarTimer - dt);
+    if (this.fairyTimeTimer > 0) this.fairyTimeTimer = Math.max(0, this.fairyTimeTimer - dt);
+    if (this.divineShieldTimer > 0) this.divineShieldTimer = Math.max(0, this.divineShieldTimer - dt);
+    if (this.cosmicMultTimer > 0) this.cosmicMultTimer = Math.max(0, this.cosmicMultTimer - dt);
+    if (this.arcaneAimTimer > 0) this.arcaneAimTimer = Math.max(0, this.arcaneAimTimer - dt);
 
-    // Actualizar penalizaciones de enemigos
+    // Penalizaciones
     if (this.frostFreezeTimer > 0) this.frostFreezeTimer = Math.max(0, this.frostFreezeTimer - dt);
     if (this.cameraSplatTimer > 0) {
       this.cameraSplatTimer = Math.max(0, this.cameraSplatTimer - dt);
       this.cameraSplatAlpha = Math.max(0, this.cameraSplatTimer / 1.3);
+    }
+
+    // Banner de oleada especial
+    if (this.rushBannerTimer > 0) {
+      this.rushBannerTimer = Math.max(0, this.rushBannerTimer - dt);
+      if (this.rushBannerTimer <= 0) this.currentRushBanner = "";
+    }
+
+    // Oleadas especiales cada 14 segundos (Ráfagas dinámicas)
+    this.rushEventTimer += dt;
+    if (this.rushEventTimer >= 14.0) {
+      this.rushEventTimer = 0;
+      this.triggerRushEvent();
     }
 
     // Copos de nieve ambiente
@@ -555,25 +644,33 @@ export class SnowballTargetGame extends BaseGame {
       }
     }
 
+    // Rayos de escarcha / arcos mágicos
+    for (let i = this.lightningArcs.length - 1; i >= 0; i--) {
+      this.lightningArcs[i].life -= dt * 3.5;
+      if (this.lightningArcs[i].life <= 0) {
+        this.lightningArcs.splice(i, 1);
+      }
+    }
+
     // 1. Bolas de Nieve en Vuelo
     for (let i = this.flyingSnowballs.length - 1; i >= 0; i--) {
       const ball = this.flyingSnowballs[i];
 
-      // Auto-aim magnético (Fundalas)
-      if (this.magnetAimTimer > 0) {
-        let nearestTarget: GalleryTarget | null = null;
-        let minDist = 180;
+      // Auto-aim rúnico teledirigido (Fundalas)
+      if (this.arcaneAimTimer > 0) {
+        let bestTarget: GalleryTarget | null = null;
+        let minDist = 220;
         for (const tg of this.targets) {
-          if (tg.isHit || (tg.isPeek && tg.peekOffset > 0.5)) continue;
+          if (tg.isHit || (tg.isPeek && tg.peekOffset > 0.4)) continue;
           const d = Math.hypot(ball.currentX - tg.x, ball.currentY - tg.y);
           if (d < minDist) {
             minDist = d;
-            nearestTarget = tg;
+            bestTarget = tg;
           }
         }
-        if (nearestTarget) {
-          ball.targetX += (nearestTarget.x - ball.targetX) * dt * 4.5;
-          ball.targetY += (nearestTarget.y - ball.targetY) * dt * 4.5;
+        if (bestTarget) {
+          ball.targetX += (bestTarget.x - ball.targetX) * dt * 7.5;
+          ball.targetY += (bestTarget.y - ball.targetY) * dt * 7.5;
         }
       }
 
@@ -588,97 +685,107 @@ export class SnowballTargetGame extends BaseGame {
         const linearY = ball.startY + (ball.targetY - ball.startY) * t;
         const arc = Math.sin(t * Math.PI) * ball.arcHeight;
         ball.currentY = linearY - arc;
-        ball.scale = (ball.scale > 1.5 ? 2.3 : 1.38) - t * 0.68; // Perspectiva
+        ball.scale = (ball.scale > 1.6 ? 2.5 : 1.4) - t * 0.65;
 
-        // Ráfaga cometa de chispas
         if (ball.isFever || ball.isSpecial) {
           this.particles.emitTouchTrail(ball.currentX, ball.currentY, 2);
         }
       }
     }
 
-    // 2. Objetivos y Física de Bisagra al ser Abatidos
-    const slowMoMultiplier = this.slowMoTimer > 0 ? 0.35 : 1.0;
-    const targetDt = dt * slowMoMultiplier;
+    // 2. Objetivos en Movimiento y Física de Carrusel
+    const isBlizzardActive = this.blizzardFreezeTimer > 0;
+    const speedMult = isBlizzardActive ? 0.0 : 1.0;
 
     for (let i = this.targets.length - 1; i >= 0; i--) {
       const t = this.targets[i];
       t.wobblePhase += dt * 3.2;
+      t.bobPhase += dt * 4.5;
+      t.isFrozen = isBlizzardActive;
 
+      // Abatimiento de diana tras impacto
       if (t.isHit) {
         t.hitTimer += dt;
-        // Gira hacia atrás sobre su eje inferior (0° a 90°)
-        t.hingePitch = Math.min(90, t.hingePitch + dt * 280);
-        // Oscilación lateral amortiguada
+        t.hingePitch = Math.min(90, t.hingePitch + dt * 320);
         t.wobbleAngle = Math.sin(t.hitTimer * 24) * Math.exp(-t.hitTimer * 7) * 18;
-        // Una vez abatida, cae hacia abajo
-        if (t.hingePitch >= 80) {
-          t.y += dt * 320;
+        if (t.hingePitch >= 75) {
+          t.y += dt * 350;
         }
-        if (t.hitTimer > 0.48) {
+        if (t.hitTimer > 0.45) {
           this.targets.splice(i, 1);
         }
         continue;
       }
 
-      // Peeking
-      if (t.isPeek) {
-        t.peekTimer -= targetDt;
-        if (t.peekTimer <= 0) {
-          // Si es muñeco gruñón y no fue impactado antes de ocultarse, arroja nieve a la lente
-          if (t.type === "grumpy_snowman" && t.peekOffset < 0.2 && this.cameraSplatTimer <= 0) {
-            this.cameraSplatTimer = 1.3;
+      // Comportamiento del Muñeco de Nieve Lanzador
+      if (t.type === "grumpy_snowman" && t.attackTimer !== undefined) {
+        t.attackTimer -= dt * speedMult;
+        // Si el temporizador llega a cero y el jugador no le disparó, arroja bola a la cámara!
+        if (t.attackTimer <= 0) {
+          if (this.divineShieldTimer > 0) {
+            this.addFloatingText("🛡️ ¡ESCUDO REPELIÓ BOLA!", this.width / 2, this.height * 0.44, "#38BDF8", 1.4);
+          } else if (this.cameraSplatTimer <= 0) {
+            this.cameraSplatTimer = 1.4;
             this.cameraSplatAlpha = 1.0;
-            this.playWoodClackSound(280);
-            this.triggerShake(0.18, 5);
-            this.addFloatingText("¡EL MUÑECO TE SALPICÓ!", this.width / 2, this.height * 0.42, "#FFEA00", 1.4);
+            this.playWoodClackSound(260);
+            this.triggerShake(0.20, 6);
+            this.addFloatingText("¡EL MUÑECO TE SALPICÓ!", this.width / 2, this.height * 0.42, "#FF1744", 1.5);
           }
+          t.isHit = true; // El muñeco se retira tras lanzar
+          t.hitTimer = 0;
+          continue;
+        }
+      }
 
-          t.peekOffset = Math.min(1.0, t.peekOffset + targetDt * 4.2);
+      // Peeking targets
+      if (t.isPeek) {
+        t.peekTimer -= dt * speedMult;
+        if (t.peekTimer <= 0) {
+          t.peekOffset = Math.min(1.0, t.peekOffset + dt * 4.5);
           if (t.peekOffset >= 1.0) {
             this.targets.splice(i, 1);
             continue;
           }
         } else {
-          t.peekOffset = Math.max(0.0, t.peekOffset - targetDt * 4.2);
+          t.peekOffset = Math.max(0.0, t.peekOffset - dt * 4.5);
         }
       }
 
-      // Movimiento horizontal en rieles
+      // Movimiento horizontal en rieles carrusel
       if (t.vx !== 0) {
-        t.x += t.vx * targetDt;
-        if (t.x <= t.minX) {
-          t.x = t.minX;
-          t.vx = Math.abs(t.vx);
-        } else if (t.x >= t.maxX) {
-          t.x = t.maxX;
-          t.vx = -Math.abs(t.vx);
-        }
+        t.x += t.vx * dt * speedMult;
 
-        // Evitar que dos dianas activas en el mismo riel choquen o se encimen (rebote mecánico)
-        for (const other of this.targets) {
-          if (other === t || other.isHit || other.shelfIndex !== t.shelfIndex) continue;
-          const minDist = (t.width + other.width) * 0.52;
-          const dist = t.x - other.x;
-          if (Math.abs(dist) < minDist) {
-            if (dist > 0 && t.vx < 0) {
-              t.vx = Math.abs(t.vx);
-              other.vx = -Math.abs(other.vx);
-            } else if (dist < 0 && t.vx > 0) {
-              t.vx = -Math.abs(t.vx);
-              other.vx = Math.abs(other.vx);
-            }
+        // Si sale de los límites del riel, ciclar continuamente
+        if (t.shelfIndex === 0) {
+          // Repisa superior avanza hacia la derecha
+          if (t.x > this.shelfRight + 40) {
+            t.x = this.shelfLeft - 30;
+          }
+        } else if (t.shelfIndex === 1) {
+          // Repisa media avanza hacia la izquierda
+          if (t.x < this.shelfLeft - 40) {
+            t.x = this.shelfRight + 30;
+          }
+        } else {
+          // Repisa inferior rebota mecánicamente
+          if (t.x <= this.shelfLeft + t.width * 0.5) {
+            t.x = this.shelfLeft + t.width * 0.5;
+            t.vx = Math.abs(t.vx);
+          } else if (t.x >= this.shelfRight - t.width * 0.5) {
+            t.x = this.shelfRight - t.width * 0.5;
+            t.vx = -Math.abs(t.vx);
           }
         }
       }
     }
 
-    // 3. Spawner de Dianas (Dinámico con Frenesí)
+    // 3. Spawner de Carrusel Continuo (NUNCA se detiene)
     this.targetSpawnTimer += dt;
-    const maxTargets = this.isFeverMode ? 8 : (this.width < 500 ? 5 : 7);
-    const spawnInterval = this.isFeverMode ? 0.65 : (this.timeRemaining < 15 ? 0.85 : 1.2);
+    const maxActiveTargets = this.isFeverMode ? 12 : 9;
+    const activeCount = this.targets.filter(t => !t.isHit).length;
 
-    if (this.targetSpawnTimer >= spawnInterval && this.targets.filter(t => !t.isHit).length < maxTargets) {
+    // Si hay menos de 9 blancos, rellenar de inmediato (cada 0.32s)
+    if (activeCount < maxActiveTargets && this.targetSpawnTimer >= 0.32) {
       this.targetSpawnTimer = 0;
       const counts = [0, 0, 0];
       for (const t of this.targets) {
@@ -691,12 +798,12 @@ export class SnowballTargetGame extends BaseGame {
       this.spawnTargetOnShelf(minShelf);
     }
 
-    // 4. Salpicaduras de nieve con chorreo
+    // 4. Salpicaduras de nieve
     for (let i = this.snowSplats.length - 1; i >= 0; i--) {
       const splat = this.snowSplats[i];
-      splat.alpha -= dt * 0.9;
+      splat.alpha -= dt * 0.85;
       for (const p of splat.splatPoints) {
-        p.dripY += dt * 8; // Chorreo suave hacia abajo
+        p.dripY += dt * 9;
       }
       if (splat.alpha <= 0) {
         this.snowSplats.splice(i, 1);
@@ -705,20 +812,49 @@ export class SnowballTargetGame extends BaseGame {
   }
 
   /**
-   * Resuelve el impacto de la bola de nieve con física de diana abatible
+   * Dispara una ráfaga especial con un banner temático emocionante
+   */
+  private triggerRushEvent(): void {
+    const events = [
+      { name: "¡AVALANCHA DE DUENDES!", type: "mischievous_elf" as TargetType },
+      { name: "¡FRENESÍ DE REGALOS Y TIEMPO!", type: "magic_clock" as TargetType },
+      { name: "¡ASALTO DE MUÑECOS DE NIEVE!", type: "grumpy_snowman" as TargetType },
+      { name: "¡FIESTA DE PIÑATAS DORADAS!", type: "pinata_star" as TargetType }
+    ];
+    const ev = events[Math.floor(Math.random() * events.length)];
+    this.currentRushBanner = ev.name;
+    this.rushBannerTimer = 2.4;
+
+    this.audio.playPowerUp();
+    this.triggerShake(0.18, 5);
+    this.particles.emitConfetti(this.width, 35);
+
+    // Generar 3 objetivos especiales en cada repisa
+    this.spawnTargetOnShelf(0, ev.type);
+    this.spawnTargetOnShelf(1, ev.type);
+    this.spawnTargetOnShelf(2, ev.type);
+  }
+
+  /**
+   * Resuelve el impacto de la bola de nieve
    */
   private handleSnowballImpact(x: number, y: number, isSpecial: boolean, themeColor: string): void {
-    const isGiant = this.giantBallTimer > 0;
-    const hitRadius = isGiant ? 95 : (isSpecial ? 58 : 46);
+    const isMega = this.megaMortarTimer > 0;
+    const hitRadius = isMega ? 150 : (isSpecial ? 65 : 48);
 
     this.createSnowSplat(x, y, isSpecial ? themeColor : "#FFFFFF");
-    this.particles.emitBurst(x, y, isSpecial ? themeColor : "#FFFFFF", isGiant ? 35 : (isSpecial ? 24 : 14));
+    this.particles.emitBurst(x, y, isSpecial ? themeColor : "#FFFFFF", isMega ? 45 : (isSpecial ? 25 : 14));
 
-    // Si es mega-bola gigante (Practi Arepa), puede abatir múltiples dianas en el radio
+    if (isMega) {
+      this.triggerShake(0.35, 12);
+      this.audio.playCoalBombExplosion();
+    }
+
+    // Detección de impacto
     const hitTargets: GalleryTarget[] = [];
     for (const target of this.targets) {
       if (target.isHit) continue;
-      if (target.isPeek && target.peekOffset > 0.6) continue;
+      if (target.isPeek && target.peekOffset > 0.55) continue;
 
       const targetCenterY = target.y - target.height * 0.46 * (1 - target.peekOffset);
       const dx = x - target.x;
@@ -728,7 +864,7 @@ export class SnowballTargetGame extends BaseGame {
       const effectiveRadius = (target.width / 2) + hitRadius * 0.65;
       if (dist < effectiveRadius) {
         hitTargets.push(target);
-        if (!isGiant) break; // Si no es mega-bola, solo impacta a una
+        if (!isMega) break; // Si no es mega-mortero, impacta al objetivo principal
       }
     }
 
@@ -736,14 +872,58 @@ export class SnowballTargetGame extends BaseGame {
       for (const t of hitTargets) {
         this.resolveTargetHit(t, x, y);
       }
+
+      // Si la Ventisca Glacial (Cajasan) está activa, ¡desatar explosión de hielo en cadena!
+      if (this.blizzardFreezeTimer > 0) {
+        this.triggerIceChainReaction(hitTargets[0]);
+      }
     } else {
-      // Impacto en madera / fondo sin diana
       this.playWoodClackSound(400);
       this.combo = 0;
     }
   }
 
+  /**
+   * Explosión en cadena de hielo (Ventisca Glacial de Cajasan)
+   */
+  private triggerIceChainReaction(originTarget: GalleryTarget): void {
+    const sameShelfTargets = this.targets.filter(
+      t => !t.isHit && t.shelfIndex === originTarget.shelfIndex && t !== originTarget
+    );
+
+    for (const t of sameShelfTargets) {
+      // Dibujar arco de rayo de hielo
+      this.lightningArcs.push({
+        x1: originTarget.x,
+        y1: originTarget.y - originTarget.height * 0.4,
+        x2: t.x,
+        y2: t.y - t.height * 0.4,
+        life: 1.0,
+        color: "#00E5FF"
+      });
+
+      t.isHit = true;
+      t.hitTimer = 0;
+      this.addScore(t.points);
+      this.particles.emitBurst(t.x, t.y - 20, "#00E5FF", 16);
+    }
+
+    if (sameShelfTargets.length > 0) {
+      this.playBellDingSound();
+      this.addFloatingText(`❄️ ¡EXPLOSIÓN EN CADENA x${sameShelfTargets.length + 1}!`, originTarget.x, originTarget.y - 40, "#00E5FF", 1.5);
+    }
+  }
+
   private resolveTargetHit(target: GalleryTarget, hitX: number, hitY: number): void {
+    // Manejo de objetivos multi-hit (como la Piñata Dorada)
+    if (target.hp > 1) {
+      target.hp--;
+      this.playWoodClackSound(800);
+      this.particles.emitBurst(hitX, hitY, "#FFD700", 18);
+      this.addFloatingText("¡TOCA OTRA VEZ! 💥", hitX, hitY - 35, "#FFD700", 1.3);
+      return;
+    }
+
     target.isHit = true;
     target.hitTimer = 0;
     const localSplatY = hitY - (target.y - target.height * 0.5 * (1 - target.peekOffset));
@@ -754,14 +934,14 @@ export class SnowballTargetGame extends BaseGame {
     };
     this.hitsCount++;
 
-    const hasShield = this.shieldTimer > 0;
+    const hasShield = this.divineShieldTimer > 0;
 
-    // 1. IMPACTO EN ENEMIGOS Y OBSTÁCULOS
+    // 1. IMPACTO EN HAZARDS (Carbón y Hielo)
     if (target.type === "coal") {
       if (hasShield) {
-        this.addScore(200);
-        this.addFloatingText("¡ESCUDO ÁNGELUS! +200", hitX, hitY - 35, "#38BDF8", 1.4);
-        this.particles.emitBurst(hitX, hitY, "#38BDF8", 18);
+        this.addScore(250);
+        this.addFloatingText("🛡️ ¡CARBÓN PURIFICADO! +250", hitX, hitY - 35, "#38BDF8", 1.4);
+        this.particles.emitBurst(hitX, hitY, "#38BDF8", 22);
         this.playBellDingSound();
       } else {
         this.combo = 0;
@@ -770,35 +950,45 @@ export class SnowballTargetGame extends BaseGame {
         this.triggerShake(0.30, 9);
         this.audio.playError();
         this.addFloatingText("¡CARBÓN! -150", hitX, hitY - 35, "#FF3366", 1.4);
-        this.particles.emitBurst(hitX, hitY, "#222222", 22);
+        this.particles.emitBurst(hitX, hitY, "#222222", 24);
       }
       return;
     }
 
     if (target.type === "ice_spike") {
       if (hasShield) {
-        this.addScore(250);
-        this.addFloatingText("¡ESCUDO ÁNGELUS! +250", hitX, hitY - 35, "#38BDF8", 1.4);
-        this.particles.emitBurst(hitX, hitY, "#38BDF8", 20);
+        this.addScore(300);
+        this.addFloatingText("🛡️ ¡CRISTAL PURIFICADO! +300", hitX, hitY - 35, "#38BDF8", 1.4);
+        this.particles.emitBurst(hitX, hitY, "#38BDF8", 22);
         this.playBellDingSound();
       } else {
         this.combo = 0;
-        this.frostFreezeTimer = 0.85; // Congela temporalmente la resortera
+        this.frostFreezeTimer = 0.85;
         this.addScore(target.points);
         this.triggerShake(0.35, 10);
         this.playWoodClackSound(200);
-        this.addFloatingText("¡HIELO! -200 (CONGELADO)", hitX, hitY - 35, "#00E5FF", 1.4);
-        this.particles.emitBurst(hitX, hitY, "#80D8FF", 25);
+        this.addFloatingText("¡HIELO! -150 (CONGELADO)", hitX, hitY - 35, "#00E5FF", 1.4);
+        this.particles.emitBurst(hitX, hitY, "#80D8FF", 26);
       }
       return;
     }
 
+    // 2. IMPACTO EN ENEMIGOS DINÁMICOS
     if (target.type === "grumpy_snowman") {
       this.combo++;
       this.addScore(target.points);
-      this.playWoodClackSound(600);
-      this.addFloatingText("¡MUÑECO DESARMADO! +220", hitX, hitY - 35, "#FFD700", 1.4);
-      this.particles.emitBurst(hitX, hitY, "#FFFFFF", 20);
+      this.playWoodClackSound(650);
+      this.addFloatingText("¡MUÑECO DESARMADO! +250", hitX, hitY - 35, "#FFD700", 1.45);
+      this.particles.emitBurst(hitX, hitY, "#FFFFFF", 25);
+      return;
+    }
+
+    if (target.type === "ice_goblin") {
+      this.combo += 2;
+      this.addScore(target.points);
+      this.playWoodClackSound(700);
+      this.addFloatingText("¡DUENDE CAZADO! +320", hitX, hitY - 35, "#00E5FF", 1.45);
+      this.particles.emitBurst(hitX, hitY, "#00E5FF", 24);
       return;
     }
 
@@ -806,13 +996,32 @@ export class SnowballTargetGame extends BaseGame {
       this.combo += 2;
       this.addScore(target.points);
       this.playBellDingSound();
-      this.addFloatingText("¡ELFO ATRAPADO! +350", hitX, hitY - 35, "#00E676", 1.5);
-      this.particles.emitBurst(hitX, hitY, "#00E676", 26);
+      this.addFloatingText("¡ELFO ATRAPADO! +400", hitX, hitY - 35, "#00E676", 1.55);
+      this.particles.emitBurst(hitX, hitY, "#00E676", 28);
       this.particles.emitConfetti(this.width, 30);
       return;
     }
 
-    // 2. ¡DIANA DE PATROCINADOR OFICIAL CON SUPERPODER EXCLUSIVO!
+    if (target.type === "pinata_star") {
+      this.combo += 3;
+      this.addScore(target.points);
+      this.playBellDingSound();
+      this.addFloatingText("🎉 ¡PIÑATA JACKPOT! +600", hitX, hitY - 35, "#FFD700", 1.7);
+      this.particles.emitBurst(hitX, hitY, "#FFD700", 40);
+      this.particles.emitConfetti(this.width, 45);
+      return;
+    }
+
+    if (target.type === "magic_clock") {
+      this.timeRemaining += 5.0; // ¡+5s tiempo extra!
+      this.addScore(target.points);
+      this.playBellDingSound();
+      this.addFloatingText("⏱️ ¡+5 SEGUNDOS EXTRA!", hitX, hitY - 35, "#00E676", 1.6);
+      this.particles.emitBurst(hitX, hitY, "#FFD700", 25);
+      return;
+    }
+
+    // 3. DIANA DE PATROCINADOR CON SUPERPODER ESPECTACULAR
     if (target.type === "sponsor_target") {
       this.combo += 2;
       const sponsorKey = target.sponsorId || "feria";
@@ -822,16 +1031,16 @@ export class SnowballTargetGame extends BaseGame {
       this.addScore(basePoints);
 
       this.triggerLogoPowerUp(sponsor.id, 8);
-      this.triggerShake(0.20, 6);
+      this.triggerShake(0.22, 7);
       this.playBellDingSound();
       this.particles.emitBurst(hitX, hitY, sponsor.themeColor, 35);
-      this.particles.emitConfetti(this.width, 40);
+      this.particles.emitConfetti(this.width, 45);
 
       this.activateSponsorSuperpower(sponsor, hitX, hitY);
       return;
     }
 
-    // 3. DIANAS CLÁSICAS (Bullseye, Robots, Ositos, Regalos)
+    // 4. DIANAS CLÁSICAS
     this.playWoodClackSound(650);
 
     this.combo++;
@@ -839,37 +1048,35 @@ export class SnowballTargetGame extends BaseGame {
       this.maxCombo = this.combo;
     }
 
-    // Si llega a combo 5+, activar MODO FIEBRE
     if (this.combo === 5 && !this.isFeverMode) {
       this.activateFeverMode();
     }
 
     let mult = this.getComboMultiplier();
-    if (this.ultraMultTimer > 0) mult *= 3; // Superpoder Factor Humano
+    if (this.cosmicMultTimer > 0) mult *= 4; // Factor Humano
 
     let pts = target.points * mult;
 
-    // Diana perfecta en el centro
     let isBullseyeCenter = false;
     if (target.type === "bullseye") {
       const distCenter = Math.abs(hitX - target.x);
-      if (distCenter < target.width * 0.24) {
+      if (distCenter < target.width * 0.22) {
         isBullseyeCenter = true;
         this.perfectHits++;
-        pts += 150 * mult;
+        pts += 200 * mult;
         this.playBellDingSound();
       }
     }
 
     this.addScore(pts);
-    this.audio.playCatchItem(1.0 + Math.min(1.0, this.combo * 0.09));
+    this.audio.playCatchItem(1.0 + Math.min(1.0, this.combo * 0.08));
 
     const tagText = isBullseyeCenter ? `¡DIANA PERFECTA! +${pts}` : `+${pts}`;
     const color = isBullseyeCenter ? "#FFD700" : (mult > 1 ? "#00E5FF" : "#FFFFFF");
     this.addFloatingText(tagText, hitX, hitY - 35, color, isBullseyeCenter ? 1.5 : 1.25);
 
     if (this.combo > 1 && this.combo % 4 === 0) {
-      this.particles.emitConfetti(this.width, 22);
+      this.particles.emitConfetti(this.width, 24);
       this.addFloatingText(`¡RACHA x${this.combo}!`, this.width / 2, this.height * 0.36, "#FFD700", 1.6);
     }
   }
@@ -878,70 +1085,73 @@ export class SnowballTargetGame extends BaseGame {
     this.activeAbilityColor = sponsor.themeColor;
 
     switch (sponsor.id) {
-      case "logo-feria":
-      case "feria":
-        this.activateFeverMode();
-        this.activeAbilityName = "🔥 FIEBRE FERIA MÁGICA";
-        this.addFloatingText("🔥 ¡MODO FIEBRE INSTANTÁNEO!", hitX, hitY - 50, sponsor.themeColor, 1.6);
-        break;
-
       case "logo-campus":
       case "campus":
-        this.tripleShotTimer = 5.0;
-        this.activeAbilityName = "⚡ TRIPLE DISPARO TECH";
-        this.addFloatingText("⚡ ¡TRIPLE DISPARO ACTIVADO!", hitX, hitY - 50, sponsor.themeColor, 1.6);
+        this.gatlingTimer = 5.5;
+        this.activeAbilityName = "⚡ METRALLADORA DE PLASMA";
+        this.addFloatingText("⚡ ¡METRALLADORA DE NIEVE ACTIVADA!", hitX, hitY - 50, sponsor.themeColor, 1.65);
         break;
 
       case "logo-cajasan":
       case "cajasan":
-        this.slowMoTimer = 4.5;
-        this.activeAbilityName = "❄️ SLOW-MO DIANAS";
-        this.addFloatingText("❄️ ¡DIANAS RALENTIZADAS!", hitX, hitY - 50, sponsor.themeColor, 1.6);
+        this.blizzardFreezeTimer = 5.0;
+        this.activeAbilityName = "❄️ VENTISCA GLACIAL TOTAL";
+        this.addFloatingText("❄️ ¡VENTISCA GLACIAL! ¡DISPARA EN CADENA!", hitX, hitY - 50, sponsor.themeColor, 1.65);
+        this.triggerShake(0.25, 8);
         break;
 
       case "logo-practi":
       case "practi":
-        this.giantBallTimer = 5.0;
-        this.activeAbilityName = "💣 MEGA-BOLA EXPLOSIVA";
-        this.addFloatingText("💣 ¡MEGA BOLA GIGANTE!", hitX, hitY - 50, sponsor.themeColor, 1.6);
+        this.megaMortarTimer = 5.0;
+        this.activeAbilityName = "💣 SUPER-MORTERO DESTRUCTOR";
+        this.addFloatingText("💣 ¡SUPER-MORTERO DESTRUCTOR!", hitX, hitY - 50, sponsor.themeColor, 1.65);
         break;
 
       case "logo-mariposa":
       case "mariposa":
-        this.timeRemaining += 3.0;
-        this.activeAbilityName = "⏱️ +3s TIEMPO EXTRA";
-        this.addFloatingText("🍬 ¡DULCES +3 SEGUNDOS!", hitX, hitY - 50, sponsor.themeColor, 1.6);
-        this.particles.emitConfetti(this.width, 35);
+        this.timeRemaining += 5.0;
+        this.fairyTimeTimer = 5.0;
+        this.activeAbilityName = "🦋 DULCE BONANZA +5s";
+        this.addFloatingText("🍬 ¡RELOJ DE HADAS +5s (x2 PUNTOS)!", hitX, hitY - 50, sponsor.themeColor, 1.65);
+        this.particles.emitConfetti(this.width, 40);
         break;
 
       case "logo-angelus":
       case "angelus":
-        this.shieldTimer = 5.0;
-        this.activeAbilityName = "🛡️ ESCUDO TOTAL";
-        this.addFloatingText("🛡️ ¡ESCUDO ANTI-CARBÓN!", hitX, hitY - 50, sponsor.themeColor, 1.6);
+        this.divineShieldTimer = 6.0;
+        this.activeAbilityName = "🛡️ ESCUDO CELESTIAL";
+        this.addFloatingText("🛡️ ¡PURIFICACIÓN Y ESCUDO SAGRADO!", hitX, hitY - 50, sponsor.themeColor, 1.65);
+        // Purificar todos los peligros actuales en pantalla
+        for (const tg of this.targets) {
+          if (tg.type === "coal" || tg.type === "ice_spike") {
+            tg.type = "gift_box";
+            tg.points = 250;
+            this.particles.emitBurst(tg.x, tg.y - 20, "#38BDF8", 15);
+          }
+        }
         break;
 
       case "logo-factor":
       case "factor":
-        this.ultraMultTimer = 4.5;
-        this.activeAbilityName = "💥 MULTIPLICADOR x3";
-        this.addFloatingText("💥 ¡PUNTOS TRIPLES x3!", hitX, hitY - 50, sponsor.themeColor, 1.6);
+        this.cosmicMultTimer = 5.0;
+        this.activeAbilityName = "💥 MULTIPLICADOR CÓSMICO x4";
+        this.addFloatingText("💥 ¡PUNTOS CUÁDRUPLES x4!", hitX, hitY - 50, sponsor.themeColor, 1.65);
         break;
 
       case "logo-fundalas":
       case "fundalas":
-        this.magnetAimTimer = 5.0;
-        this.activeAbilityName = "🎯 PUNTERÍA MÁGICA";
-        this.addFloatingText("🎯 ¡AUTO-PUNTERÍA MÁGICA!", hitX, hitY - 50, sponsor.themeColor, 1.6);
+        this.arcaneAimTimer = 5.5;
+        this.activeAbilityName = "🎯 PUNTERÍA RÚNICA DIVINA";
+        this.addFloatingText("🎯 ¡PUNTERÍA TELEDIRIGIDA!", hitX, hitY - 50, sponsor.themeColor, 1.65);
         break;
 
       case "logo-imebu":
       case "imebu":
       default:
-        this.addScore(750);
-        this.activeAbilityName = "💰 ORO EMPRENDEDOR";
-        this.addFloatingText("💰 ¡BONUS IMEBU +750!", hitX, hitY - 50, sponsor.themeColor, 1.6);
-        this.particles.emitConfetti(this.width, 45);
+        this.addScore(1000);
+        this.activeAbilityName = "💰 LLUVIA DE ORO EMPRENDEDOR";
+        this.addFloatingText("💰 ¡JACKPOT EMPRENDEDOR +1000!", hitX, hitY - 50, sponsor.themeColor, 1.65);
+        this.particles.emitConfetti(this.width, 50);
         break;
     }
   }
@@ -994,7 +1204,7 @@ export class SnowballTargetGame extends BaseGame {
   }
 
   // ============================================================================
-  // AUDIO SINTETIZADO DE ALTA RESPUESTA (0ms Latencia)
+  // AUDIO SINTETIZADO A 0MS
   // ============================================================================
 
   private playSlingshotSound(): void {
@@ -1005,7 +1215,7 @@ export class SnowballTargetGame extends BaseGame {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sine";
-      osc.frequency.setValueAtTime(320, ctx.currentTime);
+      osc.frequency.setValueAtTime(340, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(70, ctx.currentTime + 0.08);
       gain.gain.setValueAtTime(0.24, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
@@ -1043,7 +1253,7 @@ export class SnowballTargetGame extends BaseGame {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sine";
-      osc.frequency.setValueAtTime(1760, ctx.currentTime); // La6
+      osc.frequency.setValueAtTime(1760, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.28);
       gain.gain.setValueAtTime(0.26, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.28);
@@ -1062,11 +1272,10 @@ export class SnowballTargetGame extends BaseGame {
     const w = this.width;
     const h = this.height;
 
-    // 1. Fondo de la Caseta de Feria en Alta Producción
+    // 1. Fondo de Caseta
     if (this.bgCarnivalImage && this.bgCarnivalImage.complete && this.bgCarnivalImage.naturalWidth > 0) {
       ctx.drawImage(this.bgCarnivalImage, 0, 0, w, h);
     } else {
-      // Fallback procedural con degradado
       const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
       bgGrad.addColorStop(0, "#1A0E08");
       bgGrad.addColorStop(0.5, "#3D1F0D");
@@ -1075,9 +1284,9 @@ export class SnowballTargetGame extends BaseGame {
       ctx.fillRect(0, 0, w, h);
     }
 
-    // Efecto de resplandor del Modo Fiebre en el fondo
+    // Efecto de resplandor del Modo Fiebre
     if (this.isFeverMode) {
-      const feverAura = ctx.createRadialGradient(w / 2, h * 0.45, 40, w / 2, h * 0.45, w * 0.7);
+      const feverAura = ctx.createRadialGradient(w / 2, h * 0.45, 40, w / 2, h * 0.45, w * 0.75);
       feverAura.addColorStop(0, "rgba(255, 215, 0, 0.25)");
       feverAura.addColorStop(0.6, "rgba(255, 69, 0, 0.15)");
       feverAura.addColorStop(1, "rgba(0, 0, 0, 0)");
@@ -1085,10 +1294,20 @@ export class SnowballTargetGame extends BaseGame {
       ctx.fillRect(0, 0, w, h);
     }
 
-    // 1.5. GUIRNALDA DE ESCUDOS CON LOGOS DE PATROCINADORES EN LA PARED TRASERA
+    // Efecto de Ventisca Glacial (Cajasan)
+    if (this.blizzardFreezeTimer > 0) {
+      const iceVignette = ctx.createLinearGradient(0, 0, 0, h);
+      iceVignette.addColorStop(0, "rgba(0, 229, 255, 0.22)");
+      iceVignette.addColorStop(0.5, "rgba(128, 222, 234, 0.08)");
+      iceVignette.addColorStop(1, "rgba(0, 229, 255, 0.24)");
+      ctx.fillStyle = iceVignette;
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    // 1.5. Guirnalda de patrocinadores en la pared
     this.drawBackgroundSponsorBanner(ctx);
 
-    // 2. Nieve ambiente cayendo en la caseta
+    // 2. Nieve ambiente
     ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
     for (const flake of this.ambientSnowDrift) {
       ctx.beginPath();
@@ -1096,36 +1315,93 @@ export class SnowballTargetGame extends BaseGame {
       ctx.fill();
     }
 
-    // 3. Salpicaduras de nieve en la pared posterior
+    // 3. Salpicaduras de nieve
     this.drawSnowSplats(ctx);
 
-    // 4. Objetivos y Dianas
+    // 4. Rayos de Hielo en Cadena
+    this.drawLightningArcs(ctx);
+
+    // 5. Dianas y Objetivos
     this.drawTargets(ctx);
 
-    // 5. Marco frontal de la caseta (Toldo festivo, luces de marquesina y mostrador)
-    this.drawCarnivalMarquee(ctx);
-
-    // 6. Bolas de Nieve en vuelo
+    // 6. Bolas de Nieve en Vuelo
     this.drawFlyingSnowballs(ctx);
 
-    // 7. Resortera elástica interactiva en el mostrador inferior
+    // 7. Resortera animada en el mostrador
     this.drawAnimatedSlingshot(ctx);
 
-    // 8. Retícula / Crosshair arcade
-    this.drawCrosshair(ctx);
-
-    // 8.5. Mancha de nieve en la cámara si el muñeco de nieve gruñón te salpicó
-    if (this.cameraSplatTimer > 0 && this.cameraSplatAlpha > 0.05) {
+    // 8. Mancha de nieve en cámara (ataque del muñeco)
+    if (this.cameraSplatAlpha > 0.02) {
       this.drawCameraSnowSplat(ctx);
     }
 
-    // 9. HUD de Racha, Fiebre y Superpoderes
+    // 8.5. Banner de Oleada Especial (Rush Event)
+    if (this.rushBannerTimer > 0 && this.currentRushBanner) {
+      this.drawRushBanner(ctx);
+    }
+
+    // 9. Luces de marquesina en fiebre
+    this.drawCarnivalMarquee(ctx);
+
+    // 10. Partículas
+    this.particles.draw(ctx, true);
+
+    // 11. Retícula Rúnica Arcade
+    this.drawCrosshair(ctx);
+
+    // 12. HUD Superior
     this.drawTargetHUD(ctx);
   }
 
+  private drawLightningArcs(ctx: CanvasRenderingContext2D): void {
+    for (const arc of this.lightningArcs) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, arc.life));
+      ctx.strokeStyle = arc.color;
+      ctx.lineWidth = 3.5;
+      ctx.shadowColor = arc.color;
+      ctx.shadowBlur = 10;
+
+      ctx.beginPath();
+      ctx.moveTo(arc.x1, arc.y1);
+      const midX = (arc.x1 + arc.x2) / 2 + (Math.random() - 0.5) * 24;
+      const midY = (arc.y1 + arc.y2) / 2 + (Math.random() - 0.5) * 24;
+      ctx.lineTo(midX, midY);
+      ctx.lineTo(arc.x2, arc.y2);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+  }
+
+  private drawRushBanner(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+    const cx = this.width / 2;
+    const cy = this.height * 0.32;
+    const alpha = Math.min(1.0, this.rushBannerTimer * 2.5);
+    ctx.globalAlpha = alpha;
+
+    const bannerW = Math.min(380, this.width * 0.85);
+    const bannerH = 46;
+
+    ctx.fillStyle = "rgba(10, 25, 47, 0.92)";
+    ctx.strokeStyle = "#FFD700";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(cx - bannerW / 2, cy - bannerH / 2, bannerW, bannerH, 23);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.font = "900 17px 'Titan One', 'Fredoka', sans-serif";
+    ctx.fillStyle = "#FFD700";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(this.currentRushBanner, cx, cy);
+
+    ctx.restore();
+  }
+
   private drawCarnivalMarquee(ctx: CanvasRenderingContext2D): void {
-    // El fondo ilustrado ya tiene bombillas colgantes integradas.
-    // En Modo Fiebre proyectamos un barrido de resplandor festivo dinámico en la marquesina superior.
     if (!this.isFeverMode) return;
 
     const w = this.width;
@@ -1133,7 +1409,7 @@ export class SnowballTargetGame extends BaseGame {
 
     ctx.save();
     const marqueeColors = ["#FF1744", "#FFEA00", "#00E676", "#00E5FF", "#D500F9"];
-    const bulbCount = Math.min(22, Math.floor(w / 40));
+    const bulbCount = Math.min(24, Math.floor(w / 38));
     const awningY = Math.min(68, h * 0.11);
 
     for (let i = 0; i < bulbCount; i++) {
@@ -1142,22 +1418,18 @@ export class SnowballTargetGame extends BaseGame {
       const colorIdx = Math.floor((i + this.feverMarqueeOffset * 0.12) % marqueeColors.length);
       const color = marqueeColors[Math.abs(colorIdx)];
 
-      // Resplandor cálido festivo de fiesta
-      const halo = ctx.createRadialGradient(bx, by, 2, bx, by, 24);
+      const halo = ctx.createRadialGradient(bx, by, 2, bx, by, 22);
       halo.addColorStop(0, color);
       halo.addColorStop(1, "rgba(0, 0, 0, 0)");
       ctx.fillStyle = halo;
       ctx.beginPath();
-      ctx.arc(bx, by, 24, 0, Math.PI * 2);
+      ctx.arc(bx, by, 22, 0, Math.PI * 2);
       ctx.fill();
     }
 
     ctx.restore();
   }
 
-  /**
-   * Banderines y medallones con los logos de los patrocinadores en el fondo de la caseta
-   */
   private drawBackgroundSponsorBanner(ctx: CanvasRenderingContext2D): void {
     const w = this.width;
     const h = this.height;
@@ -1168,11 +1440,11 @@ export class SnowballTargetGame extends BaseGame {
 
     ctx.save();
 
-    // 1. Cuerda festiva de pino verde que cruza la pared trasera de madera
     const startX = w * 0.15;
     const endX = w * 0.85;
     const baseY = h * 0.285;
 
+    // Cuerda de pino
     ctx.beginPath();
     ctx.strokeStyle = "rgba(46, 125, 50, 0.75)";
     ctx.lineWidth = 4;
@@ -1187,21 +1459,7 @@ export class SnowballTargetGame extends BaseGame {
     }
     ctx.stroke();
 
-    // 2. Micro bombillas de hadas doradas en la cuerda
-    for (let i = 0; i <= 16; i++) {
-      const t = i / 16;
-      const x = startX + (endX - startX) * t;
-      const y = baseY + Math.sin(t * Math.PI) * (h * 0.038);
-      const glow = ctx.createRadialGradient(x, y, 1, x, y, 6);
-      glow.addColorStop(0, i % 2 === 0 ? "#FFD700" : "#FF6D00");
-      glow.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(x, y, 6, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // 3. Medallones de madera con los logos nítidos de los patrocinadores
+    // Medallones
     const step = (endX - startX) / (count - 1);
     const badgeR = Math.min(24, Math.max(16, w * 0.024));
 
@@ -1213,7 +1471,6 @@ export class SnowballTargetGame extends BaseGame {
 
       const isCurrentActive = this.activeLogo && this.activeLogo.id === sp.id;
 
-      // Cadenita o lazo rojo que suspende el escudo
       ctx.strokeStyle = "#C62828";
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -1221,7 +1478,6 @@ export class SnowballTargetGame extends BaseGame {
       ctx.lineTo(bx, by - badgeR);
       ctx.stroke();
 
-      // Halo pulsante si ese patrocinador está activo con superpoder
       if (isCurrentActive) {
         const halo = ctx.createRadialGradient(bx, by, badgeR * 0.4, bx, by, badgeR * 1.8);
         halo.addColorStop(0, sp.themeColor);
@@ -1232,24 +1488,20 @@ export class SnowballTargetGame extends BaseGame {
         ctx.fill();
       }
 
-      // Base del escudo de madera caoba tallada
       ctx.fillStyle = "#3E2723";
       ctx.beginPath();
       ctx.arc(bx, by, badgeR + 3, 0, Math.PI * 2);
       ctx.fill();
 
-      // Borde de oro
       ctx.strokeStyle = isCurrentActive ? "#FFD700" : "rgba(255, 215, 0, 0.85)";
       ctx.lineWidth = isCurrentActive ? 3.5 : 2;
       ctx.stroke();
 
-      // Fondo blanco puro para máxima legibilidad del logo
       ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
       ctx.beginPath();
       ctx.arc(bx, by, badgeR, 0, Math.PI * 2);
       ctx.fill();
 
-      // Imagen del logo oficial
       const img = this.getSponsorImage(sp.id);
       if (img && img.complete && img.naturalWidth > 0) {
         const aspect = img.naturalWidth / img.naturalHeight;
@@ -1269,12 +1521,6 @@ export class SnowballTargetGame extends BaseGame {
         ctx.textBaseline = "middle";
         ctx.fillText(sp.shortName.charAt(0), bx, by);
       }
-
-      // Pequeño copo de nieve decorativo encima del escudo
-      ctx.fillStyle = "#FFFFFF";
-      ctx.beginPath();
-      ctx.ellipse(bx, by - badgeR + 1, badgeR * 0.75, 3.5, 0, 0, Math.PI * 2);
-      ctx.fill();
     }
 
     ctx.restore();
@@ -1282,8 +1528,15 @@ export class SnowballTargetGame extends BaseGame {
 
   private drawTargets(ctx: CanvasRenderingContext2D): void {
     for (const target of this.targets) {
+      // Sombra de contacto sobre el riel
       ctx.save();
-      // Trasladar al eje inferior de la diana para simular giro sobre bisagra
+      ctx.fillStyle = "rgba(20, 10, 5, 0.42)";
+      ctx.beginPath();
+      ctx.ellipse(target.x, target.y, target.width * 0.40, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
       ctx.translate(target.x, target.y);
 
       // Efecto 3D de abatimiento sobre la bisagra
@@ -1293,18 +1546,18 @@ export class SnowballTargetGame extends BaseGame {
         ctx.scale(1.0, scaleY);
         ctx.rotate((target.wobbleAngle * Math.PI) / 180);
       } else {
-        ctx.rotate((Math.sin(target.wobblePhase) * 2.5 * Math.PI) / 180);
+        ctx.rotate((Math.sin(target.wobblePhase) * 2.2 * Math.PI) / 180);
       }
 
       ctx.translate(0, -(target.height * 0.5) * (1 - target.peekOffset));
 
-      // Clip si está en Peeking
       if (target.isPeek && target.peekOffset > 0) {
         ctx.beginPath();
         ctx.rect(-target.width, -target.height * 1.5, target.width * 2, target.height * (1.5 - target.peekOffset));
         ctx.clip();
       }
 
+      // Dibujar objetivo según tipo
       switch (target.type) {
         case "bullseye":
           this.drawBullseyeTarget(ctx, target);
@@ -1315,8 +1568,21 @@ export class SnowballTargetGame extends BaseGame {
         case "toy_bear":
           this.drawSpriteTarget(ctx, target, this.spriteTeddy);
           break;
-        case "gift_box":
-          this.drawSpriteTarget(ctx, target, target.id % 2 === 0 ? this.spriteGiftRed : this.spriteGiftGreen);
+        case "gift_box": {
+          const giftSpr = target.points > 250 || this.isFeverMode
+            ? this.spriteGiftGold
+            : (target.id % 2 === 0 ? this.spriteGiftRed : this.spriteGiftGreen);
+          this.drawSpriteTarget(ctx, target, giftSpr);
+          break;
+        }
+        case "pinata_star":
+          this.drawPinataTarget(ctx, target);
+          break;
+        case "gingerbread":
+          this.drawSpriteTarget(ctx, target, this.spriteGingerbread);
+          break;
+        case "magic_clock":
+          this.drawClockTarget(ctx, target);
           break;
         case "sponsor_target":
           this.drawSponsorTarget(ctx, target);
@@ -1330,17 +1596,34 @@ export class SnowballTargetGame extends BaseGame {
         case "grumpy_snowman":
           this.drawGrumpySnowmanTarget(ctx, target);
           break;
+        case "ice_goblin":
+          this.drawIceGoblinTarget(ctx, target);
+          break;
         case "mischievous_elf":
           this.drawMischievousElfTarget(ctx, target);
           break;
       }
 
-      // Si fue impactada, dibujar la mancha de nieve sobre ella
+      // Mancha de nieve si fue impactada
       if (target.splatOnTarget) {
         ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
         ctx.beginPath();
         ctx.arc(target.splatOnTarget.dx, target.splatOnTarget.dy, target.splatOnTarget.r, 0, Math.PI * 2);
         ctx.fill();
+      }
+
+      // Si está congelada por Ventisca Glacial (Cajasan)
+      if (target.isFrozen) {
+        ctx.save();
+        ctx.fillStyle = "rgba(0, 229, 255, 0.35)";
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = 2.5;
+        const pad = target.width * 0.52;
+        ctx.beginPath();
+        ctx.roundRect(-pad, -pad, pad * 2, pad * 2, 8);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
       }
 
       ctx.restore();
@@ -1350,7 +1633,6 @@ export class SnowballTargetGame extends BaseGame {
   private drawBullseyeTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
     const r = target.width / 2;
 
-    // Poste vertical y bisagra metálica
     ctx.strokeStyle = "#8D6E63";
     ctx.lineWidth = 4;
     ctx.beginPath();
@@ -1358,11 +1640,9 @@ export class SnowballTargetGame extends BaseGame {
     ctx.lineTo(0, r + 18);
     ctx.stroke();
 
-    // Bisagra de latón
     ctx.fillStyle = "#FFD700";
     ctx.fillRect(-6, r + 8, 12, 6);
 
-    // Diana concéntrica estilo festivo
     const rings = [
       { radius: r, color: "#D32F2F" },
       { radius: r * 0.78, color: "#FFFFFF" },
@@ -1391,68 +1671,80 @@ export class SnowballTargetGame extends BaseGame {
   private drawSpriteTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget, sprite: HTMLImageElement): void {
     const size = target.width;
     if (sprite && sprite.complete && sprite.naturalWidth > 0) {
-      // Sombra sutil de contacto que asienta el juguete limpiamente sobre el riel
-      ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
-      ctx.beginPath();
-      ctx.ellipse(0, size * 0.48, size * 0.38, 4, 0, 0, Math.PI * 2);
-      ctx.fill();
-
       ctx.drawImage(sprite, -size / 2, -size / 2, size, size);
     } else {
       this.drawBullseyeTarget(ctx, target);
     }
   }
 
-  private drawIceSpikeTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
-    const size = target.width;
+  private drawPinataTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
+    const size = target.width * 1.15;
+    const pulse = Math.sin(target.bobPhase) * 3;
 
-    // Resplandor helado peligroso
-    const halo = ctx.createRadialGradient(0, 0, size * 0.2, 0, 0, size * 0.8);
-    halo.addColorStop(0, "rgba(0, 229, 255, 0.6)");
-    halo.addColorStop(1, "rgba(0, 0, 0, 0)");
-    ctx.fillStyle = halo;
+    // Resplandor dorado
+    const glow = ctx.createRadialGradient(0, pulse, size * 0.2, 0, pulse, size * 0.8);
+    glow.addColorStop(0, "rgba(255, 215, 0, 0.55)");
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = glow;
     ctx.beginPath();
-    ctx.arc(0, 0, size * 0.8, 0, Math.PI * 2);
+    ctx.arc(0, pulse, size * 0.8, 0, Math.PI * 2);
     ctx.fill();
 
-    if (this.spriteIceSpike && this.spriteIceSpike.complete && this.spriteIceSpike.naturalWidth > 0) {
-      ctx.drawImage(this.spriteIceSpike, -size / 2, -size / 2, size, size);
+    if (this.spritePinata && this.spritePinata.complete && this.spritePinata.naturalWidth > 0) {
+      ctx.drawImage(this.spritePinata, -size / 2, -size / 2 + pulse, size, size);
     } else {
-      ctx.fillStyle = "#80D8FF";
-      ctx.beginPath();
-      ctx.moveTo(0, -size / 2);
-      ctx.lineTo(size * 0.35, size * 0.4);
-      ctx.lineTo(-size * 0.35, size * 0.4);
-      ctx.closePath();
-      ctx.fill();
+      this.drawBullseyeTarget(ctx, target);
     }
 
-    // Insignia estilizada de hielo
-    ctx.save();
-    ctx.fillStyle = "rgba(128, 222, 234, 0.90)";
+    // Indicador de HP si tiene 2 toques
+    if (target.hp === 2) {
+      ctx.fillStyle = "#FFD700";
+      ctx.beginPath();
+      ctx.arc(-8, -size * 0.48 + pulse, 4.5, 0, Math.PI * 2);
+      ctx.arc(8, -size * 0.48 + pulse, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  private drawClockTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
+    const size = target.width * 1.05;
+    const bob = Math.sin(target.bobPhase) * 4;
+
+    const glow = ctx.createRadialGradient(0, bob, size * 0.2, 0, bob, size * 0.75);
+    glow.addColorStop(0, "rgba(0, 230, 118, 0.5)");
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = glow;
     ctx.beginPath();
-    ctx.arc(0, -size * 0.45, 8, 0, Math.PI * 2);
+    ctx.arc(0, bob, size * 0.75, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.fillStyle = "#FFFFFF";
+
+    if (this.spriteClock && this.spriteClock.complete && this.spriteClock.naturalWidth > 0) {
+      ctx.drawImage(this.spriteClock, -size / 2, -size / 2 + bob, size, size);
+    } else {
+      this.drawBullseyeTarget(ctx, target);
+    }
+
+    // Badge "+5s"
+    ctx.fillStyle = "#00E676";
     ctx.beginPath();
-    ctx.moveTo(0, -size * 0.45 - 5);
-    ctx.lineTo(4, -size * 0.45);
-    ctx.lineTo(0, -size * 0.45 + 5);
-    ctx.lineTo(-4, -size * 0.45);
-    ctx.closePath();
+    ctx.roundRect(-22, size * 0.40 + bob, 44, 15, 6);
     ctx.fill();
-    ctx.restore();
+    ctx.fillStyle = "#0F172A";
+    ctx.font = "900 10px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("+5s", 0, size * 0.40 + bob + 8);
   }
 
   private drawGrumpySnowmanTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
     const w = target.width * 1.18;
     const h = target.height * 1.28;
 
-    if (this.spriteSnowman && this.spriteSnowman.complete && this.spriteSnowman.naturalWidth > 0) {
-      ctx.drawImage(this.spriteSnowman, -w / 2, -h / 2, w, h);
+    const isAttacking = target.attackTimer !== undefined && target.attackTimer < 1.0;
+    const spr = isAttacking ? this.spriteSnowmanAttack : this.spriteSnowman;
+
+    if (spr && spr.complete && spr.naturalWidth > 0) {
+      ctx.drawImage(spr, -w / 2, -h / 2, w, h);
     } else {
       ctx.fillStyle = "#FFFFFF";
       ctx.beginPath();
@@ -1461,60 +1753,56 @@ export class SnowballTargetGame extends BaseGame {
       ctx.fill();
     }
 
-    // Insignia estilizada de enfado/peligro
-    ctx.save();
-    ctx.fillStyle = "#D50000";
-    ctx.beginPath();
-    ctx.arc(0, -h * 0.50, 8, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "900 11px 'Fredoka', sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("!", 0, -h * 0.50);
-    ctx.restore();
+    // Advertencia de lanzamiento con exclamación pulsante
+    if (target.attackTimer !== undefined) {
+      const urgency = 1 - target.attackTimer / 2.2;
+      const pulse = 1 + Math.sin(this.lanternFlicker * 4) * 0.2;
+
+      ctx.save();
+      ctx.fillStyle = urgency > 0.6 ? "#D50000" : "#FF6D00";
+      ctx.beginPath();
+      ctx.arc(0, -h * 0.52, 9 * pulse, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
+
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "900 12px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("!", 0, -h * 0.52);
+      ctx.restore();
+    }
   }
 
-  private drawMischievousElfTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
+  private drawIceGoblinTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
     const size = target.width * 1.15;
-
-    // Destello de velocidad
-    ctx.strokeStyle = "rgba(0, 230, 118, 0.4)";
-    ctx.lineWidth = 3;
+    const glow = ctx.createRadialGradient(0, 0, size * 0.2, 0, 0, size * 0.75);
+    glow.addColorStop(0, "rgba(0, 229, 255, 0.45)");
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = glow;
     ctx.beginPath();
-    ctx.moveTo(-size * 0.6, 0);
-    ctx.lineTo(size * 0.6, 0);
-    ctx.stroke();
+    ctx.arc(0, 0, size * 0.75, 0, Math.PI * 2);
+    ctx.fill();
 
-    if (this.spriteElf && this.spriteElf.complete && this.spriteElf.naturalWidth > 0) {
-      ctx.drawImage(this.spriteElf, -size / 2, -size / 2, size, size);
+    if (this.spriteDuendeHielo && this.spriteDuendeHielo.complete && this.spriteDuendeHielo.naturalWidth > 0) {
+      ctx.drawImage(this.spriteDuendeHielo, -size / 2, -size / 2, size, size);
     } else {
       this.drawBullseyeTarget(ctx, target);
     }
+  }
 
-    // Insignia estilizada de velocidad
-    ctx.save();
-    ctx.fillStyle = "#FFD700";
-    ctx.beginPath();
-    ctx.arc(0, -size * 0.48, 8, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.fillStyle = "#E65100";
-    ctx.beginPath();
-    ctx.moveTo(1, -size * 0.48 - 5);
-    ctx.lineTo(-3, -size * 0.48);
-    ctx.lineTo(0, -size * 0.48);
-    ctx.lineTo(-1, -size * 0.48 + 5);
-    ctx.lineTo(3, -size * 0.48);
-    ctx.lineTo(0, -size * 0.48);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
+  private drawMischievousElfTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
+    const size = target.width * 1.18;
+    const isFast = Math.abs(target.vx) > 70;
+    const spr = isFast ? this.spriteElfAttack : this.spriteElf;
+
+    if (spr && spr.complete && spr.naturalWidth > 0) {
+      ctx.drawImage(spr, -size / 2, -size / 2, size, size);
+    } else {
+      this.drawBullseyeTarget(ctx, target);
+    }
   }
 
   private drawSponsorTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
@@ -1522,7 +1810,6 @@ export class SnowballTargetGame extends BaseGame {
     const sponsor = target.sponsorId ? BRANDING.getLogoConfig(target.sponsorId) : BRANDING.getLogoConfig("feria");
     const sponsorImg = this.getSponsorImage(sponsor.id);
 
-    // Poste vertical y bisagra mecánica sobre el riel
     ctx.strokeStyle = "#8D6E63";
     ctx.lineWidth = 4;
     ctx.beginPath();
@@ -1584,13 +1871,13 @@ export class SnowballTargetGame extends BaseGame {
 
     ctx.fillStyle = sponsor.themeColor;
     ctx.beginPath();
-    ctx.roundRect(-25, r - 10, 50, 18, 6);
+    ctx.roundRect(-28, r - 10, 56, 18, 6);
     ctx.fill();
     ctx.fillStyle = "#FFFFFF";
     ctx.font = "900 11px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("x2 BONUS", 0, r - 1);
+    ctx.fillText("SUPERPODER", 0, r - 1);
   }
 
   private drawCoalTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
@@ -1598,30 +1885,25 @@ export class SnowballTargetGame extends BaseGame {
     if (this.spriteCoal && this.spriteCoal.complete && this.spriteCoal.naturalWidth > 0) {
       ctx.drawImage(this.spriteCoal, -size / 2, -size / 2, size, size);
     } else {
-      ctx.fillStyle = "#1E1E1E";
-      ctx.beginPath();
-      ctx.arc(0, 0, size * 0.42, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = "#FF3366";
-      ctx.lineWidth = 3;
-      ctx.stroke();
+      this.drawBullseyeTarget(ctx, target);
     }
+  }
 
-    // Insignia estilizada de peligro
-    ctx.save();
-    ctx.fillStyle = "#FF3D00";
+  private drawIceSpikeTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
+    const size = target.width;
+    const halo = ctx.createRadialGradient(0, 0, size * 0.2, 0, 0, size * 0.8);
+    halo.addColorStop(0, "rgba(0, 229, 255, 0.6)");
+    halo.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = halo;
     ctx.beginPath();
-    ctx.arc(0, -size * 0.42, 9, 0, Math.PI * 2);
+    ctx.arc(0, 0, size * 0.8, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "900 12px 'Fredoka', sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("✕", 0, -size * 0.42);
-    ctx.restore();
+
+    if (this.spriteIceSpike && this.spriteIceSpike.complete && this.spriteIceSpike.naturalWidth > 0) {
+      ctx.drawImage(this.spriteIceSpike, -size / 2, -size / 2, size, size);
+    } else {
+      this.drawBullseyeTarget(ctx, target);
+    }
   }
 
   private drawFlyingSnowballs(ctx: CanvasRenderingContext2D): void {
@@ -1630,14 +1912,14 @@ export class SnowballTargetGame extends BaseGame {
 
       ctx.save();
 
-      // Sombra en perspectiva
-      ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+      // Sombra en perspectiva sobre pared
+      ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
       ctx.beginPath();
       ctx.ellipse(ball.currentX, ball.currentY + radius * 1.5, radius * 1.25, radius * 0.5, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Aura cometa si es especial o fiebre
-      if (ball.isSpecial || ball.isFever) {
+      // Aura especial o ráfaga Gatling
+      if (ball.isSpecial || ball.isFever || ball.isGatling) {
         const glow = ctx.createRadialGradient(ball.currentX, ball.currentY, radius * 0.3, ball.currentX, ball.currentY, radius * 2.4);
         glow.addColorStop(0, ball.themeColor);
         glow.addColorStop(1, "rgba(255, 255, 255, 0)");
@@ -1647,22 +1929,27 @@ export class SnowballTargetGame extends BaseGame {
         ctx.fill();
       }
 
-      // Bola de nieve con volumen 3D
-      const ballGrad = ctx.createRadialGradient(
-        ball.currentX - radius * 0.35,
-        ball.currentY - radius * 0.35,
-        radius * 0.2,
-        ball.currentX,
-        ball.currentY,
-        radius
-      );
-      ballGrad.addColorStop(0, "#FFFFFF");
-      ballGrad.addColorStop(0.7, "#E2EEF8");
-      ballGrad.addColorStop(1, "#A8C8E6");
-      ctx.fillStyle = ballGrad;
-      ctx.beginPath();
-      ctx.arc(ball.currentX, ball.currentY, radius, 0, Math.PI * 2);
-      ctx.fill();
+      // Bola de nieve 3D o Cohete Mortero
+      if (ball.scale > 2.0 && this.spriteRocket && this.spriteRocket.complete) {
+        const rSize = radius * 1.9;
+        ctx.drawImage(this.spriteRocket, ball.currentX - rSize / 2, ball.currentY - rSize / 2, rSize, rSize);
+      } else {
+        const ballGrad = ctx.createRadialGradient(
+          ball.currentX - radius * 0.35,
+          ball.currentY - radius * 0.35,
+          radius * 0.2,
+          ball.currentX,
+          ball.currentY,
+          radius
+        );
+        ballGrad.addColorStop(0, "#FFFFFF");
+        ballGrad.addColorStop(0.7, ball.isGatling ? "#B2EBF2" : "#E2EEF8");
+        ballGrad.addColorStop(1, ball.isGatling ? "#00E5FF" : "#A8C8E6");
+        ctx.fillStyle = ballGrad;
+        ctx.beginPath();
+        ctx.arc(ball.currentX, ball.currentY, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       ctx.restore();
     }
@@ -1688,9 +1975,6 @@ export class SnowballTargetGame extends BaseGame {
     }
   }
 
-  /**
-   * Resortera interactiva con física elástica animada apoyada en el mostrador
-   */
   private drawAnimatedSlingshot(ctx: CanvasRenderingContext2D): void {
     const cx = this.width / 2;
     const cy = this.height * 0.91;
@@ -1698,7 +1982,6 @@ export class SnowballTargetGame extends BaseGame {
     ctx.save();
     ctx.translate(cx, cy);
 
-    // Oscilación de retroceso
     const recoilY = Math.sin(this.slingshotSnapTimer * 32) * Math.exp(-this.slingshotSnapTimer * 8) * 16;
     const recoilRot = (this.slingshotAngle * 0.35);
     ctx.rotate(recoilRot);
@@ -1706,7 +1989,7 @@ export class SnowballTargetGame extends BaseGame {
     const forkW = Math.min(58, this.width * 0.12);
     const forkH = 58;
 
-    // Horquilla de madera tallada con remates dorados
+    // Horquilla de madera
     ctx.lineWidth = 10;
     ctx.lineCap = "round";
     ctx.strokeStyle = "#5D4037";
@@ -1718,7 +2001,7 @@ export class SnowballTargetGame extends BaseGame {
     ctx.lineTo(forkW / 2, -forkH);
     ctx.stroke();
 
-    // Vetas doradas de adorno
+    // Vetas doradas
     ctx.lineWidth = 3;
     ctx.strokeStyle = "#FFD700";
     ctx.beginPath();
@@ -1727,31 +2010,30 @@ export class SnowballTargetGame extends BaseGame {
     ctx.fill();
     ctx.stroke();
 
-    // Bandas elásticas rojas y parche de cuero
+    // Bandas elásticas
     const pouchX = 0;
     const pouchY = -24 + recoilY;
 
     ctx.lineWidth = 4;
-    ctx.strokeStyle = "#E53935";
+    ctx.strokeStyle = this.gatlingTimer > 0 ? "#00E5FF" : "#E53935";
     ctx.beginPath();
     ctx.moveTo(-forkW / 2, -forkH);
     ctx.lineTo(pouchX, pouchY);
     ctx.lineTo(forkW / 2, -forkH);
     ctx.stroke();
 
-    // Parche de cuero con la siguiente bola de nieve lista
+    // Parche
     ctx.fillStyle = "#8D6E63";
     ctx.beginPath();
     ctx.roundRect(pouchX - 9, pouchY - 5, 18, 10, 3);
     ctx.fill();
 
-    // Bola de nieve cargada con resplandor
-    ctx.fillStyle = "#FFFFFF";
+    // Bola cargada
+    ctx.fillStyle = this.gatlingTimer > 0 ? "#00E5FF" : (this.megaMortarTimer > 0 ? "#FF6D00" : "#FFFFFF");
     ctx.beginPath();
-    ctx.arc(pouchX, pouchY - 4, 10, 0, Math.PI * 2);
+    ctx.arc(pouchX, pouchY - 4, this.megaMortarTimer > 0 ? 15 : 10, 0, Math.PI * 2);
     ctx.fill();
 
-    // Efecto de escarcha si la resortera está congelada
     if (this.frostFreezeTimer > 0) {
       ctx.fillStyle = "rgba(128, 222, 234, 0.55)";
       ctx.strokeStyle = "#FFFFFF";
@@ -1771,22 +2053,17 @@ export class SnowballTargetGame extends BaseGame {
     ctx.restore();
   }
 
-  /**
-   * Mancha cómica de nieve en la lente de la cámara cuando el muñeco de nieve gruñón ataca
-   */
   private drawCameraSnowSplat(ctx: CanvasRenderingContext2D): void {
     const cx = this.width * 0.44;
     const cy = this.height * 0.48;
     ctx.save();
     ctx.globalAlpha = this.cameraSplatAlpha * 0.94;
 
-    // Mancha blanca central
     ctx.fillStyle = "#FFFFFF";
     ctx.beginPath();
     ctx.arc(cx, cy, 60, 0, Math.PI * 2);
     ctx.fill();
 
-    // Gotas y salpicaduras con chorreo
     const drips = [
       { dx: -35, dy: -20, r: 22, drip: 18 },
       { dx: 40, dy: -15, r: 25, drip: 22 },
@@ -1820,19 +2097,28 @@ export class SnowballTargetGame extends BaseGame {
     ctx.save();
     ctx.translate(x, y);
 
-    // Anillo giratorio punteado
+    // Detectar si está apuntando a un objetivo activo
+    let isHovering = false;
+    for (const tg of this.targets) {
+      if (!tg.isHit && Math.hypot(x - tg.x, y - (tg.y - tg.height * 0.5)) < tg.width * 0.6) {
+        isHovering = true;
+        break;
+      }
+    }
+
+    // Anillo giratorio
     ctx.save();
     ctx.rotate(this.crosshairAngle);
-    ctx.strokeStyle = this.isFeverMode ? "#FFD700" : "#00E5FF";
-    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = isHovering ? "#FFD700" : (this.isFeverMode ? "#FFD700" : "#00E5FF");
+    ctx.lineWidth = isHovering ? 3.5 : 2.5;
     ctx.setLineDash([8, 6]);
     ctx.beginPath();
     ctx.arc(0, 0, baseR, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
 
-    // 4 miras cardinales de latón
-    ctx.strokeStyle = "#FFD700";
+    // Miras cardinales
+    ctx.strokeStyle = isHovering ? "#FFD700" : "#FFFFFF";
     ctx.lineWidth = 2.5;
     const tickLen = 9;
     ctx.beginPath();
@@ -1847,12 +2133,12 @@ export class SnowballTargetGame extends BaseGame {
     ctx.stroke();
 
     // Rubí central
-    ctx.fillStyle = "#FF1744";
+    ctx.fillStyle = isHovering ? "#00E676" : "#FF1744";
     ctx.beginPath();
-    ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+    ctx.arc(0, 0, 5, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1.2;
     ctx.stroke();
 
     ctx.restore();
@@ -1867,36 +2153,38 @@ export class SnowballTargetGame extends BaseGame {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    // 0. Banner de Superpoder Activo de Patrocinador
+    // Banner de Superpoder Activo
     const activePowerTime = Math.max(
-      this.tripleShotTimer,
-      this.slowMoTimer,
-      this.giantBallTimer,
-      this.shieldTimer,
-      this.ultraMultTimer,
-      this.magnetAimTimer
+      this.gatlingTimer,
+      this.blizzardFreezeTimer,
+      this.megaMortarTimer,
+      this.fairyTimeTimer,
+      this.divineShieldTimer,
+      this.cosmicMultTimer,
+      this.arcaneAimTimer
     );
+
     if (activePowerTime > 0 && this.activeAbilityName) {
-      const bannerW = 250;
-      const bannerH = 36;
-      ctx.fillStyle = "rgba(15, 23, 42, 0.92)";
+      const bannerW = 280;
+      const bannerH = 38;
+      ctx.fillStyle = "rgba(15, 23, 42, 0.94)";
       ctx.strokeStyle = this.activeAbilityColor;
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.roundRect(-bannerW / 2, -bannerH / 2, bannerW, bannerH, 18);
+      ctx.roundRect(-bannerW / 2, -bannerH / 2, bannerW, bannerH, 19);
       ctx.fill();
       ctx.stroke();
 
-      ctx.font = "900 14px 'Outfit', sans-serif";
+      ctx.font = "900 13px 'Titan One', 'Fredoka', sans-serif";
       ctx.fillStyle = this.activeAbilityColor;
       ctx.fillText(`${this.activeAbilityName} (${Math.ceil(activePowerTime)}s)`, 0, 0);
       ctx.restore();
       return;
     }
 
-    // 1. Banner de Fiebre Navideña
+    // Banner de Fiebre
     if (this.isFeverMode) {
-      const bannerW = 220;
+      const bannerW = 230;
       const bannerH = 38;
       ctx.fillStyle = "rgba(211, 47, 47, 0.92)";
       ctx.strokeStyle = "#FFD700";
@@ -1913,7 +2201,7 @@ export class SnowballTargetGame extends BaseGame {
       return;
     }
 
-    // 2. Banner de Combo Normal
+    // Banner de Combo
     if (this.combo >= 2) {
       const mult = this.getComboMultiplier();
       const isSpecial = this.activeLogo !== null;
@@ -1940,6 +2228,7 @@ export class SnowballTargetGame extends BaseGame {
     this.targets = [];
     this.flyingSnowballs = [];
     this.snowSplats = [];
+    this.lightningArcs = [];
     this.crosshairVisible = false;
   }
 }

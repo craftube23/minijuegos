@@ -180,27 +180,27 @@ export class PolarExpressGame extends BaseGame {
     this.inGameMusicVolume = 0.45;
 
     this.bgImage = this.getImage("./assets/images/fondo-villa-seamless.jpg");
-    this.spriteTrain = this.getImage("./assets/images/locomotora-lateral.png");
+    this.spriteTrain = this.getImage("./assets/images/locomotora-lateral.webp");
     this.spriteWagon = this.getImage("./assets/images/vagon-expreso.webp");
     this.spriteSignal = this.getImage("./assets/images/semaforo-tren.webp");
-    this.spriteBarrier = this.getImage("./assets/images/obstaculo-barrera-tren.png");
+    this.spriteBarrier = this.getImage("./assets/images/obstaculo-barrera-tren.webp");
     this.spriteCottage = this.getImage("./assets/images/casa-navidena-clean.webp");
     this.spriteTree = this.getImage("./assets/images/arbol.webp");
-    this.spriteStar = this.getImage("./assets/images/estrella con logo.png");
-    this.spriteGold = this.getImage("./assets/images/regalo-estilizado-dorado.png");
+    this.spriteStar = this.getImage("./assets/images/estrella con logo.webp");
+    this.spriteGold = this.getImage("./assets/images/regalo-estilizado-dorado.webp");
 
     this.obstacleSprites = [
       { img: this.spriteBarrier, hMul: 0.88, isBarrier: true },
-      { img: this.getImage("./assets/images/obstaculo-muneco.png"), hMul: 0.96 },
-      { img: this.getImage("./assets/images/obstaculo-cristal.png"), hMul: 0.84 },
-      { img: this.getImage("./assets/images/obstaculo-tronco.png"), hMul: 0.68 },
+      { img: this.getImage("./assets/images/obstaculo-muneco.webp"), hMul: 0.96 },
+      { img: this.getImage("./assets/images/obstaculo-cristal.webp"), hMul: 0.84 },
+      { img: this.getImage("./assets/images/obstaculo-tronco.webp"), hMul: 0.68 },
       { img: this.getImage("./assets/images/carbon.webp"), hMul: 0.62 }
     ];
 
     this.giftSprites = [
-      this.getImage("./assets/images/regalo-estilizado-rojo.png"),
-      this.getImage("./assets/images/regalo-estilizado-verde.png"),
-      this.getImage("./assets/images/regalo-estilizado-azul.png")
+      this.getImage("./assets/images/regalo-estilizado-rojo.webp"),
+      this.getImage("./assets/images/regalo-estilizado-verde.webp"),
+      this.getImage("./assets/images/regalo-estilizado-azul.webp")
     ];
 
     this.sponsors = [
@@ -1214,6 +1214,15 @@ export class PolarExpressGame extends BaseGame {
 
     const cx = this.wagonX + this.wagonW * 0.5;
     const cy = bottom - this.wagonH * 0.5 + bob;
+
+    // Sombra de contacto del vagón en los rieles
+    ctx.save();
+    ctx.fillStyle = "rgba(10, 20, 40, 0.38)";
+    ctx.beginPath();
+    ctx.ellipse(cx, bottom + 1, this.wagonW * 0.44, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
     ctx.translate(cx, cy);
     ctx.rotate(wagonTilt);
 
@@ -1238,6 +1247,15 @@ export class PolarExpressGame extends BaseGame {
 
     const cx = this.trainX + this.trainW * 0.5;
     const cy = bottom - this.trainH * 0.5 + bob;
+
+    // Sombra de contacto del tren en los rieles
+    ctx.save();
+    ctx.fillStyle = "rgba(10, 20, 40, 0.40)";
+    ctx.beginPath();
+    ctx.ellipse(cx, bottom + 1, this.trainW * 0.45, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
     ctx.translate(cx, cy);
     ctx.rotate(this.trainTilt);
 

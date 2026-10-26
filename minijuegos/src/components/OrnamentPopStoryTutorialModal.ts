@@ -153,7 +153,7 @@ export class OrnamentPopStoryTutorialModal {
         <!-- Encabezado con medallón oficial -->
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="ski-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE</span>
@@ -245,17 +245,17 @@ export class OrnamentPopStoryTutorialModal {
           <div class="ski-stage stage-toy-story" style="background: radial-gradient(circle at 50% 50%, #3B1E10 0%, #170904 100%);">
             <div class="toy-story-scene" style="gap: 18px;">
               <div class="toy-falling-gifts-demo">
-                <img src="./assets/images/regalo-estilizado-rojo.png" alt="Regalo" class="gift-fall gift-fall-1" style="width: 60px; height: 60px; object-fit: contain;" />
-                <img src="./assets/images/galleta-jengibre.png" alt="Galleta" class="gift-fall gift-fall-2" style="width: 60px; height: 60px; object-fit: contain;" />
+                <img src="./assets/images/regalo-estilizado-rojo.webp" alt="Regalo" class="gift-fall gift-fall-1" style="width: 60px; height: 60px; object-fit: contain;" />
+                <img src="./assets/images/galleta-jengibre.webp" alt="Galleta" class="gift-fall gift-fall-2" style="width: 60px; height: 60px; object-fit: contain;" />
                 <img src="./assets/images/caramelo-menta.webp" alt="Caramelo" class="gift-fall gift-fall-3" style="width: 58px; height: 58px; object-fit: contain;" />
               </div>
               <div class="toy-bag-hero-wrapper">
                 <div class="toy-bag-golden-glow" style="background: radial-gradient(circle, rgba(0,229,255,0.45), transparent 70%);"></div>
-                <img src="./assets/images/icon-ninja-regalos.png" alt="Ninja Regalos" class="toy-bag-hero-img" style="width: 120px; height: 120px; object-fit: contain;" />
+                <img src="./assets/images/icon-ninja-regalos.webp" alt="Ninja Regalos" class="toy-bag-hero-img" style="width: 120px; height: 120px; object-fit: contain;" />
               </div>
             </div>
             <div class="stage-story-badge" style="background: rgba(255,215,0,0.18); border-color: #FFD700;">
-              <img src="./assets/images/estrella con logo.png" alt="Estrella" class="story-star-badge" />
+              <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="story-star-badge" />
               <span>OBJETIVO: ¡REBANA TODO EN DOS MITADES!</span>
             </div>
           </div>
@@ -267,8 +267,8 @@ export class OrnamentPopStoryTutorialModal {
           <div class="ski-stage stage-toy-controls" style="background: radial-gradient(circle at 50% 50%, #351A0D 0%, #140803 100%);">
             <div class="toy-controls-track" style="display: flex; align-items: center; justify-content: space-evenly; height: 100%;">
               <div style="position: relative; display: flex; align-items: center; justify-content: center; gap: 24px;">
-                <img src="./assets/images/regalo-estilizado-verde.png" alt="Regalo" style="width: 65px; height: 65px; object-fit: contain;" />
-                <img src="./assets/images/galleta-jengibre.png" alt="Galleta" style="width: 65px; height: 65px; object-fit: contain;" />
+                <img src="./assets/images/regalo-estilizado-verde.webp" alt="Regalo" style="width: 65px; height: 65px; object-fit: contain;" />
+                <img src="./assets/images/galleta-jengibre.webp" alt="Galleta" style="width: 65px; height: 65px; object-fit: contain;" />
                 <img src="./assets/images/caramelo-menta.webp" alt="Caramelo" style="width: 62px; height: 62px; object-fit: contain;" />
                 <div id="ninja-demo-slash" style="position: absolute; left: -10%; right: -10%; height: 6px; border-radius: 4px; background: linear-gradient(90deg, transparent, #00E5FF, #FFFFFF, #FFD700, transparent); box-shadow: 0 0 18px #00E5FF; transform: rotate(-10deg);"></div>
               </div>
@@ -305,7 +305,7 @@ export class OrnamentPopStoryTutorialModal {
               <div class="toy-point-card card-star" style="border-color: #00E676;">
                 <div class="point-badge-tag" style="background: #00E676; color: #062817;">+5s TIEMPO EXTRA</div>
                 <div class="point-single-star">
-                  <img src="./assets/images/reloj-magico-tiempo.png" alt="Reloj +5s" class="star-pulse-img" style="width: 68px; height: 68px; object-fit: contain;" />
+                  <img src="./assets/images/reloj-magico-tiempo.webp" alt="Reloj +5s" class="star-pulse-img" style="width: 68px; height: 68px; object-fit: contain;" />
                 </div>
                 <span class="point-label">¡Reloj Dorado (+5s)!</span>
               </div>
@@ -314,7 +314,7 @@ export class OrnamentPopStoryTutorialModal {
               <div class="toy-point-card card-special">
                 <div class="point-badge-tag tag-purple">+500 PTS</div>
                 <div class="point-single-star">
-                  <img src="./assets/images/pinata-estrella.png" alt="Piñata Estrella" style="width: 70px; height: 70px; object-fit: contain;" />
+                  <img src="./assets/images/pinata-estrella.webp" alt="Piñata Estrella" style="width: 70px; height: 70px; object-fit: contain;" />
                 </div>
                 <span class="point-label">¡Rebana hasta 10 veces!</span>
               </div>
@@ -323,7 +323,7 @@ export class OrnamentPopStoryTutorialModal {
               <div class="toy-point-card card-classic" style="border-color: #00E5FF;">
                 <div class="point-badge-tag" style="background: #00E5FF; color: #052636;">CÁMARA LENTA</div>
                 <div class="point-single-star">
-                  <img src="./assets/images/fruta-cristal-hielo.png" alt="Cristal Glacial" style="width: 65px; height: 65px; object-fit: contain;" />
+                  <img src="./assets/images/fruta-cristal-hielo.webp" alt="Cristal Glacial" style="width: 65px; height: 65px; object-fit: contain;" />
                 </div>
                 <span class="point-label">¡Tiempo Congelado!</span>
               </div>
@@ -346,7 +346,7 @@ export class OrnamentPopStoryTutorialModal {
               <!-- Duende Ladrón del Hielo -->
               <div class="hazard-card card-ice" style="border-color: #00E5FF; flex: 1.1; background: radial-gradient(circle at 50% 40%, rgba(0,229,255,0.18), transparent 75%);">
                 <div class="hazard-title-badge badge-ice" style="background: #00E5FF; color: #041B2D;">DUENDE LADRÓN</div>
-                <img src="./assets/images/duende-hielo.png" alt="Duende Hielo" class="hazard-sprite-img" style="width: 82px; height: 82px; object-fit: contain; filter: drop-shadow(0 0 16px rgba(0,229,255,0.75));" />
+                <img src="./assets/images/duende-hielo.webp" alt="Duende Hielo" class="hazard-sprite-img" style="width: 82px; height: 82px; object-fit: contain; filter: drop-shadow(0 0 16px rgba(0,229,255,0.75));" />
                 <span class="hazard-penalty-tag" style="background: rgba(0,229,255,0.22); color: #00E5FF; border: 1px solid #00E5FF;">¡3 TAJOS O ROBA -4s!</span>
               </div>
             </div>

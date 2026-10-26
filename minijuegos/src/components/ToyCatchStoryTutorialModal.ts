@@ -152,7 +152,7 @@ export class ToyCatchStoryTutorialModal {
         <!-- Encabezado con medallón oficial -->
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="ski-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE</span>
@@ -249,9 +249,9 @@ export class ToyCatchStoryTutorialModal {
             <!-- Regalos flotando cayendo del cielo hacia el saco -->
             <div class="toy-story-scene">
               <div class="toy-falling-gifts-demo">
-                <img src="./assets/images/regalo-rojo.png" alt="Regalo Rojo" class="gift-fall gift-fall-1" />
-                <img src="./assets/images/osito.png" alt="Osito" class="gift-fall gift-fall-2" />
-                <img src="./assets/images/regalo-verde.png" alt="Regalo Verde" class="gift-fall gift-fall-3" />
+                <img src="./assets/images/regalo-rojo.webp" alt="Regalo Rojo" class="gift-fall gift-fall-1" />
+                <img src="./assets/images/osito.webp" alt="Osito" class="gift-fall gift-fall-2" />
+                <img src="./assets/images/regalo-verde.webp" alt="Regalo Verde" class="gift-fall gift-fall-3" />
               </div>
               <div class="toy-bag-hero-wrapper">
                 <div class="toy-bag-golden-glow"></div>
@@ -259,7 +259,7 @@ export class ToyCatchStoryTutorialModal {
               </div>
             </div>
             <div class="stage-story-badge">
-              <img src="./assets/images/estrella con logo.png" alt="Estrella" class="story-star-badge" />
+              <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="story-star-badge" />
               <span>MISIÓN: ¡LLENA EL SACO DE SANTA!</span>
             </div>
           </div>
@@ -310,8 +310,8 @@ export class ToyCatchStoryTutorialModal {
               <div class="toy-point-card card-classic">
                 <div class="point-badge-tag">+100 PTS</div>
                 <div class="point-images-duo">
-                  <img src="./assets/images/regalo-rojo.png" alt="Regalo Rojo" />
-                  <img src="./assets/images/regalo-verde.png" alt="Regalo Verde" />
+                  <img src="./assets/images/regalo-rojo.webp" alt="Regalo Rojo" />
+                  <img src="./assets/images/regalo-verde.webp" alt="Regalo Verde" />
                 </div>
                 <span class="point-label">Regalos Festivos</span>
               </div>
@@ -320,8 +320,8 @@ export class ToyCatchStoryTutorialModal {
               <div class="toy-point-card card-special">
                 <div class="point-badge-tag tag-purple">+150 PTS</div>
                 <div class="point-images-duo">
-                  <img src="./assets/images/osito.png" alt="Osito de Peluche" />
-                  <img src="./assets/images/robot.png" alt="Robot Mecánico" />
+                  <img src="./assets/images/osito.webp" alt="Osito de Peluche" />
+                  <img src="./assets/images/robot.webp" alt="Robot Mecánico" />
                 </div>
                 <span class="point-label">Juguetes Especiales</span>
               </div>
@@ -330,7 +330,7 @@ export class ToyCatchStoryTutorialModal {
               <div class="toy-point-card card-star">
                 <div class="point-badge-tag tag-gold">+250 PTS • PODER x2</div>
                 <div class="point-single-star">
-                  <img src="./assets/images/estrella con logo.png" alt="Estrella Dorada" class="star-pulse-img" />
+                  <img src="./assets/images/estrella con logo.webp" alt="Estrella Dorada" class="star-pulse-img" />
                 </div>
                 <span class="point-label">¡Imán & Doble Puntos!</span>
               </div>
@@ -353,7 +353,7 @@ export class ToyCatchStoryTutorialModal {
               <!-- Hielo -->
               <div class="hazard-card card-ice">
                 <div class="hazard-title-badge badge-ice">❄️ CRISTAL DE HIELO</div>
-                <img src="./assets/images/hielo.png" alt="Hielo" class="hazard-sprite-img" />
+                <img src="./assets/images/hielo.webp" alt="Hielo" class="hazard-sprite-img" />
                 <span class="hazard-penalty-tag tag-red">-1 VIDA ❤️ • TE CONGELA</span>
               </div>
             </div>

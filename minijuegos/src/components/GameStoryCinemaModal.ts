@@ -110,14 +110,14 @@ export class GameStoryCinemaModal {
       headline: "¡ATRAPA LOS REGALOS!",
       tagline: "¡La chimenea se desbordó! Atrapa los juguetes con el saco de Santa.",
       pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
-      sceneryLayerImg: "./assets/images/chimenea-obstaculo.png",
+      sceneryLayerImg: "./assets/images/chimenea-obstaculo.webp",
       heroLayerImg: "./assets/images/bolsa de regalos.webp",
       heroLayerScale: 1.15,
       heroLayerOffsetY: 12,
       props: [
-        { src: "./assets/images/regalo-estilizado-rojo.png", className: "prop-catch-gift1", xPercent: -28, yPercent: -45, delayOffset: 0.1, scale: 0.9, rotateDeg: -18 },
-        { src: "./assets/images/regalo-estilizado-dorado.png", className: "prop-catch-gift2", xPercent: 32, yPercent: -50, delayOffset: 0.22, scale: 0.95, rotateDeg: 22 },
-        { src: "./assets/images/osito.png", className: "prop-catch-bear", xPercent: 2, yPercent: -80, delayOffset: 0.35, scale: 1.05, rotateDeg: 8 }
+        { src: "./assets/images/regalo-estilizado-rojo.webp", className: "prop-catch-gift1", xPercent: -28, yPercent: -45, delayOffset: 0.1, scale: 0.9, rotateDeg: -18 },
+        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-catch-gift2", xPercent: 32, yPercent: -50, delayOffset: 0.22, scale: 0.95, rotateDeg: 22 },
+        { src: "./assets/images/osito.webp", className: "prop-catch-bear", xPercent: 2, yPercent: -80, delayOffset: 0.35, scale: 1.05, rotateDeg: 8 }
       ],
       playHeroSound: (a) => a.playCatchItem(1.1)
     });
@@ -131,13 +131,13 @@ export class GameStoryCinemaModal {
       tagline: "¡Toca las campanas al compás y despierta la magia festiva!",
       pageIllustrationBg: "./assets/images/fondo-nieve.webp",
       backdropLayerImg: "./assets/images/fondo-villa-montanas.jpg",
-      heroLayerImg: "./assets/images/icon-campanas.png",
+      heroLayerImg: "./assets/images/icon-campanas.webp",
       heroLayerScale: 1.25,
       heroLayerOffsetY: 5,
       props: [
         { src: "./assets/images/bola-roja.webp", className: "prop-note-red", xPercent: -38, yPercent: -35, delayOffset: 0.12, scale: 0.8 },
         { src: "./assets/images/bola-amarilla.webp", className: "prop-note-gold", xPercent: 40, yPercent: -35, delayOffset: 0.22, scale: 0.8 },
-        { src: "./assets/images/estrella con logo.png", className: "prop-bell-star", xPercent: 0, yPercent: -75, delayOffset: 0.34, scale: 1.1 }
+        { src: "./assets/images/estrella con logo.webp", className: "prop-bell-star", xPercent: 0, yPercent: -75, delayOffset: 0.34, scale: 1.1 }
       ],
       playHeroSound: (a) => a.playPowerUp()
     });
@@ -151,13 +151,13 @@ export class GameStoryCinemaModal {
       tagline: "¡Una ráfaga helada dispersó las cartas! Vuela y rescátalas.",
       pageIllustrationBg: "./assets/images/fondo-villa-montanas.jpg",
       sceneryLayerImg: "./assets/images/casas-techo-fore.webp",
-      heroLayerImg: "./assets/images/elfo-volador.png",
+      heroLayerImg: "./assets/images/elfo-volador.webp",
       heroLayerScale: 1.2,
       heroLayerOffsetY: -10,
       props: [
         { src: "./assets/images/baston-caramelo.webp", className: "prop-elf-candy", xPercent: 44, yPercent: -42, delayOffset: 0.15, scale: 0.9, rotateDeg: 28 },
-        { src: "./assets/images/regalo-estilizado-azul.png", className: "prop-elf-gift", xPercent: -40, yPercent: -25, delayOffset: 0.28, scale: 0.85, rotateDeg: -20 },
-        { src: "./assets/images/estrella con logo.png", className: "prop-elf-star", xPercent: -20, yPercent: -75, delayOffset: 0.38, scale: 1.0 }
+        { src: "./assets/images/regalo-estilizado-azul.webp", className: "prop-elf-gift", xPercent: -40, yPercent: -25, delayOffset: 0.28, scale: 0.85, rotateDeg: -20 },
+        { src: "./assets/images/estrella con logo.webp", className: "prop-elf-star", xPercent: -20, yPercent: -75, delayOffset: 0.38, scale: 1.0 }
       ],
       playHeroSound: (a) => a.playElfFly()
     });
@@ -170,13 +170,13 @@ export class GameStoryCinemaModal {
       headline: "¡ENCUENTRA LAS PAREJAS!",
       tagline: "¡Los traviesos duendes revolvieron las cartas de juguetes!",
       pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
-      heroLayerImg: "./assets/images/icon-cartas.png",
+      heroLayerImg: "./assets/images/icon-cartas.webp",
       heroLayerScale: 1.15,
       heroLayerOffsetY: 10,
       props: [
-        { src: "./assets/images/osito.png", className: "prop-card-bear", xPercent: -36, yPercent: -30, delayOffset: 0.12, scale: 0.95 },
-        { src: "./assets/images/robot.png", className: "prop-card-robot", xPercent: 36, yPercent: -30, delayOffset: 0.24, scale: 0.95 },
-        { src: "./assets/images/regalo-estilizado-verde.png", className: "prop-card-gift", xPercent: 0, yPercent: -68, delayOffset: 0.36, scale: 0.9 }
+        { src: "./assets/images/osito.webp", className: "prop-card-bear", xPercent: -36, yPercent: -30, delayOffset: 0.12, scale: 0.95 },
+        { src: "./assets/images/robot.webp", className: "prop-card-robot", xPercent: 36, yPercent: -30, delayOffset: 0.24, scale: 0.95 },
+        { src: "./assets/images/regalo-estilizado-verde.webp", className: "prop-card-gift", xPercent: 0, yPercent: -68, delayOffset: 0.36, scale: 0.9 }
       ],
       playHeroSound: (a) => a.playCardFlip()
     });
@@ -190,13 +190,13 @@ export class GameStoryCinemaModal {
       tagline: "¡El trineo de Santa perdió los regalos por las colinas nevadas!",
       pageIllustrationBg: "./assets/images/fondo-nieve.webp",
       sceneryLayerImg: "./assets/images/arbol.webp",
-      heroLayerImg: "./assets/images/santa-trineo.png",
+      heroLayerImg: "./assets/images/santa-trineo.webp",
       heroLayerScale: 1.25,
       heroLayerOffsetY: 8,
       props: [
-        { src: "./assets/images/obstaculo-muneco.png", className: "prop-hills-snowman", xPercent: 48, yPercent: 12, delayOffset: 0.14, scale: 0.9 },
-        { src: "./assets/images/regalo-estilizado-verde.png", className: "prop-hills-gift1", xPercent: -35, yPercent: 20, delayOffset: 0.25, scale: 0.85, rotateDeg: 25 },
-        { src: "./assets/images/regalo-estilizado-rojo.png", className: "prop-hills-gift2", xPercent: -65, yPercent: -15, delayOffset: 0.38, scale: 0.9, rotateDeg: -30 }
+        { src: "./assets/images/obstaculo-muneco.webp", className: "prop-hills-snowman", xPercent: 48, yPercent: 12, delayOffset: 0.14, scale: 0.9 },
+        { src: "./assets/images/regalo-estilizado-verde.webp", className: "prop-hills-gift1", xPercent: -35, yPercent: 20, delayOffset: 0.25, scale: 0.85, rotateDeg: 25 },
+        { src: "./assets/images/regalo-estilizado-rojo.webp", className: "prop-hills-gift2", xPercent: -65, yPercent: -15, delayOffset: 0.38, scale: 0.9, rotateDeg: -30 }
       ],
       playHeroSound: (a) => a.playWindGust()
     });
@@ -209,12 +209,12 @@ export class GameStoryCinemaModal {
       headline: "¡AFINA TU PUNTERÍA!",
       tagline: "¡Apunta con bolas de nieve mágicas a las dianas y regalos!",
       pageIllustrationBg: "./assets/images/fondo-tiro-al-blanco.webp",
-      heroLayerImg: "./assets/images/icon-tiro-al-blanco.png",
+      heroLayerImg: "./assets/images/icon-tiro-al-blanco.webp",
       heroLayerScale: 1.2,
       heroLayerOffsetY: 5,
       props: [
-        { src: "./assets/images/obstaculo-muneco.png", className: "prop-target-snowy", xPercent: 44, yPercent: -5, delayOffset: 0.15, scale: 0.85 },
-        { src: "./assets/images/regalo-estilizado-dorado.png", className: "prop-target-gold", xPercent: -42, yPercent: -22, delayOffset: 0.28, scale: 0.85 }
+        { src: "./assets/images/obstaculo-muneco.webp", className: "prop-target-snowy", xPercent: 44, yPercent: -5, delayOffset: 0.15, scale: 0.85 },
+        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-target-gold", xPercent: -42, yPercent: -22, delayOffset: 0.28, scale: 0.85 }
       ],
       playHeroSound: (a) => a.playPaperTear()
     });
@@ -227,12 +227,12 @@ export class GameStoryCinemaModal {
       headline: "¡SIGUE EL COMPÁS!",
       tagline: "¡Acompaña al elfo baterista marcando el ritmo marcial!",
       pageIllustrationBg: "./assets/images/fondo-empresas.webp",
-      heroLayerImg: "./assets/images/elfo-baterista.png",
+      heroLayerImg: "./assets/images/elfo-baterista.webp",
       heroLayerScale: 1.2,
       heroLayerOffsetY: -5,
       props: [
-        { src: "./assets/images/icon-tambores.png", className: "prop-drum-kit", xPercent: 0, yPercent: 42, delayOffset: 0.14, scale: 1.0 },
-        { src: "./assets/images/estrella con logo.png", className: "prop-drum-star", xPercent: 42, yPercent: -45, delayOffset: 0.28, scale: 0.95 }
+        { src: "./assets/images/icon-tambores.webp", className: "prop-drum-kit", xPercent: 0, yPercent: 42, delayOffset: 0.14, scale: 1.0 },
+        { src: "./assets/images/estrella con logo.webp", className: "prop-drum-star", xPercent: 42, yPercent: -45, delayOffset: 0.28, scale: 0.95 }
       ],
       playHeroSound: (a) => a.playTap()
     };
@@ -247,12 +247,12 @@ export class GameStoryCinemaModal {
       headline: "¡APILA HASTA LAS ESTRELLAS!",
       tagline: "¡La grúa mágica de Santa balancea los paquetes! Apílalos con precisión milimétrica.",
       pageIllustrationBg: "./assets/images/fondo-nieve.webp",
-      heroLayerImg: "./assets/images/icon-torre-regalos.png",
+      heroLayerImg: "./assets/images/icon-torre-regalos.webp",
       heroLayerScale: 1.2,
       heroLayerOffsetY: 0,
       props: [
-        { src: "./assets/images/regalo-estilizado-dorado.png", className: "prop-tower-gold", xPercent: -36, yPercent: -30, delayOffset: 0.15, scale: 0.85 },
-        { src: "./assets/images/estrella con logo.png", className: "prop-tower-star", xPercent: 36, yPercent: -45, delayOffset: 0.28, scale: 0.95 }
+        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-tower-gold", xPercent: -36, yPercent: -30, delayOffset: 0.15, scale: 0.85 },
+        { src: "./assets/images/estrella con logo.webp", className: "prop-tower-star", xPercent: 36, yPercent: -45, delayOffset: 0.28, scale: 0.95 }
       ],
       playHeroSound: (a) => a.playPowerUp()
     });
@@ -265,12 +265,12 @@ export class GameStoryCinemaModal {
       headline: "¡RESCATA LOS JUGUETES!",
       tagline: "¡La máquina mágica escupe juguetes al aire! Tócalos antes de que caigan.",
       pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
-      heroLayerImg: "./assets/images/icon-caos-taller.png",
+      heroLayerImg: "./assets/images/icon-caos-taller.webp",
       heroLayerScale: 1.2,
       heroLayerOffsetY: 0,
       props: [
         { src: "./assets/images/cochecito-juguete.png", className: "prop-chaos-car", xPercent: -35, yPercent: -35, delayOffset: 0.14, scale: 0.9, rotateDeg: -15 },
-        { src: "./assets/images/robot.png", className: "prop-chaos-robot", xPercent: 35, yPercent: -38, delayOffset: 0.26, scale: 0.9, rotateDeg: 18 }
+        { src: "./assets/images/robot.webp", className: "prop-chaos-robot", xPercent: 35, yPercent: -38, delayOffset: 0.26, scale: 0.9, rotateDeg: 18 }
       ],
       playHeroSound: (a) => a.playCatchItem(1.2)
     });
@@ -283,12 +283,12 @@ export class GameStoryCinemaModal {
       headline: "¡SALTA SIN PARAR!",
       tagline: "¡Impúlsate de plataforma en plataforma hasta alcanzar la aurora boreal!",
       pageIllustrationBg: "./assets/images/fondo-villa-montanas.jpg",
-      heroLayerImg: "./assets/images/elfo-saltador.png",
+      heroLayerImg: "./assets/images/elfo-saltador.webp",
       heroLayerScale: 1.2,
       heroLayerOffsetY: -8,
       props: [
-        { src: "./assets/images/regalo-estilizado-rojo.png", className: "prop-jump-gift", xPercent: -36, yPercent: -40, delayOffset: 0.15, scale: 0.85 },
-        { src: "./assets/images/estrella con logo.png", className: "prop-jump-star", xPercent: 36, yPercent: -55, delayOffset: 0.28, scale: 0.95 }
+        { src: "./assets/images/regalo-estilizado-rojo.webp", className: "prop-jump-gift", xPercent: -36, yPercent: -40, delayOffset: 0.15, scale: 0.85 },
+        { src: "./assets/images/estrella con logo.webp", className: "prop-jump-star", xPercent: 36, yPercent: -55, delayOffset: 0.28, scale: 0.95 }
       ],
       playHeroSound: (a) => a.playElfFly()
     });
@@ -301,12 +301,12 @@ export class GameStoryCinemaModal {
       headline: "¡CAMBIA DE VÍA!",
       tagline: "¡Guía la locomotora navideña, recoge regalos y esquiva los obstáculos!",
       pageIllustrationBg: "./assets/images/fondo-nieve.webp",
-      heroLayerImg: "./assets/images/icon-expreso-polar.png",
+      heroLayerImg: "./assets/images/icon-expreso-polar.webp",
       heroLayerScale: 1.2,
       heroLayerOffsetY: 4,
       props: [
-        { src: "./assets/images/regalo-estilizado-dorado.png", className: "prop-train-gift", xPercent: 38, yPercent: -30, delayOffset: 0.16, scale: 0.9 },
-        { src: "./assets/images/obstaculo-muneco.png", className: "prop-train-snow", xPercent: -38, yPercent: -20, delayOffset: 0.28, scale: 0.85 }
+        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-train-gift", xPercent: 38, yPercent: -30, delayOffset: 0.16, scale: 0.9 },
+        { src: "./assets/images/obstaculo-muneco.webp", className: "prop-train-snow", xPercent: -38, yPercent: -20, delayOffset: 0.28, scale: 0.85 }
       ],
       playHeroSound: (a) => a.playPowerUp()
     });
@@ -319,12 +319,12 @@ export class GameStoryCinemaModal {
       headline: "¡ROMPE EL HIELO!",
       tagline: "¡Rebota la esfera dorada y libera los regalos congelados en el hielo!",
       pageIllustrationBg: "./assets/images/fondo-villa-montanas.jpg",
-      heroLayerImg: "./assets/images/icon-rompe-hielos.png",
+      heroLayerImg: "./assets/images/icon-rompe-hielos.webp",
       heroLayerScale: 1.2,
       heroLayerOffsetY: 2,
       props: [
         { src: "./assets/images/bola-amarilla.webp", className: "prop-pin-ball1", xPercent: -35, yPercent: -42, delayOffset: 0.14, scale: 0.85 },
-        { src: "./assets/images/estrella con logo.png", className: "prop-pin-star", xPercent: 35, yPercent: -48, delayOffset: 0.26, scale: 0.95 }
+        { src: "./assets/images/estrella con logo.webp", className: "prop-pin-star", xPercent: 35, yPercent: -48, delayOffset: 0.26, scale: 0.95 }
       ],
       playHeroSound: (a) => a.playCatchItem(1.3)
     });
@@ -337,12 +337,12 @@ export class GameStoryCinemaModal {
       headline: "¡REBANA AL VUELO!",
       tagline: "¡Corta piñatas, dulces y cajas mágicas en dos mitades y esquiva las bombas!",
       pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
-      heroLayerImg: "./assets/images/icon-ninja-regalos.png",
+      heroLayerImg: "./assets/images/icon-ninja-regalos.webp",
       heroLayerScale: 1.22,
       heroLayerOffsetY: 2,
       props: [
-        { src: "./assets/images/pinata-estrella.png", className: "prop-pop-red", xPercent: -36, yPercent: -38, delayOffset: 0.14, scale: 0.9 },
-        { src: "./assets/images/galleta-jengibre.png", className: "prop-pop-blue", xPercent: 36, yPercent: -34, delayOffset: 0.26, scale: 0.9 }
+        { src: "./assets/images/pinata-estrella.webp", className: "prop-pop-red", xPercent: -36, yPercent: -38, delayOffset: 0.14, scale: 0.9 },
+        { src: "./assets/images/galleta-jengibre.webp", className: "prop-pop-blue", xPercent: 36, yPercent: -34, delayOffset: 0.26, scale: 0.9 }
       ],
       playHeroSound: (a) => a.playWhoosh()
     });
@@ -355,12 +355,12 @@ export class GameStoryCinemaModal {
       headline: "¡UNE 3 JUGUETES!",
       tagline: "¡Intercambia juguetes iguales en la vitrina y desata combos brillantes!",
       pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
-      heroLayerImg: "./assets/images/icon-jugueteria-magica.png",
+      heroLayerImg: "./assets/images/icon-jugueteria-magica.webp",
       heroLayerScale: 1.2,
       heroLayerOffsetY: 0,
       props: [
-        { src: "./assets/images/osito.png", className: "prop-claw-gift1", xPercent: -35, yPercent: -30, delayOffset: 0.15, scale: 0.9 },
-        { src: "./assets/images/regalo-estilizado-dorado.png", className: "prop-claw-gift2", xPercent: 35, yPercent: -35, delayOffset: 0.28, scale: 0.95 }
+        { src: "./assets/images/osito.webp", className: "prop-claw-gift1", xPercent: -35, yPercent: -30, delayOffset: 0.15, scale: 0.9 },
+        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-claw-gift2", xPercent: 35, yPercent: -35, delayOffset: 0.28, scale: 0.95 }
       ],
       playHeroSound: (a) => a.playCatchItem(1.15)
     });
@@ -373,12 +373,12 @@ export class GameStoryCinemaModal {
       headline: "¡DESLÍZATE POR LA NIEVE!",
       tagline: "¡Santa compite en el gran eslalon de alta montaña! Cruza las banderas y salta en las rampas.",
       pageIllustrationBg: "./assets/images/fondo-nieve.webp",
-      heroLayerImg: "./assets/images/icon-esqui-alpino.png",
+      heroLayerImg: "./assets/images/icon-esqui-alpino.webp",
       heroLayerScale: 1.2,
       heroLayerOffsetY: 0,
       props: [
-        { src: "./assets/images/rampa-esqui.png", className: "prop-ski-ramp", xPercent: -36, yPercent: -30, delayOffset: 0.15, scale: 0.85 },
-        { src: "./assets/images/puerta-eslalon.png", className: "prop-ski-gate", xPercent: 36, yPercent: -45, delayOffset: 0.28, scale: 0.95 }
+        { src: "./assets/images/rampa-esqui.webp", className: "prop-ski-ramp", xPercent: -36, yPercent: -30, delayOffset: 0.15, scale: 0.85 },
+        { src: "./assets/images/puerta-eslalon.webp", className: "prop-ski-gate", xPercent: 36, yPercent: -45, delayOffset: 0.28, scale: 0.95 }
       ],
       playHeroSound: (a) => a.playRunnerJump()
     });

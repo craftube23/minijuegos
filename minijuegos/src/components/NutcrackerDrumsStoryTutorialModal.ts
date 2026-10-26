@@ -162,7 +162,7 @@ export class NutcrackerDrumsStoryTutorialModal {
         <!-- Encabezado con medallón oficial -->
         <div class="ski-tutorial-header">
           <div class="ski-emblem-box">
-            <img src="./assets/images/medallon-feria.png" alt="Feria Mágica" class="ski-feria-seal" />
+            <img src="./assets/images/medallon-feria.webp" alt="Feria Mágica" class="ski-feria-seal" />
           </div>
           <div class="ski-header-title-wrap">
             <span class="ski-header-sub">FERIA MÁGICA DEL JUGUETE</span>
@@ -264,7 +264,7 @@ export class NutcrackerDrumsStoryTutorialModal {
             <div class="drums-story-scene">
               <div class="drums-spotlight-beam"></div>
               <div class="drums-elf-hero-box">
-                <img src="./assets/images/elfo-baterista.png" alt="Elfo Baterista" class="drums-elf-sprite" />
+                <img src="./assets/images/elfo-baterista.webp" alt="Elfo Baterista" class="drums-elf-sprite" />
                 <div class="drums-musical-notes-fx">
                   <span class="note-fx note-fx-1">${getIconSvg("music", { size: 16, color: "#FF2A4D" })}</span>
                   <span class="note-fx note-fx-2">${getIconSvg("sparkles", { size: 16, color: "#FFD700" })}</span>
@@ -273,7 +273,7 @@ export class NutcrackerDrumsStoryTutorialModal {
               </div>
             </div>
             <div class="stage-story-badge">
-              <img src="./assets/images/estrella con logo.png" alt="Estrella" class="story-star-badge" />
+              <img src="./assets/images/estrella con logo.webp" alt="Estrella" class="story-star-badge" />
               <span>MISIÓN: ¡SIGUE EL RITMO DEL CASCANUECES!</span>
             </div>
           </div>
@@ -357,7 +357,7 @@ export class NutcrackerDrumsStoryTutorialModal {
             <div class="drums-call-response-split">
               <div class="call-card card-elf-turn">
                 <span class="turn-title">1. EL ELFO TOCA</span>
-                <img src="./assets/images/elfo-baterista.png" alt="Elfo" class="turn-elf-mini" />
+                <img src="./assets/images/elfo-baterista.webp" alt="Elfo" class="turn-elf-mini" />
                 <span class="turn-desc">Observa el orden de notas</span>
               </div>
               <div class="call-card card-player-turn">
