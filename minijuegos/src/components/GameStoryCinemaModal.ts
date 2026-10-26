@@ -1,52 +1,75 @@
 /**
  * ==============================================================================
- * CORTO ANIMADO CINEMÁTICO FESTIVO (GameStoryCinemaModal - Cutscene Engine)
+ * SISTEMA CINEMATOGRÁFICO DE MINI-HISTORIAS: LIBRO MÁGICO POP-UP 3D + ARCADE SMASH
  * ==============================================================================
  * 
- * Cinemática animada fluida de 4.4 segundos (Estilo Cartoon / Cutscene arcade):
- * - 100% visual y cinematográfico: sin viñetas estáticas ni textos largos.
- * - Animación continua a 60 FPS en Canvas 2D de alta resolución.
- * - Explica el porqué de cada juego con acción, humor y física en tiempo real:
- *   Ej. Santa pierde los regalos en el aire, se le abre el saco, caen rebotando,
- *   y Santa se zambulle en su trineo para rescatarlos.
- * - Barra de cine panorámica con borde de oro y barra de tiempo sutil.
- * - Botón "⏭ SALTAR / ¡A JUGAR!" siempre accesible para jugar al instante.
+ * Dirección artística: Stylized 2D / Fantasy Game Art
+ * 
+ * Flujo de la experiencia (3.3 segundos total):
+ * 1. (0.0s - 0.7s) Aparición del gran Libro Navideño de Terciopelo Rojo con
+ *    filigrana dorada y gemas. Apertura tridimensional (rotateY -155°) con
+ *    haz de luz mágica central.
+ * 2. (0.7s - 2.0s) Despliegue de Escenario Pop-Up 2.5D: Capas troqueladas
+ *    (fondo, entorno, héroe y juguetes) que se levantan con anticipación,
+ *    perspectiva 3D, elasticidad orgánica y sombras proyectadas.
+ * 3. (2.0s - 3.1s) Impacto Arcade Smash: Líneas de velocidad doradas, sacudida
+ *    sutil de cámara, destello estelar, partículas de celebración y título
+ *    cinético 3D de alta legibilidad con la misión del minijuego.
+ * 4. (3.3s) Transición fluida hacia las instrucciones / inicio del juego.
+ * 
+ * Botón «SALTAR»: Visible al 100%, respuesta táctil inmediata, libre de bugs
+ * de doble toque, limpieza completa de GSAP y memoria.
  */
 
+import gsap from "gsap";
+import confetti from "canvas-confetti";
 import { AudioManager } from "../core/AudioManager";
 import { getIconSvg } from "../utils/icons";
 
-interface FallingToy {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  rot: number;
-  vRot: number;
-  img: HTMLImageElement;
-  size: number;
+export interface PopUpProp {
+  src: string;
+  className: string;
+  xPercent: number;
+  yPercent: number;
+  delayOffset: number;
+  scale?: number;
+  rotateDeg?: number;
+}
+
+export interface PopUpStoryData {
+  gameId: string;
+  gameTitle: string;
+  subTag: string;
+  headline: string;
+  tagline: string;
+  pageIllustrationBg: string;
+  backdropLayerImg?: string;
+  sceneryLayerImg?: string;
+  heroLayerImg: string;
+  heroLayerScale?: number;
+  heroLayerOffsetY?: number;
+  props: PopUpProp[];
+  playHeroSound?: (audio: AudioManager) => void;
 }
 
 export class GameStoryCinemaModal {
   private container: HTMLElement;
-  private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
   private audio: AudioManager;
 
+  // Estado y Control
   private isRunning: boolean = false;
-  private startTime: number = 0;
-  private readonly totalDuration: number = 4.4; // 4.4 segundos exactos
+  private isFinishing: boolean = false;
   private currentGameId: string = "";
-  private animFrameId: number | null = null;
+  private masterTimeline: gsap.core.Timeline | null = null;
+  private screenShakeTween: gsap.core.Tween | null = null;
 
-  // Cache de imágenes
-  private images: Map<string, HTMLImageElement> = new Map();
-  private fallingToys: FallingToy[] = [];
-  private soundTriggers: Set<string> = new Set();
-
+  // Callbacks de navegación
   public onComplete?: () => void;
   public onSkipToPlay?: () => void;
   public onBack?: () => void;
+
+  // Base de datos de historias personalizadas por juego
+  private stories: Map<string, PopUpStoryData> = new Map();
 
   constructor(containerId: string, audio: AudioManager) {
     let el = document.getElementById(containerId);
@@ -59,803 +82,826 @@ export class GameStoryCinemaModal {
     this.container = el;
     this.audio = audio;
 
-    this.container.innerHTML = `
-      <div class="cinema-backdrop"></div>
-      <div class="cinema-theater-frame cutscene-frame">
-        <!-- BARRAS CINEMATOGRÁFICAS -->
-        <div class="cinema-letterbox-bar bar-top">
-          <div class="cutscene-badge">
-            <span class="badge-dot">●</span>
-            <span id="cutscene-title-badge">MISIÓN NAVIDEÑA</span>
-          </div>
-          <button id="btn-cutscene-skip" class="btn-cutscene-skip-clean">
-            <span>SALTAR</span>
-            ${getIconSvg("play", { size: 14, color: "#FFFFFF", fill: "#FFFFFF" })}
-          </button>
-        </div>
-
-        <!-- CANVAS DE ACCIÓN ANIMADA -->
-        <canvas id="cinema-cutscene-canvas" class="cinema-cutscene-canvas"></canvas>
-
-        <div class="cinema-letterbox-bar bar-bottom">
-          <div class="cutscene-progress-container">
-            <div id="cutscene-progress-fill" class="cutscene-progress-fill"></div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    const canvasEl = this.container.querySelector<HTMLCanvasElement>("#cinema-cutscene-canvas");
-    if (!canvasEl) throw new Error("No se encontró canvas en cutscene");
-    this.canvas = canvasEl;
-    const ctx = this.canvas.getContext("2d");
-    if (!ctx) throw new Error("No se pudo obtener context 2D para cutscene");
-    this.ctx = ctx;
-
-    this.preloadAssets();
+    this.initStoriesData();
+    this.renderDOM();
     this.setupEvents();
   }
 
-  private preloadAssets(): void {
-    const list = [
-      "./assets/images/santa-trineo.png",
-      "./assets/images/bolsa de regalos.png",
-      "./assets/images/regalo-estilizado-rojo.png",
-      "./assets/images/regalo-estilizado-verde.png",
-      "./assets/images/regalo-estilizado-azul.png",
-      "./assets/images/regalo-estilizado-dorado.png",
-      "./assets/images/fondo-villa-montanas.jpg",
-      "./assets/images/fondo-villa-seamless.jpg",
-      "./assets/images/fondo-nieve.webp",
-      "./assets/images/fondo-tiro-al-blanco.webp",
-      "./assets/images/fondo-habitacion.webp",
-      "./assets/images/elfo-volador.png",
-      "./assets/images/elfo-baterista.png",
-      "./assets/images/obstaculo-muneco.png",
-      "./assets/images/pedestal-torre-regalos.png",
-      "./assets/images/baston-caramelo.png",
-      "./assets/images/osito.png",
-      "./assets/images/robot.png",
-      "./assets/images/estrella con logo.png",
-      "./assets/images/chimenea-obstaculo.png",
-      "./assets/images/icon-campanas.png",
-      "./assets/images/icon-tambores.png",
-      "./assets/images/icon-cartas.png"
-    ];
+  /**
+   * Compatibilidad hacia atrás con main.ts
+   */
+  public get currentStory(): { gameId: string } {
+    return { gameId: this.currentGameId };
+  }
 
-    list.forEach(src => {
-      const img = new Image();
-      img.src = src;
-      this.images.set(src, img);
+  public getCurrentGameId(): string {
+    return this.currentGameId;
+  }
+
+  /**
+   * Inicializa la narrativa visual única para cada minijuego del proyecto
+   */
+  private initStoriesData(): void {
+    // 1. ATRAPA-REGALOS MÁGICO (ToyCatchGame)
+    this.stories.set("toy-catch", {
+      gameId: "toy-catch",
+      gameTitle: "ATRAPA-REGALOS MÁGICO",
+      subTag: "¡EMERGENCIA EN EL TALLER!",
+      headline: "¡ATRAPA LOS REGALOS!",
+      tagline: "¡La chimenea se desbordó! Atrapa los juguetes con el saco de Santa.",
+      pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
+      sceneryLayerImg: "./assets/images/chimenea-obstaculo.webp",
+      heroLayerImg: "./assets/images/bolsa de regalos.webp",
+      heroLayerScale: 1.15,
+      heroLayerOffsetY: 12,
+      props: [
+        { src: "./assets/images/regalo-estilizado-rojo.webp", className: "prop-catch-gift1", xPercent: -28, yPercent: -45, delayOffset: 0.1, scale: 0.9, rotateDeg: -18 },
+        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-catch-gift2", xPercent: 32, yPercent: -50, delayOffset: 0.22, scale: 0.95, rotateDeg: 22 },
+        { src: "./assets/images/osito.webp", className: "prop-catch-bear", xPercent: 2, yPercent: -80, delayOffset: 0.35, scale: 1.05, rotateDeg: 8 }
+      ],
+      playHeroSound: (a) => a.playCatchItem(1.1)
+    });
+
+    // 2. SINFONÍA DE CAMPANAS NAVIDEÑAS (BellSymphonyGame)
+    this.stories.set("bell-symphony", {
+      gameId: "bell-symphony",
+      gameTitle: "SINFONÍA DE CAMPANAS",
+      subTag: "¡EL GRAN CONCIERTO DE MEDIANOCHE!",
+      headline: "¡HAZ SONAR LA NAVIDAD!",
+      tagline: "¡Toca las campanas al compás y despierta la magia festiva!",
+      pageIllustrationBg: "./assets/images/fondo-nieve.webp",
+      backdropLayerImg: "./assets/images/fondo-villa-montanas.jpg",
+      heroLayerImg: "./assets/images/icon-campanas.webp",
+      heroLayerScale: 1.25,
+      heroLayerOffsetY: 5,
+      props: [
+        { src: "./assets/images/bola-roja.webp", className: "prop-note-red", xPercent: -38, yPercent: -35, delayOffset: 0.12, scale: 0.8 },
+        { src: "./assets/images/bola-amarilla.webp", className: "prop-note-gold", xPercent: 40, yPercent: -35, delayOffset: 0.22, scale: 0.8 },
+        { src: "./assets/images/estrella con logo.webp", className: "prop-bell-star", xPercent: 0, yPercent: -75, delayOffset: 0.34, scale: 1.1 }
+      ],
+      playHeroSound: (a) => a.playPowerUp()
+    });
+
+    // 3. EL VUELO MÁGICO DEL ELFO (FlyingElfGame)
+    this.stories.set("flying-elf", {
+      gameId: "flying-elf",
+      gameTitle: "EL VUELO MÁGICO DEL ELFO",
+      subTag: "¡MISIÓN POR LOS CIELOS!",
+      headline: "¡VUELA CON EL ELFO!",
+      tagline: "¡Una ráfaga helada dispersó las cartas! Vuela y rescátalas.",
+      pageIllustrationBg: "./assets/images/fondo-villa-montanas.jpg",
+      sceneryLayerImg: "./assets/images/casas-techo-fore.webp",
+      heroLayerImg: "./assets/images/elfo-volador.webp",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: -10,
+      props: [
+        { src: "./assets/images/baston-caramelo.webp", className: "prop-elf-candy", xPercent: 44, yPercent: -42, delayOffset: 0.15, scale: 0.9, rotateDeg: 28 },
+        { src: "./assets/images/regalo-estilizado-azul.webp", className: "prop-elf-gift", xPercent: -40, yPercent: -25, delayOffset: 0.28, scale: 0.85, rotateDeg: -20 },
+        { src: "./assets/images/estrella con logo.webp", className: "prop-elf-star", xPercent: -20, yPercent: -75, delayOffset: 0.38, scale: 1.0 }
+      ],
+      playHeroSound: (a) => a.playElfFly()
+    });
+
+    // 4. PAREJAS DE JUGUETES / MEMORIA (MagicPairsGame)
+    this.stories.set("magic-pairs", {
+      gameId: "magic-pairs",
+      gameTitle: "PAREJAS DE JUGUETES",
+      subTag: "¡DESAFÍO DE INGENIO & MEMORIA!",
+      headline: "¡ENCUENTRA LAS PAREJAS!",
+      tagline: "¡Los traviesos duendes revolvieron las cartas de juguetes!",
+      pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
+      heroLayerImg: "./assets/images/icon-cartas.webp",
+      heroLayerScale: 1.15,
+      heroLayerOffsetY: 10,
+      props: [
+        { src: "./assets/images/osito.webp", className: "prop-card-bear", xPercent: -36, yPercent: -30, delayOffset: 0.12, scale: 0.95 },
+        { src: "./assets/images/robot.webp", className: "prop-card-robot", xPercent: 36, yPercent: -30, delayOffset: 0.24, scale: 0.95 },
+        { src: "./assets/images/regalo-estilizado-verde.webp", className: "prop-card-gift", xPercent: 0, yPercent: -68, delayOffset: 0.36, scale: 0.9 }
+      ],
+      playHeroSound: (a) => a.playCardFlip()
+    });
+
+    // 5. EL DESCENSO DE SANTA / COLINAS NEVADAS (SantaHillsGame)
+    this.stories.set("santa-hills", {
+      gameId: "santa-hills",
+      gameTitle: "EL DESCENSO DE SANTA",
+      subTag: "¡AVENTURA EN LA NIEVE!",
+      headline: "¡DESLÍZATE Y RESCATA!",
+      tagline: "¡El trineo de Santa perdió los regalos por las colinas nevadas!",
+      pageIllustrationBg: "./assets/images/fondo-nieve.webp",
+      sceneryLayerImg: "./assets/images/arbol.webp",
+      heroLayerImg: "./assets/images/santa-trineo.webp",
+      heroLayerScale: 1.25,
+      heroLayerOffsetY: 8,
+      props: [
+        { src: "./assets/images/obstaculo-muneco.webp", className: "prop-hills-snowman", xPercent: 48, yPercent: 12, delayOffset: 0.14, scale: 0.9 },
+        { src: "./assets/images/regalo-estilizado-verde.webp", className: "prop-hills-gift1", xPercent: -35, yPercent: 20, delayOffset: 0.25, scale: 0.85, rotateDeg: 25 },
+        { src: "./assets/images/regalo-estilizado-rojo.webp", className: "prop-hills-gift2", xPercent: -65, yPercent: -15, delayOffset: 0.38, scale: 0.9, rotateDeg: -30 }
+      ],
+      playHeroSound: (a) => a.playWindGust()
+    });
+
+    // 6. TIRO AL BLANCO NAVIDEÑO (SnowballTargetGame)
+    this.stories.set("snowball-target", {
+      gameId: "snowball-target",
+      gameTitle: "TIRO AL BLANCO NAVIDEÑO",
+      subTag: "¡CASETA DE FERIA DE PUNTERÍA!",
+      headline: "¡AFINA TU PUNTERÍA!",
+      tagline: "¡Apunta con bolas de nieve mágicas a las dianas y regalos!",
+      pageIllustrationBg: "./assets/images/fondo-tiro-al-blanco.webp",
+      heroLayerImg: "./assets/images/icon-tiro-al-blanco.webp",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 5,
+      props: [
+        { src: "./assets/images/obstaculo-muneco.webp", className: "prop-target-snowy", xPercent: 44, yPercent: -5, delayOffset: 0.15, scale: 0.85 },
+        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-target-gold", xPercent: -42, yPercent: -22, delayOffset: 0.28, scale: 0.85 }
+      ],
+      playHeroSound: (a) => a.playPaperTear()
+    });
+
+    // 7. TAMBORES DEL CASCANUECES (NutcrackerDrumsGame / tree-melody)
+    const drumsStory: PopUpStoryData = {
+      gameId: "tree-melody",
+      gameTitle: "TAMBORES DEL CASCANUECES",
+      subTag: "¡EL DESFILE DE MEDIANOCHE!",
+      headline: "¡SIGUE EL COMPÁS!",
+      tagline: "¡Acompaña al elfo baterista marcando el ritmo marcial!",
+      pageIllustrationBg: "./assets/images/fondo-empresas.webp",
+      heroLayerImg: "./assets/images/elfo-baterista.webp",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: -5,
+      props: [
+        { src: "./assets/images/icon-tambores.webp", className: "prop-drum-kit", xPercent: 0, yPercent: 42, delayOffset: 0.14, scale: 1.0 },
+        { src: "./assets/images/estrella con logo.webp", className: "prop-drum-star", xPercent: 42, yPercent: -45, delayOffset: 0.28, scale: 0.95 }
+      ],
+      playHeroSound: (a) => a.playTap()
+    };
+    this.stories.set("tree-melody", drumsStory);
+    this.stories.set("nutcracker-drums", { ...drumsStory, gameId: "nutcracker-drums" });
+
+    // 8. VISTE AL MUÑECO DE NIEVE (HolidayDressUpGame)
+    this.stories.set("gift-tower", {
+      gameId: "gift-tower",
+      gameTitle: "¡TORRE DE REGALOS MÁGICA!",
+      subTag: "¡CONSTRUYE HACIA LA ESTRELLA!",
+      headline: "¡APILA HASTA LAS ESTRELLAS!",
+      tagline: "¡La grúa mágica de Santa balancea los paquetes! Apílalos con precisión milimétrica.",
+      pageIllustrationBg: "./assets/images/fondo-nieve.webp",
+      heroLayerImg: "./assets/images/icon-torre-regalos.webp",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 0,
+      props: [
+        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-tower-gold", xPercent: -36, yPercent: -30, delayOffset: 0.15, scale: 0.85 },
+        { src: "./assets/images/estrella con logo.webp", className: "prop-tower-star", xPercent: 36, yPercent: -45, delayOffset: 0.28, scale: 0.95 }
+      ],
+      playHeroSound: (a) => a.playPowerUp()
+    });
+
+    // 9. EL CAOS DEL TALLER MÁGICO (WorkshopChaosGame)
+    this.stories.set("workshop-chaos", {
+      gameId: "workshop-chaos",
+      gameTitle: "¡EL CAOS DEL TALLER MÁGICO!",
+      subTag: "¡MÁQUINA FUERA DE CONTROL!",
+      headline: "¡RESCATA LOS JUGUETES!",
+      tagline: "¡La máquina mágica escupe juguetes al aire! Tócalos antes de que caigan.",
+      pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
+      heroLayerImg: "./assets/images/icon-caos-taller.webp",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 0,
+      props: [
+        { src: "./assets/images/cochecito-juguete.png", className: "prop-chaos-car", xPercent: -35, yPercent: -35, delayOffset: 0.14, scale: 0.9, rotateDeg: -15 },
+        { src: "./assets/images/robot.webp", className: "prop-chaos-robot", xPercent: 35, yPercent: -38, delayOffset: 0.26, scale: 0.9, rotateDeg: 18 }
+      ],
+      playHeroSound: (a) => a.playCatchItem(1.2)
+    });
+
+    // 10. SALTO MÁGICO NAVIDEÑO (MagicJumpGame)
+    this.stories.set("magic-jump", {
+      gameId: "magic-jump",
+      gameTitle: "¡SALTO MÁGICO NAVIDEÑO!",
+      subTag: "¡ASCENSO A LAS NUBES!",
+      headline: "¡SALTA SIN PARAR!",
+      tagline: "¡Impúlsate de plataforma en plataforma hasta alcanzar la aurora boreal!",
+      pageIllustrationBg: "./assets/images/fondo-villa-montanas.jpg",
+      heroLayerImg: "./assets/images/elfo-saltador.webp",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: -8,
+      props: [
+        { src: "./assets/images/regalo-estilizado-rojo.webp", className: "prop-jump-gift", xPercent: -36, yPercent: -40, delayOffset: 0.15, scale: 0.85 },
+        { src: "./assets/images/estrella con logo.webp", className: "prop-jump-star", xPercent: 36, yPercent: -55, delayOffset: 0.28, scale: 0.95 }
+      ],
+      playHeroSound: (a) => a.playElfFly()
+    });
+
+    // 11. EL EXPRESO POLAR MÁGICO (PolarExpressGame)
+    this.stories.set("polar-express", {
+      gameId: "polar-express",
+      gameTitle: "¡EL EXPRESO POLAR MÁGICO!",
+      subTag: "¡A TODA MÁQUINA POR LA NIEVE!",
+      headline: "¡CAMBIA DE VÍA!",
+      tagline: "¡Guía la locomotora navideña, recoge regalos y esquiva los obstáculos!",
+      pageIllustrationBg: "./assets/images/fondo-nieve.webp",
+      heroLayerImg: "./assets/images/icon-expreso-polar.webp",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 4,
+      props: [
+        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-train-gift", xPercent: 38, yPercent: -30, delayOffset: 0.16, scale: 0.9 },
+        { src: "./assets/images/obstaculo-muneco.webp", className: "prop-train-snow", xPercent: -38, yPercent: -20, delayOffset: 0.28, scale: 0.85 }
+      ],
+      playHeroSound: (a) => a.playPowerUp()
+    });
+
+    // 12. ROMPE-HIELOS MÁGICO (IceBreakerGame)
+    this.stories.set("ice-breaker", {
+      gameId: "ice-breaker",
+      gameTitle: "¡ROMPE-HIELOS MÁGICO!",
+      subTag: "¡CRISTALES Y REGALOS!",
+      headline: "¡ROMPE EL HIELO!",
+      tagline: "¡Rebota la esfera dorada y libera los regalos congelados en el hielo!",
+      pageIllustrationBg: "./assets/images/fondo-villa-montanas.jpg",
+      heroLayerImg: "./assets/images/icon-rompe-hielos.webp",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 2,
+      props: [
+        { src: "./assets/images/bola-amarilla.webp", className: "prop-pin-ball1", xPercent: -35, yPercent: -42, delayOffset: 0.14, scale: 0.85 },
+        { src: "./assets/images/estrella con logo.webp", className: "prop-pin-star", xPercent: 35, yPercent: -48, delayOffset: 0.26, scale: 0.95 }
+      ],
+      playHeroSound: (a) => a.playCatchItem(1.3)
+    });
+
+    // 13. BURBUJAS DE ADORNOS (OrnamentPopGame)
+    this.stories.set("ornament-pop", {
+      gameId: "ornament-pop",
+      gameTitle: "¡NINJA CORTA-REGALOS!",
+      subTag: "¡ESPADA DE LUZ DEL DOJO!",
+      headline: "¡REBANA AL VUELO!",
+      tagline: "¡Corta piñatas, dulces y cajas mágicas en dos mitades y esquiva las bombas!",
+      pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
+      heroLayerImg: "./assets/images/icon-ninja-regalos.webp",
+      heroLayerScale: 1.22,
+      heroLayerOffsetY: 2,
+      props: [
+        { src: "./assets/images/pinata-estrella.webp", className: "prop-pop-red", xPercent: -36, yPercent: -38, delayOffset: 0.14, scale: 0.9 },
+        { src: "./assets/images/galleta-jengibre.webp", className: "prop-pop-blue", xPercent: 36, yPercent: -34, delayOffset: 0.26, scale: 0.9 }
+      ],
+      playHeroSound: (a) => a.playWhoosh()
+    });
+
+    // 14. JUGUETERÍA MÁGICA (ToyMatchGame)
+    this.stories.set("toy-match", {
+      gameId: "toy-match",
+      gameTitle: "¡JUGUETERÍA MÁGICA!",
+      subTag: "¡VITRINA DE INGENIO!",
+      headline: "¡UNE 3 JUGUETES!",
+      tagline: "¡Intercambia juguetes iguales en la vitrina y desata combos brillantes!",
+      pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
+      heroLayerImg: "./assets/images/icon-jugueteria-magica.webp",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 0,
+      props: [
+        { src: "./assets/images/osito.webp", className: "prop-claw-gift1", xPercent: -35, yPercent: -30, delayOffset: 0.15, scale: 0.9 },
+        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-claw-gift2", xPercent: 35, yPercent: -35, delayOffset: 0.28, scale: 0.95 }
+      ],
+      playHeroSound: (a) => a.playCatchItem(1.15)
+    });
+
+    // 15. ENTREGA POR LA CHIMENEA (ChimneyDropGame)
+    this.stories.set("santa-ski", {
+      gameId: "santa-ski",
+      gameTitle: "¡ESQUÍ ALPINO DE SANTA!",
+      subTag: "¡DESCENSO A TODA VELOCIDAD!",
+      headline: "¡DESLÍZATE POR LA NIEVE!",
+      tagline: "¡Santa compite en el gran eslalon de alta montaña! Cruza las banderas y salta en las rampas.",
+      pageIllustrationBg: "./assets/images/fondo-nieve.webp",
+      heroLayerImg: "./assets/images/icon-esqui-alpino.webp",
+      heroLayerScale: 1.2,
+      heroLayerOffsetY: 0,
+      props: [
+        { src: "./assets/images/rampa-esqui.webp", className: "prop-ski-ramp", xPercent: -36, yPercent: -30, delayOffset: 0.15, scale: 0.85 },
+        { src: "./assets/images/puerta-eslalon.webp", className: "prop-ski-gate", xPercent: 36, yPercent: -45, delayOffset: 0.28, scale: 0.95 }
+      ],
+      playHeroSound: (a) => a.playRunnerJump()
     });
   }
 
-  private getImage(src: string): HTMLImageElement | undefined {
-    return this.images.get(src);
+  /**
+   * Construye la estructura visual HTML del Libro Pop-Up 3D y Arcade Smash
+   */
+  private renderDOM(): void {
+    this.container.innerHTML = `
+      <div class="popup-cinema-backdrop"></div>
+
+      <!-- VIEWPORT 3D PERSPECTIVE -->
+      <div class="popup-story-viewport" id="popup-story-viewport">
+
+        <!-- HUD SUPERIOR (Siempre accesible con z-index alto) -->
+        <div class="popup-hud-bar">
+          <div class="popup-story-badge">
+            <span class="story-badge-gem">✦</span>
+            <span id="popup-story-game-name">CRÓNICA NAVIDEÑA</span>
+          </div>
+          <button id="btn-popup-skip" class="btn-popup-skip-arcade" aria-label="Saltar introducción e ir a jugar">
+            <span>SALTAR</span>
+            ${getIconSvg("play", { size: 16, color: "#FFFFFF", fill: "#FFFFFF" })}
+          </button>
+        </div>
+
+        <!-- ESCENARIO DEL LIBRO MÁGICO 3D -->
+        <div class="magic-book-stage" id="magic-book-stage">
+          <div class="magic-book" id="magic-book">
+            <!-- CUBIERTA TRASERA Y LOMO -->
+            <div class="book-back-cover"></div>
+            <div class="book-spine"></div>
+
+            <!-- PÁGINA IZQUIERDA -->
+            <div class="book-page book-page-left">
+              <div class="page-parchment">
+                <div class="page-illustration-bg" id="page-bg-left"></div>
+                <div class="page-gold-filigree top-l"></div>
+                <div class="page-gold-filigree bot-l"></div>
+                <div class="page-inner-spine-shadow"></div>
+              </div>
+            </div>
+
+            <!-- PÁGINA DERECHA -->
+            <div class="book-page book-page-right">
+              <div class="page-parchment">
+                <div class="page-illustration-bg" id="page-bg-right"></div>
+                <div class="page-gold-filigree top-r"></div>
+                <div class="page-gold-filigree bot-r"></div>
+                <div class="page-inner-spine-shadow right"></div>
+              </div>
+            </div>
+
+            <!-- PORTADA FRONTAL 3D QUE SE ABRE (rotateY) -->
+            <div class="book-front-cover" id="book-front-cover">
+              <div class="cover-face cover-front">
+                <div class="cover-velvet-texture">
+                  <div class="cover-gold-border"></div>
+                  <div class="cover-corner-crest tl"></div>
+                  <div class="cover-corner-crest tr"></div>
+                  <div class="cover-corner-crest bl"></div>
+                  <div class="cover-corner-crest br"></div>
+                  <div class="cover-center-medallion">
+                    <div class="cover-medallion-gem">💎</div>
+                    <div class="cover-medallion-title">CRÓNICAS NAVIDEÑAS</div>
+                    <div class="cover-medallion-sub">FERIA MÁGICA DEL JUGUETE</div>
+                  </div>
+                  <div class="cover-snowflakes-foil">❄ &nbsp; ❄ &nbsp; ❄</div>
+                </div>
+              </div>
+              <div class="cover-face cover-back">
+                <div class="cover-inner-silk"></div>
+              </div>
+            </div>
+
+            <!-- RESPLANDOR CENTRAL AL ABRIR -->
+            <div class="book-magical-light" id="book-magical-light"></div>
+
+            <!-- ESCENARIO POP-UP 3D (Se eleva desde el pliegue del libro) -->
+            <div class="popup-scene-container" id="popup-scene-container">
+              <!-- CAPA 1: Fondo / Escenografía Trasera -->
+              <div class="popup-layer layer-backdrop" id="layer-backdrop"></div>
+
+              <!-- CAPA 2: Elementos de Entorno -->
+              <div class="popup-layer layer-scenery" id="layer-scenery"></div>
+
+              <!-- CAPA 3: Héroe Principal -->
+              <div class="popup-layer layer-hero" id="layer-hero"></div>
+
+              <!-- CAPA 4: Props y Objetos de Acción -->
+              <div class="popup-layer layer-props" id="layer-props"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAPA SMASH MOTION GRAPHICS ARCADE -->
+        <div class="arcade-smash-overlay" id="arcade-smash-overlay">
+          <!-- Líneas de Velocidad -->
+          <div class="speed-lines-grid" id="speed-lines-grid"></div>
+          <!-- Flash de Impacto -->
+          <div class="smash-impact-flash" id="smash-flash"></div>
+          <!-- Cartel Cinético 3D -->
+          <div class="smash-banner-wrapper" id="smash-banner-wrapper">
+            <div class="smash-subtag-pill" id="smash-subtag-pill">¡MISIÓN ARCADE!</div>
+            <h1 class="smash-headline-text" id="smash-headline-text">¡ATRAPA LOS REGALOS!</h1>
+            <p class="smash-tagline-text" id="smash-tagline-text">¡Prepárate para jugar!</p>
+            <div class="smash-stars-row">
+              <span class="star-sparkle">⭐</span>
+              <span class="star-gem">✨</span>
+              <span class="star-sparkle">⭐</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BARRA INFERIOR DE PROGRESO DE CINE -->
+        <div class="popup-timeline-bar">
+          <div class="popup-timeline-fill" id="popup-timeline-fill"></div>
+        </div>
+      </div>
+    `;
   }
 
+  /**
+   * Conecta los eventos táctiles para salto instantáneo
+   */
   private setupEvents(): void {
-    const btnSkip = this.container.querySelector<HTMLElement>("#btn-cutscene-skip");
-    btnSkip?.addEventListener("click", () => {
-      this.audio.playTap();
-      this.finishAndExit(true);
-    });
+    const btnSkip = this.container.querySelector<HTMLElement>("#btn-popup-skip");
+    if (btnSkip) {
+      btnSkip.addEventListener("pointerdown", (e) => {
+        e.stopPropagation();
+        this.audio.playTap();
+        this.finishAndExit(true);
+      });
+    }
 
-    // Toque en el canvas salta directamente al juego
-    this.canvas.addEventListener("pointerdown", () => {
+    // Tocar el fondo o pantalla también permite saltar rápidamente
+    const viewport = this.container.querySelector<HTMLElement>("#popup-story-viewport");
+    viewport?.addEventListener("pointerdown", (e) => {
+      // Ignorar si se pulsó el botón de saltar para no duplicar
+      if ((e.target as HTMLElement).closest("#btn-popup-skip")) return;
       this.audio.playTap();
       this.finishAndExit(true);
     });
   }
 
+  /**
+   * Muestra y reproduce la mini-historia cinematográfica
+   */
   public show(gameId: string): void {
+    if (this.isRunning) {
+      this.killAnimations();
+    }
+
     this.currentGameId = gameId;
     this.isRunning = true;
-    this.startTime = performance.now();
-    this.soundTriggers.clear();
-    this.fallingToys = [];
+    this.isFinishing = false;
 
+    // Obtener los datos personalizados de la historia
+    const story = this.stories.get(gameId) || this.stories.get("toy-catch")!;
+
+    // Inyectar datos en la escena
+    this.populateStoryScene(story);
+
+    // Desplegar el contenedor
     this.container.classList.remove("hide");
     this.container.classList.add("show");
     this.container.style.display = "flex";
 
-    this.resizeCanvas();
-    this.initCutsceneData(gameId);
-
-    // Arrancar loop animado a 60fps
-    this.animFrameId = requestAnimationFrame(this.renderLoop);
+    // Iniciar la secuencia maestra de animación
+    this.runMasterTimeline(story);
   }
 
-  public hide(): void {
-    this.isRunning = false;
-    if (this.animFrameId !== null) {
-      cancelAnimationFrame(this.animFrameId);
-      this.animFrameId = null;
+  /**
+   * Rellena las capas del libro con los recursos del juego actual
+   */
+  private populateStoryScene(story: PopUpStoryData): void {
+    // 1. Título superior
+    const badgeEl = this.container.querySelector<HTMLElement>("#popup-story-game-name");
+    if (badgeEl) badgeEl.textContent = story.gameTitle;
+
+    // 2. Fondos de las páginas
+    const bgLeft = this.container.querySelector<HTMLElement>("#page-bg-left");
+    const bgRight = this.container.querySelector<HTMLElement>("#page-bg-right");
+    if (bgLeft) bgLeft.style.backgroundImage = `url('${story.pageIllustrationBg}')`;
+    if (bgRight) bgRight.style.backgroundImage = `url('${story.pageIllustrationBg}')`;
+
+    // 3. Capa de Fondo 3D
+    const backdropEl = this.container.querySelector<HTMLElement>("#layer-backdrop");
+    if (backdropEl) {
+      if (story.backdropLayerImg) {
+        backdropEl.innerHTML = `<img src="${story.backdropLayerImg}" class="popup-img backdrop-img" alt="Backdrop" />`;
+        backdropEl.style.display = "block";
+      } else {
+        backdropEl.innerHTML = "";
+        backdropEl.style.display = "none";
+      }
     }
+
+    // 4. Capa de Escenografía
+    const sceneryEl = this.container.querySelector<HTMLElement>("#layer-scenery");
+    if (sceneryEl) {
+      if (story.sceneryLayerImg) {
+        sceneryEl.innerHTML = `<img src="${story.sceneryLayerImg}" class="popup-img scenery-img" alt="Scenery" />`;
+        sceneryEl.style.display = "block";
+      } else {
+        sceneryEl.innerHTML = "";
+        sceneryEl.style.display = "none";
+      }
+    }
+
+    // 5. Capa del Héroe
+    const heroEl = this.container.querySelector<HTMLElement>("#layer-hero");
+    if (heroEl) {
+      const scale = story.heroLayerScale || 1.0;
+      const offsetY = story.heroLayerOffsetY || 0;
+      heroEl.innerHTML = `
+        <div class="hero-wrapper" style="transform: translateY(${offsetY}px) scale(${scale});">
+          <img src="${story.heroLayerImg}" class="popup-img hero-img" alt="Hero" />
+        </div>
+      `;
+    }
+
+    // 6. Capa de Props / Juguetes dinámicos
+    const propsEl = this.container.querySelector<HTMLElement>("#layer-props");
+    if (propsEl) {
+      propsEl.innerHTML = story.props
+        .map(
+          (p) => `
+        <div class="prop-item ${p.className}" style="left: calc(50% + ${p.xPercent}%); top: calc(50% + ${p.yPercent}%); transform: scale(${p.scale || 1}) rotate(${p.rotateDeg || 0}deg);">
+          <img src="${p.src}" class="popup-img prop-img" alt="Prop" />
+        </div>
+      `
+        )
+        .join("");
+    }
+
+    // 7. Cartel Smash Arcade
+    const subtagEl = this.container.querySelector<HTMLElement>("#smash-subtag-pill");
+    const headlineEl = this.container.querySelector<HTMLElement>("#smash-headline-text");
+    const taglineEl = this.container.querySelector<HTMLElement>("#smash-tagline-text");
+    if (subtagEl) subtagEl.textContent = story.subTag;
+    if (headlineEl) headlineEl.textContent = story.headline;
+    if (taglineEl) taglineEl.textContent = story.tagline;
+  }
+
+  /**
+   * Ejecuta la línea de tiempo cinematográfica con GSAP
+   */
+  private runMasterTimeline(story: PopUpStoryData): void {
+    this.killAnimations();
+
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Referencias a los elementos del DOM
+    const viewport = this.container.querySelector<HTMLElement>("#popup-story-viewport");
+    const book = this.container.querySelector<HTMLElement>("#magic-book");
+    const frontCover = this.container.querySelector<HTMLElement>("#book-front-cover");
+    const magicLight = this.container.querySelector<HTMLElement>("#book-magical-light");
+    const sceneContainer = this.container.querySelector<HTMLElement>("#popup-scene-container");
+    const layerBackdrop = this.container.querySelector<HTMLElement>("#layer-backdrop");
+    const layerScenery = this.container.querySelector<HTMLElement>("#layer-scenery");
+    const layerHero = this.container.querySelector<HTMLElement>("#layer-hero");
+    const propItems = Array.from(this.container.querySelectorAll<HTMLElement>(".prop-item"));
+    const smashOverlay = this.container.querySelector<HTMLElement>("#arcade-smash-overlay");
+    const smashFlash = this.container.querySelector<HTMLElement>("#smash-flash");
+    const smashBanner = this.container.querySelector<HTMLElement>("#smash-banner-wrapper");
+    const speedLines = this.container.querySelector<HTMLElement>("#speed-lines-grid");
+    const timelineFill = this.container.querySelector<HTMLElement>("#popup-timeline-fill");
+
+    // Reinicio inicial de estados con GSAP
+    gsap.set(frontCover, { rotateY: 0, transformOrigin: "left center" });
+    gsap.set(magicLight, { autoAlpha: 0, scale: 0.2 });
+    gsap.set(sceneContainer, { autoAlpha: 1 });
+    gsap.set([layerBackdrop, layerScenery], { rotateX: -90, transformOrigin: "bottom center", autoAlpha: 0 });
+    gsap.set(layerHero, { rotateX: -90, scale: 0.5, transformOrigin: "bottom center", autoAlpha: 0 });
+    gsap.set(propItems, { scale: 0, autoAlpha: 0 });
+    gsap.set(smashOverlay, { autoAlpha: 1 });
+    gsap.set(smashFlash, { autoAlpha: 0 });
+    gsap.set(smashBanner, { scale: 0.2, autoAlpha: 0, y: 30 });
+    gsap.set(speedLines, { autoAlpha: 0 });
+    gsap.set(timelineFill, { width: "0%" });
+
+    if (prefersReducedMotion) {
+      // Modo movimiento reducido: sin rotaciones 3D agresivas, tiempo corto
+      gsap.set(frontCover, { rotateY: -155, autoAlpha: 0.1 });
+      gsap.set([layerBackdrop, layerScenery, layerHero, ...propItems], { rotateX: 0, scale: 1, autoAlpha: 1 });
+      gsap.set(smashBanner, { scale: 1, autoAlpha: 1, y: 0 });
+      gsap.to(timelineFill, { width: "100%", duration: 2.0, ease: "linear" });
+
+      this.masterTimeline = gsap.timeline({
+        onComplete: () => this.finishAndExit(false)
+      });
+      this.masterTimeline.to({}, { duration: 2.2 });
+      return;
+    }
+
+    // =========================================================================
+    // LÍNEA DE TIEMPO CINEMATOGRÁFICA COMPLETA (3.3 SEGUNDOS)
+    // =========================================================================
+    const tl = gsap.timeline({
+      onComplete: () => {
+        this.finishAndExit(false);
+      }
+    });
+    this.masterTimeline = tl;
+
+    // 0.0s - 0.2s: Inclinación inicial del libro y sonido
+    tl.fromTo(
+      book,
+      { rotateX: 32, rotateY: 8, scale: 0.88, y: 35 },
+      { rotateX: 18, rotateY: 0, scale: 1, y: 0, duration: 0.7, ease: "power2.out" },
+      0
+    );
+
+    // Barra de tiempo dorada fluida de 0% a 100% en 3.3s
+    tl.to(timelineFill, { width: "100%", duration: 3.3, ease: "linear" }, 0);
+
+    // 0.25s: La portada de terciopelo se abre en 3D
+    tl.to(
+      frontCover,
+      {
+        rotateY: -155,
+        duration: 0.95,
+        ease: "power3.inOut",
+        onStart: () => {
+          this.audio.playClawTear(1.35);
+        }
+      },
+      0.25
+    );
+
+    // 0.5s: Destello de luz mágica desde el pliegue
+    tl.to(magicLight, { autoAlpha: 0.9, scale: 1.3, duration: 0.35, ease: "power2.out" }, 0.5);
+    tl.to(magicLight, { autoAlpha: 0, scale: 1.8, duration: 0.45, ease: "power2.in" }, 0.85);
+
+    // 0.75s: Capa de fondo/escenografía se despliega desde el pliegue
+    tl.to(
+      [layerBackdrop, layerScenery],
+      {
+        rotateX: 0,
+        autoAlpha: 1,
+        duration: 0.65,
+        stagger: 0.08,
+        ease: "back.out(1.8)"
+      },
+      0.75
+    );
+
+    // 0.95s: El Héroe salta con elasticidad orgánica
+    tl.to(
+      layerHero,
+      {
+        rotateX: 0,
+        scale: 1,
+        autoAlpha: 1,
+        duration: 0.75,
+        ease: "elastic.out(1, 0.55)",
+        onStart: () => {
+          if (story.playHeroSound) {
+            story.playHeroSound(this.audio);
+          }
+        }
+      },
+      0.95
+    );
+
+    // 1.1s: Props y juguetes salen disparados con anticipación
+    if (propItems.length > 0) {
+      tl.to(
+        propItems,
+        {
+          scale: 1,
+          autoAlpha: 1,
+          duration: 0.55,
+          stagger: 0.09,
+          ease: "back.out(2.4)"
+        },
+        1.1
+      );
+    }
+
+    // 2.0s: ¡IMPACTO SMASH ARCADE!
+    tl.add(() => {
+      // Sacudida de cámara enérgica pero controlada
+      if (viewport) {
+        this.screenShakeTween = gsap.fromTo(
+          viewport,
+          { x: -5, y: 3 },
+          { x: 0, y: 0, duration: 0.22, ease: "rough({strength: 3, points: 8})", clearProps: "transform" }
+        );
+      }
+      this.audio.playPowerUp();
+      this.fireFestiveConfetti();
+    }, 2.0);
+
+    // Flash y líneas de velocidad
+    tl.to(smashFlash, { autoAlpha: 0.75, duration: 0.08, ease: "power2.out" }, 2.0);
+    tl.to(smashFlash, { autoAlpha: 0, duration: 0.2, ease: "power2.in" }, 2.08);
+
+    tl.to(speedLines, { autoAlpha: 0.65, duration: 0.1, ease: "power2.out" }, 2.0);
+    tl.to(speedLines, { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, 2.3);
+
+    // Cartel cinético 3D impacta en pantalla
+    tl.to(
+      smashBanner,
+      {
+        scale: 1,
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.38,
+        ease: "back.out(2.2)"
+      },
+      2.05
+    );
+
+    // Micro-rebote adicional del cartel
+    tl.to(
+      smashBanner,
+      {
+        scale: 1.03,
+        duration: 0.4,
+        yoyo: true,
+        repeat: 1,
+        ease: "sine.inOut"
+      },
+      2.45
+    );
+  }
+
+  /**
+   * Genera confeti estelar festivo controlado sin saturar memoria
+   */
+  private fireFestiveConfetti(): void {
+    try {
+      confetti({
+        particleCount: 30,
+        spread: 70,
+        origin: { y: 0.62 },
+        colors: ["#FFD700", "#FF1744", "#00E676", "#00E5FF", "#FFF9C4"],
+        disableForReducedMotion: true,
+        zIndex: 10005
+      });
+    } catch {
+      // Ignorar de forma segura si el canvas de confeti no está disponible
+    }
+  }
+
+  /**
+   * Finaliza la historia y avanza al siguiente paso
+   */
+  private finishAndExit(isSkip: boolean): void {
+    if (this.isFinishing) return;
+    this.isFinishing = true;
+
+    this.killAnimations();
+
+    // Guardar en localStorage de forma segura
+    try {
+      if (this.currentGameId) {
+        localStorage.setItem(`fmj_story_seen_v1_${this.currentGameId}`, "true");
+      }
+    } catch {
+      // Ignorar si el almacenamiento local está restringido
+    }
+
+    // Ocultar modal con transición limpia
+    this.container.classList.remove("show");
+    this.container.classList.add("hide");
+
+    setTimeout(() => {
+      this.container.style.display = "none";
+      this.isRunning = false;
+      this.isFinishing = false;
+
+      if (isSkip) {
+        this.onSkipToPlay?.();
+      } else {
+        this.onComplete?.();
+      }
+    }, 180);
+  }
+
+  /**
+   * Oculta el modal de forma inmediata (por ejemplo al volver al Menú)
+   */
+  public hide(): void {
+    this.killAnimations();
+    this.isRunning = false;
+    this.isFinishing = false;
     this.container.classList.remove("show");
     this.container.classList.add("hide");
     this.container.style.display = "none";
   }
 
-  private resizeCanvas(): void {
-    const rect = this.canvas.getBoundingClientRect();
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    this.canvas.width = (rect.width || 800) * dpr;
-    this.canvas.height = (rect.height || 450) * dpr;
-  }
-
-  private initCutsceneData(gameId: string): void {
-    const badge = this.container.querySelector<HTMLElement>("#cutscene-title-badge");
-    if (badge) {
-      const titles: Record<string, string> = {
-        "santa-hills": "¡SANTA PERDIÓ LOS REGALOS!",
-        "toy-catch": "¡LLUVIA MÁGICA EN LA FÁBRICA!",
-        "gift-tower": "¡LA TORRE HACIA LA ESTRELLA!",
-        "flying-elf": "¡RESCATE DE LA CARTA DORADA!",
-        "snowball-target": "¡PILLOS EN LA FERIA!",
-        "bell-symphony": "¡LA SINFONÍA DE LA CIUDAD!",
-        "tree-melody": "¡EL REDOBLE DEL CASCANUECES!",
-        "magic-pairs": "¡LOS REGALOS DESORDENADOS!"
-      };
-      badge.textContent = titles[gameId] || "MISIÓN NAVIDEÑA";
+  /**
+   * Limpia líneas de tiempo y referencias para evitar fugas de memoria
+   */
+  private killAnimations(): void {
+    if (this.masterTimeline) {
+      this.masterTimeline.kill();
+      this.masterTimeline = null;
     }
 
-    // Inicializar juguetes si aplica
-    if (gameId === "santa-hills" || gameId === "toy-catch") {
-      const giftSources = [
-        "./assets/images/regalo-estilizado-rojo.png",
-        "./assets/images/regalo-estilizado-verde.png",
-        "./assets/images/regalo-estilizado-azul.png",
-        "./assets/images/regalo-estilizado-dorado.png",
-        "./assets/images/osito.png",
-        "./assets/images/robot.png"
-      ];
-
-      for (let i = 0; i < 7; i++) {
-        const src = giftSources[i % giftSources.length];
-        const img = this.getImage(src) || new Image();
-        this.fallingToys.push({
-          x: 0,
-          y: 0,
-          vx: (Math.random() - 0.7) * 220,
-          vy: -80 - Math.random() * 120,
-          rot: Math.random() * Math.PI,
-          vRot: (Math.random() - 0.5) * 6,
-          img,
-          size: 42 + Math.random() * 20
-        });
-      }
-    }
-  }
-
-  private renderLoop = (now: number): void => {
-    if (!this.isRunning) return;
-
-    const elapsedSec = (now - this.startTime) / 1000;
-    const progress = Math.min(1.0, elapsedSec / this.totalDuration);
-
-    // Actualizar barra de progreso
-    const fill = this.container.querySelector<HTMLElement>("#cutscene-progress-fill");
-    if (fill) fill.style.width = `${progress * 100}%`;
-
-    // Renderizar fotograma según el juego
-    this.renderFrame(elapsedSec);
-
-    if (elapsedSec >= this.totalDuration) {
-      this.finishAndExit(false);
-    } else {
-      this.animFrameId = requestAnimationFrame(this.renderLoop);
-    }
-  };
-
-  private renderFrame(t: number): void {
-    const ctx = this.ctx;
-    const w = this.canvas.width;
-    const h = this.canvas.height;
-
-    ctx.save();
-    ctx.clearRect(0, 0, w, h);
-
-    switch (this.currentGameId) {
-      case "santa-hills":
-        this.renderSantaHillsScene(ctx, w, h, t);
-        break;
-      case "toy-catch":
-        this.renderToyCatchScene(ctx, w, h, t);
-        break;
-      case "gift-tower":
-        this.renderGiftTowerScene(ctx, w, h, t);
-        break;
-      case "flying-elf":
-        this.renderFlyingElfScene(ctx, w, h, t);
-        break;
-      case "snowball-target":
-        this.renderSnowballTargetScene(ctx, w, h, t);
-        break;
-      case "bell-symphony":
-        this.renderBellSymphonyScene(ctx, w, h, t);
-        break;
-      case "tree-melody":
-        this.renderNutcrackerScene(ctx, w, h, t);
-        break;
-      case "magic-pairs":
-        this.renderMagicPairsScene(ctx, w, h, t);
-        break;
-      default:
-        this.renderGenericScene(ctx, w, h, t);
-        break;
+    if (this.screenShakeTween) {
+      this.screenShakeTween.kill();
+      this.screenShakeTween = null;
     }
 
-    // Efecto viñeta y copos suaves en primer plano
-    this.drawCinematicOverlay(ctx, w, h, t);
-
-    ctx.restore();
-  }
-
-  // ==========================================================================
-  // ESCENA 1: EL DESCENSO DE SANTA (Santa vuela, el saco se abre y se zambulle)
-  // ==========================================================================
-  private renderSantaHillsScene(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
-    // Fondo de montañas nevadas en movimiento
-    const bg = this.getImage("./assets/images/fondo-villa-montanas.jpg");
-    if (bg && bg.complete) {
-      const offsetX = -(t * 45) % (w * 0.4);
-      ctx.drawImage(bg, offsetX, 0, w * 1.3, h);
-    } else {
-      ctx.fillStyle = "#0d1b2a";
-      ctx.fillRect(0, 0, w, h);
+    try {
+      confetti.reset();
+    } catch {
+      // Silencioso
     }
 
-    // Posición del Trineo de Santa
-    let sleighX: number;
-    let sleighY: number;
-    let sleighRot = 0;
-    const sleighImg = this.getImage("./assets/images/santa-trineo.png");
-    const bagImg = this.getImage("./assets/images/bolsa de regalos.png");
-
-    if (t < 1.3) {
-      // Fase 1: Vuelo pacífico de izquierda al centro
-      const ease = t / 1.3;
-      sleighX = -100 + ease * (w * 0.48 + 100);
-      sleighY = h * 0.36 + Math.sin(t * 5) * 14;
-      sleighRot = Math.sin(t * 5) * 0.05;
-    } else if (t < 2.3) {
-      // Fase 2: ¡ZAS! El saco tiembla y se desata
-      sleighX = w * 0.48 + Math.sin(t * 30) * 4;
-      sleighY = h * 0.36 + Math.sin(t * 5) * 10;
-      sleighRot = -0.06;
-
-      if (!this.soundTriggers.has("pop")) {
-        this.soundTriggers.add("pop");
-        this.audio.playClawTear();
-      }
-    } else {
-      // Fase 3: Santa se voltea y se zambulle en picada por las colinas nevadas
-      const diveT = (t - 2.3) / 2.1;
-      sleighX = w * 0.48 + diveT * (w * 0.35);
-      sleighY = h * 0.36 + diveT * (h * 0.4);
-      sleighRot = 0.28; // Inclinación en picada
-
-      if (!this.soundTriggers.has("whoosh")) {
-        this.soundTriggers.add("whoosh");
-        this.audio.playWhoosh();
-      }
-    }
-
-    // Dibujar Trineo
-    if (sleighImg && sleighImg.complete) {
-      const sW = Math.min(260, w * 0.28);
-      const sH = sW * 0.65;
-      ctx.save();
-      ctx.translate(sleighX, sleighY);
-      ctx.rotate(sleighRot);
-      ctx.drawImage(sleighImg, -sW / 2, -sH / 2, sW, sH);
-
-      // Si el saco se rompió en t >= 1.3, dibujar el saco abierto temblando
-      if (t >= 1.3 && t < 2.5 && bagImg && bagImg.complete) {
-        ctx.save();
-        ctx.translate(-sW * 0.32, -sH * 0.2);
-        ctx.rotate(Math.sin(t * 25) * 0.2);
-        ctx.drawImage(bagImg, -30, -30, 60, 60);
-        ctx.restore();
-      }
-      ctx.restore();
-    }
-
-    // Regalos saliendo disparados y cayendo
-    if (t >= 1.3) {
-      const dt = t - 1.3;
-      this.fallingToys.forEach((toy, i) => {
-        const originX = w * 0.42;
-        const originY = h * 0.32;
-        const x = originX + toy.vx * dt + Math.sin(dt * 3 + i) * 15;
-        const y = originY + toy.vy * dt + 0.5 * 380 * dt * dt;
-        const rot = toy.rot + toy.vRot * dt;
-
-        if (toy.img && toy.img.complete && y < h + 50) {
-          ctx.save();
-          ctx.translate(x, y);
-          ctx.rotate(rot);
-          ctx.drawImage(toy.img, -toy.size / 2, -toy.size / 2, toy.size, toy.size);
-          ctx.restore();
-        }
-      });
-    }
-
-    // Textos de Acción Cinemática
-    if (t >= 1.3 && t < 2.4) {
-      this.drawActionBubble(ctx, w * 0.35, h * 0.22, "¡OH NO! ¡EL SACO SE ABRIÓ!", "#FF2A4D");
-    } else if (t >= 2.4) {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.22, "«¡TENGO QUE RECUPERARLOS EN MI TRINEO!»", "#FFD700");
-    }
-  }
-
-  // ==========================================================================
-  // ESCENA 2: ATRAPA-REGALOS MÁGICO (Chimenea dispara juguetes y saco se posiciona)
-  // ==========================================================================
-  private renderToyCatchScene(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
-    const bg = this.getImage("./assets/images/fondo-nieve.webp");
-    if (bg && bg.complete) {
-      ctx.drawImage(bg, 0, 0, w, h);
-    } else {
-      ctx.fillStyle = "#102a43";
-      ctx.fillRect(0, 0, w, h);
-    }
-
-    // Chimenea que vibra
-    const chimney = this.getImage("./assets/images/chimenea-obstaculo.png");
-    const bagImg = this.getImage("./assets/images/bolsa de regalos.png");
-
-    const chimW = Math.min(180, w * 0.22);
-    const chimH = chimW * 1.0;
-    const chimX = w * 0.5;
-    const chimY = h * 0.68;
-
-    if (chimney && chimney.complete) {
-      ctx.save();
-      const shakeX = t < 1.2 ? Math.sin(t * 30) * 3 : 0;
-      ctx.translate(chimX + shakeX, chimY);
-      ctx.drawImage(chimney, -chimW / 2, -chimH / 2, chimW, chimH);
-      ctx.restore();
-    }
-
-    // Explosión de juguetes en t >= 1.2
-    if (t >= 1.2) {
-      if (!this.soundTriggers.has("boom")) {
-        this.soundTriggers.add("boom");
-        this.audio.playCatchItem(1.5);
-      }
-
-      const dt = t - 1.2;
-      this.fallingToys.forEach((toy, i) => {
-        const originX = chimX;
-        const originY = chimY - chimH * 0.45;
-        const spreadVx = (i - 3) * 65;
-        const x = originX + spreadVx * dt;
-        const y = originY - 260 * dt + 0.5 * 320 * dt * dt;
-        const rot = toy.rot + toy.vRot * dt;
-
-        if (toy.img && toy.img.complete && y < h + 40) {
-          ctx.save();
-          ctx.translate(x, y);
-          ctx.rotate(rot);
-          ctx.drawImage(toy.img, -toy.size / 2, -toy.size / 2, toy.size, toy.size);
-          ctx.restore();
-        }
-      });
-    }
-
-    // Gran saco de Santa deslizándose a la acción
-    if (t >= 2.0 && bagImg && bagImg.complete) {
-      const sackEase = Math.min(1.0, (t - 2.0) / 0.8);
-      const sackW = Math.min(190, w * 0.24);
-      const sackH = sackW * 0.65;
-      const sackX = -100 + sackEase * (w * 0.5 + 100);
-      const sackY = h * 0.82;
-
-      ctx.save();
-      ctx.translate(sackX, sackY);
-      ctx.drawImage(bagImg, -sackW / 2, -sackH / 2, sackW, sackH);
-      ctx.restore();
-    }
-
-    if (t >= 1.2 && t < 2.5) {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.2, "¡BOOM! ¡LLUEVEN REGALOS!", "#FF9800");
-    } else if (t >= 2.5) {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.2, "«¡MUEVE EL SACO Y ATRÁPALOS TODOS!»", "#00E676");
-    }
-  }
-
-  // ==========================================================================
-  // ESCENA 3: TORRE DE REGALOS MÁGICA (Pedestal, grúa y paquetes apilándose)
-  // ==========================================================================
-  private renderGiftTowerScene(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
-    const bg = this.getImage("./assets/images/fondo-villa-montanas.jpg");
-    if (bg && bg.complete) {
-      ctx.drawImage(bg, 0, 0, w, h);
-    } else {
-      ctx.fillStyle = "#081026";
-      ctx.fillRect(0, 0, w, h);
-    }
-
-    const pedestal = this.getImage("./assets/images/pedestal-torre-regalos.png");
-    const giftRed = this.getImage("./assets/images/regalo-estilizado-rojo.png");
-    const giftGold = this.getImage("./assets/images/regalo-estilizado-dorado.png");
-
-    const pedW = Math.min(300, w * 0.42);
-    const pedH = pedW * 0.35;
-    const pedX = w * 0.5;
-    const pedY = h * 0.82;
-
-    if (pedestal && pedestal.complete) {
-      ctx.drawImage(pedestal, pedX - pedW / 2, pedY, pedW, pedH);
-    }
-
-    // Regalo 1 cayendo en t = 1.0
-    const boxSize = Math.min(120, w * 0.18);
-    const boxH = boxSize * 0.72;
-
-    if (t >= 1.0 && giftRed && giftRed.complete) {
-      const dropT = Math.min(1.0, (t - 1.0) / 0.7);
-      const startY = h * 0.15;
-      const targetY = pedY - boxH + 12;
-      const curY = startY + dropT * (targetY - startY);
-
-      ctx.drawImage(giftRed, pedX - boxSize / 2, curY, boxSize, boxH);
-
-      if (dropT >= 1.0 && !this.soundTriggers.has("box1")) {
-        this.soundTriggers.add("box1");
-        this.audio.playTap();
-      }
-    }
-
-    // Regalo 2 cayendo en t = 2.2
-    if (t >= 2.2 && giftGold && giftGold.complete) {
-      const dropT2 = Math.min(1.0, (t - 2.2) / 0.7);
-      const startY2 = h * 0.12;
-      const targetY2 = pedY - boxH * 2 + 20;
-      const curY2 = startY2 + dropT2 * (targetY2 - startY2);
-
-      ctx.drawImage(giftGold, pedX - boxSize / 2, curY2, boxSize, boxH);
-
-      if (dropT2 >= 1.0 && !this.soundTriggers.has("box2")) {
-        this.soundTriggers.add("box2");
-        this.audio.playCatchItem(1.4);
-      }
-    }
-
-    // Gran Estrella arriba
-    const star = this.getImage("./assets/images/estrella con logo.png");
-    if (star && star.complete) {
-      const starSize = 56 + Math.sin(t * 4) * 8;
-      ctx.drawImage(star, pedX - starSize / 2, h * 0.08, starSize, starSize);
-    }
-
-    if (t < 2.2) {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.32, "«¡LA GRAN ESTRELLA ESTÁ MUY ALTA!»", "#FFD700");
-    } else {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.32, "«¡APILA LOS REGALOS HASTA TOCAR EL CIELO!»", "#00E5FF");
-    }
-  }
-
-  // ==========================================================================
-  // ESCENA 4: EL VUELO DEL ELFO (Elfo pierde la carta y vuela en parapente)
-  // ==========================================================================
-  private renderFlyingElfScene(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
-    const bg = this.getImage("./assets/images/fondo-villa-seamless.jpg");
-    if (bg && bg.complete) {
-      ctx.drawImage(bg, 0, 0, w, h);
-    } else {
-      ctx.fillStyle = "#0c1b33";
-      ctx.fillRect(0, 0, w, h);
-    }
-
-    const elf = this.getImage("./assets/images/elfo-volador.png");
-    const candy = this.getImage("./assets/images/baston-caramelo.png");
-
-    let elfX = w * 0.3;
-    let elfY = h * 0.5;
-
-    if (t >= 1.5) {
-      const flyT = (t - 1.5) / 2.9;
-      elfX = w * 0.3 + flyT * (w * 0.5);
-      elfY = h * 0.5 - flyT * (h * 0.28) + Math.sin(t * 6) * 16;
-    }
-
-    // Dibujar elfo
-    if (elf && elf.complete) {
-      const eW = Math.min(180, w * 0.25);
-      const eH = eW;
-      ctx.save();
-      ctx.translate(elfX, elfY);
-      ctx.rotate(t >= 1.5 ? -0.15 : 0);
-      ctx.drawImage(elf, -eW / 2, -eH / 2, eW, eH);
-      ctx.restore();
-    }
-
-    // Bastón / carta que vuela en espiral
-    if (t >= 1.0 && candy && candy.complete) {
-      const dt = t - 1.0;
-      const cX = w * 0.45 + dt * 90;
-      const cY = h * 0.45 - dt * 70 + Math.sin(dt * 8) * 20;
-
-      ctx.save();
-      ctx.translate(cX, cY);
-      ctx.rotate(dt * 8);
-      ctx.drawImage(candy, -20, -20, 40, 40);
-      ctx.restore();
-    }
-
-    if (t < 1.8) {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.2, "¡UNA VENTISCA SE LLEVÓ LA CARTA!", "#00E5FF");
-    } else {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.2, "«¡VUELA POR LOS TECHOS A RESCATARLA!»", "#FF4081");
-    }
-  }
-
-  // ==========================================================================
-  // ESCENA 5: TIRO AL BLANCO (Muñeco invade y resortera dispara)
-  // ==========================================================================
-  private renderSnowballTargetScene(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
-    const bg = this.getImage("./assets/images/fondo-tiro-al-blanco.webp");
-    if (bg && bg.complete) {
-      ctx.drawImage(bg, 0, 0, w, h);
-    } else {
-      ctx.fillStyle = "#1f1008";
-      ctx.fillRect(0, 0, w, h);
-    }
-
-    const snowman = this.getImage("./assets/images/obstaculo-muneco.png");
-    const gift = this.getImage("./assets/images/regalo-estilizado-dorado.png");
-
-    if (snowman && snowman.complete) {
-      const sW = Math.min(160, w * 0.22);
-      const sH = sW * 1.1;
-      const sX = w * 0.65;
-      const sY = h * 0.58 + (t < 1.5 ? Math.sin(t * 6) * 8 : 0);
-
-      ctx.save();
-      ctx.translate(sX, sY);
-      if (t >= 2.5) {
-        ctx.rotate(0.4); // Derribado por la bola
-      }
-      ctx.drawImage(snowman, -sW / 2, -sH / 2, sW, sH);
-      ctx.restore();
-    }
-
-    // Bola de nieve volando en t = 2.0
-    if (t >= 1.8 && t < 2.5) {
-      const ballT = (t - 1.8) / 0.6;
-      const bx = w * 0.2 + ballT * (w * 0.45);
-      const by = h * 0.7 - ballT * (h * 0.15);
-
-      ctx.save();
-      ctx.fillStyle = "#FFFFFF";
-      ctx.shadowColor = "#00E5FF";
-      ctx.shadowBlur = 15;
-      ctx.beginPath();
-      ctx.arc(bx, by, 18, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-
-    if (t >= 2.4 && gift && gift.complete) {
-      // Regalo liberado
-      ctx.drawImage(gift, w * 0.65 - 35, h * 0.35, 70, 70);
-    }
-
-    if (t < 2.0) {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.2, "¡LOS PILLOS SE ADUEÑARON DE LA CASETA!", "#FF2A4D");
-    } else {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.2, "«¡APUNTA CON LA RESORTERA Y DESPÉJALA!»", "#00E676");
-    }
-  }
-
-  // ==========================================================================
-  // ESCENA 6: SINFONÍA DE CAMPANAS (Carillón despierta con notas de luz)
-  // ==========================================================================
-  private renderBellSymphonyScene(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
-    const bg = this.getImage("./assets/images/fondo-habitacion.webp");
-    if (bg && bg.complete) {
-      ctx.drawImage(bg, 0, 0, w, h);
-    } else {
-      ctx.fillStyle = "#050e1a";
-      ctx.fillRect(0, 0, w, h);
-    }
-
-    const bell = this.getImage("./assets/images/icon-campanas.png");
-    const colors = ["#FF2A4D", "#00E676", "#00E5FF", "#FFD700"];
-
-    for (let i = 0; i < 4; i++) {
-      const cx = w * (0.24 + i * 0.17);
-      const cy = h * 0.55;
-      const bSize = Math.min(90, w * 0.13);
-
-      ctx.save();
-      if (t >= 1.2) {
-        ctx.shadowColor = colors[i];
-        ctx.shadowBlur = 20;
-      }
-      if (bell && bell.complete) {
-        ctx.drawImage(bell, cx - bSize / 2, cy - bSize / 2, bSize, bSize);
-      }
-      ctx.restore();
-
-      // Rayo de luz cayendo
-      if (t >= 1.2) {
-        ctx.save();
-        ctx.strokeStyle = colors[i];
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(cx, 0);
-        ctx.lineTo(cx, cy);
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
-
-    if (t < 1.8) {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.2, "¡EL GRAN CARILLÓN PERDIÓ SU MÚSICA!", "#00E5FF");
-    } else {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.2, "«¡TOCA LAS CAMPANAS Y DESPIERTA LA CIUDAD!»", "#FFD700");
-    }
-  }
-
-  // ==========================================================================
-  // ESCENA 7: TAMBORES DEL CASCANUECES (Elfo baterista redobla con honor)
-  // ==========================================================================
-  private renderNutcrackerScene(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
-    const bg = this.getImage("./assets/images/fondo-habitacion.webp");
-    if (bg && bg.complete) {
-      ctx.drawImage(bg, 0, 0, w, h);
-    } else {
-      ctx.fillStyle = "#1f1008";
-      ctx.fillRect(0, 0, w, h);
-    }
-
-    const drummer = this.getImage("./assets/images/elfo-baterista.png");
-    const drums = this.getImage("./assets/images/icon-tambores.png");
-
-    if (drummer && drummer.complete) {
-      const dW = Math.min(220, w * 0.32);
-      const dH = dW;
-      const dX = w * 0.5;
-      const dY = h * 0.52 + Math.sin(t * 20) * 3;
-
-      ctx.save();
-      ctx.translate(dX, dY);
-      ctx.drawImage(drummer, -dW / 2, -dH / 2, dW, dH);
-      ctx.restore();
-    }
-
-    if (t < 2.0) {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.2, "¡EL DESFILE MILITAR DE MEDIANOCHE!", "#FFB300");
-    } else {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.2, "«¡SIGUE EL COMPÁS Y GUÍA AL BATALLÓN!»", "#00E676");
-    }
-  }
-
-  // ==========================================================================
-  // ESCENA 8: PAREJAS DE JUGUETES (Tarjetas que se mezclan y ordenan)
-  // ==========================================================================
-  private renderMagicPairsScene(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
-    const bg = this.getImage("./assets/images/fondo-habitacion.webp");
-    if (bg && bg.complete) {
-      ctx.drawImage(bg, 0, 0, w, h);
-    } else {
-      ctx.fillStyle = "#140b24";
-      ctx.fillRect(0, 0, w, h);
-    }
-
-    const card = this.getImage("./assets/images/icon-cartas.png");
-
-    for (let i = 0; i < 4; i++) {
-      const cX = w * (0.25 + i * 0.17);
-      const cY = h * 0.55 + (t >= 1.2 ? Math.sin(t * 8 + i) * 16 : 0);
-      const cSize = Math.min(100, w * 0.14);
-
-      if (card && card.complete) {
-        ctx.save();
-        ctx.translate(cX, cY);
-        if (t >= 1.2) ctx.rotate(Math.sin(t * 6 + i) * 0.3);
-        ctx.drawImage(card, -cSize / 2, -cSize / 2, cSize, cSize);
-        ctx.restore();
-      }
-    }
-
-    if (t < 1.8) {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.2, "¡LOS DUENDES REVOLVIERON LAS TARJETAS!", "#D500F9");
-    } else {
-      this.drawActionBubble(ctx, w * 0.5, h * 0.2, "«¡ENCUENTRA LAS PAREJAS GEMELAS!»", "#FFD700");
-    }
-  }
-
-  private renderGenericScene(ctx: CanvasRenderingContext2D, w: number, h: number, _t: number): void {
-    ctx.fillStyle = "#0c1b33";
-    ctx.fillRect(0, 0, w, h);
-    this.drawActionBubble(ctx, w * 0.5, h * 0.5, "¡PREPARANDO MISIÓN NAVIDEÑA!", "#FFD700");
-  }
-
-  // ==========================================================================
-  // HELPERS VISUALES: Globo de Acción y Capa Cinemática
-  // ==========================================================================
-  private drawActionBubble(ctx: CanvasRenderingContext2D, cx: number, cy: number, text: string, color: string): void {
-    ctx.save();
-    ctx.font = `900 clamp(16px, 2.5vw, 24px) 'Fredoka', 'Montserrat', sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    const metrics = ctx.measureText(text);
-    const padX = 22;
-    const padY = 12;
-    const boxW = metrics.width + padX * 2;
-    const boxH = 46;
-
-    // Sombra del cartel
-    ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
-    ctx.beginPath();
-    this.roundRect(ctx, cx - boxW / 2 + 3, cy - boxH / 2 + 4, boxW, boxH, 12);
-    ctx.fill();
-
-    // Fondo del cartel
-    ctx.fillStyle = "rgba(10, 22, 45, 0.95)";
-    ctx.beginPath();
-    this.roundRect(ctx, cx - boxW / 2, cy - boxH / 2, boxW, boxH, 12);
-    ctx.fill();
-
-    // Borde brillante
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    // Texto
-    ctx.fillStyle = color;
-    ctx.fillText(text, cx, cy);
-    ctx.restore();
-  }
-
-  private drawCinematicOverlay(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
-    // Copos suaves flotantes en primer plano
-    ctx.save();
-    ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-    for (let i = 0; i < 18; i++) {
-      const flakeX = (Math.sin(i * 99 + t * 0.4) * 0.5 + 0.5) * w;
-      const flakeY = ((i * 35 + t * 45) % h);
-      const r = (i % 3) + 1.5;
-      ctx.beginPath();
-      ctx.arc(flakeX, flakeY, r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  private roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-  }
-
-  private finishAndExit(byUserSkip: boolean): void {
-    this.hide();
-
-    if (byUserSkip) {
-      if (this.onSkipToPlay) {
-        this.onSkipToPlay();
-      } else if (this.onComplete) {
-        this.onComplete();
-      }
-    } else {
-      if (this.onComplete) {
-        this.onComplete();
-      }
+    const targets = this.container.querySelectorAll<HTMLElement>(
+      "#magic-book, #book-front-cover, #book-magical-light, #layer-backdrop, #layer-scenery, #layer-hero, .prop-item, #smash-banner-wrapper, #smash-flash, #speed-lines-grid, #popup-timeline-fill, #popup-story-viewport"
+    );
+    if (targets.length > 0) {
+      gsap.killTweensOf(targets);
     }
   }
 }

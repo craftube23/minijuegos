@@ -20,6 +20,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import gsap from "gsap";
 import { BANNER_CONFIG, type BannerSlide } from "../config/banners";
+import { renderBannerIcon } from "../utils/bannerIcons";
 
 export class GameBannerCarousel {
   private container: HTMLElement;
@@ -79,6 +80,34 @@ export class GameBannerCarousel {
    * Genera el marcado de cada slide respetando archivos y proporciones oficiales
    */
   private renderSlide(slide: BannerSlide, idx: number): string {
+    const bgStyle = slide.bgImage
+      ? `background: url('${slide.bgImage}') center center / 100% 100% no-repeat, ${slide.bgGradient};`
+      : `background: ${slide.bgGradient};`;
+
+    const kickerIconSvg = renderBannerIcon(slide.kickerIcon, 13, "kicker-svg");
+    const titleIconSvg = renderBannerIcon(slide.titleIcon, 16, "title-svg");
+    const subtitleIconSvg = renderBannerIcon(slide.subtitleIcon, 14, "subtitle-svg");
+    const badgeIconSvg = renderBannerIcon(slide.badgeIcon, 13, "badge-svg");
+    const ctaIconSvg = renderBannerIcon(slide.ctaIcon, 12, "cta-svg");
+
+    const highlightsHtml =
+      slide.highlights && slide.highlights.length > 0
+        ? `
+        <div class="banner-highlights-row js-banner-highlights">
+          ${slide.highlights
+            .map(
+              (h) => `
+            <span class="banner-highlight-chip">
+              ${h.icon ? renderBannerIcon(h.icon, 12, "highlight-svg") : ""}
+              <span>${h.label}</span>
+            </span>
+          `
+            )
+            .join("")}
+        </div>
+        `
+        : "";
+
     if (slide.type === "hero-billboard") {
       const logo = slide.logos[0] || {
         src: "",
@@ -89,7 +118,7 @@ export class GameBannerCarousel {
       const fitClass = `fit-${logo.fitMode || "standard"}`;
 
       return `
-        <div class="swiper-slide banner-slide banner-slide-hero" data-index="${idx}" data-slide-id="${slide.id}" style="background: ${slide.bgGradient};">
+        <div class="swiper-slide banner-slide banner-slide-hero ${slide.themeClass || ""}" data-index="${idx}" data-slide-id="${slide.id}" style="${bgStyle}">
           <div class="banner-hero-container">
             <div class="banner-logo-card ${fitClass} js-banner-card" title="${logo.name}">
               <div class="plaque-inner-shine"></div>
@@ -105,8 +134,27 @@ export class GameBannerCarousel {
             </div>
 
             <div class="banner-text-content">
-              <div class="banner-headline js-banner-title">${slide.title}</div>
-              <div class="banner-subline js-banner-subtitle">${slide.subtitle}</div>
+              ${
+                slide.kickerText
+                  ? `
+              <div class="banner-kicker js-banner-kicker">
+                <span class="kicker-pill" style="border-color: ${slide.accentColor}; color: ${slide.accentColor};">
+                  ${kickerIconSvg}
+                  <span class="kicker-label">${slide.kickerText}</span>
+                </span>
+              </div>
+              `
+                  : ""
+              }
+              <div class="banner-headline js-banner-title">
+                ${titleIconSvg}
+                <span>${slide.title}</span>
+              </div>
+              <div class="banner-subline js-banner-subtitle">
+                ${subtitleIconSvg}
+                <span>${slide.subtitle}</span>
+              </div>
+              ${highlightsHtml}
             </div>
 
             ${
@@ -115,11 +163,12 @@ export class GameBannerCarousel {
             <div class="banner-badge-wrapper">
               <div class="banner-sponsor-event-cobrand js-banner-badge">
                 <span class="banner-badge-pill" style="border-color: ${slide.accentColor};">
-                  ${slide.badgeText}
+                  ${badgeIconSvg}
+                  <span>${slide.badgeText}</span>
                 </span>
                 ${
-                  slide.eventReminder
-                    ? `<span class="event-social-tag">${slide.eventReminder}</span>`
+                  slide.ctaText
+                    ? `<span class="event-social-tag">${ctaIconSvg}<span>${slide.ctaText}</span></span>`
                     : ""
                 }
               </div>
@@ -134,14 +183,14 @@ export class GameBannerCarousel {
 
     // CARTEL INSTITUCIONAL DEL EVENTO (FERIA MÁGICA DEL JUGUETE)
     const eventLogo = slide.logos[0] || {
-      src: "./assets/logos/Feria-magica-del-jugete-sin-fondo.png",
+      src: "./assets/logos/Feria-magica-del-jugete-sin-fondo.webp",
       alt: "Feria Mágica del Juguete",
       name: "FERIA MÁGICA DEL JUGUETE",
       fitMode: "standard" as const
     };
 
     return `
-      <div class="swiper-slide banner-slide banner-slide-event" data-index="${idx}" data-slide-id="${slide.id}" style="background: ${slide.bgGradient};">
+      <div class="swiper-slide banner-slide banner-slide-event ${slide.themeClass || ""}" data-index="${idx}" data-slide-id="${slide.id}" style="${bgStyle}">
         <div class="banner-event-container">
           <div class="event-logo-emblem js-banner-card">
             <img
@@ -154,26 +203,42 @@ export class GameBannerCarousel {
             />
           </div>
 
-          <div class="event-info-block">
-            <div class="event-pill event-pill-date js-banner-title">
-              <span class="event-pill-icon" aria-hidden="true">${slide.topIcon || "📅"}</span>
-              <span class="event-pill-text">${slide.title}</span>
-            </div>
-            <div class="event-pill event-pill-place js-banner-subtitle">
-              <span class="event-pill-icon" aria-hidden="true">${slide.bottomIcon || "📍"}</span>
-              <span class="event-pill-text">${slide.subtitle}</span>
-            </div>
-          </div>
-
-          <div class="event-cta-block js-banner-badge">
-            <span class="banner-badge-pill event-badge-crimson">
-              ${slide.badgeText || "¡NOS VEMOS EN LA FERIA!"}
-            </span>
+          <div class="banner-text-content">
             ${
-              slide.socialTag
-                ? `<span class="event-social-tag">${slide.socialTag}</span>`
+              slide.kickerText
+                ? `
+            <div class="banner-kicker js-banner-kicker">
+              <span class="kicker-pill event-kicker-pill">
+                ${kickerIconSvg}
+                <span class="kicker-label">${slide.kickerText}</span>
+              </span>
+            </div>
+            `
                 : ""
             }
+            <div class="banner-headline event-headline js-banner-title">
+              ${titleIconSvg}
+              <span>${slide.title}</span>
+            </div>
+            <div class="banner-subline event-subline js-banner-subtitle">
+              ${subtitleIconSvg}
+              <span>${slide.subtitle}</span>
+            </div>
+            ${highlightsHtml}
+          </div>
+
+          <div class="banner-badge-wrapper">
+            <div class="banner-sponsor-event-cobrand js-banner-badge">
+              <span class="banner-badge-pill event-badge-crimson">
+                ${badgeIconSvg}
+                <span>${slide.badgeText || "ACCESO LIBRE"}</span>
+              </span>
+              ${
+                slide.ctaText
+                  ? `<span class="event-social-tag">${ctaIconSvg}<span>${slide.ctaText}</span></span>`
+                  : ""
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -254,13 +319,15 @@ export class GameBannerCarousel {
   private animateSlide(slideEl: HTMLElement): void {
     this.killActiveAnimation();
 
+    const kicker = slideEl.querySelector(".js-banner-kicker");
     const card = slideEl.querySelector(".js-banner-card");
     const title = slideEl.querySelector(".js-banner-title");
     const subtitle = slideEl.querySelector(".js-banner-subtitle");
+    const highlights = slideEl.querySelector(".js-banner-highlights");
     const badge = slideEl.querySelector(".js-banner-badge");
     const shine = slideEl.querySelector(".js-plaque-shine");
 
-    const targets = [card, title, subtitle, badge, shine].filter(
+    const targets = [kicker, card, title, subtitle, highlights, badge, shine].filter(
       (el): el is Element => el !== null
     );
     this.animatedTargets = targets;
@@ -270,7 +337,7 @@ export class GameBannerCarousel {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (prefersReducedMotion) {
-      gsap.set([card, title, subtitle, badge].filter(Boolean), {
+      gsap.set([kicker, card, title, subtitle, highlights, badge].filter(Boolean), {
         opacity: 1,
         x: 0,
         y: 0,
@@ -303,12 +370,21 @@ export class GameBannerCarousel {
         .to(shine, { xPercent: 340, opacity: 0, duration: 0.32, ease: "power1.out" });
     }
 
+    if (kicker) {
+      this.activeTimeline.fromTo(
+        kicker,
+        { y: -6, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.28 },
+        "-=0.3"
+      );
+    }
+
     if (title) {
       this.activeTimeline.fromTo(
         title,
         { y: 8, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.34 },
-        "-=0.45"
+        "-=0.32"
       );
     }
 
@@ -321,12 +397,21 @@ export class GameBannerCarousel {
       );
     }
 
+    if (highlights) {
+      this.activeTimeline.fromTo(
+        highlights,
+        { y: 5, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.3 },
+        "-=0.22"
+      );
+    }
+
     if (badge) {
       this.activeTimeline.fromTo(
         badge,
         { scale: 0.88, opacity: 0 },
         { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.35)" },
-        "-=0.22"
+        "-=0.2"
       );
     }
   }

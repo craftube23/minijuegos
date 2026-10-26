@@ -56,18 +56,53 @@ export class InputManager {
     window.addEventListener("keyup", (e) => {
       this.keysDown.delete(e.code);
     });
+
+    // 4. Limpiar estado de entrada si la ventana o pestaña pierde el foco
+    window.addEventListener("blur", () => {
+      this.reset();
+    });
   }
 
   private cachedRect: DOMRect | null = null;
   private scaleX: number = 1;
   private scaleY: number = 1;
 
+  // Tamaño lógico del juego (independiente del DPR del buffer del canvas)
+  private logicalWidth: number = 0;
+  private logicalHeight: number = 0;
+
+  /**
+   * Define el tamaño lógico del juego. Con HiDPI el buffer del canvas es mayor que el
+   * tamaño lógico, por lo que las coordenadas táctiles deben escalarse al tamaño lógico.
+   */
+  public setLogicalSize(width: number, height: number): void {
+    this.logicalWidth = width;
+    this.logicalHeight = height;
+    this.updateBounds();
+  }
+
   public updateBounds(): void {
     this.cachedRect = this.canvas.getBoundingClientRect();
     if (this.cachedRect.width > 0 && this.cachedRect.height > 0) {
-      this.scaleX = this.canvas.width / this.cachedRect.width;
-      this.scaleY = this.canvas.height / this.cachedRect.height;
+      const lw = this.logicalWidth > 0 ? this.logicalWidth : this.canvas.width;
+      const lh = this.logicalHeight > 0 ? this.logicalHeight : this.canvas.height;
+      this.scaleX = lw / this.cachedRect.width;
+      this.scaleY = lh / this.cachedRect.height;
     }
+  }
+
+  /**
+   * Quita todos los callbacks de entrada registrados por un juego.
+   * Se invoca al iniciar y al destruir cada juego para evitar handlers fantasma.
+   */
+  public clearHandlers(): void {
+    this.onTap = undefined;
+    this.onDrag = undefined;
+    this.onRelease = undefined;
+    this.onPointerDown = undefined;
+    this.onPointerUp = undefined;
+    this.onPointerMove = undefined;
+    this.reset();
   }
 
   /**

@@ -39,8 +39,8 @@ export class GameMenu {
     {
       id: "toy-catch",
       title: "Atrapa-Regalos Mágico",
-      imageSrc: "./assets/images/targetas/bolsa-de-regalos-clean.png",
-      frameImageSrc: "./assets/images/marco-juego-rojo.png",
+      imageSrc: "./assets/images/targetas/bolsa-de-regalos-clean.webp",
+      frameImageSrc: "./assets/images/marco-juego-rojo.webp",
       themeClass: "theme-wood-red",
       category: "ACCIÓN & REFLEJOS",
       tagline: "¡Atrapa juguetes con el saco de Santa!",
@@ -49,8 +49,8 @@ export class GameMenu {
     {
       id: "bell-symphony",
       title: "Sinfonía de Campanas",
-      imageSrc: "./assets/images/icon-campanas.png",
-      frameImageSrc: "./assets/images/marco-juego-azul.png",
+      imageSrc: "./assets/images/icon-campanas.webp",
+      frameImageSrc: "./assets/images/marco-juego-azul.webp",
       themeClass: "theme-stone-blue",
       category: "RITMO & MÚSICA",
       tagline: "¡Toca las campanas al ritmo navideño!",
@@ -59,8 +59,8 @@ export class GameMenu {
     {
       id: "tree-melody",
       title: "Tambores del Cascanueces",
-      imageSrc: "./assets/images/icon-tambores.png",
-      frameImageSrc: "./assets/images/marco-juego-verde.png",
+      imageSrc: "./assets/images/icon-tambores.webp",
+      frameImageSrc: "./assets/images/marco-juego-verde.webp",
       themeClass: "theme-forest-green",
       category: "TAIKO & RITMO",
       tagline: "¡Sigue el ritmo del elfo en los tambores mágicos!",
@@ -69,8 +69,8 @@ export class GameMenu {
     {
       id: "flying-elf",
       title: "El Vuelo Mágico del Elfo",
-      imageSrc: "./assets/images/icon-elfo-volador.png",
-      frameImageSrc: "./assets/images/marco-juego-azul.png",
+      imageSrc: "./assets/images/icon-elfo-volador.webp",
+      frameImageSrc: "./assets/images/marco-juego-azul.webp",
       themeClass: "theme-stone-blue",
       category: "ARCADE & VUELO",
       tagline: "¡Vuela con el elfo y entrega los regalos!",
@@ -79,8 +79,8 @@ export class GameMenu {
     {
       id: "magic-pairs",
       title: "Parejas de Juguetes",
-      imageSrc: "./assets/images/targetas/icon cartas.png",
-      frameImageSrc: "./assets/images/marco-juego-morado.png",
+      imageSrc: "./assets/images/targetas/icon cartas.webp",
+      frameImageSrc: "./assets/images/marco-juego-morado.webp",
       themeClass: "theme-magic-purple",
       category: "INGENIO & MEMORIA",
       tagline: "¡Encuentra las parejas de cartas mágicas!",
@@ -89,8 +89,8 @@ export class GameMenu {
     {
       id: "santa-hills",
       title: "El Descenso de Santa",
-      imageSrc: "./assets/images/icon-santa-colinas.png",
-      frameImageSrc: "./assets/images/marco-juego-rojo.png",
+      imageSrc: "./assets/images/icon-santa-colinas.webp",
+      frameImageSrc: "./assets/images/marco-juego-rojo.webp",
       themeClass: "theme-wood-red",
       category: "CARRERA & COLINAS",
       tagline: "¡Deslízate por las colinas y rescata los regalos!",
@@ -99,22 +99,102 @@ export class GameMenu {
     {
       id: "snowball-target",
       title: "Tiro al Blanco Navideño",
-      imageSrc: "./assets/images/icon-tiro-al-blanco.png",
-      frameImageSrc: "./assets/images/marco-juego-verde.png",
+      imageSrc: "./assets/images/icon-tiro-al-blanco.webp",
+      frameImageSrc: "./assets/images/marco-juego-verde.webp",
       themeClass: "theme-forest-green",
       category: "PUNTERÍA & ARCADE",
       tagline: "¡Apunta con bolas de nieve a las dianas y regalos!",
       gemColor: "#00E676"
     },
     {
+      id: "workshop-chaos",
+      title: "¡El Caos del Taller Mágico!",
+      imageSrc: "./assets/images/icon-caos-taller.webp",
+      frameImageSrc: "./assets/images/marco-juego-rojo.webp",
+      themeClass: "theme-wood-red",
+      category: "REFLEJOS & ACCIÓN",
+      tagline: "¡Salva los juguetes que salen disparados de la máquina!",
+      gemColor: "#FF9100"
+    },
+    {
+      id: "christmas-jump",
+      title: "¡Salto Mágico Navideño!",
+      imageSrc: "./assets/images/icon-salto-magico.webp",
+      frameImageSrc: "./assets/images/marco-juego-azul.webp",
+      themeClass: "theme-stone-blue",
+      category: "ARCADE & SALTO",
+      tagline: "¡Salta sobre plataformas nevadas y vuela con cohetes!",
+      gemColor: "#00E5FF"
+    },
+    {
       id: "gift-tower",
-      title: "Torre de Regalos Mágica",
-      imageSrc: "./assets/images/icon-torre-regalos.png",
-      frameImageSrc: "./assets/images/marco-juego-morado.png",
-      themeClass: "theme-magic-purple",
-      category: "EQUILIBRIO & FÍSICA",
-      tagline: "¡Apila los paquetes y construye la torre más alta hacia el cielo!",
+      title: "¡Torre de Regalos Mágica!",
+      imageSrc: "./assets/images/icon-torre-regalos.webp",
+      frameImageSrc: "./assets/images/marco-juego-rojo.webp",
+      themeClass: "theme-wood-red",
+      category: "EQUILIBRIO & APILADO",
+      tagline: "¡Apila los regalos con la grúa mágica y crea la torre más alta!",
       gemColor: "#FFD700"
+    },
+    {
+      id: "polar-express",
+      title: "¡El Expreso Polar Mágico!",
+      imageSrc: "./assets/images/icon-expreso-polar.webp",
+      frameImageSrc: "./assets/images/marco-juego-verde.webp",
+      themeClass: "theme-forest-green",
+      category: "CARRERA & REFLEJOS",
+      tagline: "¡Cambia de vía, recoge regalos y esquiva obstáculos!",
+      gemColor: "#00E676"
+    },
+    {
+      id: "ice-breaker",
+      title: "¡Rompe-Hielos Mágico!",
+      imageSrc: "./assets/images/icon-rompe-hielos.webp",
+      frameImageSrc: "./assets/images/marco-juego-morado.webp",
+      themeClass: "theme-magic-purple",
+      category: "ARCADE & BLOQUES",
+      tagline: "¡Rebota la esfera dorada y rompe los bloques de cristal!",
+      gemColor: "#D500F9"
+    },
+    {
+      id: "ornament-pop",
+      title: "¡Ninja Corta-Regalos!",
+      imageSrc: "./assets/images/icon-ninja-regalos.webp",
+      frameImageSrc: "./assets/images/marco-juego-rojo.webp",
+      themeClass: "theme-wood-red",
+      category: "ACCIÓN & CORTES",
+      tagline: "¡Rebana al vuelo piñatas, dulces y regalos en dos mitades!",
+      gemColor: "#FF2A4D"
+    },
+    {
+      id: "toy-match",
+      title: "¡Juguetería Mágica!",
+      imageSrc: "./assets/images/icon-jugueteria-magica.webp",
+      frameImageSrc: "./assets/images/marco-juego-rojo.webp",
+      themeClass: "theme-wood-red",
+      category: "PUZZLE & COMBOS",
+      tagline: "¡Intercambia juguetes y une 3 o más en la vitrina!",
+      gemColor: "#FFD700"
+    },
+    {
+      id: "santa-ski",
+      title: "¡Esquí Alpino de Santa!",
+      imageSrc: "./assets/images/icon-esqui-alpino.webp",
+      frameImageSrc: "./assets/images/marco-juego-azul.webp",
+      themeClass: "theme-stone-blue",
+      category: "VELOCIDAD & DESTREZA",
+      tagline: "¡Desciende por las pistas alpinas, cruza eslalons y salta en rampas!",
+      gemColor: "#00E5FF"
+    },
+    {
+      id: "snow-battle",
+      title: "¡Batalla de Nieve!",
+      imageSrc: "./assets/images/snow-battle-portada.webp",
+      frameImageSrc: "./assets/images/marco-juego-rojo.webp",
+      themeClass: "theme-wood-red",
+      category: "ACCIÓN & PUNTERÍA",
+      tagline: "¡Guía a Rodolfo con el joystick y defiende la plaza a bolazos de nieve!",
+      gemColor: "#FF2A4D"
     }
   ];
 
@@ -246,8 +326,61 @@ export class GameMenu {
 
     const cards = this.container.querySelectorAll<HTMLElement>(".game-card-fantasy");
     cards.forEach((card) => {
-      // Evento de toque y selección de tarjeta
+      let startX = 0;
+      let startY = 0;
+      let isDragging = false;
+
+      const clearPressed = () => {
+        card.classList.remove("is-pressed");
+        gsap.to(card, {
+          scale: 1,
+          y: 0,
+          duration: 0.18,
+          ease: "back.out(1.5)",
+          clearProps: "transform",
+          overwrite: "auto"
+        });
+      };
+
+      // Feedback háptico/táctil en 'pointerdown' coordinado con GSAP
+      card.addEventListener("pointerdown", (e: PointerEvent) => {
+        startX = e.clientX;
+        startY = e.clientY;
+        isDragging = false;
+
+        card.classList.add("is-pressed");
+        gsap.to(card, {
+          scale: 0.96,
+          y: 2,
+          duration: 0.1,
+          ease: "power2.out",
+          overwrite: "auto"
+        });
+      });
+
+      card.addEventListener("pointermove", (e: PointerEvent) => {
+        if (!isDragging) {
+          const dx = Math.abs(e.clientX - startX);
+          const dy = Math.abs(e.clientY - startY);
+          if (dx > 14 || dy > 14) {
+            isDragging = true;
+            clearPressed();
+          }
+        }
+      });
+
+      card.addEventListener("pointerup", clearPressed);
+      card.addEventListener("pointercancel", clearPressed);
+      card.addEventListener("pointerleave", clearPressed);
+
+      // Evento de toque y selección de tarjeta (solo si no fue arrastre de scroll)
       card.addEventListener("click", (e) => {
+        if (isDragging) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+
         e.preventDefault();
         e.stopPropagation();
 
@@ -262,33 +395,6 @@ export class GameMenu {
           this.onSelectGame(gameId, card);
         }
       });
-
-      // Feedback háptico/táctil en 'pointerdown' coordinado con GSAP
-      card.addEventListener("pointerdown", () => {
-        card.classList.add("is-pressed");
-        gsap.to(card, {
-          scale: 0.96,
-          y: 2,
-          duration: 0.1,
-          ease: "power2.out",
-          overwrite: "auto"
-        });
-      });
-
-      const clearPressed = () => {
-        card.classList.remove("is-pressed");
-        gsap.to(card, {
-          scale: 1,
-          y: 0,
-          duration: 0.18,
-          ease: "back.out(1.5)",
-          clearProps: "transform",
-          overwrite: "auto"
-        });
-      };
-      card.addEventListener("pointerup", clearPressed);
-      card.addEventListener("pointercancel", clearPressed);
-      card.addEventListener("pointerleave", clearPressed);
     });
   }
 

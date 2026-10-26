@@ -20,7 +20,7 @@ import { InputManager } from "../core/InputManager";
 import { ParticleSystem } from "../core/ParticleSystem";
 import { ScreenTransition } from "../core/ScreenTransition";
 import { StorageManager } from "../core/StorageManager";
-import { ChartEditorModal, type ChartNoteRecord } from "../components/ChartEditorModal";
+import type { ChartNoteRecord } from "../data/songs";
 import {
   RHYTHM_SONG_LIST,
   GOD_REST_METAL_CHART,
@@ -243,7 +243,6 @@ export class BellSymphonyGame extends BaseGame {
   private imgArrowRight: HTMLImageElement;
   private imgLogoFair: HTMLImageElement;
   private imgLogoCampus: HTMLImageElement;
-  private imgStarWithLogo: HTMLImageElement;
 
   // Estado del juego de ritmo
   private bpm: number = 138;
@@ -287,12 +286,8 @@ export class BellSymphonyGame extends BaseGame {
 
   // Sistema de Audio
   private bgAudioElement: HTMLAudioElement | null = null;
+  private songAudioPausedByVisibility: boolean = false;
 
-  // Editor y Grabador de notas en tiempo real
-  private chartEditor: ChartEditorModal;
-  private isCustomChartPlaying: boolean = false;
-  private lastCustomNotes: ChartNoteRecord[] = [];
-  private lastCustomSongFile: string = "juego campanas/God Rest Ye Merry Metalmen.mp3";
 
   // Listeners de teclado
   private keydownHandler?: (e: KeyboardEvent) => void;
@@ -314,36 +309,14 @@ export class BellSymphonyGame extends BaseGame {
       particles
     );
 
-    // Carga de Sprites HD
-    this.bgImage = new Image();
-    this.bgImage.src = "./assets/images/fondo-habitacion.webp";
-
-    this.imgArrowLeft = new Image();
-    this.imgArrowLeft.src = "./assets/images/flecha-izq.png";
-
-    this.imgArrowDown = new Image();
-    this.imgArrowDown.src = "./assets/images/flecha-abajo.png";
-
-    this.imgArrowUp = new Image();
-    this.imgArrowUp.src = "./assets/images/flecha-arriba.png";
-
-    this.imgArrowRight = new Image();
-    this.imgArrowRight.src = "./assets/images/flecha-der.png";
-
-    this.imgLogoFair = new Image();
-    this.imgLogoFair.src = "./assets/logos/Feria-magica-del-jugete-sin-fondo.png";
-
-    this.imgLogoCampus = new Image();
-    this.imgLogoCampus.src = "./assets/logos/logo-campus-sin-fondo.png";
-
-    this.imgStarWithLogo = new Image();
-    this.imgStarWithLogo.src = "./assets/images/estrella con logo.png";
-
-    // Editor de partituras
-    this.chartEditor = new ChartEditorModal("chart-editor-modal");
-    this.chartEditor.onPlayCustomChart = (customNotes, songFile, bpm) => {
-      this.startCustomChart(customNotes, songFile, bpm);
-    };
+    // Carga de Sprites HD reutilizando caché
+    this.bgImage = this.getImage("./assets/images/fondo-habitacion.webp");
+    this.imgArrowLeft = this.getImage("./assets/images/flecha-izq.webp");
+    this.imgArrowDown = this.getImage("./assets/images/flecha-abajo.webp");
+    this.imgArrowUp = this.getImage("./assets/images/flecha-arriba.webp");
+    this.imgArrowRight = this.getImage("./assets/images/flecha-der.webp");
+    this.imgLogoFair = this.getImage("./assets/logos/Feria-magica-del-jugete-sin-fondo.webp");
+    this.imgLogoCampus = this.getImage("./assets/logos/logo-campus-sin-fondo.webp");
 
     this.setupKeyboard();
   }
@@ -390,6 +363,15 @@ export class BellSymphonyGame extends BaseGame {
     // Textos flotantes
     this.floatingTextSystem.update(dt);
 
+    // Power-Up del Logo (esta clase sobrescribe update() y no hereda el descuento de BaseGame)
+    if (this.isLogoPowerUpActive) {
+      this.logoPowerUpTimer -= dt;
+      if (this.logoPowerUpTimer <= 0) {
+        this.isLogoPowerUpActive = false;
+        this.logoPowerUpTimer = 0;
+      }
+    }
+
     this.onUpdate(dt);
   }
 
@@ -416,6 +398,7 @@ export class BellSymphonyGame extends BaseGame {
     this.songIntroTimer = 0;
 
     this.recalculateLayout();
+    this.setupKeyboard();
 
     // Multitouch en pantalla
     this.input.onPointerDown = (pointerId: number, x: number, y: number) => {
@@ -448,6 +431,7 @@ export class BellSymphonyGame extends BaseGame {
       try {
         this.bgAudioElement.pause();
         this.bgAudioElement.currentTime = 0;
+        this.bgAudioElement.onloadedmetadata = null;
         this.bgAudioElement.onended = null;
         this.bgAudioElement.onerror = null;
         this.bgAudioElement.removeAttribute("src");
@@ -474,7 +458,6 @@ export class BellSymphonyGame extends BaseGame {
     this.setSubKey(subKey);
 
     this.showLives = true;
-    this.isCustomChartPlaying = false;
     this.bpm = song.bpm;
     this.noteSpeed = Math.round(song.speed * diffCfg.speedMultiplier);
     this.currentTime = 0;
@@ -505,25 +488,25 @@ export class BellSymphonyGame extends BaseGame {
       const safeAudioUrl = `./assets/audio/${song.audioFile.split("/").map(encodeURIComponent).join("/")}`;
       this.bgAudioElement = new Audio(safeAudioUrl);
       this.bgAudioElement.volume = 0.82;
-      this.bgAudioElement.addEventListener("loadedmetadata", () => {
+      this.bgAudioElement.onloadedmetadata = () => {
         if (this.bgAudioElement && !isNaN(this.bgAudioElement.duration) && this.bgAudioElement.duration > 5) {
           this.songDuration = Math.max(this.songDuration, this.bgAudioElement.duration + 1.2);
         }
-      });
-      this.bgAudioElement.addEventListener("ended", () => {
+      };
+      this.bgAudioElement.onended = () => {
         if (this.gameState === "playing" && !this.isGameOver) {
           const hasPendingNotes = this.notes.some(n => !n.hit && !n.missed && n.targetTime >= this.currentTime - 0.2);
           const delay = hasPendingNotes ? 1400 : 500;
-          setTimeout(() => {
+          this.setGameTimeout(() => {
             if (this.gameState === "playing" && !this.isGameOver) {
               this.endGame();
             }
           }, delay);
         }
-      });
-      this.bgAudioElement.addEventListener("error", (e) => {
+      };
+      this.bgAudioElement.onerror = (e) => {
         console.error("❌ Error cargando pista de audio:", safeAudioUrl, e);
-      });
+      };
       // Audio precargado listo para reproducirse cuando termine la cuenta regresiva
     } catch (e) {
       console.error("Error al inicializar Audio:", e);
@@ -555,11 +538,7 @@ export class BellSymphonyGame extends BaseGame {
     this.particles.clear();
     this.recalculateLayout();
 
-    if (this.isCustomChartPlaying && this.lastCustomNotes.length > 0) {
-      this.startCustomChart(this.lastCustomNotes, this.lastCustomSongFile, this.bpm);
-    } else {
-      this.startSong(this.selectedSongIndex);
-    }
+    this.startSong(this.selectedSongIndex, this.selectedDifficulty);
   }
 
   public goToSongSelect(): void {
@@ -575,123 +554,6 @@ export class BellSymphonyGame extends BaseGame {
     this.start();
   }
 
-  public openChartEditor(defaultSongFile?: string, initialNotes?: ChartNoteRecord[]): void {
-    this.stopSongAudio();
-    const song = this.songList[this.selectedSongIndex];
-    const file = defaultSongFile || (this.isCustomChartPlaying ? this.lastCustomSongFile : (song ? song.audioFile : "juego campanas/God Rest Ye Merry Metalmen.mp3"));
-    const notes = initialNotes || (this.lastCustomNotes.length > 0 ? this.lastCustomNotes : undefined);
-    this.chartEditor.show(file, notes);
-  }
-
-  public startCustomChart(customNotes: ChartNoteRecord[], songFile: string, bpm: number): void {
-    const cleanCustomNotes = sanitizeChartNotes(customNotes, this.selectedDifficulty);
-    this.isCustomChartPlaying = true;
-    this.lastCustomNotes = [...cleanCustomNotes];
-    this.lastCustomSongFile = songFile;
-    this.setSubKey("custom");
-    this.currentTargetMaxScore = this.calculateMaxScoreForChart(cleanCustomNotes, this.selectedDifficulty);
-
-    const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
-    this.bpm = bpm;
-    this.noteSpeed = Math.round(520 * diffCfg.speedMultiplier);
-    this.currentTime = 0;
-    this.combo = 0;
-    this.maxCombo = 0;
-    this.perfectCount = 0;
-    this.greatCount = 0;
-    this.goodCount = 0;
-    this.missCount = 0;
-    this.maxLives = diffCfg.lives;
-    this.lives = this.maxLives;
-    this.activeJudgements = [];
-    this.lastMissLifeLossTime = -1;
-    this.starPowerTimer = 0;
-    this.isStarPowerActive = false;
-    this.activeStarPowerSponsorId = "feria";
-    this.songIntroTimer = this.SONG_INTRO_DURATION;
-    this.lanePressed = [false, false, false, false];
-    this.activePointerLanes.clear();
-
-    const lastNoteTime = cleanCustomNotes.length > 0 ? cleanCustomNotes[cleanCustomNotes.length - 1].time + (cleanCustomNotes[cleanCustomNotes.length - 1].duration || 0) + 3.0 : 120;
-    this.songDuration = Math.max(120, lastNoteTime);
-
-    this.audio.stopMenuBGM();
-    this.audio.setGameActive(true);
-    this.stopSongAudio();
-
-    try {
-      const safeAudioUrl = `./assets/audio/${songFile.split("/").map(encodeURIComponent).join("/")}`;
-      this.bgAudioElement = new Audio(safeAudioUrl);
-      this.bgAudioElement.volume = 0.82;
-      this.bgAudioElement.addEventListener("loadedmetadata", () => {
-        if (this.bgAudioElement && !isNaN(this.bgAudioElement.duration) && this.bgAudioElement.duration > 5) {
-          this.songDuration = Math.max(this.bgAudioElement.duration + 1.2, lastNoteTime);
-        }
-      });
-      this.bgAudioElement.addEventListener("ended", () => {
-        if (this.gameState === "playing" && !this.isGameOver) {
-          const hasPendingNotes = this.notes.some(n => !n.hit && !n.missed && n.targetTime >= this.currentTime - 0.2);
-          const delay = hasPendingNotes ? 1400 : 500;
-          setTimeout(() => {
-            if (this.gameState === "playing" && !this.isGameOver) {
-              this.endGame();
-            }
-          }, delay);
-        }
-      });
-      this.bgAudioElement.addEventListener("error", (e) => {
-        console.error("❌ Error cargando pista de audio personalizada:", safeAudioUrl, e);
-      });
-    } catch {
-      this.bgAudioElement = null;
-    }
-
-    this.notes = [];
-    let noteId = 0;
-    let starCount = 0;
-    const allSponsors = BRANDING.getAllSponsors();
-    for (const item of cleanCustomNotes) {
-      let logoType: 1 | 2 = 1;
-      let sponsorId: string | undefined = undefined;
-      if (item.isStar) {
-        const sponsor = allSponsors[starCount % allSponsors.length];
-        sponsorId = sponsor.id;
-        starCount++;
-        logoType = sponsor.id === "campus" ? 2 : 1;
-      }
-      const dur = item.duration && item.duration > 0 ? item.duration : 0;
-      this.notes.push({
-        id: noteId++,
-        lane: item.lane,
-        targetTime: item.time,
-        duration: dur,
-        type: dur > 0 ? "sustain" : "normal",
-        hit: false,
-        missed: false,
-        isHolding: false,
-        holdStartTime: 0,
-        holdDuration: 0,
-        sustainCompleted: false,
-        sustainFailed: false,
-        lastScoreTickTime: 0,
-        isStar: item.isStar || false,
-        logoType: item.isStar ? logoType : undefined,
-        sponsorId
-      });
-    }
-
-    this.gameState = "countdown";
-    const mainContainer = document.getElementById("kiosk-main") || document.body;
-    ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
-      this.gameState = "playing";
-      this.currentTime = 0;
-      if (!this.audio.getIsMuted() && this.bgAudioElement) {
-        this.bgAudioElement.currentTime = 0;
-        this.bgAudioElement.play().catch(() => {});
-      }
-      this.particles.emitConfetti(this.width, 35);
-    });
-  }
 
   /**
    * Cálculo responsive unificado para la pantalla de selección de canciones
@@ -709,8 +571,6 @@ export class BellSymphonyGame extends BaseGame {
     startY: number;
     gap: number;
     cardH: number;
-    editorBtnY: number;
-    editorBtnH: number;
     count: number;
   } {
     const cx = this.width / 2;
@@ -735,8 +595,6 @@ export class BellSymphonyGame extends BaseGame {
     const gap = isShort ? 2 : (isLandscape ? 3 : Math.max(4, Math.min(6, this.height * 0.007)));
     const cardH = Math.min(50, Math.max(isShort ? 24 : (isLandscape ? 28 : 34), (availableSongArea - (count - 1) * gap) / (count + 0.95)));
 
-    const editorBtnY = startY + count * (cardH + gap) + (isShort ? 3 : (isLandscape ? 4 : 8));
-    const editorBtnH = Math.min(40, Math.max(isShort ? 22 : (isLandscape ? 26 : 34), cardH * 0.88));
 
     return {
       cx,
@@ -751,8 +609,6 @@ export class BellSymphonyGame extends BaseGame {
       startY,
       gap,
       cardH,
-      editorBtnY,
-      editorBtnH,
       count
     };
   }
@@ -785,12 +641,6 @@ export class BellSymphonyGame extends BaseGame {
         this.startSong(i);
         return;
       }
-    }
-
-    // Botón de Modo Grabador / Editor de Canción
-    if (x >= layout.cardX && x <= layout.cardX + layout.cardW && y >= layout.editorBtnY && y <= layout.editorBtnY + layout.editorBtnH) {
-      this.audio.playTap();
-      this.openChartEditor();
     }
   }
 
@@ -828,7 +678,6 @@ export class BellSymphonyGame extends BaseGame {
         else if (e.key === "5") this.startSong(4);
         else if (e.key === "6") this.startSong(5);
         else if (e.key === "7" && this.songList.length >= 7) this.startSong(6);
-        else if (e.key === "x" || e.key === "X") this.openChartEditor();
         else if (e.key === "Enter" || e.key === " ") this.startSong(this.selectedSongIndex);
         return;
       }
@@ -859,6 +708,12 @@ export class BellSymphonyGame extends BaseGame {
       }
     };
 
+    if (this.keydownHandler) {
+      window.removeEventListener("keydown", this.keydownHandler);
+    }
+    if (this.keyupHandler) {
+      window.removeEventListener("keyup", this.keyupHandler);
+    }
     window.addEventListener("keydown", this.keydownHandler);
     window.addEventListener("keyup", this.keyupHandler);
   }
@@ -1240,18 +1095,40 @@ export class BellSymphonyGame extends BaseGame {
         this.maxCombo = this.combo;
       }
     } else {
-      // Si no tocó al inicio e intenta presionar durante la mitad del cuerpo de una nota sostenida: se cuenta como MISS
+      // PENALIZACIÓN POR TOCAR EN VACÍO:
+      // Si el jugador pulsa sin que exista una nota válida en la ventana, se descuenta 1 vida y se rompe el combo
+      this.combo = 0;
+      this.missCount++;
+      this.spawnJudgement("MISS", "#E53935", laneCenterX);
+      this.particles.emitBurst(laneCenterX, this.hitLineY, "#E53935", 8);
+      this.audio.playError();
+      this.triggerShake(0.12, 4);
+
+      // Si intentó presionar en la mitad del cuerpo de un sustain no tomado a tiempo:
       for (const note of this.notes) {
         if (note.lane === lane && !note.hit && !note.sustainCompleted) {
           if (note.type === "sustain" && this.currentTime > note.targetTime + 0.24 && this.currentTime < note.targetTime + note.duration + 0.15) {
             note.sustainFailed = true;
-            this.spawnJudgement("¡TARDE / MISS!", "#FF1744", laneCenterX);
-            this.particles.emitBurst(laneCenterX, this.hitLineY, "#FF1744", 8);
-            this.audio.playError();
-            this.triggerShake(0.12, 4);
             break;
           }
         }
+      }
+
+      // Deducción de -1 vida (con protección anti-doble penalización en ráfagas o simultáneas < 0.20s)
+      if (this.songIntroTimer <= 0 && this.currentTime > 0.5) {
+        if (this.lastMissLifeLossTime < 0 || this.currentTime - this.lastMissLifeLossTime >= 0.20) {
+          this.lives = Math.max(0, this.lives - 1);
+          this.lastMissLifeLossTime = this.currentTime;
+        }
+      }
+
+      if (this.lives <= 0) {
+        this.addFloatingText("¡SIN CAMPANAS!", this.width / 2, this.height * 0.45, "#FF1744", 1.8);
+        this.setGameTimeout(() => {
+          if (this.gameState === "playing" && !this.isGameOver) {
+            this.endGame();
+          }
+        }, 300);
       }
     }
   }
@@ -1534,13 +1411,20 @@ export class BellSymphonyGame extends BaseGame {
       if (this.songIntroTimer < 0) this.songIntroTimer = 0;
     }
 
-    // Temporizador de Modo Estrella
+    // Temporizador de Modo Estrella sincronizado con Logo Power-Up
     if (this.isStarPowerActive) {
       this.starPowerTimer -= dt;
       if (this.starPowerTimer <= 0) {
         this.isStarPowerActive = false;
         this.starPowerTimer = 0;
+        this.isLogoPowerUpActive = false;
+        this.logoPowerUpTimer = 0;
+      } else {
+        this.logoPowerUpTimer = this.starPowerTimer;
       }
+    } else if (this.isLogoPowerUpActive) {
+      this.isLogoPowerUpActive = false;
+      this.logoPowerUpTimer = 0;
     }
 
     this.beatPulse = (this.currentTime * (this.bpm / 60)) % 1.0;
@@ -1595,7 +1479,7 @@ export class BellSymphonyGame extends BaseGame {
 
           if (this.lives <= 0) {
             this.addFloatingText("¡SIN CAMPANAS!", this.width / 2, this.height * 0.45, "#FF1744", 1.8);
-            setTimeout(() => {
+            this.setGameTimeout(() => {
               this.endGame();
             }, 300);
             return;
@@ -2389,34 +2273,6 @@ export class BellSymphonyGame extends BaseGame {
       }
     }
 
-    // Botón Modo Grabador / Editor
-    const editorBtnY = layout.editorBtnY;
-    const editorBtnH = layout.editorBtnH;
-
-    const btnGrad = ctx.createLinearGradient(cardX, editorBtnY, cardX + cardW, editorBtnY);
-    btnGrad.addColorStop(0, "#FF8F00");
-    btnGrad.addColorStop(0.5, "#FFD700");
-    btnGrad.addColorStop(1, "#FF8F00");
-
-    ctx.fillStyle = btnGrad;
-    ctx.beginPath();
-    ctx.roundRect(cardX, editorBtnY, cardW, editorBtnH, 12);
-    ctx.fill();
-
-    ctx.lineWidth = 2.0;
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.stroke();
-
-    ctx.font = `900 ${Math.max(10, Math.min(13, editorBtnH * 0.35))}px 'Outfit', sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#041424";
-    ctx.fillText("MODO GRABADOR / EDITOR DE RITMO", cx, editorBtnY + editorBtnH * 0.38);
-
-    ctx.font = `700 ${Math.max(8, Math.min(10, editorBtnH * 0.25))}px 'Outfit', sans-serif`;
-    ctx.fillStyle = "#041424";
-    ctx.fillText("Graba notas normales y sostenidas • Pulsa [ X ]", cx, editorBtnY + editorBtnH * 0.74);
-
     ctx.restore();
   }
 
@@ -2518,7 +2374,7 @@ export class BellSymphonyGame extends BaseGame {
     const rankInfo = this.calculateRank(true);
     const song = this.songList[this.selectedSongIndex];
     const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
-    const subKey = this.isCustomChartPlaying ? "custom" : `${song?.id || "default"}_${this.selectedDifficulty}`;
+    const subKey = `${song?.id || "default"}_${this.selectedDifficulty}`;
 
     // Guardar el mejor rango obtenido para esta canción y dificultad
     StorageManager.saveBestRank(this.id, subKey, rankInfo.rank);
@@ -2528,11 +2384,10 @@ export class BellSymphonyGame extends BaseGame {
     const finalMissCount = this.notes.length > 0 ? Math.max(this.missCount, totalNotesCount - totalHit) : this.missCount;
 
     super.endGame({
-      isCustomChart: this.isCustomChartPlaying,
-      customNotes: this.lastCustomNotes.length > 0 ? this.lastCustomNotes : undefined,
-      songFile: this.isCustomChartPlaying ? this.lastCustomSongFile : (song?.audioFile || "juego campanas/God Rest Ye Merry Metalmen.mp3"),
-      songTitle: this.isCustomChartPlaying ? "Partitura Personalizada" : (song?.title || "Sinfonía de Campanas"),
-      songArtist: this.isCustomChartPlaying ? "Creador de Ritmo" : (song?.artist || "Alexander Nakarada"),
+      isCustomChart: false,
+      songFile: song?.audioFile || "juego campanas/God Rest Ye Merry Metalmen.mp3",
+      songTitle: song?.title || "Sinfonía de Campanas",
+      songArtist: song?.artist || "Alexander Nakarada",
       difficulty: this.selectedDifficulty,
       difficultyLabel: diffCfg.label,
       difficultyColor: diffCfg.color,
@@ -2552,9 +2407,28 @@ export class BellSymphonyGame extends BaseGame {
     });
   }
 
+  /**
+   * La canción es la referencia de tiempo del ritmo: si la página se oculta hay que
+   * pausarla también, o al volver las notas habrían avanzado sin el jugador.
+   */
+  public override onPageHidden(): void {
+    super.onPageHidden();
+    if (this.bgAudioElement && !this.bgAudioElement.paused) {
+      this.bgAudioElement.pause();
+      this.songAudioPausedByVisibility = true;
+    }
+  }
+
+  public override onPageVisible(): void {
+    super.onPageVisible();
+    if (this.songAudioPausedByVisibility && this.bgAudioElement && this.isRunning && !this.isGameOver) {
+      this.bgAudioElement.play().catch(() => {});
+    }
+    this.songAudioPausedByVisibility = false;
+  }
+
   public override destroy(): void {
     super.destroy();
-    this.chartEditor.hide();
     this.stopSongAudio();
     if (this.keydownHandler) {
       window.removeEventListener("keydown", this.keydownHandler);

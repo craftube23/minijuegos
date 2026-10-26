@@ -1,1098 +1,995 @@
 /**
  * ==============================================================================
- * JUEGO: 🎁 TORRE DE REGALOS MÁGICA (Magical Holiday Gift Tower - Pro Edition)
+ * JUEGO: ¡TORRE DE REGALOS MÁGICA! (Magical Holiday Gift Tower - Deluxe Edition)
  * ==============================================================================
- * 
- * Experiencia arcade festiva de física, precisión y corte limpio en estilo 
- * Stylized 2D Game Concept Art (Supercell / Disney Klaus):
- * - Fondo panorámico de la Villa Navideña nevada y cielo de auroras con scroll parallax.
- * - Pedestal tallado en madera noble de caoba con guirnaldas, campanas doradas y cojín de nieve.
- * - Sprites de regalos ilustrados en alta definición: Rubí terciopelo, Esmeralda pino, Zafiro real y Oro celestial.
- * - Corte y rebanado físico preciso (Slicing): El desborde se rebana limpiamente y cae al abismo con física.
- * - Sin regalos flotantes: Si falla el soporte, el regalo cae al vacío; si aterriza, se ajusta al bloque inferior.
- * - Cajas de Patrocinadores Oficiales (Cajasan, Practi, Campus, etc.) con placas talladas y superpoder de expansión.
- * - Grúa fija en el marco superior con péndulo armónico continuo.
- * - Modo Fiebre Navideña x2 con escala musical pentatónica ascendente.
+ *
+ * Apilador arcade de alta fidelidad estilo Tower Bloxx / Icy Tower / Stacker:
+ * - Estética Stylized 2D Game Art / Fantasy Game Concept Art (Supercell / Disney Klaus).
+ * - Grúa mecánica navideña con carro de vapor y engranajes dorados (grua-carro-navideno.webp).
+ * - Garra mecánica festiva articulada con apertura elástica (garra-gancho-navideno.webp).
+ * - Mecánica clásica de Stacker con rebanado físico de sobrantes (overhang slicing):
+ *     * ¡Alineación Perfecta (<= 4px)! Destello magnético, notas musicales en escala
+ *       y expansión restauradora de la base.
+ *     * Rebanado: El exceso que desborde se corta en tiempo real y cae al abismo rotando.
+ *     * Caída al vacío: Si el paquete no toca la torre, se precipita y cuesta 1 vida.
+ * - Fiebre Navideña (Fever Mode): 3 alineaciones perfectas consecutivas activan
+ *     puntos dobles (x2), lluvia de chispas doradas y guirnaldas resplandecientes.
+ * - Variedad de regalos temáticos:
+ *     * Cajas clásicas: Rojo Carmesí, Verde Pino, Azul Boreal.
+ *     * Regalo Dorado de Patrocinador (cada 5 pisos): +500 pts y expansión masiva de la torre.
+ *     * Regalo Joyero Real (regalo-estilizado-morado.webp): +750 pts y fuegos artificiales.
+ *     * Caja Reloj Mágico: Restaura +1 Vida o +10s de tiempo.
+ * - Balanceo y física pendular de la torre según el centro de masas.
+ * - Hitos de altura con banners celebratorios y fanfarria cada 5 pisos.
+ * - Sin emojis en canvas, HUD o código.
  */
 
 import { BaseGame } from "../core/BaseGame";
-import { InputManager } from "../core/InputManager";
-import { AudioManager } from "../core/AudioManager";
-import { ParticleSystem } from "../core/ParticleSystem";
-import { BRANDING } from "../config/branding";
-import { Haptics } from "../utils/haptics";
+import type { InputManager } from "../core/InputManager";
+import type { AudioManager } from "../core/AudioManager";
+import type { ParticleSystem } from "../core/ParticleSystem";
+import { drawNightSky, drawPill, drawSponsorMedallion, imgReady, makeSkyStars, roundRectPath } from "./shared/gameDraw";
+import type { SkyStar } from "./shared/gameDraw";
 
-export type BoxSpriteType = "rojo" | "verde" | "azul" | "dorado" | "sponsor";
-
-export interface StackedGift {
-  id: number;
-  x: number; // Centro X en el mundo
-  y: number; // Borde superior Y en el mundo
+interface TowerBlock {
+  cx: number;
   width: number;
-  height: number;
-  spriteType: BoxSpriteType;
-  srcNormX: number; // Proporción X en el sprite (0 a 1)
-  srcNormW: number; // Proporción de ancho en el sprite (0 a 1)
-  isPerfect: boolean;
-  isSponsor: boolean;
-  sponsorId?: string;
+  bottom: number; // Y de mundo de la base de la caja
+  kind: number; // 0: rojo, 1: verde, 2: azul, 3: dorado, 4: morado real, 5: reloj
+  gold: boolean;
+  royal: boolean;
+  clock: boolean;
+  logo?: HTMLImageElement;
   sponsorName?: string;
-  settleProgress: number; // Squash & stretch al aterrizar
-  wobbleX: number;
+  squash: number;
+  perfect: boolean;
+  swayFactor: number;
 }
 
-export interface TumblingBox {
+interface DroppingBlock {
+  cx: number;
+  width: number;
+  bottom: number;
+  vy: number;
+  kind: number;
+  gold: boolean;
+  royal: boolean;
+  clock: boolean;
+  logo?: HTMLImageElement;
+  sponsor?: string;
+}
+
+interface SlicedPiece {
   x: number;
   y: number;
   width: number;
   height: number;
-  spriteType: BoxSpriteType;
-  srcNormX: number;
-  srcNormW: number;
   vx: number;
   vy: number;
-  rotation: number;
-  vRot: number;
+  rot: number;
+  vr: number;
+  kind: number;
   alpha: number;
-  isSponsor: boolean;
-  sponsorId?: string;
 }
 
-export interface ActiveDroppingGift {
-  x: number; // Centro X en el mundo
-  y: number; // Borde superior Y en el mundo
+interface FallingBlock {
+  x: number;
+  y: number;
   width: number;
   height: number;
-  spriteType: BoxSpriteType;
   vx: number;
   vy: number;
-  rotation: number;
-  vRot?: number;
-  hasMissed?: boolean;
-  isSponsor: boolean;
-  sponsorId?: string;
-  sponsorName?: string;
+  rot: number;
+  vr: number;
+  kind: number;
+  gold: boolean;
+}
+
+interface MilestoneBanner {
+  title: string;
+  subtitle: string;
+  timer: number;
+  maxTimer: number;
 }
 
 export class GiftTowerGame extends BaseGame {
-  // Sprites e Ilustraciones 2D Stylized Game Concept Art
-  private bgVillaImage: HTMLImageElement;
-  private pedestalImage: HTMLImageElement;
-  private spriteGiftRed: HTMLImageElement;
-  private spriteGiftGreen: HTMLImageElement;
-  private spriteGiftBlue: HTMLImageElement;
-  private spriteGiftGold: HTMLImageElement;
+  // Recursos visuales
+  private bgImage: HTMLImageElement;
+  private spritePedestal: HTMLImageElement;
+  private spriteTrolley: HTMLImageElement;
+  private spriteClaw: HTMLImageElement;
+  private boxSprites: HTMLImageElement[] = [];
+  private spriteClock: HTMLImageElement;
+  private sponsors: { name: string; logo: HTMLImageElement }[] = [];
+  private stars: SkyStar[] = makeSkyStars(90);
 
-  // Grúa / Péndulo Oscilante (Fijo en la parte superior de la pantalla)
-  private swingAngle: number = 0;
-  private swingSpeed: number = 2.3;
-  private swingAmplitude: number = 0.54;
-  private swingTime: number = 0;
-  private ropeLength: number = 130;
-  private readonly craneScreenAnchorY: number = 72; // Fijo en pantalla
-  private isSwinging: boolean = true;
+  // Entidades del mundo
+  private blocks: TowerBlock[] = [];
+  private falling: FallingBlock[] = [];
+  private slices: SlicedPiece[] = [];
+  private dropping: DroppingBlock | null = null;
+  private activeBanner: MilestoneBanner | null = null;
 
-  // Cajas y Torre
-  private stackedGifts: StackedGift[] = [];
-  private tumblingGifts: TumblingBox[] = [];
-  private activeDroppingGift: ActiveDroppingGift | null = null;
-  private nextGiftId: number = 1;
+  // Geometría y dimensiones
+  private initialBw = 120; // ancho inicial de caja
+  private currentBw = 120; // ancho activo actual
+  private minAllowedBw = 36; // límite mínimo de ancho
+  private groundY = 0; // superficie del pedestal (mundo)
+  private towerTopY = 0; // Y de mundo de apoyo
+  private cameraY = 0;
 
-  // Configuración de tamaño de cajas
-  private baseBoxWidth: number = 190;
-  private boxHeight: number = 133;
+  // Grúa pendular y oscilación
+  private swingT = 0;
+  private swingSpeed = 1.45;
+  private clawOpenTimer = 0;
 
-  // Próximo regalo en la grúa
-  private currentGiftSprite: BoxSpriteType = "rojo";
-  private nextIsSponsor: boolean = false;
-  private nextSponsorId?: string;
-  private nextSponsorName?: string;
-  private giftSpawnCount: number = 0;
+  // Próximo paquete
+  private nextKind = 0;
+  private nextGold = false;
+  private nextRoyal = false;
+  private nextClock = false;
+  private nextSponsor: { name: string; logo: HTMLImageElement } | null = null;
 
-  // Base / Pedestal
-  private basePlatformY: number = 0;
-  private basePlatformWidth: number = 360;
-  private basePlatformHeight: number = 120;
+  // Racha y modos especiales
+  private combo = 0;
+  private isFeverMode = false;
+  private feverTimer = 0;
+  private locked = false;
+  private animClock = 0;
 
-  // Cámara suave y Altitud
-  private cameraY: number = 0;
-  private targetCameraY: number = 0;
-  private maxAltitudeMeters: number = 0;
-
-  // Mecánicas de Combo & Fiebre Navideña
-  private combo: number = 0;
-  private maxCombo: number = 0;
-  private perfectCount: number = 0;
-  private feverTimer: number = 0;
-  private isFeverActive: boolean = false;
-
-  // Balanceo elástico de la torre
-  private towerSwayPhase: number = 0;
-  private towerSwayIntensity: number = 0;
-
-  // Sonidos sintetizados
-  private audioContext: AudioContext | null = null;
-
-  constructor(
-    canvas: HTMLCanvasElement,
-    input: InputManager,
-    audio: AudioManager,
-    particles: ParticleSystem
-  ) {
+  constructor(canvas: HTMLCanvasElement, input: InputManager, audio: AudioManager, particles: ParticleSystem) {
     super(
       "gift-tower",
-      "Torre de Regalos Mágica",
-      "¡Toca la pantalla para soltar los paquetes navideños y construye la torre más alta hacia las estrellas!",
+      "¡Torre de Regalos Mágica!",
+      "¡Toca para soltar cada paquete y apílalos con precisión milimétrica hacia las estrellas!",
       canvas,
       input,
       audio,
       particles
     );
 
-    this.inGameMusicPath = "./assets/audio/The Builder.mp3";
-    this.inGameMusicVolume = 0.48;
-    this.showLives = true;
-    this.maxLives = 3;
+    this.inGameMusicPath = "./assets/audio/We Wish You a Merry Christmas.mp3";
+    this.inGameMusicVolume = 0.45;
+
+    // Carga de fondos y sprites Stylized 2D Game Concept Art
+    this.bgImage = this.getImage("./assets/images/fondo-nieve.webp");
+    this.spritePedestal = this.getImage("./assets/images/pedestal-torre-regalos.webp");
+    this.spriteTrolley = this.getImage("./assets/images/grua-carro-navideno.webp");
+    this.spriteClaw = this.getImage("./assets/images/garra-gancho-navideno.webp");
+    this.spriteClock = this.getImage("./assets/images/reloj-magico-tiempo.webp");
+
+    this.boxSprites = [
+      this.getImage("./assets/images/regalo-estilizado-rojo.webp"),
+      this.getImage("./assets/images/regalo-estilizado-verde.webp"),
+      this.getImage("./assets/images/regalo-estilizado-azul.webp"),
+      this.getImage("./assets/images/regalo-estilizado-dorado.webp"),
+      this.getImage("./assets/images/regalo-estilizado-morado.webp")
+    ];
+
+    this.sponsors = [
+      { name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.webp") },
+      { name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.webp") },
+      { name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.webp") },
+      { name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.webp") }
+    ];
+  }
+
+  // ==========================================================================
+  // GEOMETRÍA
+  // ==========================================================================
+  private get boxH(): number {
+    return this.initialBw * 1.15;
+  }
+
+  private get step(): number {
+    return this.boxH * 0.72;
+  }
+
+  private get swingAmp(): number {
+    return Math.max(20, this.width * 0.5 - this.currentBw * 0.65);
+  }
+
+  private computeLayout(): void {
+    const w = this.width > 0 ? this.width : 800;
+    const h = this.height > 0 ? this.height : 600;
+    this.initialBw = Math.max(86, Math.min(136, Math.round(Math.min(w * 0.22, h * 0.19))));
+    this.minAllowedBw = Math.round(this.initialBw * 0.28);
+    this.groundY = h * 0.84;
+  }
+
+  // ==========================================================================
+  // CICLO DE VIDA
+  // ==========================================================================
+  protected onStart(): void {
+    this.computeLayout();
+    this.score = 0;
+    this.combo = 0;
+    this.isFeverMode = false;
+    this.feverTimer = 0;
     this.lives = 3;
+    this.maxLives = 3;
+    this.showLives = true;
+    this.locked = false;
+    this.blocks = [];
+    this.falling = [];
+    this.slices = [];
+    this.dropping = null;
+    this.activeBanner = null;
+    this.cameraY = 0;
+    this.swingT = 0;
+    this.swingSpeed = 1.45;
+    this.animClock = 0;
+    this.clawOpenTimer = 0;
+    this.currentBw = this.initialBw;
 
-    // Cargar sprites Stylized 2D Game Concept Art
-    this.bgVillaImage = new Image();
-    this.bgVillaImage.src = "./assets/images/fondo-villa-montanas.jpg";
+    // Caja base ya colocada sobre el pedestal festivo
+    const baseCx = this.width / 2;
+    this.blocks.push({
+      cx: baseCx,
+      width: this.initialBw,
+      bottom: this.groundY + 4,
+      kind: 0,
+      gold: false,
+      royal: false,
+      clock: false,
+      squash: 0,
+      perfect: true,
+      swayFactor: 0
+    });
+    this.towerTopY = this.groundY + 4 - this.step;
+    this.prepareNext();
 
-    this.pedestalImage = new Image();
-    this.pedestalImage.src = "./assets/images/pedestal-torre-regalos.png";
+    // Controles táctiles y de teclado
+    this.input.onTap = () => this.dropBlock();
 
-    this.spriteGiftRed = new Image();
-    this.spriteGiftRed.src = "./assets/images/regalo-estilizado-rojo.png";
+    window.removeEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("keydown", this.handleKeyDown);
 
-    this.spriteGiftGreen = new Image();
-    this.spriteGiftGreen.src = "./assets/images/regalo-estilizado-verde.png";
-
-    this.spriteGiftBlue = new Image();
-    this.spriteGiftBlue.src = "./assets/images/regalo-estilizado-azul.png";
-
-    this.spriteGiftGold = new Image();
-    this.spriteGiftGold.src = "./assets/images/regalo-estilizado-dorado.png";
-
-    this.initAudioContext();
+    this.addFloatingText("¡TOCA PARA SOLTAR!", this.width * 0.5, this.height * 0.42, "#FFD700", 1.4);
   }
 
-  private initAudioContext(): void {
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioCtx) {
-        this.audioContext = new AudioCtx();
-      }
-    } catch {}
+  public override destroy(): void {
+    super.destroy();
+    this.input.onTap = undefined;
+    window.removeEventListener("keydown", this.handleKeyDown);
+    this.blocks = [];
+    this.falling = [];
+    this.slices = [];
+    this.dropping = null;
+    this.activeBanner = null;
   }
 
-  private playTone(freq: number, duration: number = 0.25, type: OscillatorType = "sine", gainVal: number = 0.28): void {
-    if (!this.audioContext || this.audio.getIsMuted()) return;
-    try {
-      if (this.audioContext.state === "suspended") {
-        this.audioContext.resume();
-      }
-      const osc = this.audioContext.createOscillator();
-      const gain = this.audioContext.createGain();
-
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, this.audioContext.currentTime);
-
-      gain.gain.setValueAtTime(gainVal, this.audioContext.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
-
-      osc.connect(gain);
-      gain.connect(this.audioContext.destination);
-
-      osc.start();
-      osc.stop(this.audioContext.currentTime + duration);
-    } catch {}
+  public override resize(width: number, height: number): void {
+    super.resize(width, height);
+    this.computeLayout();
   }
 
-  private playChimeScale(step: number): void {
-    const freqs = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51];
-    const freq = freqs[Math.min(step, freqs.length - 1)];
-    this.playTone(freq, 0.38, "sine", 0.30);
-    setTimeout(() => this.playTone(freq * 2, 0.22, "triangle", 0.16), 35);
-  }
-
-  private handleKeyDownBound = (e: KeyboardEvent): void => {
-    if (e.code === "Space" || e.code === "Enter" || e.code === "ArrowDown") {
+  private handleKeyDown = (e: KeyboardEvent): void => {
+    if (e.code === "Space" || e.key === "Enter" || e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
-      this.handlePlayerDrop();
+      this.dropBlock();
     }
   };
 
-  protected onStart(): void {
-    this.lives = this.maxLives;
-    this.stackedGifts = [];
-    this.tumblingGifts = [];
-    this.activeDroppingGift = null;
-    this.nextGiftId = 1;
-    this.giftSpawnCount = 0;
-    this.combo = 0;
-    this.maxCombo = 0;
-    this.perfectCount = 0;
-    this.feverTimer = 0;
-    this.isFeverActive = false;
-    this.swingTime = 0;
-    this.swingAngle = 0;
-    this.towerSwayPhase = 0;
-    this.towerSwayIntensity = 0;
-    this.maxAltitudeMeters = 0;
+  /**
+   * Prepara el siguiente bloque y selecciona tipo especial según progresión
+   */
+  private prepareNext(): void {
+    const floors = this.blocks.length;
 
-    // Dimensionamiento adaptativo proporcional al arte estilizado 2D
-    this.baseBoxWidth = Math.min(220, Math.max(165, this.width * 0.36));
-    this.boxHeight = Math.round(this.baseBoxWidth * 0.70); // Proporción natural ~0.9 de los regalos con moño
-    this.basePlatformWidth = Math.min(380, Math.max(260, this.width * 0.50));
-    this.basePlatformHeight = Math.round(this.basePlatformWidth * 0.36);
-    this.basePlatformY = this.height - this.basePlatformHeight - 12; // Base firme visible por encima de la barra inferior
-    this.ropeLength = Math.min(180, Math.max(130, this.height * 0.22));
-    this.swingAmplitude = 0.82; // Arco de balanceo amplio y generoso para apuntar con precisión
+    this.nextGold = floors > 0 && floors % 5 === 0;
+    this.nextRoyal = !this.nextGold && (this.isFeverMode || (floors > 0 && floors % 8 === 0));
+    this.nextClock = !this.nextGold && !this.nextRoyal && floors > 3 && Math.random() < 0.16;
 
-    this.cameraY = 0;
-    this.targetCameraY = 0;
-
-    this.prepareNextCraneBox();
-
-    this.input.onPointerDown = (_pointerId: number, _x: number, _y: number) => {
-      this.handlePlayerDrop();
-    };
-
-    window.addEventListener("keydown", this.handleKeyDownBound);
-  }
-
-  public resize(width: number, height: number): void {
-    super.resize(width, height);
-    this.baseBoxWidth = Math.min(220, Math.max(165, this.width * 0.36));
-    this.boxHeight = Math.round(this.baseBoxWidth * 0.70);
-    this.basePlatformWidth = Math.min(380, Math.max(260, this.width * 0.50));
-    this.basePlatformHeight = Math.round(this.basePlatformWidth * 0.36);
-    this.basePlatformY = this.height - this.basePlatformHeight - 12;
-    this.ropeLength = Math.min(180, Math.max(130, this.height * 0.22));
-  }
-
-  private prepareNextCraneBox(): void {
-    this.isSwinging = true;
-    this.giftSpawnCount++;
-
-    // ¿Es caja de patrocinador oficial? (Cada 6 cajas)
-    if (this.giftSpawnCount > 1 && this.giftSpawnCount % 6 === 0) {
-      this.nextIsSponsor = true;
-      const sponsors = BRANDING.getAllSponsors();
-      const sponsor = sponsors[Math.floor(Math.random() * sponsors.length)];
-      this.nextSponsorId = sponsor.id;
-      this.nextSponsorName = sponsor.shortName;
-      this.currentGiftSprite = "sponsor";
+    if (this.nextGold) {
+      this.nextSponsor = this.sponsors[Math.floor(Math.random() * this.sponsors.length)];
+      this.nextKind = 3;
+    } else if (this.nextRoyal) {
+      this.nextSponsor = null;
+      this.nextKind = 4;
     } else {
-      this.nextIsSponsor = false;
-      this.nextSponsorId = undefined;
-      this.nextSponsorName = undefined;
-
-      const types: BoxSpriteType[] = ["rojo", "verde", "azul", "dorado"];
-      this.currentGiftSprite = types[this.giftSpawnCount % types.length];
+      this.nextSponsor = null;
+      let k = Math.floor(Math.random() * 3);
+      if (this.blocks.length && k === this.blocks[this.blocks.length - 1].kind) {
+        k = (k + 1) % 3;
+      }
+      this.nextKind = k;
     }
-
-    const speedBonus = Math.min(1.1, this.stackedGifts.length * 0.04);
-    this.swingSpeed = 2.4 + speedBonus;
   }
 
-  private handlePlayerDrop(): void {
-    if (!this.isRunning || this.isGameOver || this.isFinishing) return;
-    if (!this.isSwinging || this.activeDroppingGift !== null) return;
+  private get swingCx(): number {
+    return this.width / 2 + Math.sin(this.swingT) * this.swingAmp;
+  }
 
-    // Posición en coordenadas de pantalla
-    const craneAnchorScreenX = this.width / 2;
-    const craneAnchorScreenY = this.craneScreenAnchorY;
-    const hookScreenX = craneAnchorScreenX + Math.sin(this.swingAngle) * this.ropeLength;
-    const hookScreenY = craneAnchorScreenY + Math.cos(this.swingAngle) * this.ropeLength;
+  private get hangBottom(): number {
+    return this.cameraY + this.height * 0.28;
+  }
 
-    // Convertir de pantalla a mundo restando cameraY
-    const spawnWorldX = hookScreenX;
-    const spawnWorldY = hookScreenY - this.cameraY;
+  // ==========================================================================
+  // ACCIONES DE JUEGO (STACKER & TOWER BLOXX)
+  // ==========================================================================
+  private dropBlock(): void {
+    if (!this.isRunning || this.isGameOver || this.isFinishing || this.locked || this.dropping) return;
 
-    this.activeDroppingGift = {
-      x: spawnWorldX,
-      y: spawnWorldY,
-      width: this.baseBoxWidth,
-      height: this.boxHeight,
-      spriteType: this.currentGiftSprite,
-      vx: 0, // Caída vertical limpia y directa exactamente donde apuntó el jugador
-      vy: 200, // Aceleración inicial limpia hacia abajo
-      rotation: 0,
-      hasMissed: false,
-      isSponsor: this.nextIsSponsor,
-      sponsorId: this.nextSponsorId,
-      sponsorName: this.nextSponsorName
-    };
-
-    this.isSwinging = false;
     this.audio.playWhoosh();
-    Haptics.light();
+    this.audio.playClawTear();
+    this.clawOpenTimer = 0.35; // Abre la garra mecánicamente
+
+    this.dropping = {
+      cx: this.swingCx,
+      width: this.currentBw,
+      bottom: this.hangBottom,
+      vy: 140,
+      kind: this.nextKind,
+      gold: this.nextGold,
+      royal: this.nextRoyal,
+      clock: this.nextClock,
+      logo: this.nextSponsor?.logo,
+      sponsor: this.nextSponsor?.name
+    };
   }
 
-  protected onUpdate(dt: number): void {
-    // 1. Oscilación del Péndulo
-    if (this.isSwinging) {
-      this.swingTime += dt * this.swingSpeed;
-      this.swingAngle = Math.sin(this.swingTime) * this.swingAmplitude;
-    }
+  /**
+   * Procesa el aterrizaje, corte de sobrantes o caída libre del paquete
+   */
+  private landBlock(d: DroppingBlock): void {
+    const topBlock = this.blocks[this.blocks.length - 1];
+    const dx = d.cx - topBlock.cx;
+    const absDx = Math.abs(dx);
+    const perfectThreshold = Math.max(4, topBlock.width * 0.05);
 
-    // 2. Modo Fiebre
-    if (this.isFeverActive) {
-      this.feverTimer -= dt;
-      if (this.feverTimer <= 0) {
-        this.isFeverActive = false;
-        this.feverTimer = 0;
-      }
-    }
+    // 1. ¿FALLO TOTAL? Si la caja cae completamente fuera del soporte
+    if (absDx >= topBlock.width) {
+      this.falling.push({
+        x: d.cx,
+        y: this.towerTopY,
+        width: d.width,
+        height: this.boxH,
+        vx: Math.sign(dx || 1) * (140 + Math.random() * 40),
+        vy: -140,
+        rot: 0,
+        vr: Math.sign(dx || 1) * (3.5 + Math.random() * 2),
+        kind: d.kind,
+        gold: d.gold
+      });
+      this.dropping = null;
+      this.combo = 0;
+      this.isFeverMode = false;
+      this.lives--;
+      this.audio.playError();
+      this.triggerShake(0.28, 8);
+      this.addFloatingText("¡SE CAYÓ! -1 VIDA", Math.max(80, Math.min(this.width - 80, d.cx)), this.towerTopY - this.cameraY - 45, "#FF1744", 1.45);
 
-    // 3. Balanceo oscilatorio de la torre
-    this.towerSwayPhase += dt * 2.8;
-    this.towerSwayIntensity = Math.max(0, this.towerSwayIntensity - dt * 0.45);
-
-    // 4. Caja Cayendo
-    if (this.activeDroppingGift) {
-      const box = this.activeDroppingGift;
-      box.vy += 1750 * dt;
-      box.y += box.vy * dt;
-      box.x += box.vx * dt;
-
-      if (!box.hasMissed) {
-        box.rotation *= 0.94;
+      if (this.lives <= 0) {
+        this.locked = true;
+        this.setGameTimeout(() => this.endGame(), 950);
       } else {
-        box.rotation += (box.vRot || 4) * dt;
+        this.prepareNext();
       }
-
-      // Superficie de aterrizaje en el mundo
-      let targetY: number;
-      let topBoxWidth: number;
-      let topBoxCenterX: number;
-
-      if (this.stackedGifts.length === 0) {
-        // Aterriza directamente sobre el cojín de nieve del pedestal de caoba
-        targetY = this.basePlatformY + this.basePlatformHeight * 0.18 - box.height;
-        topBoxWidth = this.basePlatformWidth * 0.76;
-        topBoxCenterX = this.width / 2;
-      } else {
-        const topBox = this.stackedGifts[this.stackedGifts.length - 1];
-        // Se asienta sobre la tapa y el moño del regalo inferior con perspectiva natural
-        targetY = topBox.y - box.height + (box.height * 0.16);
-        topBoxWidth = topBox.width;
-        topBoxCenterX = topBox.x;
-      }
-
-      const topBoxLeft = topBoxCenterX - topBoxWidth / 2;
-      const topBoxRight = topBoxCenterX + topBoxWidth / 2;
-
-      // Detección al alcanzar la altura de impacto
-      if (box.y >= targetY) {
-        const boxLeft = box.x - box.width / 2;
-        const boxRight = box.x + box.width / 2;
-        const overlapLeft = Math.max(boxLeft, topBoxLeft);
-        const overlapRight = Math.min(boxRight, topBoxRight);
-        const overlapWidth = overlapRight - overlapLeft;
-
-        // ¿Suficiente apoyo para mantenerse en pie?
-        // En física de cajas de regalo, requiere al menos 48% de solapamiento para no volcar
-        const minRequiredSupport = box.width * 0.48;
-
-        if (overlapWidth < minRequiredSupport) {
-          // CASO 1: SIN APOYO SUFICIENTE - ¡EL REGALO SE INCLINA Y CAE AL VACÍO!
-          if (!box.hasMissed) {
-            box.hasMissed = true;
-            this.lives--;
-            this.combo = 0;
-            this.isFeverActive = false;
-            this.triggerShake(9, 0.35);
-            this.audio.playError();
-            Haptics.impact();
-            this.addFloatingText("¡SE CAYÓ! -1 VIDA", box.x, targetY - 20, "#FF2A4D", 1.35);
-
-            // Inercia angular realista hacia el lado del abismo
-            const dir = box.x >= topBoxCenterX ? 1 : -1;
-            box.vx = dir * 160;
-            box.vRot = dir * 5.2;
-
-            if (this.lives <= 0) {
-              this.timeRemaining = 0;
-              this.endGame();
-            } else {
-              setTimeout(() => this.prepareNextCraneBox(), 420);
-            }
-          }
-
-          // Continúa cayendo hacia el fondo de la pantalla sin detenerse
-          if (box.y > this.basePlatformY + 500) {
-            this.activeDroppingGift = null;
-          }
-        } else if (!box.hasMissed) {
-          // CASO 2: ATERRIZAJE EXITOSO EN LA TORRE (Perfecto o Corte Limpio con Soporte Sólido)
-          this.handleBoxLanding(box, targetY, topBoxCenterX, topBoxWidth, overlapLeft, overlapRight, overlapWidth);
-        }
-      }
+      return;
     }
 
-    // 5. Cajas y trozos rebanados que caen rodando al abismo
-    for (let i = this.tumblingGifts.length - 1; i >= 0; i--) {
-      const tb = this.tumblingGifts[i];
-      tb.vy += 1650 * dt;
-      tb.y += tb.vy * dt;
-      tb.x += tb.vx * dt;
-      tb.rotation += tb.vRot * dt;
-      tb.alpha -= dt * 0.65;
-
-      if (tb.alpha <= 0 || tb.y > this.basePlatformY + 500) {
-        this.tumblingGifts.splice(i, 1);
-      }
-    }
-
-    // 6. Squash & stretch al asentar
-    for (const g of this.stackedGifts) {
-      if (g.settleProgress > 0) {
-        g.settleProgress -= dt * 5.0;
-        if (g.settleProgress < 0) g.settleProgress = 0;
-      }
-    }
-
-    // 7. Seguimiento Suave de Cámara: Mantiene el pedestal a la vista y acompaña el crecimiento
-    if (this.stackedGifts.length > 0) {
-      const highestBox = this.stackedGifts[this.stackedGifts.length - 1];
-      const highestY = highestBox.y;
-      // Solo desplaza hacia abajo cuando la torre supera la mitad superior de la pantalla
-      const targetViewingY = this.height * 0.48;
-      if (highestY < targetViewingY) {
-        this.targetCameraY = targetViewingY - highestY;
-      } else {
-        this.targetCameraY = 0;
-      }
-    } else {
-      this.targetCameraY = 0;
-    }
-
-    this.cameraY += (this.targetCameraY - this.cameraY) * Math.min(1.0, dt * 4.0);
-
-    const currentMeters = Math.max(0, Math.round(this.stackedGifts.length * 2.5));
-    if (currentMeters > this.maxAltitudeMeters) {
-      this.maxAltitudeMeters = currentMeters;
-    }
-  }
-
-  private handleBoxLanding(
-    box: ActiveDroppingGift,
-    targetY: number,
-    topBoxCenterX: number,
-    _topBoxWidth: number,
-    overlapLeft: number,
-    overlapRight: number,
-    overlapWidth: number
-  ): void {
-    const deltaX = box.x - topBoxCenterX;
-    const isPerfect = Math.abs(deltaX) <= 14;
-
-    let finalX: number;
-    let finalWidth: number;
-    let srcNormX = 0;
-    let srcNormW = 1.0;
+    // 2. ¿ALINEACIÓN PERFECTA?
+    const isPerfect = absDx <= perfectThreshold;
+    let newCx = topBlock.cx;
+    let newWidth = d.width;
+    const floorNumber = this.blocks.length;
 
     if (isPerfect) {
-      // ¡PERFECTO! Alineación impecable en el centro
-      finalX = topBoxCenterX;
-      finalWidth = box.width;
+      // ¡Alineación perfecta! Se centra magnéticamente
+      newCx = topBlock.cx;
       this.combo++;
-      this.perfectCount++;
-      if (this.combo > this.maxCombo) this.maxCombo = this.combo;
 
-      this.playChimeScale(this.combo);
-      Haptics.light();
-
-      const mult = this.isFeverActive ? 2.5 : 1.0 + Math.min(1.5, this.combo * 0.25);
-      const points = Math.round(300 * mult);
-      this.addScore(points);
-
-      this.addFloatingText(`¡PERFECTO! +${points}`, finalX, targetY - 25, "#FFD700", 1.4);
-      this.particles.emitBurst(finalX, targetY + box.height / 2, "#FFD700", 24);
-
-      // Fiebre Navideña tras 3 perfectos seguidos
-      if (this.combo >= 3 && !this.isFeverActive) {
-        this.isFeverActive = true;
-        this.feverTimer = 8.0;
-        this.audio.playPowerUp();
-        this.addFloatingText("¡FIEBRE NAVIDEÑA x2!", this.width / 2, this.height * 0.35, "#FF4081", 1.6);
-        this.particles.emitConfetti(this.width, 40);
+      // Recompensa de expansión si la caja se había estrechado
+      if (this.currentBw < this.initialBw) {
+        this.currentBw = Math.min(this.initialBw, this.currentBw + 6);
+        newWidth = this.currentBw;
       }
+
+      // Comprobar Fiebre Navideña
+      if (this.combo >= 3) {
+        this.triggerFeverMode();
+      }
+
+      // Sonido de campana en escala armónica según combo
+      const noteIdx = Math.min(7, this.combo - 1);
+      this.audio.playBellNote(noteIdx);
+      this.particles.emitBurst(newCx, this.towerTopY, "#FFD700", 20);
+      this.particles.emitBurst(newCx, this.towerTopY, "#00E5FF", 12);
+      this.addFloatingText(this.combo > 1 ? `★ ¡PERFECTO x${this.combo}! ★` : "★ ¡PERFECTO! ★", newCx, this.towerTopY - this.cameraY - 42, "#FFD700", 1.55);
     } else {
-      // ¡CORTE LIMPIO Y EQUILIBRIO!
-      // El desborde se rebana limpiamente, manteniendo una presencia de regalo sólida (mínimo 75% de ancho)
-      const rawOverhang = box.width - overlapWidth;
-      const sliceWidth = Math.min(box.width * 0.22, Math.max(6, rawOverhang));
-      finalWidth = Math.max(this.baseBoxWidth * 0.75, box.width - sliceWidth);
-
-      const sliceDir = deltaX > 0 ? 1 : -1;
-      finalX = box.x - (sliceDir * sliceWidth * 0.4);
-
-      // Trozo rebanado que cae al abismo con física y rotación
-      if (sliceWidth >= 6) {
-        const sliceX = deltaX > 0 ? overlapRight + sliceWidth * 0.5 : overlapLeft - sliceWidth * 0.5;
-
-        this.tumblingGifts.push({
-          x: sliceX,
-          y: targetY,
-          width: sliceWidth,
-          height: box.height,
-          spriteType: box.spriteType,
-          srcNormX: deltaX > 0 ? 0.75 : 0,
-          srcNormW: 0.25,
-          vx: sliceDir * 120,
-          vy: -80,
-          rotation: 0,
-          vRot: sliceDir * 4.8,
-          alpha: 1.0,
-          isSponsor: box.isSponsor,
-          sponsorId: box.sponsorId
-        });
-
-        // Partículas en el borde del corte
-        const cutX = deltaX > 0 ? overlapRight : overlapLeft;
-        this.particles.emitBurst(cutX, targetY + box.height / 2, "#FFFFFF", 16);
-      }
-
+      // 3. REBANADO DE SOBRANTE (OVERHANG SLICE)
       this.combo = 0;
-      this.audio.playTap();
-      Haptics.light();
-
-      const points = 150;
-      this.addScore(points);
-      this.addFloatingText(`¡CORTE LIMPIO! +${points}`, finalX, targetY - 20, "#FFFFFF", 1.2);
-
-      // El descentrado produce un balanceo armónico en la torre
-      this.towerSwayIntensity = Math.min(1.0, this.towerSwayIntensity + 0.28);
-    }
-
-    // Bonificación de Patrocinador Oficial
-    if (box.isSponsor && box.sponsorId) {
-      const sponsorBonus = 500;
-      this.addScore(sponsorBonus);
-      this.audio.playPowerUp();
-      this.addFloatingText(
-        `¡REGALO ${box.sponsorName || "OFICIAL"}! +${sponsorBonus}`,
-        finalX,
-        targetY - 50,
-        "#00E676",
-        1.5
-      );
-      this.particles.emitBurst(finalX, targetY + box.height / 2, "#00E676", 30);
-    }
-
-    // Registrar en la pila (siempre con apoyo firme)
-    const stackedGift: StackedGift = {
-      id: this.nextGiftId++,
-      x: finalX,
-      y: targetY,
-      width: finalWidth,
-      height: box.height,
-      spriteType: box.spriteType,
-      srcNormX,
-      srcNormW,
-      isPerfect,
-      isSponsor: box.isSponsor,
-      sponsorId: box.sponsorId,
-      sponsorName: box.sponsorName,
-      settleProgress: 1.0,
-      wobbleX: 0
-    };
-
-    this.stackedGifts.push(stackedGift);
-    this.activeDroppingGift = null;
-
-    setTimeout(() => this.prepareNextCraneBox(), 240);
-  }
-
-  // ==========================================================================
-  // RENDERIZADO VISUAL: Stylized 2D Game Concept Art
-  // ==========================================================================
-
-  protected onDraw(ctx: CanvasRenderingContext2D): void {
-    // 1. Fondo Panorámico de la Villa Navideña con Parallax Vertical
-    this.drawParallaxBackground(ctx);
-
-    // 2. Elementos del Mundo en Coordenadas del Mundo (Afectados por cameraY)
-    ctx.save();
-    ctx.translate(0, this.cameraY);
-
-    // Trozos rebanados y cajas rodando al abismo
-    this.drawTumblingGifts(ctx);
-
-    // Pedestal de madera tallada con cojín de nieve
-    this.drawPedestal(ctx);
-
-    // Torre de regalos apilados
-    this.drawStackedTower(ctx);
-
-    // Regalo activo en caída libre
-    if (this.activeDroppingGift) {
-      this.drawGiftSprite(
-        ctx,
-        this.activeDroppingGift.x,
-        this.activeDroppingGift.y,
-        this.activeDroppingGift.width,
-        this.activeDroppingGift.height,
-        this.activeDroppingGift.spriteType,
-        0,
-        1.0,
-        this.activeDroppingGift.rotation,
-        1.0,
-        this.activeDroppingGift.isSponsor,
-        this.activeDroppingGift.sponsorId
-      );
-    }
-
-    ctx.restore();
-
-    // 3. Grúa y Péndulo Oscilante (Fijados en Pantalla Superior, fuera de cameraY)
-    this.drawScreenCrane(ctx);
-
-    // 4. Sistema de Partículas
-    this.particles.draw(ctx);
-
-    // 5. HUD Personalizado del Juego
-    this.drawCustomHUD(ctx);
-  }
-
-  private drawParallaxBackground(ctx: CanvasRenderingContext2D): void {
-    if (this.bgVillaImage.complete && this.bgVillaImage.naturalWidth > 0) {
-      const img = this.bgVillaImage;
-      const imgAspect = img.naturalWidth / img.naturalHeight;
-      let drawW = this.width;
-      let drawH = this.height * 1.35;
-      if (drawW / drawH < imgAspect) {
-        drawW = drawH * imgAspect;
-      }
-      const drawX = (this.width - drawW) / 2;
-      const parallaxY = -(this.cameraY * 0.15);
-      ctx.drawImage(img, drawX, parallaxY, drawW, drawH);
-    } else {
-      const grad = ctx.createLinearGradient(0, 0, 0, this.height);
-      grad.addColorStop(0, "#080E21");
-      grad.addColorStop(0.5, "#152238");
-      grad.addColorStop(1, "#283E58");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, this.width, this.height);
-    }
-
-    const altitude = this.maxAltitudeMeters;
-    if (altitude >= 25) {
-      const auroraAlpha = Math.min(0.55, (altitude - 25) / 50);
-      ctx.save();
-      ctx.globalAlpha = auroraAlpha;
-      const t = performance.now() * 0.001;
-      const auroraGrad = ctx.createLinearGradient(0, 0, this.width, this.height * 0.45);
-      auroraGrad.addColorStop(0, "rgba(0, 229, 255, 0.4)");
-      auroraGrad.addColorStop(0.5, "rgba(0, 230, 118, 0.6)");
-      auroraGrad.addColorStop(1, "rgba(213, 0, 249, 0.35)");
-
-      ctx.fillStyle = auroraGrad;
-      ctx.beginPath();
-      ctx.moveTo(0, this.height * 0.22);
-      for (let x = 0; x <= this.width; x += 35) {
-        const y = this.height * 0.2 + Math.sin(x * 0.009 + t) * 35 + Math.cos(x * 0.014 - t * 0.8) * 20;
-        ctx.lineTo(x, y);
-      }
-      ctx.lineTo(this.width, 0);
-      ctx.lineTo(0, 0);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    }
-  }
-
-  private drawPedestal(ctx: CanvasRenderingContext2D): void {
-    const x = this.width / 2;
-    const y = this.basePlatformY;
-    const w = this.basePlatformWidth;
-    const h = this.basePlatformHeight;
-
-    ctx.save();
-    ctx.fillStyle = "rgba(0, 0, 0, 0.38)";
-    ctx.beginPath();
-    ctx.ellipse(x, y + h * 0.75, w * 0.52, 16, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (this.pedestalImage.complete && this.pedestalImage.naturalWidth > 0) {
-      ctx.drawImage(this.pedestalImage, x - w / 2, y, w, h);
-    } else {
-      ctx.fillStyle = "#8D4925";
-      this.roundRect(ctx, x - w / 2, y, w, h, 14);
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  private drawStackedTower(ctx: CanvasRenderingContext2D): void {
-    const total = this.stackedGifts.length;
-
-    for (let i = 0; i < total; i++) {
-      const gift = this.stackedGifts[i];
-      const heightFactor = i / Math.max(1, total);
-      const swayOffset = Math.sin(this.towerSwayPhase + i * 0.22) * (this.towerSwayIntensity * 16 * heightFactor);
-
-      const squash = gift.settleProgress > 0 ? Math.sin(gift.settleProgress * Math.PI) * 0.12 : 0;
-      const renderW = gift.width * (1.0 + squash);
-      const renderH = gift.height * (1.0 - squash);
-      const renderY = gift.y + (gift.height - renderH);
-
-      this.drawGiftSprite(
-        ctx,
-        gift.x + gift.wobbleX + swayOffset,
-        renderY,
-        renderW,
-        renderH,
-        gift.spriteType,
-        gift.srcNormX,
-        gift.srcNormW,
-        0,
-        1.0,
-        gift.isSponsor,
-        gift.sponsorId
-      );
-    }
-  }
-
-  private drawTumblingGifts(ctx: CanvasRenderingContext2D): void {
-    for (const tg of this.tumblingGifts) {
-      this.drawGiftSprite(
-        ctx,
-        tg.x,
-        tg.y,
-        tg.width,
-        tg.height,
-        tg.spriteType,
-        tg.srcNormX,
-        tg.srcNormW,
-        tg.rotation,
-        tg.alpha,
-        tg.isSponsor,
-        tg.sponsorId
-      );
-    }
-  }
-
-  private drawGiftSprite(
-    ctx: CanvasRenderingContext2D,
-    cx: number,
-    topY: number,
-    w: number,
-    h: number,
-    type: BoxSpriteType,
-    srcNormX: number = 0,
-    srcNormW: number = 1.0,
-    rotation: number = 0,
-    alpha: number = 1.0,
-    isSponsor: boolean = false,
-    sponsorId?: string
-  ): void {
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.translate(cx, topY + h / 2);
-    if (rotation !== 0) ctx.rotate(rotation);
-
-    const halfW = w / 2;
-    const halfH = h / 2;
-
-    if (this.isFeverActive || isSponsor || type === "dorado") {
-      ctx.shadowColor = isSponsor ? "rgba(0, 230, 118, 0.8)" : "rgba(255, 215, 0, 0.75)";
-      ctx.shadowBlur = 18;
-    }
-
-    let spriteImg: HTMLImageElement = this.spriteGiftRed;
-    if (type === "verde") spriteImg = this.spriteGiftGreen;
-    else if (type === "azul") spriteImg = this.spriteGiftBlue;
-    else if (type === "dorado" || type === "sponsor") spriteImg = this.spriteGiftGold;
-
-    if (spriteImg.complete && spriteImg.naturalWidth > 0) {
-      const nw = spriteImg.naturalWidth;
-      const nh = spriteImg.naturalHeight;
-      const sx = Math.max(0, Math.min(nw - 1, srcNormX * nw));
-      const sw = Math.max(1, Math.min(nw - sx, srcNormW * nw));
-
-      ctx.drawImage(spriteImg, sx, 0, sw, nh, -halfW, -halfH, w, h);
-    } else {
-      ctx.fillStyle = type === "verde" ? "#1B5E20" : type === "azul" ? "#1565C0" : "#D50032";
-      this.roundRect(ctx, -halfW, -halfH, w, h, 8);
-      ctx.fill();
-    }
-
-    // Si es patrocinador oficial y la caja tiene al menos 65px de ancho
-    if (isSponsor && sponsorId && w >= 65) {
-      this.drawSponsorSignOnGift(ctx, sponsorId, halfW, halfH);
-    }
-
-    ctx.restore();
-  }
-
-  private drawSponsorSignOnGift(
-    ctx: CanvasRenderingContext2D,
-    sponsorId: string,
-    halfW: number,
-    halfH: number
-  ): void {
-    const signW = Math.min(110, halfW * 1.5);
-    const signH = Math.min(38, halfH * 1.3);
-
-    ctx.save();
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = "#FFD700";
-
-    ctx.fillStyle = "#FFFDE7";
-    this.roundRect(ctx, -signW / 2, -signH / 2, signW, signH, 6);
-    ctx.fill();
-
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 2.5;
-    this.roundRect(ctx, -signW / 2, -signH / 2, signW, signH, 6);
-    ctx.stroke();
-
-    const sponsorImg = this.getSponsorImage(sponsorId);
-    if (sponsorImg && sponsorImg.complete && sponsorImg.naturalWidth > 0) {
-      const imgAspect = sponsorImg.naturalWidth / sponsorImg.naturalHeight;
-      const targetH = signH - 8;
-      const targetW = Math.min(signW - 10, targetH * imgAspect);
-      ctx.drawImage(sponsorImg, -targetW / 2, -targetH / 2, targetW, targetH);
-    } else {
-      ctx.fillStyle = "#1A237E";
-      ctx.font = "900 12px sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(sponsorId.toUpperCase(), 0, 0);
-    }
-    ctx.restore();
-  }
-
-  private drawScreenCrane(ctx: CanvasRenderingContext2D): void {
-    const anchorScreenX = this.width / 2;
-    const anchorScreenY = this.craneScreenAnchorY;
-
-    ctx.save();
-    ctx.shadowColor = "rgba(255, 215, 0, 0.9)";
-    ctx.shadowBlur = 20;
-
-    // Gran estrella dorada anclada al marco
-    ctx.fillStyle = "#FFD700";
-    this.drawStar(ctx, anchorScreenX, anchorScreenY, 5, 22, 10);
-    ctx.fill();
-
-    ctx.fillStyle = "#FFFFFF";
-    this.drawStar(ctx, anchorScreenX, anchorScreenY, 5, 9, 4);
-    ctx.fill();
-    ctx.restore();
-
-    if (this.isSwinging) {
-      const hookScreenX = anchorScreenX + Math.sin(this.swingAngle) * this.ropeLength;
-      const hookScreenY = anchorScreenY + Math.cos(this.swingAngle) * this.ropeLength;
-
-      ctx.save();
-      ctx.strokeStyle = "#FFD700";
-      ctx.lineWidth = 3.5;
-      ctx.beginPath();
-      ctx.moveTo(anchorScreenX, anchorScreenY);
-      ctx.lineTo(hookScreenX, hookScreenY);
-      ctx.stroke();
-
-      ctx.fillStyle = "#FFA000";
-      ctx.beginPath();
-      ctx.arc(hookScreenX, hookScreenY, 7, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      this.drawGiftSprite(
-        ctx,
-        hookScreenX,
-        hookScreenY,
-        this.baseBoxWidth,
-        this.boxHeight,
-        this.currentGiftSprite,
-        0,
-        1.0,
-        this.swingAngle * 0.35,
-        1.0,
-        this.nextIsSponsor,
-        this.nextSponsorId
-      );
-    }
-  }
-
-  private drawStar(
-    ctx: CanvasRenderingContext2D,
-    cx: number,
-    cy: number,
-    spikes: number,
-    outerR: number,
-    innerR: number
-  ): void {
-    let rot = (Math.PI / 2) * 3;
-    let x = cx;
-    let y = cy;
-    const step = Math.PI / spikes;
-
-    ctx.beginPath();
-    ctx.moveTo(cx, cy - outerR);
-    for (let i = 0; i < spikes; i++) {
-      x = cx + Math.cos(rot) * outerR;
-      y = cy + Math.sin(rot) * outerR;
-      ctx.lineTo(x, y);
-      rot += step;
-
-      x = cx + Math.cos(rot) * innerR;
-      y = cy + Math.sin(rot) * innerR;
-      ctx.lineTo(x, y);
-      rot += step;
-    }
-    ctx.lineTo(cx, cy - outerR);
-    ctx.closePath();
-  }
-
-  private drawCustomHUD(ctx: CanvasRenderingContext2D): void {
-    const pad = 16;
-    const topY = 18;
-
-    ctx.save();
-
-    // 1. Contador de Altitud
-    const altitude = this.maxAltitudeMeters;
-    ctx.fillStyle = "rgba(10, 20, 45, 0.80)";
-    this.roundRect(ctx, pad, topY, 150, 48, 10);
-    ctx.fill();
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 2;
-    this.roundRect(ctx, pad, topY, 150, 48, 10);
-    ctx.stroke();
-
-    ctx.fillStyle = "#FFD700";
-    ctx.font = "900 20px 'Fredoka', sans-serif";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
-    ctx.fillText(`🏰 ${altitude} m`, pad + 14, topY + 24);
-
-    // 2. Vidas (Corazones)
-    const heartX = this.width - pad - 120;
-    ctx.fillStyle = "rgba(10, 20, 45, 0.80)";
-    this.roundRect(ctx, heartX, topY, 120, 48, 10);
-    ctx.fill();
-    ctx.strokeStyle = "#FF2A4D";
-    ctx.lineWidth = 2;
-    this.roundRect(ctx, heartX, topY, 120, 48, 10);
-    ctx.stroke();
-
-    let heartsStr = "";
-    for (let i = 0; i < this.maxLives; i++) {
-      heartsStr += i < this.lives ? "❤️" : "🖤";
-    }
-    ctx.font = "18px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(heartsStr, heartX + 60, topY + 25);
-
-    // 3. Indicador de Combo
-    if (this.combo > 1) {
-      const comboX = this.width / 2;
-      const comboY = topY + 24;
-      ctx.fillStyle = "#FFD700";
-      ctx.shadowColor = "#FFD700";
-      ctx.shadowBlur = 10;
-      ctx.font = "900 22px 'Fredoka', sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(`¡x${this.combo} COMBO! 🔥`, comboX, comboY);
-      ctx.shadowBlur = 0;
-    }
-
-    // 4. Banner de Fiebre Navideña
-    if (this.isFeverActive) {
-      const feverY = topY + 58;
-      ctx.fillStyle = "rgba(255, 64, 129, 0.88)";
-      this.roundRect(ctx, this.width / 2 - 120, feverY, 240, 28, 14);
-      ctx.fill();
-      ctx.strokeStyle = "#FFFFFF";
-      ctx.lineWidth = 1.5;
-      this.roundRect(ctx, this.width / 2 - 120, feverY, 240, 28, 14);
-      ctx.stroke();
-
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = "900 13px 'Fredoka', sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(`⚡ FIEBRE NAVIDEÑA: ${this.feverTimer.toFixed(1)}s ⚡`, this.width / 2, feverY + 14);
-    }
-
-    // 5. Indicador táctil de bienvenida
-    if (this.stackedGifts.length === 0 && !this.activeDroppingGift) {
-      const hintY = this.height - 40;
-      ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-      ctx.font = "700 16px 'Fredoka', sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("👆 ¡Toca la pantalla para soltar el paquete! 🎁", this.width / 2, hintY);
-    }
-
-    ctx.restore();
-  }
-
-  private roundRect(
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    r: number
-  ): void {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-  }
-
-  public endGame(): void {
-    window.removeEventListener("keydown", this.handleKeyDownBound);
-    super.endGame();
-
-    const heightBonus = this.maxAltitudeMeters * 60;
-    this.score += heightBonus;
-
-    let rank = "C";
-    let rankColor = "#FF9100";
-    if (this.score >= 5000 || this.maxAltitudeMeters >= 45) {
-      rank = "S+";
-      rankColor = "#FFD700";
-    } else if (this.score >= 3800 || this.maxAltitudeMeters >= 30) {
-      rank = "S";
-      rankColor = "#00E5FF";
-    } else if (this.score >= 2600 || this.maxAltitudeMeters >= 20) {
-      rank = "A";
-      rankColor = "#00E676";
-    } else if (this.score >= 1500 || this.maxAltitudeMeters >= 10) {
-      rank = "B";
-      rankColor = "#2979FF";
-    }
-
-    if (this.onGameOver) {
-      this.onGameOver({
-        gameId: this.id,
-        gameTitle: this.title,
-        score: this.score,
-        highScore: this.highScore,
-        isNewRecord: this.score > this.highScore,
-        logoUsed: this.activeLogo,
-        rank,
-        rankLabel: `Torre de ${this.maxAltitudeMeters}m (${this.stackedGifts.length} pisos)`,
-        rankColor,
-        maxCombo: this.maxCombo,
-        perfectCount: this.perfectCount,
-        accuracy: this.stackedGifts.length > 0 ? Math.round((this.perfectCount / this.stackedGifts.length) * 100) : 100
+      this.isFeverMode = false;
+
+      // Calcular nueva porción superpuesta y trozo que se corta
+      newWidth = topBlock.width - absDx;
+      this.currentBw = Math.max(this.minAllowedBw, newWidth);
+      newWidth = this.currentBw;
+
+      const sliceWidth = absDx;
+      newCx = topBlock.cx + (dx > 0 ? absDx * 0.5 : -absDx * 0.5);
+
+      // Crear el trozo rebanado que cae al vacío
+      const sliceCx = topBlock.cx + (dx > 0 ? topBlock.width * 0.5 + sliceWidth * 0.5 : -topBlock.width * 0.5 - sliceWidth * 0.5);
+      this.slices.push({
+        x: sliceCx,
+        y: this.towerTopY - this.boxH * 0.45,
+        width: Math.max(8, sliceWidth),
+        height: this.boxH * 0.85,
+        vx: (dx > 0 ? 1 : -1) * (110 + Math.random() * 50),
+        vy: -90,
+        rot: 0,
+        vr: (dx > 0 ? 1 : -1) * (4 + Math.random() * 3),
+        kind: d.kind,
+        alpha: 1.0
       });
+
+      this.audio.playCatchItem(1.0 + Math.min(0.5, floorNumber * 0.025));
+      this.triggerShake(0.12, 3);
+      this.particles.emitBurst(newCx, this.towerTopY, "#FFFFFF", 8);
+    }
+
+    // Si es Caja de Patrocinador Dorado: Expande la torre hacia su tamaño original
+    if (d.gold) {
+      this.currentBw = Math.min(this.initialBw, this.currentBw + 28);
+      newWidth = this.currentBw;
+    }
+
+    // Registrar bloque en la torre
+    this.blocks.push({
+      cx: newCx,
+      width: newWidth,
+      bottom: this.towerTopY,
+      kind: d.kind,
+      gold: d.gold,
+      royal: d.royal,
+      clock: d.clock,
+      logo: d.logo,
+      sponsorName: d.sponsor,
+      squash: 1.0,
+      perfect: isPerfect,
+      swayFactor: (newCx - this.width / 2) / (this.width * 0.25)
+    });
+
+    this.towerTopY -= this.step;
+    this.dropping = null;
+
+    // Cálculo de puntuación con multiplicador de Fiebre
+    const multiplier = this.isFeverMode ? 2 : 1;
+    let pts = (100 + floorNumber * 8) * multiplier;
+
+    if (isPerfect) {
+      pts += (120 + this.combo * 50) * multiplier;
+    }
+
+    if (d.gold) {
+      pts += 500 * multiplier;
+      this.audio.playPowerUp();
+      this.particles.emitConfetti(this.width, 35);
+      this.triggerShake(0.2, 5);
+      this.addFloatingText(`★ ${(d.sponsor || "PATROCINADOR").toUpperCase()} +${500 * multiplier} ★`, this.width * 0.5, this.height * 0.38, "#FFD700", 1.6);
+    } else if (d.royal) {
+      pts += 750 * multiplier;
+      this.audio.playVictory();
+      this.particles.emitConfetti(this.width, 40);
+      this.addFloatingText(`★ ¡JOYERO REAL! +${750 * multiplier} ★`, this.width * 0.5, this.height * 0.38, "#E040FB", 1.6);
+    } else if (d.clock) {
+      if (this.lives < this.maxLives) {
+        this.lives++;
+        this.audio.playBellNote(6);
+        this.addFloatingText("¡+1 VIDA EXTRA!", newCx, this.towerTopY - this.cameraY - 45, "#00E5FF", 1.5);
+      } else {
+        pts += 300 * multiplier;
+        this.addFloatingText(`¡TIEMPO MÁGICO! +${300 * multiplier}`, newCx, this.towerTopY - this.cameraY - 45, "#00E5FF", 1.4);
+      }
+      this.particles.emitBurst(newCx, this.towerTopY, "#00E5FF", 18);
+    }
+
+    this.addScore(pts);
+
+    // Hitos cada 5 pisos (Piso 5, 10, 15, 20...)
+    if (this.blocks.length > 1 && (this.blocks.length - 1) % 5 === 0) {
+      this.triggerFloorMilestone(this.blocks.length - 1);
+    }
+
+    // Dificultad progresiva de balanceo
+    this.swingSpeed = Math.min(3.8, 1.45 + (this.blocks.length - 1) * 0.065);
+    this.prepareNext();
+  }
+
+  /**
+   * Activa el modo Fiebre Navideña (Fever Mode)
+   */
+  private triggerFeverMode(): void {
+    this.isFeverMode = true;
+    this.feverTimer = 8.0;
+    this.audio.playPowerUp();
+    this.triggerShake(0.2, 5);
+    this.particles.emitConfetti(this.width, 30);
+    this.addFloatingText("★ ¡FIEBRE NAVIDEÑA (PUNTOS x2)! ★", this.width * 0.5, this.height * 0.32, "#FFD700", 1.65);
+  }
+
+  /**
+   * Muestra un banner festivo al completar hitos de pisos
+   */
+  private triggerFloorMilestone(floors: number): void {
+    const bonus = floors * 100;
+    this.addScore(bonus);
+    this.audio.playVictory();
+    this.particles.emitConfetti(this.width, 40);
+
+    this.activeBanner = {
+      title: `★ ¡PISO ${floors} CONSTRUIDO! ★`,
+      subtitle: `+${bonus} PUNTOS DE BONIFICACIÓN`,
+      timer: 2.8,
+      maxTimer: 2.8
+    };
+  }
+
+  // ==========================================================================
+  // ACTUALIZACIÓN DE FÍSICAS A 60 FPS
+  // ==========================================================================
+  protected onUpdate(dt: number): void {
+    this.animClock += dt;
+    this.swingT += dt * this.swingSpeed;
+
+    if (this.clawOpenTimer > 0) {
+      this.clawOpenTimer -= dt;
+    }
+
+    // Temporizador de Fiebre Navideña
+    if (this.isFeverMode) {
+      this.feverTimer -= dt;
+      if (this.feverTimer <= 0) {
+        this.isFeverMode = false;
+      }
+    }
+
+    // Banner de hitos
+    if (this.activeBanner) {
+      this.activeBanner.timer -= dt;
+      if (this.activeBanner.timer <= 0) {
+        this.activeBanner = null;
+      }
+    }
+
+    // Caída libre del bloque soltado
+    if (this.dropping) {
+      const d = this.dropping;
+      const prevBottom = d.bottom;
+      d.vy += 2700 * dt;
+      d.bottom += d.vy * dt;
+
+      if (prevBottom <= this.towerTopY && d.bottom >= this.towerTopY) {
+        d.bottom = this.towerTopY;
+        this.landBlock(d);
+      }
+    }
+
+    // Trozos rebanados que caen con giro
+    for (const s of this.slices) {
+      s.vy += 1900 * dt;
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+      s.rot += s.vr * dt;
+      s.alpha = Math.max(0, s.alpha - dt * 0.9);
+    }
+    this.slices = this.slices.filter((s) => s.y < this.cameraY + this.height + 250 && s.alpha > 0.05);
+
+    // Bloques caídos por fallo total
+    for (const f of this.falling) {
+      f.vy += 1900 * dt;
+      f.x += f.vx * dt;
+      f.y += f.vy * dt;
+      f.rot += f.vr * dt;
+    }
+    this.falling = this.falling.filter((f) => f.y < this.cameraY + this.height + 300);
+
+    // Rebote de aplastamiento squash
+    for (const b of this.blocks) {
+      if (b.squash > 0) {
+        b.squash = Math.max(0, b.squash - dt * 3.4);
+      }
+    }
+
+    // Cámara vertical: sigue el crecimiento de la torre
+    const targetCam = Math.min(0, this.towerTopY - this.height * 0.62);
+    this.cameraY += (targetCam - this.cameraY) * Math.min(1, dt * 4.5);
+  }
+
+  // ==========================================================================
+  // RENDERIZADO VISUAL A 60 FPS (Stylized 2D Game Concept Art)
+  // ==========================================================================
+  protected onDraw(ctx: CanvasRenderingContext2D): void {
+    const w = this.width;
+    const h = this.height;
+    const climb = -this.cameraY;
+
+    // 1. Cielo nocturno con estrellas y aldea con scroll parallax
+    drawNightSky(ctx, w, h, this.animClock, this.stars, climb);
+
+    if (imgReady(this.bgImage)) {
+      const scale = Math.max(w / this.bgImage.naturalWidth, h / this.bgImage.naturalHeight);
+      const dw = this.bgImage.naturalWidth * scale;
+      const dh = this.bgImage.naturalHeight * scale;
+      const bottomY = h + climb * 0.55;
+      ctx.drawImage(this.bgImage, (w - dw) / 2, bottomY - dh, dw, dh);
+
+      const top = bottomY - dh;
+      if (top > 0) {
+        const fade = ctx.createLinearGradient(0, top - 90, 0, top + 40);
+        fade.addColorStop(0, "rgba(16, 34, 77, 0)");
+        fade.addColorStop(1, "rgba(16, 34, 77, 0.92)");
+        ctx.fillStyle = fade;
+        ctx.fillRect(0, top - 90, w, 130);
+      }
+    }
+
+    // 2. Pedestal nevado de soporte
+    const pedW = Math.min(w * 0.84, this.initialBw * 3.8);
+    const pedH = pedW * (546 / 1188);
+    const pedSurface = this.groundY - this.cameraY;
+
+    // Sombra de contacto del pedestal en el suelo nevado
+    ctx.save();
+    ctx.fillStyle = "rgba(10, 25, 60, 0.32)";
+    ctx.beginPath();
+    ctx.ellipse(w / 2, pedSurface + pedH * 0.65, pedW * 0.48, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    if (imgReady(this.spritePedestal)) {
+      ctx.drawImage(this.spritePedestal, (w - pedW) / 2, pedSurface - pedH * 0.22, pedW, pedH);
+    } else {
+      ctx.fillStyle = "#6D3B1B";
+      roundRectPath(ctx, (w - pedW) / 2, pedSurface, pedW, pedH * 0.8, 12);
+      ctx.fill();
+    }
+
+    // 3. Torre de regalos apilados (con balanceo armónico acumulado)
+    for (let i = 0; i < this.blocks.length; i++) {
+      const b = this.blocks[i];
+      const cumulativeLean = b.swayFactor * 12;
+      const sway = Math.sin(this.animClock * 1.8 + i * 0.45) * (Math.min(i, 18) * 0.4 + cumulativeLean);
+
+      this.drawBox(
+        ctx,
+        b.cx + sway,
+        b.bottom - this.cameraY,
+        b.width,
+        b.kind,
+        b.squash,
+        b.gold ? b.logo : undefined,
+        b.sponsorName
+      );
+
+      // Marcadores de altitud a los lados de la torre cada 5 pisos
+      if (i > 0 && i % 5 === 0) {
+        this.drawHeightMarker(ctx, b.cx + sway - b.width * 0.65 - 28, b.bottom - this.cameraY - this.boxH * 0.4, i * 4);
+      }
+    }
+
+    // 4. Trozos rebanados (overhang slices) cayendo
+    for (const s of this.slices) {
+      ctx.save();
+      ctx.globalAlpha = s.alpha;
+      ctx.translate(s.x, s.y - this.cameraY);
+      ctx.rotate(s.rot);
+      this.drawSliceBox(ctx, s.width, s.height, s.kind);
+      ctx.restore();
+    }
+
+    // 5. Bloques caídos por fallo total
+    for (const f of this.falling) {
+      ctx.save();
+      ctx.translate(f.x, f.y - this.cameraY);
+      ctx.rotate(f.rot);
+      this.drawBox(ctx, 0, this.boxH * 0.5, f.width, f.kind, 0, undefined);
+      ctx.restore();
+    }
+
+    // 6. Bloque en caída libre
+    if (this.dropping) {
+      const d = this.dropping;
+      const targetY = this.towerTopY - this.cameraY;
+      const currentY = d.bottom - this.cameraY;
+      const distance = Math.max(0, targetY - currentY);
+      if (distance > 0 && distance < 450) {
+        const shadowAlpha = (1 - distance / 450) * 0.40;
+        ctx.save();
+        ctx.fillStyle = `rgba(10, 20, 40, ${shadowAlpha.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.ellipse(d.cx, targetY, d.width * 0.44, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      this.drawBox(ctx, d.cx, d.bottom - this.cameraY, d.width, d.kind, 0, d.gold ? d.logo : undefined, d.sponsor);
+    }
+
+    // 7. Grúa mecánica festiva con garra
+    this.drawMechanicalCrane(ctx);
+
+    // 8. Partículas y confeti
+    this.particles.draw(ctx, true);
+
+    // 9. Banner celebratorio de hito
+    this.drawMilestoneBanner(ctx);
+
+    // 10. HUD Superior de pisos, combo y fiebre
+    this.drawHUDPanels(ctx);
+  }
+
+  /**
+   * Dibuja una caja de regalo con squash, logo y decoraciones
+   */
+  private drawBox(
+    ctx: CanvasRenderingContext2D,
+    cx: number,
+    bottomScreen: number,
+    bw: number,
+    kind: number,
+    squash: number,
+    logo?: HTMLImageElement,
+    sponsorName?: string
+  ): void {
+    const bh = this.boxH;
+    const sy = 1 - squash * 0.16;
+    const sx = 1 + squash * 0.12;
+
+    // Sombra de contacto entre bloques apilados
+    ctx.save();
+    ctx.fillStyle = "rgba(10, 20, 40, 0.28)";
+    ctx.beginPath();
+    ctx.ellipse(cx, bottomScreen, bw * 0.46, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(cx, bottomScreen);
+    ctx.scale(sx, sy);
+
+    const sprite = this.boxSprites[kind % this.boxSprites.length];
+    if (imgReady(sprite)) {
+      ctx.drawImage(sprite, -bw / 2, -bh * 0.98, bw, bh);
+    } else {
+      ctx.fillStyle = ["#C62828", "#2E7D32", "#1565C0", "#FFB300", "#7B1FA2"][kind % 5];
+      roundRectPath(ctx, -bw / 2, -bh * 0.82, bw, bh * 0.8, 8);
+      ctx.fill();
+    }
+
+    // Reloj mágico dibujado sobre la caja si es tipo clock
+    if (kind === 5 && imgReady(this.spriteClock)) {
+      const clkSize = bw * 0.38;
+      ctx.drawImage(this.spriteClock, -clkSize / 2, -bh * 0.55, clkSize, clkSize);
+    }
+
+    ctx.restore();
+
+    // Medallón dorado corporativo
+    if (logo) {
+      drawSponsorMedallion(ctx, logo, cx, bottomScreen - bh * 0.36, bw * 0.22);
+
+      if (sponsorName) {
+        ctx.save();
+        ctx.fillStyle = "#0F172A";
+        ctx.strokeStyle = "#FFD700";
+        ctx.lineWidth = 1.4;
+        const tagW = Math.min(bw * 0.9, 100);
+        const tagH = 16;
+        roundRectPath(ctx, cx - tagW / 2, bottomScreen - bh * 0.12, tagW, tagH, 5);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#FFD700";
+        ctx.font = "900 9px 'Titan One', 'Fredoka', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(sponsorName.toUpperCase(), cx, bottomScreen - bh * 0.12 + tagH / 2);
+        ctx.restore();
+      }
+    }
+  }
+
+  /**
+   * Dibuja el trozo rebanado que cae al vacío
+   */
+  private drawSliceBox(ctx: CanvasRenderingContext2D, width: number, height: number, kind: number): void {
+    const sprite = this.boxSprites[kind % this.boxSprites.length];
+    if (imgReady(sprite)) {
+      // Recorte parcial del sprite
+      ctx.drawImage(
+        sprite,
+        0, 0, sprite.naturalWidth * 0.5, sprite.naturalHeight,
+        -width / 2, -height / 2, width, height
+      );
+    } else {
+      ctx.fillStyle = ["#C62828", "#2E7D32", "#1565C0", "#FFB300", "#7B1FA2"][kind % 5];
+      roundRectPath(ctx, -width / 2, -height / 2, width, height, 4);
+      ctx.fill();
+    }
+  }
+
+  /**
+   * Dibuja la grúa mecánica navideña con carro, cable y garra articulada
+   */
+  private drawMechanicalCrane(ctx: CanvasRenderingContext2D): void {
+    const cx = this.swingCx;
+    const railY = 88;
+    const bottomScreen = this.hangBottom - this.cameraY;
+    const boxTop = bottomScreen - this.boxH * 0.95;
+
+    // 1. Riel mecánico de bastón de caramelo y latón
+    ctx.save();
+    ctx.strokeStyle = "#D32F2F";
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(18, railY);
+    ctx.lineTo(this.width - 18, railY);
+    ctx.stroke();
+
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([12, 10]);
+    ctx.beginPath();
+    ctx.moveTo(18, railY);
+    ctx.lineTo(this.width - 18, railY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Topes dorados de riel
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.arc(18, railY, 8, 0, Math.PI * 2);
+    ctx.arc(this.width - 18, railY, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // 2. Carro de Grúa Mecánica (grua-carro-navideno.webp)
+    const trolleyW = 68;
+    const trolleyH = 62;
+    if (imgReady(this.spriteTrolley)) {
+      ctx.drawImage(this.spriteTrolley, cx - trolleyW / 2, railY - trolleyH * 0.5, trolleyW, trolleyH);
+    } else {
+      ctx.fillStyle = "#FFB300";
+      ctx.strokeStyle = "#5D3A00";
+      ctx.lineWidth = 2.5;
+      roundRectPath(ctx, cx - 20, railY - 12, 40, 24, 6);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // 3. Cable de acero y garra oscilante
+    const clawY = boxTop - 12;
+    ctx.save();
+    ctx.strokeStyle = "#FFE082";
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, railY + 12);
+    ctx.lineTo(cx, clawY);
+    ctx.stroke();
+    ctx.restore();
+
+    // 4. Garra mecánica articulada (garra-gancho-navideno.webp)
+    const clawW = 56;
+    const clawH = 60;
+    ctx.save();
+    ctx.translate(cx, clawY);
+
+    // Oscilación y apertura al soltar
+    const isOpen = this.clawOpenTimer > 0;
+    const clawScaleX = isOpen ? 1.3 : 1.0;
+    const clawScaleY = isOpen ? 0.88 : 1.0;
+    ctx.scale(clawScaleX, clawScaleY);
+
+    if (imgReady(this.spriteClaw)) {
+      ctx.drawImage(this.spriteClaw, -clawW / 2, -clawH * 0.35, clawW, clawH);
+    } else {
+      ctx.fillStyle = "#FFD700";
+      ctx.beginPath();
+      ctx.arc(0, 0, 10, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // 5. Si no está cayendo ningún bloque, dibujar el paquete sostenido por la garra
+    if (!this.dropping && !this.locked) {
+      ctx.save();
+      ctx.translate(cx, boxTop + this.boxH * 0.2);
+      ctx.rotate(Math.cos(this.swingT) * 0.06);
+      ctx.translate(-cx, -(boxTop + this.boxH * 0.2));
+
+      this.drawBox(
+        ctx,
+        cx,
+        bottomScreen,
+        this.currentBw,
+        this.nextKind,
+        0,
+        this.nextGold ? this.nextSponsor?.logo : undefined,
+        this.nextSponsor?.name
+      );
+      ctx.restore();
+    }
+  }
+
+  /**
+   * Marcador de altitud en madera tallada al lado de la torre
+   */
+  private drawHeightMarker(ctx: CanvasRenderingContext2D, x: number, y: number, meters: number): void {
+    ctx.save();
+    ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
+    ctx.strokeStyle = "#FFD700";
+    ctx.lineWidth = 1.8;
+    const tagW = 54;
+    const tagH = 22;
+    roundRectPath(ctx, x - tagW / 2, y - tagH / 2, tagW, tagH, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#FFD700";
+    ctx.font = "900 11px 'Titan One', 'Fredoka', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`${meters}m`, x, y);
+    ctx.restore();
+  }
+
+  /**
+   * Banner celebratorio de hitos de pisos
+   */
+  private drawMilestoneBanner(ctx: CanvasRenderingContext2D): void {
+    if (!this.activeBanner) return;
+
+    ctx.save();
+    const progress = this.activeBanner.timer / this.activeBanner.maxTimer;
+    let alpha = 1;
+    if (progress > 0.8) alpha = (1 - progress) / 0.2;
+    else if (progress < 0.2) alpha = progress / 0.2;
+
+    ctx.globalAlpha = alpha;
+    const bannerW = Math.min(this.width * 0.85, 360);
+    const bannerH = 56;
+    const bannerX = (this.width - bannerW) / 2;
+    const bannerY = this.height * 0.36;
+
+    ctx.shadowColor = "#FFD700";
+    ctx.shadowBlur = 18;
+    const grad = ctx.createLinearGradient(bannerX, bannerY, bannerX, bannerY + bannerH);
+    grad.addColorStop(0, "rgba(255, 215, 0, 0.95)");
+    grad.addColorStop(1, "rgba(255, 145, 0, 0.95)");
+
+    ctx.fillStyle = grad;
+    roundRectPath(ctx, bannerX, bannerY, bannerW, bannerH, 16);
+    ctx.fill();
+
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.fillStyle = "#0F172A";
+    ctx.font = "900 16px 'Titan One', 'Fredoka', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(this.activeBanner.title, this.width / 2, bannerY + 20);
+
+    ctx.fillStyle = "#7C2D12";
+    ctx.font = "800 12px 'Titan One', 'Fredoka', sans-serif";
+    ctx.fillText(this.activeBanner.subtitle, this.width / 2, bannerY + 40);
+    ctx.restore();
+  }
+
+  /**
+   * HUD Superior de información
+   */
+  private drawHUDPanels(ctx: CanvasRenderingContext2D): void {
+    const floorsCount = Math.max(0, this.blocks.length - 1);
+    drawPill(ctx, `★ PISO ${floorsCount} ★`, this.width / 2, 68, "#FFD700", 124);
+
+    if (this.isFeverMode) {
+      drawPill(ctx, "★ ¡FIEBRE x2! ★", this.width - 86, 68, "#FF1744", 136);
+    } else if (this.combo >= 2) {
+      drawPill(ctx, `PERFECTO x${this.combo}`, this.width - 86, 68, "#FF9100", 130);
     }
   }
 }

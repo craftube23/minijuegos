@@ -286,6 +286,52 @@ export class AudioManager {
   }
 
   /**
+   * Pausa de audio de bajo nivel al perder visibilidad la aplicación (pestaña/WebView)
+   */
+  public onPageHidden(): void {
+    if (this.bgmAudio && !this.bgmAudio.paused) {
+      this.bgmAudio.pause();
+    }
+    if (this.gameBgmAudio && !this.gameBgmAudio.paused) {
+      this.gameBgmAudio.pause();
+    }
+    if (this.ctx && this.ctx.state === "running") {
+      this.ctx.suspend().catch(() => {});
+    }
+    try {
+      if (Howler.ctx && Howler.ctx.state === "running") {
+        Howler.ctx.suspend().catch(() => {});
+      }
+    } catch {
+      // Ignorar de forma segura si Howler.ctx aún no está inicializado
+    }
+  }
+
+  /**
+   * Reanudación segura de audio al recuperar la visibilidad
+   */
+  public onPageVisible(): void {
+    if (this.ctx && this.ctx.state === "suspended") {
+      this.ctx.resume().catch(() => {});
+    }
+    try {
+      if (Howler.ctx && Howler.ctx.state === "suspended") {
+        Howler.ctx.resume().catch(() => {});
+      }
+    } catch {
+      // Ignorar de forma segura
+    }
+
+    if (!this.isMuted) {
+      if (this.isGameActive && this.gameBgmAudio && this.gameBgmAudio.paused) {
+        this.gameBgmAudio.play().catch(() => {});
+      } else if (!this.isGameActive && this.bgmAudio && this.bgmAudio.paused) {
+        this.bgmAudio.play().catch(() => {});
+      }
+    }
+  }
+
+  /**
    * Alterna entre silenciado y con sonido
    */
   public toggleMute(): boolean {
@@ -553,6 +599,21 @@ export class AudioManager {
     } catch (e) {
       console.warn("Aviso al reproducir SFX:", src, e);
     }
+  }
+
+  private lastSliceSfxAt = 0;
+
+  /** Corte exitoso de regalo/piñata (Ninja Corta-Regalos). Limita solapamientos en tajos muy seguidos. */
+  public playSliceCut(): void {
+    const now = performance.now();
+    if (now - this.lastSliceSfxAt < 70) return;
+    this.lastSliceSfxAt = now;
+    this.playSoundEffect("./assets/audio/cortaregalos/corte_effec.mp3", 0.8, 0.95 + Math.random() * 0.15);
+  }
+
+  /** Explosión al cortar una bomba de carbón. */
+  public playCoalBombExplosion(): void {
+    this.playSoundEffect("./assets/audio/cortaregalos/efecto de sonido de explosión.mp3", 0.95);
   }
 
   // ==========================================================================

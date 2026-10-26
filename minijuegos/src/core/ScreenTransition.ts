@@ -38,7 +38,7 @@ export class ScreenTransition {
         <!-- Logo Estrella 3D Animado con Aura y Chispas -->
         <div class="intro-star-wrapper">
           <div class="intro-magic-glow"></div>
-          <img src="./assets/images/estrella con logo.png" alt="Feria Mágica del Juguete" class="intro-star-logo" />
+          <img src="./assets/images/estrella con logo.webp" alt="Feria Mágica del Juguete" class="intro-star-logo" />
           <div class="intro-sparkle s1">✦</div>
           <div class="intro-sparkle s2">✧</div>
           <div class="intro-sparkle s3">✦</div>
@@ -209,7 +209,7 @@ export class ScreenTransition {
       <div class="fantasy-crest-badge" style="--seal-theme-color: #FFD700">
         <div class="fantasy-crest-glow"></div>
         <div class="fantasy-crest-icon-wrapper">
-          <img src="./assets/images/estrella con logo.png" alt="Feria Mágica" class="fantasy-crest-logo-img" />
+          <img src="./assets/images/estrella con logo.webp" alt="Feria Mágica" class="fantasy-crest-logo-img" />
         </div>
         <h2 class="fantasy-crest-title">FERIA MÁGICA</h2>
         <div class="fantasy-crest-pill">

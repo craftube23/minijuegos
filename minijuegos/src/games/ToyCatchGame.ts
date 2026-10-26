@@ -72,26 +72,13 @@ export class ToyCatchGame extends BaseGame {
       particles
     );
 
-    this.bagImage = new Image();
-    this.bagImage.src = "./assets/images/bolsa de regalos.png";
-
-    this.imgGiftRed = new Image();
-    this.imgGiftRed.src = "./assets/images/regalo-rojo.png";
-
-    this.imgGiftGreen = new Image();
-    this.imgGiftGreen.src = "./assets/images/regalo-verde.png";
-
-    this.imgTeddy = new Image();
-    this.imgTeddy.src = "./assets/images/osito.png";
-
-    this.imgRobot = new Image();
-    this.imgRobot.src = "./assets/images/robot.png";
-
-    this.imgCoal = new Image();
-    this.imgCoal.src = "./assets/images/carbon.png";
-
-    this.imgIce = new Image();
-    this.imgIce.src = "./assets/images/hielo.png";
+    this.bagImage = this.getImage("./assets/images/bolsa de regalos.webp");
+    this.imgGiftRed = this.getImage("./assets/images/regalo-rojo.webp");
+    this.imgGiftGreen = this.getImage("./assets/images/regalo-verde.webp");
+    this.imgTeddy = this.getImage("./assets/images/osito.webp");
+    this.imgRobot = this.getImage("./assets/images/robot.webp");
+    this.imgCoal = this.getImage("./assets/images/carbon.webp");
+    this.imgIce = this.getImage("./assets/images/hielo.webp");
 
     this.showLives = true;
     this.lives = 5;
@@ -172,10 +159,8 @@ export class ToyCatchGame extends BaseGame {
       this.spawnFallingItem();
       // En la segunda mitad del juego, probabilidad moderada de drop doble
       if (progress > 0.45 && Math.random() < 0.22) {
-        setTimeout(() => {
-          if (this.isRunning && !this.isGameOver) {
-            this.spawnFallingItem();
-          }
+        this.setGameTimeout(() => {
+          this.spawnFallingItem();
         }, 180);
       }
     }
@@ -308,10 +293,7 @@ export class ToyCatchGame extends BaseGame {
       this.comboCount++;
       this.addScore(item.points);
       this.triggerLogoPowerUp(sponsor.id, 7);
-      this.triggerShake(0.15, 4);
-      this.addFloatingText(`¡BONUS ${sponsor.shortName.toUpperCase()} x2! +500`, this.basketX, this.basketY - 50, sponsor.themeColor, 1.35);
-      this.particles.emitBurst(this.basketX, this.basketY, sponsor.themeColor, 25);
-      this.particles.emitConfetti(this.width, 35);
+      this.triggerShake(0.12, 3);
     } else {
       this.comboCount++;
       const comboBonus = Math.min(this.comboCount * 20, 200);
@@ -319,10 +301,8 @@ export class ToyCatchGame extends BaseGame {
       this.addScore(totalPoints);
       this.audio.playCatchItem(1.0 + Math.min(this.comboCount * 0.05, 0.5));
 
-      // Texto de puntos flotante con combo
-      const comboLabel = this.comboCount > 2 ? ` (x${this.comboCount})` : "";
-      const scoreColor = this.comboCount > 4 ? "#FFD700" : "#00E676";
-      this.addFloatingText(`+${totalPoints}${comboLabel}`, this.basketX, this.basketY - 40, scoreColor);
+      // Los puntos se suman al HUD superior sin dejar texto flotante ni marcas en pantalla
+      // Los juguetes entran limpios al saco sin dejar puntos ni rastro.
     }
   }
 
@@ -330,9 +310,28 @@ export class ToyCatchGame extends BaseGame {
     // 1. Limpiar canvas transparente para mostrar el fondo original del Kiosco
     ctx.clearRect(0, 0, this.width, this.height);
 
+    // Sombra proyectada en el suelo para cada objeto que cae según su altitud
+    for (const item of this.items) {
+      const distFromGround = Math.max(0, (this.height - 16) - item.y);
+      if (distFromGround < this.height * 0.85) {
+        const groundRatio = 1 - (distFromGround / (this.height * 0.85));
+        const shadowAlpha = 0.22 * groundRatio;
+        const shadowWidth = item.size * (0.35 + groundRatio * 0.35);
+        ctx.save();
+        ctx.fillStyle = `rgba(15, 23, 42, ${shadowAlpha.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.ellipse(item.x, this.height - 12, shadowWidth, 5 * groundRatio + 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
     // 2. Dibujar objetos que caen (100% sprites con feedback visual)
     for (const item of this.items) {
       ctx.save();
+      ctx.shadowColor = "rgba(10, 20, 40, 0.28)";
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetY = 3;
       ctx.translate(item.x, item.y);
       ctx.rotate(item.rotation);
 
@@ -391,6 +390,14 @@ export class ToyCatchGame extends BaseGame {
 
       ctx.restore();
     }
+
+    // Sombra de contacto del saco en el suelo
+    ctx.save();
+    ctx.fillStyle = "rgba(12, 24, 48, 0.32)";
+    ctx.beginPath();
+    ctx.ellipse(this.basketX, this.height - 10, (this.basketWidth * 0.48) * this.basketSquashX, 9, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
 
     // 2. Dibujar el Saco Mágico con deformación elástica (Squash & Stretch) e inclinación
     ctx.save();
@@ -474,6 +481,7 @@ export class ToyCatchGame extends BaseGame {
   public override destroy(): void {
     super.destroy();
     this.audio.stopHowlSfx(AudioManager.TOY_CATCH_PILOT_SFX.catchBag);
+    this.items = [];
   }
 }
 

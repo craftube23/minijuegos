@@ -81,19 +81,19 @@ export class MagicPairsGame extends BaseGame {
     );
 
     // Cargar todos los sprites temáticos
-    this.spriteTeddy = this.createImage("./assets/images/osito.png");
-    this.spriteRobot = this.createImage("./assets/images/robot.png");
-    this.spriteGiftRed = this.createImage("./assets/images/regalo-rojo2.png");
-    this.spriteGiftGreen = this.createImage("./assets/images/regalo-verde.png");
-    this.spriteCandyCane = this.createImage("./assets/images/baston-caramelo.png");
-    this.spriteFlyingElf = this.createImage("./assets/images/elfo-volador.png");
-    this.spriteDrums = this.createImage("./assets/images/icon-tambores.png");
-    this.spriteBells = this.createImage("./assets/images/icon-campanas.png");
-    this.spriteTree = this.createImage("./assets/images/arbol.png");
-    this.spriteHouse = this.createImage("./assets/images/casa-obstaculo.png");
-    this.spriteStarLogo = this.createImage("./assets/images/estrella con logo.png");
+    this.spriteTeddy = this.createImage("./assets/images/osito.webp");
+    this.spriteRobot = this.createImage("./assets/images/robot.webp");
+    this.spriteGiftRed = this.createImage("./assets/images/regalo-rojo2.webp");
+    this.spriteGiftGreen = this.createImage("./assets/images/regalo-verde.webp");
+    this.spriteCandyCane = this.createImage("./assets/images/baston-caramelo.webp");
+    this.spriteFlyingElf = this.createImage("./assets/images/elfo-volador.webp");
+    this.spriteDrums = this.createImage("./assets/images/icon-tambores.webp");
+    this.spriteBells = this.createImage("./assets/images/icon-campanas.webp");
+    this.spriteTree = this.createImage("./assets/images/arbol.webp");
+    this.spriteHouse = this.createImage("./assets/images/casa-obstaculo.webp");
+    this.spriteStarLogo = this.createImage("./assets/images/estrella con logo.webp");
     this.spriteLogo1 = this.createImage(BRANDING.getLogoPath(1));
-    this.spriteMedallion = this.createImage("./assets/images/medallon-feria.png");
+    this.spriteMedallion = this.createImage("./assets/images/medallon-feria.webp");
     this.bgImage = this.createImage("./assets/images/fondo-habitacion.webp");
 
     // Precargar sprites de todos los patrocinadores oficiales
@@ -112,9 +112,7 @@ export class MagicPairsGame extends BaseGame {
   }
 
   private createImage(src: string): HTMLImageElement {
-    const img = new Image();
-    img.src = src;
-    return img;
+    return this.getImage(src);
   }
 
   // ============================================================================
@@ -461,11 +459,9 @@ export class MagicPairsGame extends BaseGame {
     this.particles.emitConfetti(this.width, 45);
 
     this.level++;
-    setTimeout(() => {
-      if (this.timeRemaining > 0 && this.isRunning) {
-        this.pairsFound = 0;
-        this.setupDeck();
-      }
+    this.setGameTimeout(() => {
+      this.pairsFound = 0;
+      this.setupDeck();
     }, 900);
   }
 
@@ -588,6 +584,9 @@ export class MagicPairsGame extends BaseGame {
   ): void {
     // Sombra de tarjeta
     ctx.save();
+    ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 6;
     // Fondo estilo terciopelo real azul medianoche
     const backGrad = ctx.createLinearGradient(-halfW, -halfH, halfW, halfH);
     backGrad.addColorStop(0, "#1E293B");
@@ -684,6 +683,9 @@ export class MagicPairsGame extends BaseGame {
     ctx.save();
 
     // Sombra si está seleccionada o resplandor de acierto
+    ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 6;
     // Fondo estilo pergamino marfil noble
     const frontGrad = ctx.createLinearGradient(-halfW, -halfH, halfW, halfH);
     if (card.isMatched) {
@@ -777,5 +779,13 @@ export class MagicPairsGame extends BaseGame {
       case "robot": return this.spriteRobot;
       default: return null;
     }
+  }
+
+  public override destroy(): void {
+    super.destroy();
+    this.firstSelectedCard = null;
+    this.secondSelectedCard = null;
+    this.isCheckingMatch = false;
+    this.cards = [];
   }
 }

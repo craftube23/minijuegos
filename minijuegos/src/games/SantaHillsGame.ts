@@ -216,28 +216,24 @@ export class SantaHillsGame extends BaseGame {
     this.inGameMusicPath = "./assets/audio/jingle-bells.mp3";
     this.inGameMusicVolume = 0.44;
 
-    const load = (src: string): HTMLImageElement => {
-      const img = new Image();
-      img.src = src;
-      return img;
-    };
+    const load = (src: string): HTMLImageElement => this.getImage(src);
 
-    this.imgSantaSleigh = load("./assets/images/santa-trineo.png");
-    this.imgGiftRed = load("./assets/images/regalo-rojo.png");
-    this.imgGiftGreen = load("./assets/images/regalo-verde.png");
-    this.imgCandy = load("./assets/images/baston-caramelo.png");
-    this.imgTeddy = load("./assets/images/osito.png");
-    this.imgRobot = load("./assets/images/robot.png");
-    this.imgRock = load("./assets/images/carbon.png");
-    this.imgIce = load("./assets/images/hielo.png");
-    this.imgSnowman = load("./assets/images/obstaculo-muneco.png");
-    this.imgCrystal = load("./assets/images/obstaculo-cristal.png");
-    this.imgLog = load("./assets/images/obstaculo-tronco.png");
-    this.imgTree = load("./assets/images/arbol.png");
-    this.imgHouse = load("./assets/images/casa-navidena-clean.png");
-    this.imgSignFeria = load("./assets/images/cartel-feria.png");
-    this.imgSignSponsor = load("./assets/images/cartel-sponsor.png");
-    this.imgMedallonFeria = load("./assets/images/medallon-feria.png");
+    this.imgSantaSleigh = load("./assets/images/santa-trineo.webp");
+    this.imgGiftRed = load("./assets/images/regalo-rojo.webp");
+    this.imgGiftGreen = load("./assets/images/regalo-verde.webp");
+    this.imgCandy = load("./assets/images/baston-caramelo.webp");
+    this.imgTeddy = load("./assets/images/osito.webp");
+    this.imgRobot = load("./assets/images/robot.webp");
+    this.imgRock = load("./assets/images/carbon.webp");
+    this.imgIce = load("./assets/images/hielo.webp");
+    this.imgSnowman = load("./assets/images/obstaculo-muneco.webp");
+    this.imgCrystal = load("./assets/images/obstaculo-cristal.webp");
+    this.imgLog = load("./assets/images/obstaculo-tronco.webp");
+    this.imgTree = load("./assets/images/arbol.webp");
+    this.imgHouse = load("./assets/images/casa-navidena-clean.webp");
+    this.imgSignFeria = load("./assets/images/cartel-feria.webp");
+    this.imgSignSponsor = load("./assets/images/cartel-sponsor.webp");
+    this.imgMedallonFeria = load("./assets/images/medallon-feria.webp");
     this.imgBgSeamless = load("./assets/images/fondo-villa-seamless.jpg");
   }
 
@@ -1560,5 +1556,18 @@ export class SantaHillsGame extends BaseGame {
     this.isLogoPowerUpActive = false;
     this.logoPowerUpTimer = 0;
     super.endGame(extraData);
+  }
+
+  public override destroy(): void {
+    super.destroy();
+    this.collectibles = [];
+    this.obstacles = [];
+    this.scenic = [];
+    this.distantProps = [];
+    this.spray = [];
+    this.tracks = [];
+    this.terrain = [];
+    this.occupied = [];
+    this.flakes = [];
   }
 }

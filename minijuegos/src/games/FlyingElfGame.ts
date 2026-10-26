@@ -58,8 +58,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#FFD700",
     glowColor: "rgba(255, 215, 0, 0.45)",
     accentColor: "#DC2626",
-    spritePath: "./assets/images/elfo-volador.png",
-    iconPath: "./assets/images/icon-elfo-feria.png",
+    spritePath: "./assets/images/elfo-volador.webp",
+    iconPath: "./assets/images/icon-elfo-feria.webp",
     soundNote: 0
   },
   {
@@ -73,8 +73,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#00E5FF",
     glowColor: "rgba(0, 229, 255, 0.45)",
     accentColor: "#0284C7",
-    spritePath: "./assets/images/elfo-volador-campus.png",
-    iconPath: "./assets/images/icon-elfo-campus.png",
+    spritePath: "./assets/images/elfo-volador-campus.webp",
+    iconPath: "./assets/images/icon-elfo-campus.webp",
     soundNote: 2
   },
   {
@@ -88,8 +88,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#38BDF8",
     glowColor: "rgba(56, 189, 248, 0.45)",
     accentColor: "#0B4F9C",
-    spritePath: "./assets/images/elfo-volador-cajasan.png",
-    iconPath: "./assets/images/icon-elfo-cajasan.png",
+    spritePath: "./assets/images/elfo-volador-cajasan.webp",
+    iconPath: "./assets/images/icon-elfo-cajasan.webp",
     soundNote: 4
   },
   {
@@ -103,8 +103,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#FBBF24",
     glowColor: "rgba(251, 191, 36, 0.45)",
     accentColor: "#DC2626",
-    spritePath: "./assets/images/elfo-volador-practi.png",
-    iconPath: "./assets/images/icon-elfo-practi.png",
+    spritePath: "./assets/images/elfo-volador-practi.webp",
+    iconPath: "./assets/images/icon-elfo-practi.webp",
     soundNote: 1
   },
   {
@@ -118,8 +118,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#F472B6",
     glowColor: "rgba(244, 114, 182, 0.45)",
     accentColor: "#F59E0B",
-    spritePath: "./assets/images/elfo-volador-mariposa.png",
-    iconPath: "./assets/images/icon-elfo-mariposa.png",
+    spritePath: "./assets/images/elfo-volador-mariposa.webp",
+    iconPath: "./assets/images/icon-elfo-mariposa.webp",
     soundNote: 3
   },
   {
@@ -133,8 +133,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#94A3B8",
     glowColor: "rgba(148, 163, 184, 0.45)",
     accentColor: "#1E3A8A",
-    spritePath: "./assets/images/elfo-volador-angelus.png",
-    iconPath: "./assets/images/icon-elfo-angelus.png",
+    spritePath: "./assets/images/elfo-volador-angelus.webp",
+    iconPath: "./assets/images/icon-elfo-angelus.webp",
     soundNote: 5
   },
   {
@@ -148,8 +148,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#EF4444",
     glowColor: "rgba(239, 68, 68, 0.45)",
     accentColor: "#1E293B",
-    spritePath: "./assets/images/elfo-volador-factor.png",
-    iconPath: "./assets/images/icon-elfo-factor.png",
+    spritePath: "./assets/images/elfo-volador-factor.webp",
+    iconPath: "./assets/images/icon-elfo-factor.webp",
     soundNote: 6
   },
   {
@@ -163,8 +163,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#38BDF8",
     glowColor: "rgba(56, 189, 248, 0.45)",
     accentColor: "#0284C7",
-    spritePath: "./assets/images/elfo-volador-fundalas.png",
-    iconPath: "./assets/images/icon-elfo-fundalas.png",
+    spritePath: "./assets/images/elfo-volador-fundalas.webp",
+    iconPath: "./assets/images/icon-elfo-fundalas.webp",
     soundNote: 2
   },
   {
@@ -178,8 +178,8 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     themeColor: "#4ADE80",
     glowColor: "rgba(74, 222, 128, 0.45)",
     accentColor: "#EAB308",
-    spritePath: "./assets/images/elfo-volador-imebu.png",
-    iconPath: "./assets/images/icon-elfo-imebu.png",
+    spritePath: "./assets/images/elfo-volador-imebu.webp",
+    iconPath: "./assets/images/icon-elfo-imebu.webp",
     soundNote: 4
   }
 ];
@@ -293,7 +293,6 @@ export class FlyingElfGame extends BaseGame {
   private keyNavCooldown: number = 0;
 
   private imgElfFeria: HTMLImageElement;
-  private imgLogoCampus: HTMLImageElement;
   private imgBgPanorama: HTMLImageElement;
   private imgHouseObstacle: HTMLImageElement;
   private imgIcicle: HTMLImageElement;
@@ -321,63 +320,37 @@ export class FlyingElfGame extends BaseGame {
       particles
     );
 
-    // 1. Pre-cargar el Roster Completo de 9 Elfos de Patrocinadores
+    // 1. Pre-cargar el Roster Completo de 9 Elfos de Patrocinadores con caché compartida
     for (const elfDef of ELF_ROSTER) {
-      const spriteImg = new Image();
-      spriteImg.src = elfDef.spritePath;
-      this.elfSprites.set(elfDef.id, spriteImg);
-
-      const iconImg = new Image();
-      iconImg.src = elfDef.iconPath;
-      this.elfIcons.set(elfDef.id, iconImg);
+      this.elfSprites.set(elfDef.id, this.getImage(elfDef.spritePath));
+      this.elfIcons.set(elfDef.id, this.getImage(elfDef.iconPath));
     }
 
     this.imgElfFeria = this.elfSprites.get("feria")!;
 
-    this.imgLogoCampus = new Image();
-    this.imgLogoCampus.src = "./assets/logos/logo-campus-sin-fondo.png";
-
     // 2. Único Fondo Panorámico Continuo de la Villa Navideña
-    this.imgBgPanorama = new Image();
-    this.imgBgPanorama.src = "./assets/images/fondo-villa-seamless.jpg";
+    this.imgBgPanorama = this.getImage("./assets/images/fondo-villa-seamless.jpg");
 
     // 3. Obstáculos Ilustrados 2D (Casa navideña con tejado/chimenea y Estalactitas)
-    this.imgHouseObstacle = new Image();
-    this.imgHouseObstacle.src = "./assets/images/casa-obstaculo.png";
-
-    this.imgIcicle = new Image();
-    this.imgIcicle.src = "./assets/images/estalactita-hielo.png";
+    this.imgHouseObstacle = this.getImage("./assets/images/casa-obstaculo.webp");
+    this.imgIcicle = this.getImage("./assets/images/estalactita-hielo.webp");
 
     // 4. Carteles de Publicidad con Logos Integrados de Todos los Patrocinadores
     const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu"];
     for (const key of cartelKeys) {
-      const img = new Image();
-      img.src = `./assets/images/cartel-${key}.png`;
-      this.cartelImages.set(key, img);
+      this.cartelImages.set(key, this.getImage(`./assets/images/cartel-${key}.png`));
     }
 
     // 5. Decoraciones de Piso
-    this.imgTree = new Image();
-    this.imgTree.src = "./assets/images/arbol.png";
+    this.imgTree = this.getImage("./assets/images/arbol.webp");
 
     // 6. Coleccionables Ilustrados 2D
-    this.imgGiftRed = new Image();
-    this.imgGiftRed.src = "./assets/images/regalo-rojo.png";
-
-    this.imgGiftGreen = new Image();
-    this.imgGiftGreen.src = "./assets/images/regalo-verde.png";
-
-    this.imgGiftRed2 = new Image();
-    this.imgGiftRed2.src = "./assets/images/regalo-rojo2.png";
-
-    this.imgCandy = new Image();
-    this.imgCandy.src = "./assets/images/baston-caramelo.png";
-
-    this.imgTeddy = new Image();
-    this.imgTeddy.src = "./assets/images/osito.png";
-
-    this.imgStarLogo = new Image();
-    this.imgStarLogo.src = "./assets/images/estrella con logo.png";
+    this.imgGiftRed = this.getImage("./assets/images/regalo-rojo.webp");
+    this.imgGiftGreen = this.getImage("./assets/images/regalo-verde.webp");
+    this.imgGiftRed2 = this.getImage("./assets/images/regalo-rojo2.webp");
+    this.imgCandy = this.getImage("./assets/images/baston-caramelo.webp");
+    this.imgTeddy = this.getImage("./assets/images/osito.webp");
+    this.imgStarLogo = this.getImage("./assets/images/estrella con logo.webp");
 
     // Configuración del sistema de 5 Vidas
     this.showLives = false; // Se mostrará una vez inicie el vuelo activo tras la cuenta regresiva
@@ -1198,6 +1171,7 @@ export class FlyingElfGame extends BaseGame {
 
     const mainContainer = document.getElementById("game-container") || document.body;
     ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+      if (!this.isRunning || this.isGameOver) return;
       this.gameState = "playing";
       this.showLives = true;
       this.timeRemaining = this.initialGameDuration;
@@ -1251,6 +1225,7 @@ export class FlyingElfGame extends BaseGame {
 
     const mainContainer = document.getElementById("game-container") || document.body;
     ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
+      if (!this.isRunning || this.isGameOver) return;
       this.gameState = "playing";
       this.showLives = true;
       this.timeRemaining = this.initialGameDuration;
@@ -1475,9 +1450,9 @@ export class FlyingElfGame extends BaseGame {
     ctx.font = `900 ${titleSize}px 'Outfit', sans-serif`;
     ctx.strokeStyle = "#4A2600";
     ctx.lineWidth = 4;
-    ctx.strokeText("🧝‍♂️ ELIGE A TU ELFO MÁGICO", this.width / 2, layout.titleY);
+    ctx.strokeText("ELIGE A TU ELFO MÁGICO", this.width / 2, layout.titleY);
     ctx.fillStyle = "#FFD700";
-    ctx.fillText("🧝‍♂️ ELIGE A TU ELFO MÁGICO", this.width / 2, layout.titleY);
+    ctx.fillText("ELIGE A TU ELFO MÁGICO", this.width / 2, layout.titleY);
 
     ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
     const subtitleSize = Math.max(10, Math.min(14, titleSize * 0.48));
@@ -1747,7 +1722,7 @@ export class FlyingElfGame extends BaseGame {
 
         ctx.fillStyle = "#FDE68A";
         ctx.font = "800 11.5px 'Outfit', sans-serif";
-        ctx.fillText(`🌟 ${def.perkName}`, textCenter, perkBoxY + 16, perkBoxW - 16);
+        ctx.fillText(`★ ${def.perkName}`, textCenter, perkBoxY + 16, perkBoxW - 16);
 
         ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
         ctx.font = "500 10.5px 'Outfit', sans-serif";
@@ -1795,7 +1770,7 @@ export class FlyingElfGame extends BaseGame {
 
       ctx.fillStyle = "#FDE68A";
       ctx.font = "800 11.5px 'Outfit', sans-serif";
-      ctx.fillText(`🌟 HABILIDAD: ${def.perkName}`, contentX + 10, curY + 16);
+      ctx.fillText(`★ HABILIDAD: ${def.perkName}`, contentX + 10, curY + 16);
       ctx.fillStyle = "rgba(255, 255, 255, 0.88)";
       ctx.font = "500 10.5px 'Outfit', sans-serif";
       ctx.fillText(def.perkDesc, contentX + 10, curY + abilityH - 8, fullAvailW - 20);
@@ -2287,6 +2262,14 @@ export class FlyingElfGame extends BaseGame {
     ctx.save();
     for (const obs of this.obstacles) {
       if (obs.type === "house") {
+        // Sombra de contacto de la casa sobre la nieve
+        ctx.save();
+        ctx.fillStyle = "rgba(10, 20, 45, 0.38)";
+        ctx.beginPath();
+        ctx.ellipse(obs.x + obs.width / 2, obs.y + obs.height - 2, obs.width * 0.52, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
         if (this.imgHouseObstacle.complete && this.imgHouseObstacle.naturalWidth > 0) {
           ctx.drawImage(this.imgHouseObstacle, obs.x, obs.y, obs.width, obs.height);
         } else {
@@ -2569,7 +2552,7 @@ export class FlyingElfGame extends BaseGame {
     ctx.textBaseline = "middle";
     ctx.font = "900 12px 'Outfit', sans-serif";
     ctx.fillStyle = tierColor;
-    ctx.fillText(`⚡ ${this.speedMultiplier.toFixed(1)}x`, speedX + 9, speedY + speedH / 2);
+    ctx.fillText(`${this.speedMultiplier.toFixed(1)}x`, speedX + 9, speedY + speedH / 2);
 
     ctx.textAlign = "right";
     ctx.font = "bold 10px 'Outfit', sans-serif";
@@ -2668,6 +2651,14 @@ export class FlyingElfGame extends BaseGame {
     this.isLogoPowerUpActive = false;
     this.logoPowerUpTimer = 0;
     super.endGame(extraData);
+  }
+
+  public override destroy(): void {
+    super.destroy();
+    this.gameState = "character-select";
+    this.collectibles = [];
+    this.obstacles = [];
+    this.chimneyPuffs = [];
   }
 }
 
