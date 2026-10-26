@@ -331,7 +331,7 @@ export class BellSymphonyGame extends BaseGame {
     this.laneWidth = totalTrackWidth / 4;
     this.laneStartX = (this.width - totalTrackWidth) / 2;
     // Línea de impacto adaptativa: no muy pegada al fondo en pantallas cortas
-    this.hitLineY = this.height < 500
+    this.hitLineY = this.height <= 700
       ? Math.max(this.height * 0.72, this.height - 54)
       : this.height * 0.80;
   }
@@ -575,7 +575,7 @@ export class BellSymphonyGame extends BaseGame {
   } {
     const cx = this.width / 2;
     const isLandscape = this.width > this.height;
-    const isShort = this.height < 500;
+    const isShort = this.height <= 700;
     const cardW = Math.min(this.width * 0.94, isLandscape ? 620 : 520);
     const cardX = (this.width - cardW) / 2;
     const count = this.songList.length;
@@ -1887,7 +1887,7 @@ export class BellSymphonyGame extends BaseGame {
     // Badge de Rango en Vivo (Live Grade Rank)
     const rankInfo = this.calculateRank();
     const totalTrackW = this.laneWidth * 4;
-    const isShortTrack = this.height < 500;
+    const isShortTrack = this.height <= 700;
     const rankBadgeX = Math.min(this.laneStartX + totalTrackW - (isShortTrack ? 24 : 35), this.width - 45);
     const hudTopH = isShortTrack ? 28 : 50;
     const rankBadgeY = isShortTrack ? (hudTopH + 12) : 72;
@@ -1947,7 +1947,7 @@ export class BellSymphonyGame extends BaseGame {
     ctx.save();
     ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
 
-    const isShort = this.height < 500;
+    const isShort = this.height <= 700;
     const hudH = isShort ? 28 : Math.max(44, Math.min(68, this.height * 0.075));
     const cardX = (isShort ? 14 : 30) + slideOffsetX;
     const cardY = hudH + (isShort ? 4 : 26);

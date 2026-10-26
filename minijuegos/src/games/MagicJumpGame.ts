@@ -400,7 +400,7 @@ export class MagicJumpGame extends BaseGame {
     this.playerH = Math.round(this.playerW * 1.21);
 
     // Botones táctiles inferiores para kiosco táctil y móviles
-    const isShort = h < 500;
+    const isShort = h <= 700;
     const btnW = isShort ? Math.min(110, Math.max(75, Math.round(w * 0.16))) : Math.min(160, Math.max(108, Math.round(w * 0.25)));
     const btnH = isShort ? Math.max(32, Math.min(42, Math.round(h * 0.08))) : Math.max(48, Math.min(62, Math.round(h * 0.055)));
     const btnY = Math.min(h - btnH - (isShort ? 6 : 12), h * (isShort ? 0.88 : 0.91));
@@ -2066,7 +2066,7 @@ export class MagicJumpGame extends BaseGame {
 
     ctx.globalAlpha = alpha;
 
-    const isShort = this.height < 500;
+    const isShort = this.height <= 700;
     const bannerW = isShort ? Math.min(this.width * 0.6, 260) : Math.min(this.width * 0.85, 360);
     const bannerH = isShort ? 34 : 58;
     const bannerX = (this.width - bannerW) / 2;

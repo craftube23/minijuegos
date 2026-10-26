@@ -277,7 +277,7 @@ export class MagicPairsGame extends BaseGame {
   }
 
   private getHeaderLayout(): { y: number; h: number; w: number; x: number; fontSize: number } {
-    const isShort = this.height < 500;
+    const isShort = this.height <= 700;
     const hudH = isShort
       ? Math.max(36, Math.min(48, this.height * 0.10))
       : Math.max(44, Math.min(68, this.height * 0.075));
@@ -326,7 +326,7 @@ export class MagicPairsGame extends BaseGame {
     }
 
     const header = this.getHeaderLayout();
-    const isShort = this.height < 500;
+    const isShort = this.height <= 700;
     const startY = header.y + header.h + (isShort ? 4 : Math.max(8, this.height * 0.015));
     const bottomPad = isShort ? 6 : Math.max(10, this.height * 0.02);
     const gridH = Math.max(100, this.height - startY - bottomPad);

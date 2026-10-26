@@ -1257,7 +1257,7 @@ export class FlyingElfGame extends BaseGame {
     isLandscape: boolean;
   } {
     const isLandscape = this.width > this.height;
-    const isShortHeight = this.height < 500;
+    const isShortHeight = this.height <= 700;
 
     const titleY = isShortHeight ? Math.max(18, this.height * 0.065) : Math.max(28, this.height * 0.075);
     const subtitleY = titleY + (isShortHeight ? 16 : 22);

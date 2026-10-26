@@ -2146,7 +2146,7 @@ export class SnowballTargetGame extends BaseGame {
 
   private drawTargetHUD(ctx: CanvasRenderingContext2D): void {
     const badgeX = this.width / 2;
-    const badgeY = this.height < 500 ? 32 : 82;
+    const badgeY = this.height <= 700 ? 32 : 82;
 
     ctx.save();
     ctx.translate(badgeX, badgeY);

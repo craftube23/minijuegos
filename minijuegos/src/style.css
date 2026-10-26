@@ -384,7 +384,30 @@ html, body {
   max-width: 440px;
 }
 
-@media (min-width: 1080px) {
+/* En modo horizontal / landscape, adaptamos a 3 o 5 columnas para que quepan sin desbordar ni cortarse */
+@media (orientation: landscape), (min-aspect-ratio: 1.2/1) {
+  .menu-grid {
+    max-width: 1280px;
+    gap: clamp(8px, 1.2vw, 14px);
+    padding-bottom: 8px;
+  }
+  .menu-grid .game-card-fantasy {
+    flex: 0 1 calc(33.333% - 12px);
+    max-width: clamp(200px, 24vw, 260px);
+  }
+}
+
+@media (orientation: landscape) and (min-width: 1040px) {
+  .menu-grid {
+    max-width: 1360px;
+  }
+  .menu-grid .game-card-fantasy {
+    flex: 0 1 calc(20% - 12px);
+    max-width: 230px;
+  }
+}
+
+@media (min-width: 1080px) and (orientation: portrait) {
   .menu-grid {
     max-width: 1240px;
   }
@@ -3167,9 +3190,10 @@ html, body {
 }
 
 /* ==========================================================================
-   OPTIMIZACIÓN CRÍTICA PARA MOBILE LANDSCAPE Y PANTALLAS COMPACTAS (<= 540px H)
+   OPTIMIZACIÓN CRÍTICA PARA MOBILE LANDSCAPE Y PANTALLAS COMPACTAS
+   Aplica a BlueStacks, smartphones en horizontal, tablets y pantallas compactas
    ========================================================================== */
-@media (max-height: 540px) {
+@media (orientation: landscape) and (max-height: 768px), (max-height: 680px) {
   .kiosk-header {
     height: 36px;
     min-height: 36px;
@@ -11142,7 +11166,7 @@ html, body {
   }
 }
 
-@media (max-height: 540px) {
+@media (orientation: landscape) and (max-height: 768px), (max-height: 680px) {
   .ski-tutorial-card {
     max-height: calc(100dvh - 6px);
     max-height: calc(100vh - 6px);
@@ -11326,9 +11350,24 @@ html, body {
   }
 }
 
-/* Ocultar carrusel inferior publicitario durante partida activa en pantallas de poca altura para máxima área de juego */
-@media (max-height: 500px) {
+/* Ocultar carrusel publicitario inferior durante partida activa en cualquier orientación horizontal o pantallas compactas para maximizar el área de juego */
+@media (orientation: landscape), (max-height: 768px) {
   body.game-active .kiosk-footer-carousel {
+    display: none !important;
+  }
+
+  body.game-active .kiosk-header {
+    height: 38px;
+    min-height: 38px;
+    padding: 0 8px;
+  }
+
+  body.game-active .header-logo {
+    height: 24px;
+    max-height: 24px;
+  }
+
+  body.game-active .event-pills-row {
     display: none !important;
   }
 }

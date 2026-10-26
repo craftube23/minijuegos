@@ -1162,7 +1162,7 @@ export class OrnamentPopGame extends BaseGame {
     if (this.sponsors.length === 0) return;
     const sponsor = this.sponsors[this.billboardSponsorIdx % this.sponsors.length];
     const w = this.width;
-    const isShort = this.height < 500;
+    const isShort = this.height <= 700;
     const boardW = isShort ? Math.min(290, w * 0.40) : Math.min(340, w * 0.36);
     const boardH = isShort ? 50 : 68;
     const boardX = isShort ? 14 : (w - boardW) * 0.5;
@@ -1277,7 +1277,7 @@ export class OrnamentPopGame extends BaseGame {
   }
 
   private drawTopStatusBarAndTimerGauge(ctx: CanvasRenderingContext2D): void {
-    const isShort = this.height < 500;
+    const isShort = this.height <= 700;
     const hudH = this.height < 420 ? 26 : (isShort ? 30 : 54);
     const powerBannerH = this.isLogoPowerUpActive ? 24 : 0;
     const barY = isShort ? hudH + powerBannerH + 6 : 82;

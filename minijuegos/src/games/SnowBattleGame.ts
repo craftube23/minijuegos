@@ -1231,7 +1231,7 @@ export class SnowBattleGame extends BaseGame {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    const isShort = h < 520;
+    const isShort = h <= 700;
     const titleY = isShort ? 26 : h * 0.16;
     ctx.font = `900 ${isShort ? 22 : Math.round(36 * animPulse)}px 'Titan One', 'Fredoka', sans-serif`;
     ctx.shadowColor = "#FFD700";
@@ -2389,7 +2389,7 @@ export class SnowBattleGame extends BaseGame {
     const currentProgress = Math.min(range, Math.max(0, this.enemiesDefeatedCount - prevThreshold));
     const pct = Math.min(1.0, currentProgress / range);
 
-    const isShortPhase = h < 500;
+    const isShortPhase = h <= 700;
     const barW = Math.min(380, w * 0.72);
     const barH = isShortPhase ? 16 : 22;
     const barX = (w - barW) / 2;
@@ -2442,7 +2442,7 @@ export class SnowBattleGame extends BaseGame {
       ctx.font = `900 ${Math.round(28 * scale)}px sans-serif`;
       ctx.lineWidth = 5;
       ctx.strokeStyle = "rgba(0,0,0,0.45)";
-      const isShortCombo = h < 500;
+      const isShortCombo = h <= 700;
       const comboY = isShortCombo ? 62 : 150;
       const label = `COMBO ${this.combo}  ·  x${this.comboMultiplier}`;
       ctx.strokeText(label, w / 2, comboY);

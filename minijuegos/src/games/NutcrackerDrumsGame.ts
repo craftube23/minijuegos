@@ -1220,7 +1220,7 @@ export class NutcrackerDrumsGame extends BaseGame {
     ctx.save();
 
     const isNarrow = this.width < 460;
-    const isShort = this.height < 500;
+    const isShort = this.height <= 700;
     const hudH = Math.round(isShort
       ? Math.max(40, Math.min(52, this.height * 0.11))
       : Math.max(48, Math.min(62, this.height * 0.080)));
