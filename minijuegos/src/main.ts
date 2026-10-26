@@ -214,9 +214,6 @@ class KioskApp {
    * Solicita pantalla completa si el navegador lo requiere antes de ScreenOrientation.lock('landscape').
    */
   public async tryLockLandscape(): Promise<void> {
-    if (getKioskNativeDiagnostics().isNative) {
-      return;
-    }
     const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
     if (!isTouch) return;
 
