@@ -374,7 +374,9 @@ export class FlyingElfGame extends BaseGame {
     this.totalPlayTime = 0;
     this.initialGameDuration = this.timeRemaining > 5 ? this.timeRemaining : 45;
 
-    this.elfX = Math.max(140, this.width * 0.22);
+    this.elfX = Math.max(120, this.width * 0.18);
+    this.elfHeight = Math.max(75, Math.min(135, this.height * 0.22));
+    this.elfWidth = this.elfHeight;
     this.elfY = this.height * 0.45;
     this.elfVy = 0;
     this.elfAngle = 0;
@@ -446,9 +448,9 @@ export class FlyingElfGame extends BaseGame {
 
   public override resize(width: number, height: number): void {
     super.resize(width, height);
-    this.elfX = Math.max(140, this.width * 0.22);
-    this.elfWidth = Math.max(130, Math.min(195, this.width * 0.22));
-    this.elfHeight = this.elfWidth;
+    this.elfX = Math.max(120, this.width * 0.18);
+    this.elfHeight = Math.max(75, Math.min(135, this.height * 0.22));
+    this.elfWidth = this.elfHeight;
   }
 
   protected override onUpdate(dt: number): void {
@@ -792,14 +794,20 @@ export class FlyingElfGame extends BaseGame {
       size = 74;
     }
 
-    const baseSpawnY = 140 + Math.random() * (this.height - 350);
+    const itemScale = Math.min(1.0, Math.max(0.65, this.height / 540));
+    size = Math.round(size * itemScale);
+
+    const topMargin = Math.max(70, this.height * 0.16);
+    const bottomMargin = Math.max(80, this.height * 0.22);
+    const playH = Math.max(80, this.height - topMargin - bottomMargin);
+    const baseSpawnY = topMargin + Math.random() * playH;
 
     // Ocasionalmente genera una fila o arco de 2-3 coleccionables desafiantes
     const patternCount = Math.random() < 0.35 ? 2 : 1;
     for (let k = 0; k < patternCount; k++) {
-      const offsetX = k * 70;
-      const offsetY = k * (Math.random() > 0.5 ? 35 : -35);
-      const clampedY = Math.max(120, Math.min(this.height - 180, baseSpawnY + offsetY));
+      const offsetX = k * Math.round(55 * itemScale);
+      const offsetY = k * (Math.random() > 0.5 ? 25 : -25);
+      const clampedY = Math.max(topMargin, Math.min(this.height - bottomMargin, baseSpawnY + offsetY));
 
       this.collectibles.push({
         x: this.width + 80 + offsetX,
@@ -823,13 +831,18 @@ export class FlyingElfGame extends BaseGame {
     this.nextCollectibleSponsorIndex++;
     const brandLogo = isStar ? "logo_star" : "logo_sponsor";
 
-    const baseSpawnY = 160 + Math.random() * (this.height - 400);
-    const clampedY = Math.max(140, Math.min(this.height - 200, baseSpawnY));
+    const itemScale = Math.min(1.0, Math.max(0.65, this.height / 540));
+    const logoSize = Math.round(82 * itemScale);
+
+    const topMargin = Math.max(75, this.height * 0.18);
+    const bottomMargin = Math.max(85, this.height * 0.24);
+    const playH = Math.max(80, this.height - topMargin - bottomMargin);
+    const clampedY = topMargin + Math.random() * playH;
 
     this.collectibles.push({
       x: this.width + 90,
       y: clampedY,
-      size: 94,
+      size: logoSize,
       type: brandLogo,
       sponsorId: sponsor.id,
       points: 500,
@@ -846,9 +859,11 @@ export class FlyingElfGame extends BaseGame {
     const canOscillate = this.totalPlayTime > 8 && Math.random() < Math.min(0.65, 0.35 + (this.totalPlayTime / 45));
 
     if (isTopObstacle) {
-      // Estalactita de hielo colgante firmemente anclada al borde superior del cielo
-      const oWidth = 105 + Math.random() * 30;
-      const oHeight = 170 + Math.random() * 120;
+      // Estalactita de hielo colgante adaptada a la altura de pantalla
+      const maxIcicleH = Math.min(220, (this.height - 90) * 0.38);
+      const oHeight = Math.max(70, Math.min(maxIcicleH, this.height * 0.26 + Math.random() * (this.height * 0.10)));
+      const oWidth = Math.round(oHeight * 0.55);
+
       this.obstacles.push({
         x: this.width + 100,
         y: -10,
@@ -859,14 +874,16 @@ export class FlyingElfGame extends BaseGame {
         type: "icicle",
         isOscillating: canOscillate,
         oscillateSpeed: (2.2 + Math.random() * 1.8) * Math.min(1.5, this.speedMultiplier),
-        oscillateAmp: (25 + Math.random() * 30) * Math.min(1.4, this.speedMultiplier),
+        oscillateAmp: Math.min(25, this.height * 0.05 + Math.random() * 15),
         oscillateTime: Math.random() * Math.PI * 2
       });
     } else {
-      // Casa rústica navideña con tejado nevado y chimenea humeante en la cima
-      const oWidth = 230 + Math.random() * 55;
-      const oHeight = 240 + Math.random() * 100;
+      // Casa rústica navideña con tejado nevado y chimenea proporcional a la altura de pantalla
+      const maxHouseH = Math.min(240, (this.height - 90) * 0.40);
+      const oHeight = Math.max(75, Math.min(maxHouseH, this.height * 0.28 + Math.random() * (this.height * 0.10)));
+      const oWidth = Math.round(oHeight * 1.05);
       const startY = this.height - oHeight - 20;
+
       this.obstacles.push({
         x: this.width + 100,
         y: startY,
@@ -1213,7 +1230,9 @@ export class FlyingElfGame extends BaseGame {
     this.isWindActive = false;
     this.wasThrusting = false;
     this.flyAudioCooldown = 0;
-    this.elfX = Math.max(140, this.width * 0.22);
+    this.elfX = Math.max(120, this.width * 0.18);
+    this.elfHeight = Math.max(75, Math.min(135, this.height * 0.22));
+    this.elfWidth = this.elfHeight;
     this.elfY = this.height * 0.45;
     this.elfVy = 0;
     this.elfAngle = 0;
@@ -1269,27 +1288,28 @@ export class FlyingElfGame extends BaseGame {
     let btnW: number, btnH: number, btnX: number, btnY: number, hintY: number;
 
     if (isLandscape) {
-      heroW = Math.min(680, this.width * 0.74);
-      heroH = Math.min(270, Math.max(150, this.height * (isShortHeight ? 0.44 : 0.48)));
+      // Mantener proporción áurea de la tarjeta hero (~2.25:1) sin estirarse en pantallas ultra anchas
+      heroH = Math.min(250, Math.max(140, this.height * (isShortHeight ? 0.42 : 0.46)));
+      heroW = Math.min(heroH * 2.25, Math.min(580, this.width * 0.80));
       heroX = (this.width - heroW) / 2;
-      heroY = subtitleY + (isShortHeight ? 8 : 12);
+      heroY = subtitleY + (isShortHeight ? 6 : 10);
 
-      const btnArrowW = Math.min(46, Math.max(34, this.width * 0.045));
-      btnLeft = { x: Math.max(8, heroX - btnArrowW - 10), y: heroY + (heroH - btnArrowW) / 2, w: btnArrowW, h: btnArrowW };
-      btnRight = { x: Math.min(this.width - btnArrowW - 8, heroX + heroW + 10), y: heroY + (heroH - btnArrowW) / 2, w: btnArrowW, h: btnArrowW };
+      const btnArrowW = Math.min(42, Math.max(30, Math.min(this.width * 0.045, heroH * 0.22)));
+      btnLeft = { x: Math.max(6, heroX - btnArrowW - 10), y: heroY + (heroH - btnArrowW) / 2, w: btnArrowW, h: btnArrowW };
+      btnRight = { x: Math.min(this.width - btnArrowW - 6, heroX + heroW + 10), y: heroY + (heroH - btnArrowW) / 2, w: btnArrowW, h: btnArrowW };
 
-      thumbH = Math.min(50, Math.max(34, this.height * (isShortHeight ? 0.11 : 0.10)));
-      gap = 6;
+      thumbH = Math.min(44, Math.max(30, this.height * (isShortHeight ? 0.095 : 0.09)));
+      gap = 4;
       itemSize = Math.min(thumbH, Math.floor((heroW - 8 * gap) / 9));
       totalThumbW = 9 * itemSize + 8 * gap;
       thumbStartX = (this.width - totalThumbW) / 2;
-      thumbY = heroY + heroH + (isShortHeight ? 8 : 12);
+      thumbY = heroY + heroH + (isShortHeight ? 6 : 10);
 
-      btnW = Math.min(320, this.width * 0.42);
-      btnH = Math.min(50, Math.max(36, this.height * (isShortHeight ? 0.11 : 0.09)));
+      btnH = Math.min(46, Math.max(34, this.height * (isShortHeight ? 0.10 : 0.09)));
+      btnW = Math.min(heroW, 260);
       btnX = (this.width - btnW) / 2;
-      btnY = thumbY + thumbH + (isShortHeight ? 6 : 10);
-      hintY = btnY + btnH + 14;
+      btnY = thumbY + thumbH + (isShortHeight ? 6 : 8);
+      hintY = btnY + btnH + 12;
     } else {
       // Portrait / Totem
       heroW = Math.min(480, this.width * 0.90);
@@ -1446,7 +1466,7 @@ export class FlyingElfGame extends BaseGame {
 
     // 3. Título y Subtítulo Cinemático
     ctx.textAlign = "center";
-    const titleSize = Math.max(16, Math.min(32, this.width * 0.040));
+    const titleSize = Math.max(14, Math.min(26, Math.min(this.width * 0.035, this.height * 0.065)));
     ctx.font = `900 ${titleSize}px 'Outfit', sans-serif`;
     ctx.strokeStyle = "#4A2600";
     ctx.lineWidth = 4;
@@ -1949,10 +1969,11 @@ export class FlyingElfGame extends BaseGame {
       const imgW = this.imgBgPanorama.naturalWidth;
       const imgH = this.imgBgPanorama.naturalHeight;
 
-      const scale = Math.max(this.height / imgH, this.width / imgW);
+      // Escalar por altura para preservar la vista completa del cielo, aurora y villa
+      const scale = this.height / imgH;
       const drawW = imgW * scale;
-      const drawH = imgH * scale;
-      const drawY = this.height - drawH;
+      const drawH = this.height;
+      const drawY = 0;
 
       let offsetX = -(this.bgScrollX % drawW);
       while (offsetX < this.width) {

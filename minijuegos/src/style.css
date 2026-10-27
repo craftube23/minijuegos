@@ -11214,10 +11214,11 @@ html, body {
 
 @media (orientation: landscape) and (max-height: 768px), (max-height: 680px) {
   .ski-tutorial-card {
-    max-height: calc(100dvh - 6px);
-    max-height: calc(100vh - 6px);
-    width: min(98vw, 780px);
+    max-height: calc(100dvh - 12px);
+    max-height: calc(100vh - 12px);
+    width: min(92vw, 680px);
     border-radius: 16px;
+    margin: auto;
   }
   .ski-tutorial-header {
     padding: 4px 12px;
@@ -11415,5 +11416,226 @@ html, body {
 
   body.game-active .event-pills-row {
     display: none !important;
+  }
+}
+
+/* ==========================================================================
+   OPTIMIZACIÓN DE FORMAS Y PROPORCIONES PARA SMARTPHONES EN HORIZONTAL (MOBILE LANDSCAPE)
+   Evita distorsiones, tarjetas recortadas y aplastamientos en teléfonos modernos (19.5:9, 20:9)
+   ========================================================================== */
+@media (orientation: landscape) and (max-height: 540px) {
+  .kiosk-header {
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 10px !important;
+  }
+
+  .header-logo {
+    height: 24px !important;
+    max-height: 24px !important;
+    max-width: 110px !important;
+  }
+
+  .kiosk-btn {
+    min-height: 26px !important;
+    min-width: 26px !important;
+    padding: 2px 7px !important;
+    font-size: 0.72rem !important;
+    border-radius: 7px !important;
+  }
+
+  .kiosk-btn svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .kiosk-footer-carousel {
+    height: 44px !important;
+    min-height: 44px !important;
+    border-top-width: 2px !important;
+  }
+
+  .banner-hero-container,
+  .banner-event-container {
+    padding: 2px 10px !important;
+    gap: 8px !important;
+  }
+
+  .banner-logo-card {
+    height: 30px !important;
+    width: clamp(52px, 7vw, 70px) !important;
+    padding: 2px 4px !important;
+  }
+
+  .banner-headline {
+    font-size: 0.72rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .banner-subline {
+    font-size: 0.56rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .banner-badge-pill {
+    padding: 1px 5px !important;
+    font-size: 0.58rem !important;
+  }
+
+  .event-pill {
+    padding: 1px 4px !important;
+    font-size: 0.58rem !important;
+  }
+
+  /* Menú de selección de juegos en móviles apaisados */
+  .menu-layer {
+    padding: 4px 10px !important;
+  }
+
+  .menu-header {
+    margin-bottom: 3px !important;
+  }
+
+  .menu-ribbon-top {
+    padding: 1px 8px !important;
+    margin-bottom: 1px !important;
+  }
+
+  .menu-title {
+    font-size: 0.92rem !important;
+    gap: 4px !important;
+  }
+
+  .menu-grid {
+    gap: 6px 10px !important;
+    padding-bottom: 6px !important;
+    max-width: 860px !important;
+    justify-content: center !important;
+  }
+
+  .menu-grid .game-card-fantasy {
+    flex: 0 1 calc(33.333% - 10px) !important;
+    max-width: clamp(160px, 22vw, 215px) !important;
+    aspect-ratio: 298 / 231 !important;
+  }
+
+  .card-inner-body {
+    padding: 5% 5% 14% 5% !important;
+  }
+
+  .card-fantasy-title {
+    font-size: clamp(0.70rem, 1vw, 0.84rem) !important;
+    line-height: 1.1 !important;
+    margin-bottom: 1px !important;
+  }
+
+  .card-badge-pill {
+    padding: 1px 5px !important;
+    font-size: 0.56rem !important;
+    margin: 1px auto !important;
+  }
+
+  .card-desc {
+    font-size: 0.62rem !important;
+    line-height: 1.12 !important;
+    margin: 1px 0 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  .card-record-box {
+    font-size: 0.62rem !important;
+    padding: 1px 5px !important;
+    margin: 1px auto !important;
+  }
+
+  .btn-fantasy-play {
+    padding: 2px 7px !important;
+    min-height: 22px !important;
+    bottom: -3px !important;
+  }
+
+  .btn-play-label {
+    font-size: 0.72rem !important;
+  }
+
+  .btn-play-arrow {
+    font-size: 0.60rem !important;
+  }
+
+  /* Modales en teléfonos apaisados */
+  .ski-tutorial-card {
+    width: min(92vw, 560px) !important;
+    max-height: calc(100dvh - 8px) !important;
+    border-radius: 12px !important;
+    margin: auto !important;
+  }
+
+  .ski-tutorial-header {
+    padding: 2px 8px !important;
+    gap: 6px !important;
+  }
+
+  .ski-header-title {
+    font-size: 0.82rem !important;
+  }
+
+  .ski-header-sub {
+    font-size: 0.56rem !important;
+  }
+
+  .ski-close-quick-btn {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 0.78rem !important;
+  }
+
+  .ski-stepper-bar {
+    padding: 1px 5px !important;
+    gap: 3px !important;
+  }
+
+  .ski-step-pill {
+    padding: 1px 5px !important;
+    font-size: 0.62rem !important;
+  }
+
+  .ski-tutorial-body {
+    padding: 4px 8px !important;
+  }
+
+  .ski-step-view {
+    gap: 6px !important;
+  }
+
+  .ski-visual-column {
+    height: clamp(65px, 24vh, 95px) !important;
+    border-radius: 8px !important;
+  }
+
+  .ski-tutorial-footer {
+    padding: 2px 8px calc(env(safe-area-inset-bottom, 0px) + 2px) !important;
+    gap: 4px !important;
+  }
+
+  .btn-ski-nav,
+  .btn-ski-start {
+    min-height: 24px !important;
+    padding: 2px 8px !important;
+    font-size: 0.70rem !important;
+  }
+
+  .instructions-card.fantasy-modal-card {
+    width: min(92vw, 500px) !important;
+    max-height: calc(100dvh - 10px) !important;
+    margin: auto !important;
+  }
+
+  .modal-card {
+    width: min(92vw, 480px) !important;
+    max-height: calc(100dvh - 10px) !important;
+    margin: auto !important;
   }
 }
