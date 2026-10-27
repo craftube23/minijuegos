@@ -265,12 +265,12 @@ export class OrnamentPopStoryTutorialModal {
       case "controls":
         visualHTML = `
           <div class="ski-stage stage-toy-controls" style="background: radial-gradient(circle at 50% 50%, #351A0D 0%, #140803 100%);">
-            <div class="toy-controls-track" style="display: flex; align-items: center; justify-content: space-evenly; height: 100%;">
-              <div style="position: relative; display: flex; align-items: center; justify-content: center; gap: 24px;">
-                <img src="./assets/images/regalo-estilizado-verde.webp" alt="Regalo" style="width: 65px; height: 65px; object-fit: contain;" />
-                <img src="./assets/images/galleta-jengibre.webp" alt="Galleta" style="width: 65px; height: 65px; object-fit: contain;" />
-                <img src="./assets/images/caramelo-menta.webp" alt="Caramelo" style="width: 62px; height: 62px; object-fit: contain;" />
-                <div id="ninja-demo-slash" style="position: absolute; left: -10%; right: -10%; height: 6px; border-radius: 4px; background: linear-gradient(90deg, transparent, #00E5FF, #FFFFFF, #FFD700, transparent); box-shadow: 0 0 18px #00E5FF; transform: rotate(-10deg);"></div>
+            <div class="toy-controls-track" style="display: flex; align-items: center; justify-content: space-evenly; flex: 1; min-height: 0;">
+              <div style="position: relative; display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2.5vw, 24px);">
+                <img src="./assets/images/regalo-estilizado-verde.webp" alt="Regalo" class="ninja-demo-item" />
+                <img src="./assets/images/galleta-jengibre.webp" alt="Galleta" class="ninja-demo-item" />
+                <img src="./assets/images/caramelo-menta.webp" alt="Caramelo" class="ninja-demo-item" />
+                <div id="ninja-demo-slash" style="position: absolute; left: -10%; right: -10%; height: 5px; border-radius: 4px; background: linear-gradient(90deg, transparent, #00E5FF, #FFFFFF, #FFD700, transparent); box-shadow: 0 0 16px #00E5FF; transform: rotate(-10deg);"></div>
               </div>
             </div>
             <div class="controls-overlay-cues">

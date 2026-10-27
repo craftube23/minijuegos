@@ -6862,8 +6862,9 @@ html, body {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* Nieve acumulada sobre el techo del modal */
+/* Nieve acumulada sobre el techo del modal - desactivada para evitar que carámbanos tapen el título */
 .ski-snow-roof {
+  display: none !important;
   position: absolute;
   top: 0;
   left: 0;
@@ -11635,14 +11636,18 @@ html, body {
 
   /* Modales en teléfonos apaisados */
   .ski-tutorial-card {
-    width: min(92vw, 560px) !important;
+    width: min(94vw, 680px) !important;
     max-height: calc(100dvh - 8px) !important;
-    border-radius: 12px !important;
+    border-radius: 14px !important;
     margin: auto !important;
   }
 
+  .ski-snow-roof {
+    display: none !important;
+  }
+
   .ski-tutorial-header {
-    padding: 2px 8px !important;
+    padding: 3px 10px !important;
     gap: 6px !important;
   }
 
@@ -11661,48 +11666,104 @@ html, body {
   }
 
   .ski-stepper-bar {
-    padding: 1px 5px !important;
-    gap: 3px !important;
+    padding: 2px 6px !important;
+    gap: 4px !important;
   }
 
   .ski-step-pill {
-    padding: 1px 5px !important;
+    padding: 1px 6px !important;
     font-size: 0.62rem !important;
   }
 
   .ski-tutorial-body {
-    padding: 4px 8px !important;
+    padding: 4px 10px !important;
   }
 
   .ski-step-view {
-    gap: 6px !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1.25fr !important;
+    gap: 10px !important;
+    align-items: stretch !important;
   }
 
   .ski-visual-column {
-    height: clamp(65px, 24vh, 95px) !important;
+    height: clamp(85px, 30vh, 135px) !important;
+    border-radius: 10px !important;
+    padding: 4px !important;
+  }
+
+  .stage-toy-controls {
+    padding: 4px 6px !important;
+    justify-content: space-between !important;
+  }
+
+  .controls-overlay-cues {
+    padding: 2px 6px !important;
+    gap: 4px !important;
     border-radius: 8px !important;
   }
 
+  .touch-cue-box, .keys-cue-box {
+    padding: 1px 4px !important;
+  }
+
+  .cue-label {
+    font-size: 0.50rem !important;
+    line-height: 1 !important;
+  }
+
+  .cue-hint {
+    display: none !important;
+  }
+
+  .key-cap {
+    font-size: 0.48rem !important;
+    padding: 1px 4px !important;
+  }
+
+  .ninja-demo-item {
+    width: clamp(34px, 4.5vw, 48px) !important;
+    height: clamp(34px, 4.5vw, 48px) !important;
+  }
+
+  .ski-info-title {
+    font-size: 0.84rem !important;
+    line-height: 1.15 !important;
+    margin-bottom: 2px !important;
+  }
+
+  .ski-info-story {
+    font-size: 0.66rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .ski-pro-tip-box {
+    padding: 3px 8px !important;
+    margin-top: 4px !important;
+    font-size: 0.62rem !important;
+    line-height: 1.18 !important;
+  }
+
   .ski-tutorial-footer {
-    padding: 2px 8px calc(env(safe-area-inset-bottom, 0px) + 2px) !important;
-    gap: 4px !important;
+    padding: 3px 10px calc(env(safe-area-inset-bottom, 0px) + 3px) !important;
+    gap: 6px !important;
   }
 
   .btn-ski-nav,
   .btn-ski-start {
     min-height: 24px !important;
-    padding: 2px 8px !important;
-    font-size: 0.70rem !important;
+    padding: 3px 12px !important;
+    font-size: 0.72rem !important;
   }
 
   .instructions-card.fantasy-modal-card {
-    width: min(92vw, 500px) !important;
+    width: min(92vw, 520px) !important;
     max-height: calc(100dvh - 10px) !important;
     margin: auto !important;
   }
 
   .modal-card {
-    width: min(92vw, 480px) !important;
+    width: min(92vw, 500px) !important;
     max-height: calc(100dvh - 10px) !important;
     margin: auto !important;
   }
