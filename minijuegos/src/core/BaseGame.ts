@@ -253,9 +253,10 @@ export abstract class BaseGame {
   protected abstract onUpdate(dt: number): void;
 
   public draw(): void {
-    // HiDPI: el buffer del canvas es (ancho lógico × DPR). Se dibuja siempre en coordenadas lógicas.
-    const dpr = this.width > 0 ? this.canvas.width / this.width : 1;
-    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // HiDPI & Zoom de cámara: mapear coordenadas lógicas del juego al buffer físico del canvas
+    const dprX = this.width > 0 ? this.canvas.width / this.width : 1;
+    const dprY = this.height > 0 ? this.canvas.height / this.height : 1;
+    this.ctx.setTransform(dprX, 0, 0, dprY, 0, 0);
     this.ctx.save();
     this.ctx.clearRect(0, 0, this.width, this.height);
 

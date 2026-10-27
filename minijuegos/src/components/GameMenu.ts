@@ -147,16 +147,6 @@ export class GameMenu {
       gemColor: "#00E676"
     },
     {
-      id: "ice-breaker",
-      title: "¡Rompe-Hielos Mágico!",
-      imageSrc: "./assets/images/icon-rompe-hielos.webp",
-      frameImageSrc: "./assets/images/marco-juego-morado.webp",
-      themeClass: "theme-magic-purple",
-      category: "ARCADE & BLOQUES",
-      tagline: "¡Rebota la esfera dorada y rompe los bloques de cristal!",
-      gemColor: "#D500F9"
-    },
-    {
       id: "ornament-pop",
       title: "¡Ninja Corta-Regalos!",
       imageSrc: "./assets/images/icon-ninja-regalos.webp",

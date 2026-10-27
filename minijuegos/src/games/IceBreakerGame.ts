@@ -596,9 +596,10 @@ export class IceBreakerGame extends BaseGame {
     const usableW = arenaW - padX * 2 - gapX * (cols - 1);
     const bw = usableW / cols;
     const arenaH = Math.max(200, paddleY - top);
-    const maxGridH = Math.min(235, arenaH * 0.40);
-    const gapY = Math.max(5, Math.min(7, Math.round(maxGridH * 0.035)));
-    const bh = Math.max(26, Math.min(36, Math.floor((maxGridH - (numRows - 1) * gapY) / numRows)));
+    const isShortArena = arenaH < 460;
+    const maxGridH = Math.min(isShortArena ? 180 : 235, arenaH * 0.38);
+    const gapY = Math.max(4, Math.min(6, Math.round(maxGridH * 0.035)));
+    const bh = Math.max(isShortArena ? 19 : 24, Math.min(34, Math.floor((maxGridH - (numRows - 1) * gapY) / numRows)));
 
     this.bricks = [];
     let sponsorIdx = wave;
@@ -700,10 +701,11 @@ export class IceBreakerGame extends BaseGame {
     const usableW = bounds.arenaW - padX * 2 - gapX * (cols - 1);
     const bw = usableW / cols;
     const arenaH = Math.max(200, bounds.paddleY - bounds.top);
+    const isShortArena = arenaH < 460;
     const numRows = bp.grid.length;
-    const maxGridH = Math.min(195, arenaH * 0.38);
-    const gapY = Math.max(5, Math.min(7, Math.round(maxGridH * 0.035)));
-    const bh = Math.max(26, Math.min(36, Math.floor((maxGridH - (numRows - 1) * gapY) / numRows)));
+    const maxGridH = Math.min(isShortArena ? 180 : 195, arenaH * 0.38);
+    const gapY = Math.max(4, Math.min(6, Math.round(maxGridH * 0.035)));
+    const bh = Math.max(isShortArena ? 19 : 24, Math.min(34, Math.floor((maxGridH - (numRows - 1) * gapY) / numRows)));
 
     for (const br of this.bricks) {
       if (br.movingSpeed === 0) {

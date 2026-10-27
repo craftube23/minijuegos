@@ -544,7 +544,6 @@ export class UniversalStoryTutorialModal {
       "christmas-jump": "./assets/images/elfo-saltador.webp",
       "gift-tower": "./assets/images/caja-regalo.png",
       "polar-express": "./assets/images/locomotora.png",
-      "ice-breaker": "./assets/images/paleta-caramelo.png",
       "ornament-pop": "./assets/images/canon-caramelo.png",
       "toy-match": "./assets/images/vitrina-juguetes.png",
       "santa-ski": "./assets/images/santa-ski-straight.webp",
@@ -1188,51 +1187,6 @@ export class UniversalStoryTutorialModal {
           badgeColor: "#FF1744",
           storyText: "Chocar contra los muñecos de nieve, troncos caídos o montones de carbón dañará la locomotora costándote una de tus 3 vidas.",
           proTip: "¡Anticipa los obstáculos con varias vías de antelación!",
-          stageType: "generic_hazards"
-        }
-      ]
-    });
-
-    // 12. ROMPE-HIELOS MÁGICO (IceBreakerGame)
-    this.database.set("ice-breaker", {
-      gameId: "ice-breaker",
-      gameTitle: "¡Rompe-Hielos Mágico!",
-      themeColor: "#D500F9",
-      steps: [
-        {
-          tag: "CAPÍTULO 1 • LA HISTORIA",
-          title: "¡Liberando los Regalos Congelados!",
-          badge: "HISTORIA FESTIVA",
-          badgeColor: "#FFD700",
-          storyText: "Un encantamiento invernal congeló los cofres de regalos dentro de bloques de hielo irrompibles. ¡Usa la paleta de bastón de caramelo y la esfera mágica para liberarlos!",
-          proTip: "¡El ángulo en que golpeas la paleta determina la trayectoria de la bola!",
-          stageType: "generic_story"
-        },
-        {
-          tag: "CAPÍTULO 2 • CONTROLES",
-          title: "¡Mueve la Paleta de Caramelo!",
-          badge: "CONTROL DE REBOTE",
-          badgeColor: "#00E5FF",
-          storyText: "Desliza tu dedo o ratón hacia los lados o usa las teclas <strong>[ ◄ / ► ]</strong> para mover la paleta. Pulsa <strong>[ Espacio ]</strong> o toca para lanzar la esfera al inicio.",
-          proTip: "¡Golpear con las esquinas de la paleta enviará la bola en ángulos rasantes muy veloces!",
-          stageType: "generic_controls"
-        },
-        {
-          tag: "CAPÍTULO 3 • CÁPSULAS & ESFERA DE FUEGO",
-          title: "¡Multi-Esfera y Paleta Gigante!",
-          badge: "CÁPSULAS MÁGICAS",
-          badgeColor: "#00E676",
-          storyText: "Destruye bloques para que caigan cápsulas de poder: <strong>Multi-Esfera x3</strong>, <strong>Paleta Gigante</strong> y la devastadora <strong>Esfera de Fuego</strong> que atraviesa el hielo sin rebotar.",
-          proTip: "¡El cofre de patrocinador otorga +250 pts y fuego instantáneo!",
-          stageType: "generic_points"
-        },
-        {
-          tag: "CAPÍTULO 4 • ¡PELIGRO!",
-          title: "¡No Dejes Caer las Esferas!",
-          badge: "VIDAS",
-          badgeColor: "#FF1744",
-          storyText: "Si dejas caer todas las esferas por la parte inferior de la pantalla perderás una de tus 3 vidas festivas. Mantén la vista fija en la trayectoria de rebote.",
-          proTip: "¡Si tienes multi-esferas activas no perderás vida mientras quede al menos una en juego!",
           stageType: "generic_hazards"
         }
       ]

@@ -340,7 +340,9 @@ export class MagicJumpGame extends BaseGame {
     this.playerY = this.height * 0.72;
     this.playerVx = 0;
     this.playerVy = this.normalJumpSpeed;
-    this.cameraY = 0;
+    const isLandscape = this.width > this.height;
+    const cameraRatio = isLandscape ? 0.72 : 0.62;
+    this.cameraY = Math.min(0, this.playerY - this.height * cameraRatio);
 
     // Controles táctiles continuos de arrastre y toque
     this.input.onPointerDown = (_pointerId: number, x: number, y: number) => {
@@ -395,15 +397,16 @@ export class MagicJumpGame extends BaseGame {
     const h = this.height > 0 ? this.height : (this.canvas.height > 0 ? this.canvas.height : (typeof window !== "undefined" ? window.innerHeight : 600));
     if (w <= 0 || h <= 0) return;
 
-    // Dimensiones proporcionales del Elfo Saltador HD
-    this.playerW = Math.max(54, Math.min(84, Math.round(w * 0.075)));
+    // Dimensiones proporcionales del Elfo Saltador HD (reducidas para mayor campo de visión y zoom alejado)
+    const isLandscape = w > h;
+    this.playerW = Math.max(38, Math.min(52, Math.round(w * (isLandscape ? 0.044 : 0.068))));
     this.playerH = Math.round(this.playerW * 1.21);
 
     // Botones táctiles inferiores para kiosco táctil y móviles
     const isShort = h <= 700;
-    const btnW = isShort ? Math.min(110, Math.max(75, Math.round(w * 0.16))) : Math.min(160, Math.max(108, Math.round(w * 0.25)));
-    const btnH = isShort ? Math.max(32, Math.min(42, Math.round(h * 0.08))) : Math.max(48, Math.min(62, Math.round(h * 0.055)));
-    const btnY = Math.min(h - btnH - (isShort ? 6 : 12), h * (isShort ? 0.88 : 0.91));
+    const btnW = isShort ? Math.min(100, Math.max(70, Math.round(w * 0.14))) : Math.min(160, Math.max(108, Math.round(w * 0.25)));
+    const btnH = isShort ? Math.max(30, Math.min(38, Math.round(h * 0.07))) : Math.max(48, Math.min(62, Math.round(h * 0.055)));
+    const btnY = Math.min(h - btnH - (isShort ? 6 : 12), h * (isShort ? 0.90 : 0.91));
 
     this.btnLeftRect = {
       x: 16,
@@ -430,10 +433,11 @@ export class MagicJumpGame extends BaseGame {
 
     const w = this.width > 0 ? this.width : 800;
     const h = this.height > 0 ? this.height : 600;
+    const isLandscape = w > h;
 
     // Plataforma base inicial sólida y generosa
-    const baseW = Math.max(220, Math.min(420, Math.round(w * 0.38)));
-    const baseH = Math.round(baseW * 0.28);
+    const baseW = Math.max(170, Math.min(320, Math.round(w * (isLandscape ? 0.26 : 0.38))));
+    const baseH = Math.round(baseW * 0.22);
     this.platforms.push({
       x: (w - baseW) / 2,
       y: h * 0.78,
@@ -448,12 +452,13 @@ export class MagicJumpGame extends BaseGame {
       squishTimer: 0
     });
 
-    let curY = h * 0.78 - 95;
+    const stepGap = isLandscape ? 72 : 86;
+    let curY = h * 0.78 - stepGap;
     this.highestPlatformY = curY;
 
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 20; i++) {
       this.generatePlatformTier(curY);
-      curY -= 92 + Math.random() * 24;
+      curY -= stepGap + Math.random() * 18;
       this.highestPlatformY = curY;
     }
   }
@@ -463,11 +468,13 @@ export class MagicJumpGame extends BaseGame {
    */
   private generatePlatformTier(y: number): void {
     const w = this.width > 0 ? this.width : 800;
+    const h = this.height > 0 ? this.height : 600;
+    const isLandscape = w > h;
     const altitudeMeters = Math.max(0, Math.floor(-y / 12));
 
-    const numLanes = w >= 1050 ? 3 : (w >= 650 ? 2 : 1);
-    const platW = Math.max(105, Math.min(195, Math.round(w * (w >= 1050 ? 0.125 : 0.22))));
-    const platH = Math.round(platW * 0.28);
+    const numLanes = w >= 950 ? 3 : (w >= 560 ? 2 : 1);
+    const platW = Math.max(82, Math.min(136, Math.round(w * (isLandscape ? 0.105 : 0.18))));
+    const platH = Math.round(platW * 0.22);
     const laneWidth = w / numLanes;
 
     const laneOrder: number[] = [];
@@ -1023,8 +1030,10 @@ export class MagicJumpGame extends BaseGame {
       }
     }
 
-    // 11. Seguimiento suave de cámara vertical hacia arriba
-    const targetCameraY = this.playerY - this.height * 0.52;
+    // 11. Seguimiento suave de cámara vertical hacia arriba (cámara más alejada hacia arriba para visión anticipada)
+    const isLandscape = this.width > this.height;
+    const cameraRatio = isLandscape ? 0.72 : 0.62;
+    const targetCameraY = this.playerY - this.height * cameraRatio;
     if (targetCameraY < this.cameraY) {
       this.cameraY += (targetCameraY - this.cameraY) * Math.min(1, dt * 11);
     }
@@ -1059,9 +1068,10 @@ export class MagicJumpGame extends BaseGame {
       };
     }
 
-    // 13. Generación continua de plataformas superiores sin vacíos
-    while (this.highestPlatformY > this.cameraY - 260) {
-      this.highestPlatformY -= 92 + Math.random() * 24;
+    // 13. Generación continua de plataformas superiores sin vacíos (con margen amplio hacia arriba)
+    const stepGap = isLandscape ? 72 : 86;
+    while (this.highestPlatformY > this.cameraY - 520) {
+      this.highestPlatformY -= stepGap + Math.random() * 18;
       this.generatePlatformTier(this.highestPlatformY);
     }
 
@@ -1598,8 +1608,8 @@ export class MagicJumpGame extends BaseGame {
 
         // Medallón dorado flotante con el logo oficial del patrocinador
         if (plat.sponsorLogo && plat.sponsorLogo.complete && plat.sponsorLogo.naturalWidth > 0) {
-          const baseEmblem = Math.max(34, Math.min(54, plat.h * 1.25));
-          const emblemSize = Math.round(baseEmblem * 1.35);
+          const baseEmblem = Math.max(20, Math.min(34, plat.h * 1.05));
+          const emblemSize = Math.round(baseEmblem * 1.2);
           const emblemX = plat.x + (plat.w - emblemSize) / 2;
           const floatBob = Math.sin(time * 3 + plat.x) * 4;
           const emblemY = drawY - emblemSize - 8 + floatBob;

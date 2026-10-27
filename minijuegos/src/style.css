@@ -2053,7 +2053,7 @@ html, body {
   gap: clamp(14px, 2.2vw, 36px);
   box-sizing: border-box;
   border-radius: 0;
-  padding: 3px clamp(18px, 3.2vw, 56px) 13px clamp(18px, 3.2vw, 56px);
+  padding: 8px clamp(18px, 3.2vw, 56px) 18px clamp(18px, 3.2vw, 56px);
   border: none;
   box-shadow: none;
   background: transparent;
@@ -2145,7 +2145,8 @@ html, body {
 .banner-highlights-row {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow: hidden;
   gap: clamp(4px, 0.6vw, 8px);
   margin-top: 3px;
 }
@@ -3230,8 +3231,8 @@ html, body {
   }
 
   .kiosk-footer-carousel {
-    height: clamp(92px, 12.5vh, 108px);
-    min-height: 92px;
+    height: clamp(116px, 16.5vh, 138px);
+    min-height: 116px;
     border-top-width: 2.5px;
   }
 
@@ -3240,15 +3241,15 @@ html, body {
   }
 
   .kiosk-swiper .kiosk-swiper-pagination {
-    bottom: 3px !important;
+    bottom: 2px !important;
     padding: 1px 8px;
-    gap: 5px;
+    gap: 4px;
   }
 
   .banner-hero-container,
   .banner-event-container {
     gap: clamp(10px, 1.6vw, 24px);
-    padding: 4px clamp(14px, 2.5vw, 36px) 10px clamp(14px, 2.5vw, 36px);
+    padding: 8px clamp(14px, 2.5vw, 36px) 16px clamp(14px, 2.5vw, 36px);
     height: 100%;
     box-sizing: border-box;
     display: flex;
@@ -3270,51 +3271,54 @@ html, body {
   }
 
   .kicker-pill {
-    padding: 2px 8px;
-    font-size: 0.72rem;
+    padding: 1px 6px;
+    font-size: 0.62rem;
   }
 
   .banner-logo-card {
-    height: clamp(56px, 7.5vh, 72px);
-    width: clamp(110px, 14vw, 155px);
-    padding: 4px 8px;
+    height: clamp(52px, 7vh, 66px);
+    width: clamp(96px, 12.5vw, 140px);
+    padding: 4px 7px;
     border-radius: 12px;
   }
 
   .banner-logo-card.fit-compact {
-    width: clamp(75px, 10vw, 105px);
+    width: clamp(68px, 9vw, 96px);
   }
 
   .event-logo-emblem {
-    height: clamp(52px, 7vh, 68px);
-    width: clamp(65px, 8.5vw, 88px);
+    height: clamp(48px, 6.5vh, 62px);
+    width: clamp(58px, 7.5vw, 80px);
   }
 
   .banner-headline {
-    font-size: clamp(0.92rem, 1.35vw, 1.25rem);
-    line-height: 1.15;
+    font-size: clamp(0.78rem, 1.05vw, 0.96rem);
+    line-height: 1.12;
     margin: 1px 0;
   }
 
   .banner-subline {
-    font-size: clamp(0.72rem, 1vw, 0.86rem);
-    line-height: 1.18;
+    font-size: clamp(0.62rem, 0.80vw, 0.72rem);
+    line-height: 1.15;
   }
 
   .banner-highlights-row {
-    margin-top: 3px;
-    gap: 6px;
+    margin-top: 2px;
+    gap: 5px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    max-width: 100%;
   }
 
   .banner-highlight-chip {
-    padding: 1.5px 7px;
-    font-size: 0.7rem;
+    padding: 1px 6px;
+    font-size: clamp(0.58rem, 0.70vw, 0.65rem);
   }
 
   .banner-badge-pill {
-    padding: 4px 12px;
-    font-size: clamp(0.72rem, 0.95vw, 0.88rem);
-    border-bottom-width: 2.5px;
+    padding: 2.5px 9px;
+    font-size: clamp(0.65rem, 0.82vw, 0.78rem);
+    border-bottom-width: 2px;
   }
 
   .event-pill {

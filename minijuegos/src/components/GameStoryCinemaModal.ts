@@ -311,24 +311,6 @@ export class GameStoryCinemaModal {
       playHeroSound: (a) => a.playPowerUp()
     });
 
-    // 12. ROMPE-HIELOS MÁGICO (IceBreakerGame)
-    this.stories.set("ice-breaker", {
-      gameId: "ice-breaker",
-      gameTitle: "¡ROMPE-HIELOS MÁGICO!",
-      subTag: "¡CRISTALES Y REGALOS!",
-      headline: "¡ROMPE EL HIELO!",
-      tagline: "¡Rebota la esfera dorada y libera los regalos congelados en el hielo!",
-      pageIllustrationBg: "./assets/images/fondo-villa-montanas.jpg",
-      heroLayerImg: "./assets/images/icon-rompe-hielos.webp",
-      heroLayerScale: 1.2,
-      heroLayerOffsetY: 2,
-      props: [
-        { src: "./assets/images/bola-amarilla.webp", className: "prop-pin-ball1", xPercent: -35, yPercent: -42, delayOffset: 0.14, scale: 0.85 },
-        { src: "./assets/images/estrella con logo.webp", className: "prop-pin-star", xPercent: 35, yPercent: -48, delayOffset: 0.26, scale: 0.95 }
-      ],
-      playHeroSound: (a) => a.playCatchItem(1.3)
-    });
-
     // 13. BURBUJAS DE ADORNOS (OrnamentPopGame)
     this.stories.set("ornament-pop", {
       gameId: "ornament-pop",

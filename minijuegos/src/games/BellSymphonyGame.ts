@@ -334,6 +334,15 @@ export class BellSymphonyGame extends BaseGame {
     this.hitLineY = this.height <= 700
       ? Math.max(this.height * 0.72, this.height - 54)
       : this.height * 0.80;
+
+    // En pantallas horizontales cortas (móviles/tablets de 600-700px), el riel tiene menos altura.
+    // Escalamos la velocidad de caída (speedScale 0.65) para asegurar ~1.4s - 1.8s de tiempo de reacción.
+    const song = this.songList[this.selectedSongIndex];
+    if (song) {
+      const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
+      const speedScale = this.height <= 700 ? 0.65 : 1.0;
+      this.noteSpeed = Math.round(song.speed * speedScale * diffCfg.speedMultiplier);
+    }
   }
 
   public override start(_durationSeconds: number = 129): void {
@@ -459,7 +468,8 @@ export class BellSymphonyGame extends BaseGame {
 
     this.showLives = true;
     this.bpm = song.bpm;
-    this.noteSpeed = Math.round(song.speed * diffCfg.speedMultiplier);
+    const speedScale = this.height <= 700 ? 0.65 : 1.0;
+    this.noteSpeed = Math.round(song.speed * speedScale * diffCfg.speedMultiplier);
     this.currentTime = 0;
     this.combo = 0;
     this.maxCombo = 0;
@@ -1607,12 +1617,14 @@ export class BellSymphonyGame extends BaseGame {
     ctx.stroke();
     ctx.restore();
 
-    // Receptores inferiores
+    // Receptores inferiores (con zoom alejado en pantallas cortas para mayor campo de visión)
     for (let i = 0; i < 4; i++) {
       const lane = this.lanes[i];
       const cx = this.laneStartX + i * this.laneWidth + this.laneWidth / 2;
       const cy = this.hitLineY;
-      const radius = Math.min(this.laneWidth * 0.38, 38);
+      const radius = this.height <= 700
+        ? Math.min(this.laneWidth * 0.28, 26)
+        : Math.min(this.laneWidth * 0.38, 38);
       const isPressed = this.lanePressed[i];
       const scale = isPressed ? 0.90 : (1.0 + Math.sin(this.beatPulse * Math.PI) * 0.05);
 
@@ -1636,7 +1648,8 @@ export class BellSymphonyGame extends BaseGame {
       ctx.fill();
       ctx.stroke();
 
-      ctx.font = "900 24px 'Cinzel Decorative', 'Outfit', sans-serif";
+      const arrowFontSize = Math.round(radius * 0.76);
+      ctx.font = `900 ${arrowFontSize}px 'Cinzel Decorative', 'Outfit', sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.strokeStyle = "rgba(0,0,0,0.8)";
@@ -1645,9 +1658,10 @@ export class BellSymphonyGame extends BaseGame {
       ctx.fillStyle = isPressed ? "#FFFFFF" : lane.color;
       ctx.fillText(lane.arrow, 0, -1);
 
-      ctx.font = "700 12px 'Outfit', sans-serif";
+      const keyLabelY = radius + (this.height <= 700 ? 11 : 16);
+      ctx.font = `700 ${this.height <= 700 ? 10 : 12}px 'Outfit', sans-serif`;
       ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-      ctx.fillText(lane.keyLabel, 0, radius + 16);
+      ctx.fillText(lane.keyLabel, 0, keyLabelY);
 
       ctx.restore();
     }
@@ -1662,7 +1676,9 @@ export class BellSymphonyGame extends BaseGame {
 
       const lane = this.lanes[note.lane];
       const noteX = this.laneStartX + note.lane * this.laneWidth + this.laneWidth / 2;
-      const radius = Math.min(this.laneWidth * 0.36, 36);
+      const radius = this.height <= 700
+        ? Math.min(this.laneWidth * 0.27, 24)
+        : Math.min(this.laneWidth * 0.36, 36);
       const isSustainNote = note.type === "sustain" && note.duration > 0;
 
       // Si es NOTA SOSTENIDA: Dibujar cuerpo y cola
@@ -1954,14 +1970,20 @@ export class BellSymphonyGame extends BaseGame {
 
     // Rótulo de Estilo Guitar Hero / Rock Navideño compacto en pantallas cortas
     const titleFont = isShort
-      ? Math.max(11, Math.min(14, this.height * 0.044))
+      ? Math.max(10, Math.min(13, this.height * 0.040))
       : Math.max(16, Math.min(26, this.width * 0.046));
     const authorFont = isShort
-      ? Math.max(8.5, Math.min(10.5, this.height * 0.030))
+      ? Math.max(8, Math.min(10, this.height * 0.028))
       : Math.max(12, Math.min(17, this.width * 0.032));
     const creditFont = isShort
-      ? Math.max(7, Math.min(8.5, this.height * 0.022))
+      ? Math.max(6.5, Math.min(8, this.height * 0.020))
       : Math.max(9.5, Math.min(12.5, this.width * 0.024));
+
+    const isLandscape = this.width > this.height;
+    // Si estamos en pantalla horizontal y hay margen izquierdo, acotamos el ancho para que JAMÁS tape los carriles
+    const maxTextW = isLandscape && this.laneStartX > 140
+      ? Math.max(110, this.laneStartX - cardX - 14)
+      : Math.min(this.width * 0.45, 260);
 
     // 1. TÍTULO DE LA CANCIÓN
     ctx.font = `900 ${titleFont}px 'Cinzel Decorative', 'Outfit', sans-serif`;
@@ -1969,34 +1991,34 @@ export class BellSymphonyGame extends BaseGame {
     ctx.textBaseline = "top";
 
     ctx.strokeStyle = "rgba(0, 0, 0, 0.95)";
-    ctx.lineWidth = 6;
-    ctx.strokeText(song.title.toUpperCase(), cardX, cardY);
+    ctx.lineWidth = 5;
+    ctx.strokeText(song.title.toUpperCase(), cardX, cardY, maxTextW);
 
-    const titleGrad = ctx.createLinearGradient(cardX, cardY, cardX + 300, cardY);
+    const titleGrad = ctx.createLinearGradient(cardX, cardY, cardX + Math.min(260, maxTextW), cardY);
     titleGrad.addColorStop(0, "#FFD700");
     titleGrad.addColorStop(0.5, "#FFFFFF");
     titleGrad.addColorStop(1, song.tagColor);
     ctx.fillStyle = titleGrad;
-    ctx.fillText(song.title.toUpperCase(), cardX, cardY);
+    ctx.fillText(song.title.toUpperCase(), cardX, cardY, maxTextW);
 
     // 2. BY [ARTISTA] + BADGE DIFICULTAD
-    const authorY = cardY + titleFont + 6;
+    const authorY = cardY + titleFont + 5;
     ctx.font = `800 ${authorFont}px 'Outfit', sans-serif`;
     ctx.strokeStyle = "rgba(0, 0, 0, 0.95)";
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3.5;
     const authText = `BY ${song.artist.toUpperCase()}  •  [${diffCfg.label} • ${diffCfg.scoreMultiplier}x]`;
-    ctx.strokeText(authText, cardX, authorY);
+    ctx.strokeText(authText, cardX, authorY, maxTextW);
     ctx.fillStyle = "#E2E8F0";
-    ctx.fillText(authText, cardX, authorY);
+    ctx.fillText(authText, cardX, authorY, maxTextW);
 
     // 3. NOTA DE LICENCIA / CRÉDITOS
-    const creditY = authorY + authorFont + 4;
+    const creditY = authorY + authorFont + 3;
     ctx.font = `600 ${creditFont}px 'Outfit', sans-serif`;
     ctx.strokeStyle = "rgba(0, 0, 0, 0.85)";
-    ctx.lineWidth = 3;
-    ctx.strokeText(song.credits, cardX, creditY);
+    ctx.lineWidth = 2.5;
+    ctx.strokeText(song.credits, cardX, creditY, maxTextW);
     ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-    ctx.fillText(song.credits, cardX, creditY);
+    ctx.fillText(song.credits, cardX, creditY, maxTextW);
 
     ctx.restore();
   }

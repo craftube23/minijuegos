@@ -211,22 +211,6 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
     ],
     controls: "Toca o arrastra hacia la vía a la que quieres ir, o usa [ ▲ / ▼ ] / [ W / S ]"
   },
-  "ice-breaker": {
-    id: "ice-breaker",
-    title: "¡Rompe-Hielos Mágico!",
-    iconName: "snowflake",
-    themeColor: "#D500F9",
-    goal: "¡Mueve la paleta de bastón de caramelo para rebotar la esfera dorada y destruir los bloques de hielo y regalos congelados!",
-    positiveItems: [
-      { iconName: "gift", label: "Bloques de cristal y regalos (+60 a +140 pts)" },
-      { iconName: "star", label: "Cápsulas mágicas (¡Multi-Esfera x3, Paleta Gigante y Fuego!)" },
-      { iconName: "sparkles", label: "Cofre de Patrocinador (+250 pts y Esfera de Fuego)" }
-    ],
-    negativeItems: [
-      { iconName: "flame", label: "Dejar caer todas las esferas (pierdes una de tus 3 vidas)" }
-    ],
-    controls: "Desliza el dedo / ratón a los lados o usa [ ◄ / ► ] y [ Espacio ] para lanzar"
-  },
   "ornament-pop": {
     id: "ornament-pop",
     title: "¡Ninja Corta-Regalos!",

@@ -446,6 +446,31 @@ export class GameBannerCarousel {
   }
 
   /**
+   * Pausa las animaciones y el autoplay cuando se está jugando una partida activa
+   * para liberar CPU/GPU y asegurar cero tareas en segundo plano.
+   */
+  public pause(): void {
+    if (this.swiper?.autoplay) {
+      this.swiper.autoplay.stop();
+    }
+    if (this.activeTimeline) {
+      this.activeTimeline.pause();
+    }
+  }
+
+  /**
+   * Reanuda las animaciones y el autoplay al volver al menú principal
+   */
+  public resume(): void {
+    if (!document.hidden && this.swiper?.autoplay) {
+      this.swiper.autoplay.start();
+    }
+    if (this.activeTimeline) {
+      this.activeTimeline.resume();
+    }
+  }
+
+  /**
    * Reinicializa el carrusel de forma segura liberando recursos previos
    */
   public reinit(): void {
