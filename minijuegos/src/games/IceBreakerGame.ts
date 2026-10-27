@@ -440,7 +440,7 @@ export class IceBreakerGame extends BaseGame {
     this.inGameMusicPath = "./assets/audio/Joy to the world.mp3";
     this.inGameMusicVolume = 0.42;
 
-    this.bgImg = this.getImage("./assets/images/fondo-villa-montanas.jpg");
+    this.bgImg = this.getImage("./assets/images/fondo-villa-montanas.webp");
     this.paddleImg = this.getImage("./assets/images/paleta-rompehielos.webp");
     this.orbImg = this.getImage("./assets/images/esfera-rompehielos.webp");
     this.brickIceImg = this.getImage("./assets/images/bloque-hielo-cristal.webp");

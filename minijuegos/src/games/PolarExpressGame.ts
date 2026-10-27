@@ -179,7 +179,7 @@ export class PolarExpressGame extends BaseGame {
     this.inGameMusicPath = "./assets/audio/jingle-bells.mp3";
     this.inGameMusicVolume = 0.45;
 
-    this.bgImage = this.getImage("./assets/images/fondo-villa-seamless.jpg");
+    this.bgImage = this.getImage("./assets/images/fondo-villa-seamless.webp");
     this.spriteTrain = this.getImage("./assets/images/locomotora-lateral.webp");
     this.spriteWagon = this.getImage("./assets/images/vagon-expreso.webp");
     this.spriteSignal = this.getImage("./assets/images/semaforo-tren.webp");

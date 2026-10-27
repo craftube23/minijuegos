@@ -329,7 +329,7 @@ export class FlyingElfGame extends BaseGame {
     this.imgElfFeria = this.elfSprites.get("feria")!;
 
     // 2. Único Fondo Panorámico Continuo de la Villa Navideña
-    this.imgBgPanorama = this.getImage("./assets/images/fondo-villa-seamless.jpg");
+    this.imgBgPanorama = this.getImage("./assets/images/fondo-villa-seamless.webp");
 
     // 3. Obstáculos Ilustrados 2D (Casa navideña con tejado/chimenea y Estalactitas)
     this.imgHouseObstacle = this.getImage("./assets/images/casa-obstaculo.webp");
@@ -338,7 +338,7 @@ export class FlyingElfGame extends BaseGame {
     // 4. Carteles de Publicidad con Logos Integrados de Todos los Patrocinadores
     const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu"];
     for (const key of cartelKeys) {
-      this.cartelImages.set(key, this.getImage(`./assets/images/cartel-${key}.png`));
+      this.cartelImages.set(key, this.getImage(`./assets/images/cartel-${key}.webp`));
     }
 
     // 5. Decoraciones de Piso

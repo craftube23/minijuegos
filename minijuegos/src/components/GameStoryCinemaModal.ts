@@ -130,7 +130,7 @@ export class GameStoryCinemaModal {
       headline: "¡HAZ SONAR LA NAVIDAD!",
       tagline: "¡Toca las campanas al compás y despierta la magia festiva!",
       pageIllustrationBg: "./assets/images/fondo-nieve.webp",
-      backdropLayerImg: "./assets/images/fondo-villa-montanas.jpg",
+      backdropLayerImg: "./assets/images/fondo-villa-montanas.webp",
       heroLayerImg: "./assets/images/icon-campanas.webp",
       heroLayerScale: 1.25,
       heroLayerOffsetY: 5,
@@ -149,7 +149,7 @@ export class GameStoryCinemaModal {
       subTag: "¡MISIÓN POR LOS CIELOS!",
       headline: "¡VUELA CON EL ELFO!",
       tagline: "¡Una ráfaga helada dispersó las cartas! Vuela y rescátalas.",
-      pageIllustrationBg: "./assets/images/fondo-villa-montanas.jpg",
+      pageIllustrationBg: "./assets/images/fondo-villa-montanas.webp",
       sceneryLayerImg: "./assets/images/casas-techo-fore.webp",
       heroLayerImg: "./assets/images/elfo-volador.webp",
       heroLayerScale: 1.2,
@@ -269,7 +269,7 @@ export class GameStoryCinemaModal {
       heroLayerScale: 1.2,
       heroLayerOffsetY: 0,
       props: [
-        { src: "./assets/images/cochecito-juguete.png", className: "prop-chaos-car", xPercent: -35, yPercent: -35, delayOffset: 0.14, scale: 0.9, rotateDeg: -15 },
+        { src: "./assets/images/coche-juguete.webp", className: "prop-chaos-car", xPercent: -35, yPercent: -35, delayOffset: 0.14, scale: 0.9, rotateDeg: -15 },
         { src: "./assets/images/robot.webp", className: "prop-chaos-robot", xPercent: 35, yPercent: -38, delayOffset: 0.26, scale: 0.9, rotateDeg: 18 }
       ],
       playHeroSound: (a) => a.playCatchItem(1.2)
@@ -282,7 +282,7 @@ export class GameStoryCinemaModal {
       subTag: "¡ASCENSO A LAS NUBES!",
       headline: "¡SALTA SIN PARAR!",
       tagline: "¡Impúlsate de plataforma en plataforma hasta alcanzar la aurora boreal!",
-      pageIllustrationBg: "./assets/images/fondo-villa-montanas.jpg",
+      pageIllustrationBg: "./assets/images/fondo-villa-montanas.webp",
       heroLayerImg: "./assets/images/elfo-saltador.webp",
       heroLayerScale: 1.2,
       heroLayerOffsetY: -8,

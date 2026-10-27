@@ -234,7 +234,7 @@ export class SantaHillsGame extends BaseGame {
     this.imgSignFeria = load("./assets/images/cartel-feria.webp");
     this.imgSignSponsor = load("./assets/images/cartel-sponsor.webp");
     this.imgMedallonFeria = load("./assets/images/medallon-feria.webp");
-    this.imgBgSeamless = load("./assets/images/fondo-villa-seamless.jpg");
+    this.imgBgSeamless = load("./assets/images/fondo-villa-seamless.webp");
   }
 
   // =========================================================================
