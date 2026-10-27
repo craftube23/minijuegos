@@ -30,7 +30,7 @@ export interface Particle {
 export class ParticleSystem {
   private particles: Particle[] = [];
   private snowFlakes: Particle[] = [];
-  private maxSnowFlakes: number = 42; // Control estricto de memoria
+  private maxSnowFlakes: number = 32; // Control estricto de memoria adaptativo
 
   constructor(width: number, height: number) {
     this.initSnow(width, height);
@@ -40,6 +40,11 @@ export class ParticleSystem {
    * Inicializa la nieve ambiente multinivel
    */
   public initSnow(width: number, height: number): void {
+    const isMobile = typeof window !== 'undefined' && (
+      window.innerWidth < 900 || 
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    );
+    this.maxSnowFlakes = isMobile ? 24 : 38;
     this.snowFlakes = [];
     for (let i = 0; i < this.maxSnowFlakes; i++) {
       const isForeground = i % 3 === 0;

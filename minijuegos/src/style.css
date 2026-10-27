@@ -508,23 +508,24 @@ html, body {
   z-index: 3;
   width: 100%;
   height: 100%;
-  padding: 8.5% 7.5% 18.5% 7.5%;
+  padding: 6% 6% 17% 6%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  gap: clamp(2px, 0.6vh, 4px);
+  gap: clamp(1px, 0.4vh, 3px);
   box-sizing: border-box;
 }
 
 /* --- Miniatura e Icono 3D Prominente (Grande en la zona superior/central) --- */
 .card-art-box {
   position: absolute;
-  top: 7.5%;
+  top: 6%;
   left: 50%;
   transform: translateX(-50%);
   width: 86%;
-  height: 54%;
+  height: 46%;
+  max-height: 46%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -535,6 +536,7 @@ html, body {
 .card-art-image {
   width: auto;
   height: 100%;
+  max-height: 100%;
   max-width: 95%;
   object-fit: contain;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.92));
@@ -561,17 +563,22 @@ html, body {
   position: relative;
   z-index: 5;
   font-family: var(--font-card-title);
-  font-size: clamp(0.95rem, 1.9vw, 1.32rem);
+  font-size: clamp(0.85rem, 1.4vw, 1.15rem);
   font-weight: 900;
   color: #FFFFFF;
-  margin: 0 0 1px 0;
-  line-height: 1.12;
+  margin: 0;
+  line-height: 1.1;
   text-shadow: 
     0 2px 0 #2A1203,
     0 3.5px 0 #120500,
     0 5px 12px rgba(0, 0, 0, 1),
     0 0 14px rgba(0, 0, 0, 0.9);
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 92%;
+  flex-shrink: 0;
 }
 
 /* --- Cinta de Pergamino Medieval para Categoría --- */
@@ -581,23 +588,27 @@ html, body {
   background: linear-gradient(180deg, #FDF2E9 0%, #F5CBA7 45%, #E59866 100%);
   border: 1.2px solid #873600;
   border-radius: 3px;
-  padding: 1.5px 9px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+  padding: 1px 7px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.8);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   clip-path: polygon(4px 0%, calc(100% - 4px) 0%, 100% 50%, calc(100% - 4px) 100%, 4px 100%, 0% 50%);
-  min-width: 105px;
+  max-width: 88%;
   margin: 0;
+  flex-shrink: 0;
 }
 
 .card-ribbon-category span {
   font-family: var(--font-main);
-  font-size: clamp(0.55rem, 0.92vw, 0.66rem);
+  font-size: clamp(0.50rem, 0.82vw, 0.62rem);
   font-weight: 900;
   color: #2C1405;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* --- Tagline Descriptivo --- */
@@ -605,33 +616,44 @@ html, body {
   position: relative;
   z-index: 5;
   font-family: var(--font-main);
-  font-size: clamp(0.58rem, 0.98vw, 0.72rem);
+  font-size: clamp(0.52rem, 0.85vw, 0.66rem);
   color: #FFFDE7;
   margin: 0;
   font-weight: 700;
   text-shadow: 0 1.5px 4px rgba(0, 0, 0, 1);
   line-height: 1.15;
+  max-width: 90%;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
 }
 
 /* --- Placa de Madera Rústica para Récord (Imagen 2) --- */
 .card-record-plaque {
   position: relative;
   z-index: 5;
-  width: 72%;
+  width: auto;
+  max-width: 82%;
   background: linear-gradient(180deg, #4A2B11 0%, #2A1608 100%);
   border: 1.2px solid #7D481F;
   border-radius: 6px;
-  padding: 1.5px 6px;
+  padding: 1px 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.6);
   margin: 0;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .plaque-trophy {
-  font-size: 0.78rem;
+  font-size: clamp(0.60rem, 0.85vw, 0.75rem);
   display: inline-flex;
   align-items: center;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
@@ -639,7 +661,7 @@ html, body {
 
 .plaque-label {
   font-family: var(--font-main);
-  font-size: clamp(0.58rem, 0.98vw, 0.72rem);
+  font-size: clamp(0.50rem, 0.80vw, 0.64rem);
   color: #FAD7A0;
   font-weight: 700;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
@@ -11457,8 +11479,22 @@ html, body {
 
   .banner-hero-container,
   .banner-event-container {
-    padding: 2px 10px !important;
+    padding: 2px 10px 8px 10px !important;
     gap: 8px !important;
+  }
+
+  .kiosk-swiper .kiosk-swiper-pagination {
+    bottom: 1px !important;
+    gap: 4px !important;
+  }
+
+  .kiosk-swiper .swiper-pagination-bullet {
+    width: 4px !important;
+    height: 4px !important;
+  }
+
+  .kiosk-swiper .swiper-pagination-bullet-active {
+    width: 12px !important;
   }
 
   .banner-logo-card {
@@ -11520,49 +11556,81 @@ html, body {
   }
 
   .card-inner-body {
-    padding: 5% 5% 14% 5% !important;
+    padding: 4% 5% 15% 5% !important;
+    gap: 1.5px !important;
+  }
+
+  .card-art-box {
+    top: 5% !important;
+    height: 42% !important;
+    max-height: 42% !important;
   }
 
   .card-fantasy-title {
-    font-size: clamp(0.70rem, 1vw, 0.84rem) !important;
+    font-size: clamp(0.68rem, 1vw, 0.82rem) !important;
+    line-height: 1.08 !important;
+    margin-bottom: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 90% !important;
+  }
+
+  .card-ribbon-category {
+    padding: 1px 6px !important;
+    min-width: unset !important;
+    max-width: 85% !important;
+    margin: 0 !important;
+  }
+
+  .card-ribbon-category span {
+    font-size: 0.50rem !important;
+    letter-spacing: 0.3px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .card-fantasy-tagline {
+    font-size: 0.52rem !important;
     line-height: 1.1 !important;
-    margin-bottom: 1px !important;
-  }
-
-  .card-badge-pill {
-    padding: 1px 5px !important;
-    font-size: 0.56rem !important;
-    margin: 1px auto !important;
-  }
-
-  .card-desc {
-    font-size: 0.62rem !important;
-    line-height: 1.12 !important;
-    margin: 1px 0 !important;
+    margin: 0 !important;
     display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
+    -webkit-line-clamp: 1 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 88% !important;
   }
 
-  .card-record-box {
-    font-size: 0.62rem !important;
+  .card-record-plaque {
+    font-size: 0.52rem !important;
     padding: 1px 5px !important;
-    margin: 1px auto !important;
+    margin: 0 !important;
+    max-width: 80% !important;
+  }
+
+  .plaque-trophy {
+    font-size: 0.58rem !important;
+  }
+
+  .plaque-label {
+    font-size: 0.50rem !important;
   }
 
   .btn-fantasy-play {
-    padding: 2px 7px !important;
-    min-height: 22px !important;
-    bottom: -3px !important;
+    padding: 0 4px !important;
+    min-height: 20px !important;
+    height: 12% !important;
+    bottom: 5.5% !important;
   }
 
   .btn-play-label {
-    font-size: 0.72rem !important;
+    font-size: 0.68rem !important;
   }
 
   .btn-play-arrow {
-    font-size: 0.60rem !important;
+    font-size: 0.54rem !important;
   }
 
   /* Modales en teléfonos apaisados */
