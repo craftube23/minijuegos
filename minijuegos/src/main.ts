@@ -42,21 +42,7 @@ import { OrnamentPopStoryTutorialModal } from "./components/OrnamentPopStoryTuto
 import { UniversalStoryTutorialModal } from "./components/UniversalStoryTutorialModal";
 
 // Los Minijuegos Navideños (15 Minijuegos Oficiales)
-import { ToyCatchGame } from "./games/ToyCatchGame";
-import { BellSymphonyGame } from "./games/BellSymphonyGame";
-import { NutcrackerDrumsGame } from "./games/NutcrackerDrumsGame";
-import { FlyingElfGame } from "./games/FlyingElfGame";
-import { MagicPairsGame } from "./games/MagicPairsGame";
-import { SantaHillsGame } from "./games/SantaHillsGame";
-import { SnowballTargetGame } from "./games/SnowballTargetGame";
-import { WorkshopChaosGame } from "./games/WorkshopChaosGame";
-import { MagicJumpGame } from "./games/MagicJumpGame";
-import { GiftTowerGame } from "./games/GiftTowerGame";
-import { PolarExpressGame } from "./games/PolarExpressGame";
-import { OrnamentPopGame } from "./games/OrnamentPopGame";
-import { ToyMatchGame } from "./games/ToyMatchGame";
-import { SantaSkiGame } from "./games/SantaSkiGame";
-import { SnowBattleGame } from "./games/SnowBattleGame";
+import type { BellSymphonyGame } from "./games/BellSymphonyGame";
 import { getIconSvg } from "./utils/icons";
 import {
   initKioskNativeMode,
@@ -96,7 +82,9 @@ class KioskApp {
   public testNativeResilience = runIsolatedNativeResilienceCheck;
 
   // Fábricas y Colección de Minijuegos (Lazy Loading bajo demanda)
-  private gameFactories: Map<string, () => BaseGame> = new Map();
+  /** Se incrementa al lanzar o salir de un juego para descartar cargas dinámicas obsoletas. */
+  private launchSeq = 0;
+  private gameLoaders: Map<string, () => Promise<BaseGame>> = new Map();
   private games: Map<string, BaseGame> = new Map();
   private currentGame: BaseGame | null = null;
 
@@ -356,46 +344,57 @@ class KioskApp {
    * Evita cargar texturas, audios o físicas de 15 juegos simultáneamente al inicio.
    */
   private registerGames(): void {
-    this.gameFactories.set("toy-catch", () => new ToyCatchGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("bell-symphony", () => new BellSymphonyGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("tree-melody", () => new NutcrackerDrumsGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("flying-elf", () => new FlyingElfGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("magic-pairs", () => new MagicPairsGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("santa-hills", () => new SantaHillsGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("snowball-target", () => new SnowballTargetGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("workshop-chaos", () => new WorkshopChaosGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("christmas-jump", () => new MagicJumpGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("gift-tower", () => new GiftTowerGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("polar-express", () => new PolarExpressGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("ornament-pop", () => new OrnamentPopGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("toy-match", () => new ToyMatchGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("santa-ski", () => new SantaSkiGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameFactories.set("snow-battle", () => new SnowBattleGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("toy-catch", async () => new (await import("./games/ToyCatchGame")).ToyCatchGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("bell-symphony", async () => new (await import("./games/BellSymphonyGame")).BellSymphonyGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("tree-melody", async () => new (await import("./games/NutcrackerDrumsGame")).NutcrackerDrumsGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("flying-elf", async () => new (await import("./games/FlyingElfGame")).FlyingElfGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("magic-pairs", async () => new (await import("./games/MagicPairsGame")).MagicPairsGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("santa-hills", async () => new (await import("./games/SantaHillsGame")).SantaHillsGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("snowball-target", async () => new (await import("./games/SnowballTargetGame")).SnowballTargetGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("workshop-chaos", async () => new (await import("./games/WorkshopChaosGame")).WorkshopChaosGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("christmas-jump", async () => new (await import("./games/MagicJumpGame")).MagicJumpGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("gift-tower", async () => new (await import("./games/GiftTowerGame")).GiftTowerGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("polar-express", async () => new (await import("./games/PolarExpressGame")).PolarExpressGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("ornament-pop", async () => new (await import("./games/OrnamentPopGame")).OrnamentPopGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("toy-match", async () => new (await import("./games/ToyMatchGame")).ToyMatchGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("santa-ski", async () => new (await import("./games/SantaSkiGame")).SantaSkiGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("snow-battle", async () => new (await import("./games/SnowBattleGame")).SnowBattleGame(this.canvas, this.input, this.audio, this.particles));
   }
 
   /**
    * Obtiene la instancia del juego solicitado o la crea de forma perezosa bajo demanda.
    */
   public getGame(gameId: string): BaseGame | undefined {
-    let game = this.games.get(gameId);
-    if (!game) {
-      const factory = this.gameFactories.get(gameId);
-      if (factory) {
-        game = factory();
-        game.onGameOver = (result: GameResult) => this.handleGameOver(result);
-        if (game instanceof OrnamentPopGame) {
-          game.onOpenTutorial = () => this.ornamentTutorialModal.show(0);
-        } else if (game instanceof SantaSkiGame) {
-          game.onOpenTutorial = () => this.skiTutorialModal.show(0);
-        } else if (game instanceof SnowBattleGame) {
-          game.onOpenTutorial = () => this.universalTutorialModal.show("snow-battle", 0);
-        }
-        if (this.logicalWidth > 0 && this.logicalHeight > 0) {
-          game.resize(this.logicalWidth, this.logicalHeight);
-        }
-        this.games.set(gameId, game);
-      }
+    return this.games.get(gameId);
+  }
+
+  /**
+   * Carga bajo demanda el módulo del juego (code splitting) y crea su instancia.
+   */
+  private async loadGame(gameId: string): Promise<BaseGame | undefined> {
+    const cached = this.games.get(gameId);
+    if (cached) return cached;
+    const loader = this.gameLoaders.get(gameId);
+    if (!loader) return undefined;
+    const game = await loader();
+    const existing = this.games.get(gameId);
+    if (existing) {
+      game.destroy();
+      return existing;
     }
+    game.onGameOver = (result: GameResult) => this.handleGameOver(result);
+    const g = game as BaseGame & { onOpenTutorial?: () => void };
+    if (gameId === "ornament-pop") {
+      g.onOpenTutorial = () => this.ornamentTutorialModal.show(0);
+    } else if (gameId === "santa-ski") {
+      g.onOpenTutorial = () => this.skiTutorialModal.show(0);
+    } else if (gameId === "snow-battle") {
+      g.onOpenTutorial = () => this.universalTutorialModal.show("snow-battle", 0);
+    }
+    if (this.logicalWidth > 0 && this.logicalHeight > 0) {
+      game.resize(this.logicalWidth, this.logicalHeight);
+    }
+    this.games.set(gameId, game);
     return game;
   }
 
@@ -736,6 +735,7 @@ class KioskApp {
    */
   public goToMenu(withTransition: boolean = true): void {
     if (this.isTransitioning) return;
+    this.launchSeq++;
     this.audio.resumeMenuBGM();
 
     this.landscapePromptDismissed = false;
@@ -873,11 +873,25 @@ class KioskApp {
    * (NO repite la animación de corte, va directo al conteo 3-2-1)
    */
   public launchGameWithCountdown(gameId: string): void {
-    const game = this.getGame(gameId);
-    if (!game) {
-      this.isTransitioning = false;
-      return;
-    }
+    const seq = ++this.launchSeq;
+    this.loadGame(gameId)
+      .then((game) => {
+        if (seq !== this.launchSeq) return;
+        if (!game) {
+          this.isTransitioning = false;
+          return;
+        }
+        this.startGameWithCountdown(gameId, game);
+      })
+      .catch((err) => {
+        console.error("No se pudo cargar el juego", gameId, err);
+        if (seq !== this.launchSeq) return;
+        this.isTransitioning = false;
+        this.goToMenu(false);
+      });
+  }
+
+  private startGameWithCountdown(gameId: string, game: BaseGame): void {
 
     if (this.currentGame && this.currentGame !== game) {
       const prevId = this.currentGame.id;
@@ -926,8 +940,19 @@ class KioskApp {
    * la cuenta regresiva normal arcade 3-2-1 en todos los minijuegos.
    */
   public launchGameDirect(gameId: string): void {
-    const game = this.getGame(gameId);
-    if (!game) return;
+    const seq = ++this.launchSeq;
+    this.loadGame(gameId)
+      .then((game) => {
+        if (game && seq === this.launchSeq) this.startGameDirect(game);
+      })
+      .catch((err) => {
+        console.error("No se pudo cargar el juego", gameId, err);
+        if (seq !== this.launchSeq) return;
+        this.goToMenu(false);
+      });
+  }
+
+  private startGameDirect(game: BaseGame): void {
 
     if (this.currentGame && this.currentGame !== game) {
       const prevId = this.currentGame.id;
@@ -952,10 +977,10 @@ class KioskApp {
 
     const mainContainer = document.getElementById("kiosk-main") || document.body;
 
-    if (game instanceof BellSymphonyGame) {
-      game.replayLastSong();
-    } else if (game instanceof FlyingElfGame) {
-      game.replayWithCountdown();
+    if (game.id === "bell-symphony") {
+      (game as unknown as BellSymphonyGame).replayLastSong();
+    } else if (game.id === "flying-elf") {
+      (game as unknown as { replayWithCountdown(): void }).replayWithCountdown();
     } else {
       if ("prepareForCountdown" in game && typeof (game as any).prepareForCountdown === "function") {
         (game as any).prepareForCountdown(KIOSK_CONFIG.defaultGameDurationSeconds);
@@ -987,6 +1012,7 @@ class KioskApp {
    * Regresa a la pantalla de atracción (Salvapantallas)
    */
   public goToAttractScreen(): void {
+    this.launchSeq++;
     if (this.currentGame) {
       const id = this.currentGame.id;
       this.currentGame.destroy();

@@ -897,7 +897,7 @@ export class SnowBattleGame extends BaseGame {
           e.abilityCooldown = 5.0 + Math.random() * 2.5;
           e.isDashing = true;
           this.particles.emitBurst(e.x, e.y, "#00E5FF", 8);
-          setTimeout(() => { e.isDashing = false; }, 650);
+          this.setGameTimeout(() => { e.isDashing = false; }, 650);
         }
 
         // Habilidad 3: Yeti ejecuta Pisotón Sísmico (Slam) que sacude la plaza
