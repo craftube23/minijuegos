@@ -347,7 +347,6 @@ class KioskApp {
     this.gameLoaders.set("toy-catch", async () => new (await import("./games/ToyCatchGame")).ToyCatchGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("bell-symphony", async () => new (await import("./games/BellSymphonyGame")).BellSymphonyGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("tree-melody", async () => new (await import("./games/NutcrackerDrumsGame")).NutcrackerDrumsGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameLoaders.set("flying-elf", async () => new (await import("./games/FlyingElfGame")).FlyingElfGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("magic-pairs", async () => new (await import("./games/MagicPairsGame")).MagicPairsGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("santa-hills", async () => new (await import("./games/SantaHillsGame")).SantaHillsGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("snowball-target", async () => new (await import("./games/SnowballTargetGame")).SnowballTargetGame(this.canvas, this.input, this.audio, this.particles));
@@ -916,7 +915,7 @@ class KioskApp {
 
     const mainContainer = document.getElementById("kiosk-main") || document.body;
 
-    if (gameId === "bell-symphony" || gameId === "flying-elf") {
+    if (gameId === "bell-symphony") {
       this.isTransitioning = false;
       this.currentGame?.start(KIOSK_CONFIG.defaultGameDurationSeconds);
     } else {
@@ -979,8 +978,6 @@ class KioskApp {
 
     if (game.id === "bell-symphony") {
       (game as unknown as BellSymphonyGame).replayLastSong();
-    } else if (game.id === "flying-elf") {
-      (game as unknown as { replayWithCountdown(): void }).replayWithCountdown();
     } else {
       if ("prepareForCountdown" in game && typeof (game as any).prepareForCountdown === "function") {
         (game as any).prepareForCountdown(KIOSK_CONFIG.defaultGameDurationSeconds);

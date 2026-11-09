@@ -23,6 +23,11 @@ import { StorageManager } from "../core/StorageManager";
 import type { ChartNoteRecord } from "../data/songs";
 import {
   RHYTHM_SONG_LIST,
+  JINGLE_OFICIAL_FERIA_MAGICA_CHART,
+  JINGLE_OFICIAL_FERIA_MAGICA_CHART_EASY,
+  JINGLE_OFICIAL_FERIA_MAGICA_CHART_NORMAL,
+  JINGLE_OFICIAL_FERIA_MAGICA_CHART_HARD,
+  JINGLE_OFICIAL_FERIA_MAGICA_CHART_EXPERT,
   GOD_REST_METAL_CHART,
   GOD_REST_METAL_CHART_EASY,
   GOD_REST_METAL_CHART_NORMAL,
@@ -784,6 +789,14 @@ export class BellSymphonyGame extends BaseGame {
     let isHandcrafted = false;
 
     switch (song.id) {
+      case "jingle-oficial-feria":
+        if (diff === "easy") sourceChart = JINGLE_OFICIAL_FERIA_MAGICA_CHART_EASY;
+        else if (diff === "normal") sourceChart = JINGLE_OFICIAL_FERIA_MAGICA_CHART_NORMAL;
+        else if (diff === "hard") sourceChart = JINGLE_OFICIAL_FERIA_MAGICA_CHART_HARD;
+        else if (diff === "expert") sourceChart = JINGLE_OFICIAL_FERIA_MAGICA_CHART_EXPERT;
+        else sourceChart = JINGLE_OFICIAL_FERIA_MAGICA_CHART;
+        isHandcrafted = true;
+        break;
       case "joy-to-world-ultra":
         if (diff === "easy") sourceChart = JOY_TO_WORLD_ULTRA_CHART_EASY;
         else if (diff === "normal") sourceChart = JOY_TO_WORLD_ULTRA_CHART_NORMAL;

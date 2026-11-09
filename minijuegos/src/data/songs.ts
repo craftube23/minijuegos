@@ -9515,11 +9515,35 @@ export const JOY_TO_WORLD_ULTRA_CHART_EXPERT: ChartNoteRecord[] = [
 
 export const JOY_TO_WORLD_ULTRA_CHART: ChartNoteRecord[] = JOY_TO_WORLD_ULTRA_CHART_HARD;
 
+// Re-exportar partituras de la canción oficial de la Feria Mágica
+export {
+  JINGLE_OFICIAL_FERIA_MAGICA_CHART,
+  JINGLE_OFICIAL_FERIA_MAGICA_CHART_EASY,
+  JINGLE_OFICIAL_FERIA_MAGICA_CHART_NORMAL,
+  JINGLE_OFICIAL_FERIA_MAGICA_CHART_HARD,
+  JINGLE_OFICIAL_FERIA_MAGICA_CHART_EXPERT
+} from "./jingleOficialChart";
+
 // ==============================================================================
 // LISTA OFICIAL DE CANCIONES PARA EL MENÚ
 // ==============================================================================
 
 export const RHYTHM_SONG_LIST: SongDef[] = [
+  {
+    id: "jingle-oficial-feria",
+    title: "Jingle Feria Mágica",
+    artist: "Feria Mágica del Juguete",
+    credits: 'Canción Oficial de la Feria Mágica del Juguete (Versión Karaoke)',
+    subtitle: "Himno Navideño Oficial • Edición Especial",
+    bpm: 124,
+    speed: 535,
+    durationSeconds: 93,
+    stars: 5,
+    difficultyLabel: "OFICIAL",
+    tagColor: "#FFD700",
+    audioFile: "juego campanas/Jingle Oficial Feria Magica Karaoke.wav",
+    icon: "crown"
+  },
   {
     id: "joy-to-world-ultra",
     title: "Joy to the World Ultra",

@@ -46,6 +46,8 @@ export class AudioManager {
   private gameBgmAudio: HTMLAudioElement | null = null;
   private gameBgmVolume: number = 0.50;
   private howlSfxRegistry: Map<string, HowlSfxEntry> = new Map();
+  public static readonly PRIMARY_THEME_SONG: string = "./assets/audio/jingle-oficial-feria-magica.wav";
+  private hasPlayedPrimaryTheme: boolean = false;
   private playlist: string[] = [
     "./assets/audio/jingle-bells.mp3",
     "./assets/audio/Joy to the world.mp3",
@@ -55,7 +57,7 @@ export class AudioManager {
     "./assets/audio/We Wish You a Merry Christmas.mp3"
   ];
   private lastSongIndex: number = -1;
-  private currentBgmPath: string = "./assets/audio/jingle-bells.mp3";
+  private currentBgmPath: string = "./assets/audio/jingle-oficial-feria-magica.wav";
 
   private constructor() {
     // Inicialización perezosa (lazy)
@@ -126,7 +128,7 @@ export class AudioManager {
    * Obtiene la siguiente canción al azar de la playlist evitando repetir la anterior
    */
   public getRandomSong(): string {
-    if (this.playlist.length === 0) return "./assets/audio/jingle-bells.mp3";
+    if (this.playlist.length === 0) return AudioManager.PRIMARY_THEME_SONG;
     if (this.playlist.length === 1) return this.playlist[0];
 
     let randomIndex: number;
@@ -139,9 +141,10 @@ export class AudioManager {
   }
 
   /**
-   * Reproduce una canción aleatoria de la playlist para el Menú / Inicio.
+   * Reproduce música para el Menú / Inicio.
+   * - En el arranque inicial siempre reproduce la canción oficial principal (Jingle Oficial Feria Mágica).
+   * - Al terminar o en transiciones siguientes, reproduce aleatoriamente de la playlist sin repetir consecutivas.
    * Si 'forceNew' es false y ya está sonando una pista, la mantiene fluida sin cortes.
-   * Si la canción termina, avanza automáticamente a la siguiente pista al azar.
    */
   public playRandomMenuBGM(forceNew: boolean = false, volume: number = 0.45): void {
     if (this.isGameActive || this.isMuted) {
@@ -156,13 +159,20 @@ export class AudioManager {
       return;
     }
 
-    const song = this.getRandomSong();
+    // La primera vez que suena la música en el arranque/inicio, usar SIEMPRE la canción principal
+    let song: string;
+    if (!this.hasPlayedPrimaryTheme) {
+      song = AudioManager.PRIMARY_THEME_SONG;
+      this.hasPlayedPrimaryTheme = true;
+    } else {
+      song = this.getRandomSong();
+    }
     this.currentBgmPath = song;
 
     if (!this.bgmAudio) {
       this.bgmAudio = new Audio();
       this.bgmAudio.addEventListener("ended", () => {
-        // Al terminar la pista, pasar automáticamente a la siguiente aleatoria
+        // Al terminar la pista (incluida la principal), pasar a la siguiente aleatoria
         if (!this.isGameActive && !this.isMuted) {
           this.playRandomMenuBGM(true, this.bgmVolume);
         }
