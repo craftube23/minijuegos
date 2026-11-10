@@ -195,8 +195,7 @@ export class SantaHillsGame extends BaseGame {
   private imgLog: HTMLImageElement;
   private imgTree: HTMLImageElement;
   private imgHouse: HTMLImageElement;
-  private imgSignFeria: HTMLImageElement;
-  private imgSignSponsor: HTMLImageElement;
+  private cartelImages: Map<string, HTMLImageElement> = new Map();
   private imgMedallonFeria: HTMLImageElement;
   private imgBgSeamless: HTMLImageElement;
 
@@ -232,8 +231,14 @@ export class SantaHillsGame extends BaseGame {
     this.imgLog = load("./assets/images/obstaculo-tronco.webp");
     this.imgTree = load("./assets/images/arbol.webp");
     this.imgHouse = load("./assets/images/casa-navidena-clean.webp");
-    this.imgSignFeria = load("./assets/images/cartel-feria.webp");
-    this.imgSignSponsor = load("./assets/images/cartel-sponsor.webp");
+
+    // Carteles oficiales de patrocinadores con arte 2D integrado (11 patrocinadores)
+    const sponsorKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu", "coca", "maicito"];
+    for (const k of sponsorKeys) {
+      this.cartelImages.set(k, load(`./assets/images/cartel-${k}.webp`));
+    }
+    this.cartelImages.set("campuslands", load("./assets/images/cartel-campuslands.webp"));
+    this.cartelImages.set("practi-arepa", load("./assets/images/cartel-practi-arepa.webp"));
     this.imgMedallonFeria = load("./assets/images/medallon-feria.webp");
     this.imgBgSeamless = load("./assets/images/fondo-villa-seamless.webp");
   }
@@ -1332,32 +1337,25 @@ export class SantaHillsGame extends BaseGame {
       } else {
         w = 138;
         sink = 12;
-        const spKey = p.sponsorKey || "feria";
-        const sp = BRANDING.getLogoConfig(spKey);
-        const spLogo = this.getSponsorImage(sp.id) || this.imgMedallonFeria;
+        const rawKey = (p.sponsorKey || "feria").replace("logo-", "").toLowerCase();
+        const sp = BRANDING.getLogoConfig(rawKey);
+        const cartelImg = this.cartelImages.get(rawKey) ||
+          this.cartelImages.get(sp.shortName.toLowerCase()) ||
+          this.cartelImages.get("feria");
 
-        img = this.imgSignSponsor && this.imgSignSponsor.complete && this.imgSignSponsor.naturalWidth
-          ? this.imgSignSponsor
-          : this.imgSignFeria;
+        if (cartelImg && cartelImg.complete && cartelImg.naturalWidth) {
+          const h = w * (cartelImg.naturalHeight / cartelImg.naturalWidth);
 
-        if (img && img.complete && img.naturalWidth) {
-          const h = w * (img.naturalHeight / img.naturalWidth);
-          ctx.drawImage(img, x - w / 2, gy - h + sink, w, h);
-          if (spLogo && spLogo.complete && spLogo.naturalWidth) {
-            const aspect = spLogo.naturalWidth / (spLogo.naturalHeight || 1);
-            let lw = w * 0.58;
-            let lh = lw / aspect;
-            if (lh > h * 0.44) {
-              lh = h * 0.44;
-              lw = lh * aspect;
-            }
-            // Fondo blanco nítido y logo de patrocinador centrado en la valla
-            ctx.fillStyle = "#FFFFFF";
-            ctx.beginPath();
-            ctx.roundRect(x - lw / 2 - 3, gy - h + sink + h * 0.18 - lh / 2 - 2, lw + 6, lh + 4, 3);
-            ctx.fill();
-            ctx.drawImage(spLogo, x - lw / 2, gy - h + sink + h * 0.18 - lh / 2, lw, lh);
-          }
+          // Sombra de contacto suave en la colina nevada
+          ctx.save();
+          ctx.fillStyle = "rgba(10, 25, 45, 0.35)";
+          ctx.beginPath();
+          ctx.ellipse(x, gy + sink - 4, w * 0.45, 7, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Dibujar el cartel artesanal de madera
+          ctx.drawImage(cartelImg, x - w / 2, gy - h + sink, w, h);
+          ctx.restore();
         }
         this.drawSnowMound(ctx, x, p.worldX, w * 0.42, 16);
         continue;

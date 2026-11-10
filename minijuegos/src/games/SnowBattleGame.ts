@@ -207,6 +207,7 @@ export class SnowBattleGame extends BaseGame {
   private puTripleImg: HTMLImageElement;
   private puShieldImg: HTMLImageElement;
   private puCookieImg: HTMLImageElement;
+  private cartelImages: Map<string, HTMLImageElement> = new Map();
   private heartImg: HTMLImageElement;
   private backgroundImg: HTMLImageElement;
 
@@ -678,7 +679,7 @@ export class SnowBattleGame extends BaseGame {
 
     const baseAngle = Math.atan2(target.y - this.py, target.x - this.px);
     const spread = (14 * Math.PI) / 180;
-    const angles = this.tripleTimer > 0 ? [baseAngle - spread, baseAngle, baseAngle + spread] : [baseAngle];
+    const angles = (this.tripleTimer > 0 || this.isLogoPowerUpActive) ? [baseAngle - spread, baseAngle, baseAngle + spread] : [baseAngle];
     for (const a of angles) {
       this.snowballs.push({
         x: this.px + Math.cos(a) * 30,
@@ -1050,10 +1051,14 @@ export class SnowBattleGame extends BaseGame {
         }
         this.audio.playCatchItem(1.5);
         break;
-      case "logo":
-        this.triggerLogoPowerUp(p.sponsorId ?? 1, 6);
-        this.addFloatingText("¡PUNTOS x2!", this.px, this.py - 70, "#FFD700", 1.3);
+            case "logo": {
+        const sp = BRANDING.getLogoConfig(p.sponsorId || 1);
+        this.triggerLogoPowerUp(sp.id, 7);
+        this.audio.playPowerUp();
+        this.addFloatingText(`¡PODER ${sp.shortName.toUpperCase()}! DAÑO Y PUNTOS x2`, this.px, this.py - 70, sp.themeColor || "#FFD700", 1.4);
+        this.particles.emitBurst(this.px, this.py, sp.themeColor || "#FFD700", 26);
         break;
+      }
     }
     this.particles.emitBurst(p.x, p.y, "#FFD700", 16);
   }
@@ -1539,6 +1544,29 @@ export class SnowBattleGame extends BaseGame {
     for (const p of this.powerUps) {
       const blink = p.life < 2 && Math.floor(p.life * 8) % 2 === 0;
       if (!blink) this.drawPowerUp(ctx, p, t);
+    }
+
+        // Carteles oficiales de patrocinadores decorando la plaza nevada
+    const bounds = this.getArenaBounds();
+    const bannerKeys = ["coca", "campus", "maicito", "cajasan"];
+    const bannerCount = bannerKeys.length;
+    const bannerStep = bounds.width / (bannerCount + 1);
+    for (let bi = 0; bi < bannerCount; bi++) {
+      const bKey = bannerKeys[bi];
+      const cImg = this.cartelImages.get(bKey);
+      if (cImg && cImg.complete && cImg.naturalWidth > 0) {
+        const bx = bounds.left + bannerStep * (bi + 1);
+        const by = bounds.top - 8;
+        const bw = Math.min(84, bounds.width * 0.16);
+        const bh = bw * (cImg.naturalHeight / cImg.naturalWidth);
+        ctx.save();
+        ctx.fillStyle = "rgba(10, 25, 45, 0.30)";
+        ctx.beginPath();
+        ctx.ellipse(bx, by + bh * 0.45, bw * 0.42, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.drawImage(cImg, bx - bw / 2, by - bh * 0.5, bw, bh);
+        ctx.restore();
+      }
     }
 
     // Sombras + enemigos ordenados por profundidad

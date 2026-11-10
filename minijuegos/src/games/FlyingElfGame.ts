@@ -1930,13 +1930,27 @@ export class FlyingElfGame extends BaseGame {
       ctx.lineWidth = isSelected ? 2.5 : 1.2;
       ctx.stroke();
 
-      // Dibujar icono recortado con máscara circular / bordes redondeados
+      // Dibujar icono recortado proporcionalmente sin deformar
       if (iconImg && iconImg.complete && iconImg.naturalWidth > 0) {
         ctx.save();
         ctx.beginPath();
         ctx.roundRect(item.x + 2, item.y + 2, item.w - 4, item.h - 4, 8);
         ctx.clip();
-        ctx.drawImage(iconImg, item.x + 2, item.y + 2, item.w - 4, item.h - 4);
+
+        // Respetar proporción cuadrada de los iconos oficiales sin recortar el parapente
+        const pad = 1;
+        const boxW = item.w - 4 - pad * 2;
+        const boxH = item.h - 4 - pad * 2;
+        const aspect = iconImg.naturalWidth / iconImg.naturalHeight;
+        let dw = boxW;
+        let dh = dw / aspect;
+        if (dh > boxH) {
+          dh = boxH;
+          dw = dh * aspect;
+        }
+        const dx = item.x + 2 + pad + (boxW - dw) / 2;
+        const dy = item.y + 2 + pad + (boxH - dh) / 2;
+        ctx.drawImage(iconImg, dx, dy, dw, dh);
         ctx.restore();
       }
 
@@ -2193,8 +2207,8 @@ export class FlyingElfGame extends BaseGame {
 
       let offsetX = -(this.bgScrollX % drawW);
       while (offsetX < this.width) {
-        ctx.drawImage(this.imgBgPanorama, offsetX, drawY, drawW, drawH);
-        offsetX += drawW - 1;
+        ctx.drawImage(this.imgBgPanorama, Math.floor(offsetX), drawY, Math.ceil(drawW) + 1, drawH);
+        offsetX += drawW;
       }
     }
   }
