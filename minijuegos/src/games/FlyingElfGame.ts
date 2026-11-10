@@ -2232,36 +2232,96 @@ export class FlyingElfGame extends BaseGame {
    * - Cajas de regalos
    */
   private renderGroundDecorations(ctx: CanvasRenderingContext2D): void {
-    const floorBaseY = this.height - Math.min(56, Math.max(32, this.height * 0.11));
+    const floorBaseY = this.height - Math.min(52, Math.max(34, this.height * 0.09));
 
-    // 1. Capa de nieve transparente y escarcha sutil que no tapa el camino de la villa
     ctx.save();
-    const snowGrad = ctx.createLinearGradient(0, floorBaseY - 26, 0, this.height);
-    snowGrad.addColorStop(0, "rgba(255, 255, 255, 0.0)");
-    snowGrad.addColorStop(0.35, "rgba(225, 245, 254, 0.15)");
-    snowGrad.addColorStop(0.75, "rgba(179, 229, 252, 0.25)");
-    snowGrad.addColorStop(1, "rgba(28, 54, 94, 0.35)");
 
-    ctx.fillStyle = snowGrad;
+    // 1. Capa trasera de colinas de nieve suave (Back snowdrift bank)
+    const backGrad = ctx.createLinearGradient(0, floorBaseY - 22, 0, this.height);
+    backGrad.addColorStop(0, "#E0F2FE");
+    backGrad.addColorStop(0.5, "#BAE6FD");
+    backGrad.addColorStop(1, "#7DD3FC");
+    ctx.fillStyle = backGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, this.height);
+    for (let x = 0; x <= this.width + 30; x += 30) {
+      const worldX = x + this.groundScrollX * 0.7;
+      const wave = Math.sin(worldX * 0.009) * 9 + Math.cos(worldX * 0.018) * 5;
+      ctx.lineTo(x, floorBaseY - 10 + wave);
+    }
+    ctx.lineTo(this.width, this.height);
+    ctx.closePath();
+    ctx.fill();
+
+    // 2. Capa principal delantera de nieve pura, blanca y bien marcada (100% opaca)
+    const frontGrad = ctx.createLinearGradient(0, floorBaseY - 14, 0, this.height);
+    frontGrad.addColorStop(0, "#FFFFFF");
+    frontGrad.addColorStop(0.22, "#F0F9FF");
+    frontGrad.addColorStop(0.60, "#CFE5F8");
+    frontGrad.addColorStop(1, "#8EBCE6");
+    ctx.fillStyle = frontGrad;
     ctx.beginPath();
     ctx.moveTo(0, this.height);
 
-    // Ondulación sutil y elegante de la nieve
-    const step = 45;
+    const step = 20;
+    const crestPoints: { x: number; y: number }[] = [];
     for (let x = 0; x <= this.width + step; x += step) {
       const worldX = x + this.groundScrollX;
-      const wave = Math.sin(worldX * 0.012) * 5 + Math.cos(worldX * 0.024) * 2.5;
+      const wave = Math.sin(worldX * 0.013) * 7 + Math.cos(worldX * 0.026) * 3.5;
       const y = floorBaseY + wave;
+      crestPoints.push({ x, y });
       ctx.lineTo(x, y);
     }
     ctx.lineTo(this.width, this.height);
     ctx.closePath();
     ctx.fill();
 
-    // Borde brillante de escarcha/hielo translúcido sobre la cresta de nieve
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
-    ctx.lineWidth = 1.2;
+    // 3. Borde brillante de nieve pura y escarcha sobre la cresta
+    ctx.strokeStyle = "rgba(224, 242, 254, 0.95)";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    for (let i = 0; i < crestPoints.length; i++) {
+      if (i === 0) ctx.moveTo(crestPoints[i].x, crestPoints[i].y);
+      else ctx.lineTo(crestPoints[i].x, crestPoints[i].y);
+    }
     ctx.stroke();
+
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < crestPoints.length; i++) {
+      if (i === 0) ctx.moveTo(crestPoints[i].x, crestPoints[i].y);
+      else ctx.lineTo(crestPoints[i].x, crestPoints[i].y);
+    }
+    ctx.stroke();
+
+    // 4. Efectos de nieve: Cristales centelleantes / destellos brillantes sobre la nieve
+    const glintTime = this.totalPlayTime * 3.5;
+    for (let i = 0; i < 22; i++) {
+      const gx = ((i * 127 - this.groundScrollX * 0.85) % (this.width + 120) + (this.width + 120)) % (this.width + 120) - 60;
+      const worldGx = gx + this.groundScrollX;
+      const wave = Math.sin(worldGx * 0.013) * 7 + Math.cos(worldGx * 0.026) * 3.5;
+      const gy = floorBaseY + wave + 2 + (i % 3) * 5;
+      const twinkle = 0.3 + Math.sin(glintTime + i * 1.6) * 0.65;
+      if (twinkle > 0.45) {
+        ctx.save();
+        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, twinkle)})`;
+        ctx.strokeStyle = `rgba(224, 242, 254, ${Math.min(1, twinkle * 0.85)})`;
+        ctx.lineWidth = 1;
+        const gSize = 2.5 + (i % 2) * 1.5;
+        ctx.beginPath();
+        ctx.moveTo(gx - gSize, gy);
+        ctx.lineTo(gx + gSize, gy);
+        ctx.moveTo(gx, gy - gSize);
+        ctx.lineTo(gx, gy + gSize);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(gx, gy, 1.0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
     ctx.restore();
 
     // 2. Elementos decorativos (Props de suelo)
