@@ -406,8 +406,8 @@ export class FlyingElfGame extends BaseGame {
     this.totalPlayTime = 0;
     this.initialGameDuration = this.timeRemaining > 5 ? this.timeRemaining : 45;
 
-    this.elfX = Math.max(120, this.width * 0.18);
-    this.elfHeight = Math.max(75, Math.min(135, this.height * 0.22));
+    this.elfX = Math.max(140, this.width * 0.22);
+    this.elfHeight = Math.max(85, Math.min(145, this.height * 0.24));
     this.elfWidth = this.elfHeight;
     this.elfY = this.height * 0.45;
     this.elfVy = 0;
@@ -480,8 +480,8 @@ export class FlyingElfGame extends BaseGame {
 
   public override resize(width: number, height: number): void {
     super.resize(width, height);
-    this.elfX = Math.max(120, this.width * 0.18);
-    this.elfHeight = Math.max(75, Math.min(135, this.height * 0.22));
+    this.elfX = Math.max(140, this.width * 0.22);
+    this.elfHeight = Math.max(85, Math.min(145, this.height * 0.24));
     this.elfWidth = this.elfHeight;
   }
 
@@ -1262,8 +1262,8 @@ export class FlyingElfGame extends BaseGame {
     this.isWindActive = false;
     this.wasThrusting = false;
     this.flyAudioCooldown = 0;
-    this.elfX = Math.max(120, this.width * 0.18);
-    this.elfHeight = Math.max(75, Math.min(135, this.height * 0.22));
+    this.elfX = Math.max(140, this.width * 0.22);
+    this.elfHeight = Math.max(85, Math.min(145, this.height * 0.24));
     this.elfWidth = this.elfHeight;
     this.elfY = this.height * 0.45;
     this.elfVy = 0;
@@ -1695,26 +1695,38 @@ export class FlyingElfGame extends BaseGame {
 
     if (!isLandscape) {
       // Disposición vertical (Portrait)
-      previewSize = Math.min(box.w * 0.62, box.h * 0.46);
+      previewSize = Math.min(box.w * 0.68, box.h * 0.48);
       previewX = box.x + box.w / 2;
-      previewY = box.y + box.h * 0.32 + sway;
+      previewY = box.y + box.h * 0.30 + sway;
     } else {
       // Disposición horizontal (Landscape)
-      previewSize = Math.min(box.h * 0.78, box.w * 0.38);
-      previewX = box.x + previewSize / 2 + 20;
+      previewSize = Math.min(box.h * 0.82, box.w * 0.42);
+      previewX = box.x + previewSize / 2 + 25;
       previewY = box.y + box.h / 2 + sway;
     }
 
-    // Pedestal de energía / nieve
+    // Pedestal de energía mágica y nieve flotante alineado exactamente bajo los pies del elfo
     ctx.save();
-    ctx.translate(previewX, previewY + previewSize * 0.42);
-    const pedGrad = ctx.createRadialGradient(0, 0, 4, 0, 0, previewSize * 0.42);
+    ctx.translate(previewX, previewY + previewSize * 0.38);
+    const pedGrad = ctx.createRadialGradient(0, 0, 4, 0, 0, previewSize * 0.38);
     pedGrad.addColorStop(0, def.themeColor);
+    pedGrad.addColorStop(0.65, `${def.themeColor}55`);
     pedGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
     ctx.fillStyle = pedGrad;
     ctx.beginPath();
-    ctx.ellipse(0, 0, previewSize * 0.44, previewSize * 0.14, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, previewSize * 0.42, previewSize * 0.12, 0, 0, Math.PI * 2);
     ctx.fill();
+
+    // Chispas de nieve mágica flotando en el pedestal
+    for (let sp = 0; sp < 6; sp++) {
+      const spPhase = (this.charSelectAnimTime * 2.5 + sp * 1.1) % (Math.PI * 2);
+      const spX = Math.cos(spPhase) * (previewSize * 0.35);
+      const spY = Math.sin(spPhase) * (previewSize * 0.10) - (Math.sin(spPhase) + 1) * 6;
+      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.beginPath();
+      ctx.arc(spX, spY, 1.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.restore();
 
     // Aura mágica del personaje
@@ -1960,7 +1972,8 @@ export class FlyingElfGame extends BaseGame {
    */
   private renderBackgroundSigns(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    const signBaseY = this.height - 195;
+    // Alinear carteles de patrocinadores naturalmente en la orilla del camino nevado
+    const signBaseY = this.height - Math.min(130, Math.max(85, this.height * 0.28));
 
     for (const sign of this.backgroundSigns) {
       if (sign.x < -200 || sign.x > this.width + 200) continue;
@@ -1990,13 +2003,168 @@ export class FlyingElfGame extends BaseGame {
   }
 
   /**
-   * Dibuja un único mundo panorámico continuo de Villa Navideña sin solapamientos
+   * Dibuja un mundo panorámico continuo y vivo con capas profundas de fantasía:
+   * - Cielo cósmico con estrellas titilantes y estrellas fugaces
+   * - Aurora boreal mágica con cortinas ondulantes de luz
+   * - Silueta de Santa Claus y sus renos surcando la lejanía
+   * - Cordillera de montañas nevadas en parallax profundo
+   * - Panorama de la Villa Navideña iluminada con integración continua
    */
   private renderSingleUnifiedWorld(ctx: CanvasRenderingContext2D): void {
-    // Relleno base nocturno para asegurar opacidad al 100%
-    ctx.fillStyle = "#061226";
+    // 1. Cielo Nocturno Profundo Cósmico
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, this.height);
+    skyGrad.addColorStop(0, "#010714");
+    skyGrad.addColorStop(0.35, "#061329");
+    skyGrad.addColorStop(0.7, "#0C2344");
+    skyGrad.addColorStop(1, "#16345C");
+    ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, this.width, this.height);
 
+    // 2. Campo Estelar Centelleante (36 estrellas con brillo oscilante)
+    ctx.save();
+    const starTime = this.totalPlayTime * 1.5;
+    for (let i = 0; i < 36; i++) {
+      const sx = ((i * 73 - this.bgScrollX * 0.08) % (this.width + 100) + (this.width + 100)) % (this.width + 100) - 50;
+      const sy = (i * 31 + Math.sin(i * 1.7) * 20) % (this.height * 0.48);
+      const twinkle = 0.4 + Math.sin(starTime + i * 1.3) * 0.45;
+      const starR = (i % 3 === 0 ? 2.0 : 1.2) * twinkle;
+      ctx.fillStyle = i % 4 === 0 ? `rgba(255, 230, 160, ${twinkle})` : `rgba(200, 240, 255, ${twinkle})`;
+      ctx.beginPath();
+      ctx.arc(sx, sy, Math.max(0.6, starR), 0, Math.PI * 2);
+      ctx.fill();
+
+      // Cruz de destello en estrellas más brillantes
+      if (i % 5 === 0 && twinkle > 0.6) {
+        ctx.strokeStyle = `rgba(255, 255, 255, ${twinkle * 0.7})`;
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(sx - 4, sy);
+        ctx.lineTo(sx + 4, sy);
+        ctx.moveTo(sx, sy - 4);
+        ctx.lineTo(sx, sy + 4);
+        ctx.stroke();
+      }
+    }
+
+    // Estrella fugaz ocasional en la lejanía
+    const meteorCycle = (this.totalPlayTime * 0.35) % 12;
+    if (meteorCycle < 1.4) {
+      const mProgress = meteorCycle / 1.4;
+      const mx = (this.width * 0.85) - mProgress * (this.width * 0.45);
+      const my = (this.height * 0.06) + mProgress * (this.height * 0.22);
+      const mLen = 50 * (1 - mProgress);
+      const mAlpha = Math.sin(mProgress * Math.PI) * 0.85;
+      const mGrad = ctx.createLinearGradient(mx, my, mx + mLen, my - mLen * 0.4);
+      mGrad.addColorStop(0, `rgba(255, 255, 255, ${mAlpha})`);
+      mGrad.addColorStop(0.4, `rgba(180, 230, 255, ${mAlpha * 0.7})`);
+      mGrad.addColorStop(1, "rgba(0, 229, 255, 0)");
+      ctx.strokeStyle = mGrad;
+      ctx.lineWidth = 2.0;
+      ctx.beginPath();
+      ctx.moveTo(mx, my);
+      ctx.lineTo(mx + mLen, my - mLen * 0.4);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 3. Aurora Boreal Mágica (Cortinas ondulantes de luz esmeralda, cian y violeta)
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    const auroraTime = this.totalPlayTime * 0.8;
+    const auroraBands = [
+      { color1: "rgba(16, 185, 129, 0.32)", color2: "rgba(5, 150, 105, 0)", yBase: this.height * 0.16, freq: 0.006, amp: 28, speed: 0.7 },
+      { color1: "rgba(6, 182, 212, 0.28)", color2: "rgba(2, 132, 199, 0)", yBase: this.height * 0.12, freq: 0.009, amp: 22, speed: 1.1 },
+      { color1: "rgba(168, 85, 247, 0.22)", color2: "rgba(126, 34, 206, 0)", yBase: this.height * 0.22, freq: 0.005, amp: 34, speed: 0.5 }
+    ];
+
+    for (const b of auroraBands) {
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      for (let x = 0; x <= this.width + 40; x += 30) {
+        const wave = Math.sin(x * b.freq + auroraTime * b.speed) * b.amp + Math.cos(x * b.freq * 0.5 - auroraTime * 0.4) * (b.amp * 0.5);
+        ctx.lineTo(x, b.yBase + wave);
+      }
+      ctx.lineTo(this.width + 40, 0);
+      ctx.closePath();
+      const aGrad = ctx.createLinearGradient(0, 0, 0, this.height * 0.35);
+      aGrad.addColorStop(0, b.color1);
+      aGrad.addColorStop(1, b.color2);
+      ctx.fillStyle = aGrad;
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // 4. Trineo de Santa Claus Volando en la Lejanía con estela de oro
+    ctx.save();
+    const sleighCycle = (this.totalPlayTime * 0.08) % 1.0;
+    const sleighX = (this.width + 300) - sleighCycle * (this.width + 600);
+    const sleighY = this.height * 0.14 + Math.sin(this.totalPlayTime * 1.8) * 12;
+    if (sleighX > -150 && sleighX < this.width + 150) {
+      for (let s = 1; s <= 6; s++) {
+        const trailX = sleighX + s * 14;
+        const trailY = sleighY + Math.sin(this.totalPlayTime * 3 + s) * 5;
+        const sAlpha = Math.max(0, 0.7 - s * 0.1);
+        ctx.fillStyle = `rgba(255, 215, 0, ${sAlpha})`;
+        ctx.beginPath();
+        ctx.arc(trailX, trailY, Math.max(0.5, 3.0 - s * 0.4), 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = "rgba(10, 25, 48, 0.75)";
+      ctx.strokeStyle = "rgba(255, 215, 0, 0.65)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.ellipse(sleighX + 45, sleighY, 14, 7, -0.15, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      for (let r = 0; r < 2; r++) {
+        const rx = sleighX + 18 - r * 16;
+        const ry = sleighY + Math.sin(this.totalPlayTime * 4 + r) * 3;
+        ctx.beginPath();
+        ctx.ellipse(rx, ry, 7, 4, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+
+    // 5. Cadena Montañosa Lejana con Nieve (Parallax Lento 0.12x)
+    ctx.save();
+    ctx.fillStyle = "#091D38";
+    ctx.beginPath();
+    ctx.moveTo(0, this.height);
+    const mountainScroll = this.bgScrollX * 0.12;
+    for (let mx = 0; mx <= this.width + 60; mx += 50) {
+      const worldMx = mx + mountainScroll;
+      const mPeak = Math.sin(worldMx * 0.0035) * (this.height * 0.16) + Math.cos(worldMx * 0.008) * (this.height * 0.08);
+      ctx.lineTo(mx, this.height * 0.58 - mPeak);
+    }
+    ctx.lineTo(this.width, this.height);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(186, 230, 253, 0.35)";
+    ctx.lineWidth = 2.0;
+    ctx.stroke();
+    ctx.restore();
+
+    // 6. Cadena Montañosa Media y Bosque de Pinos (Parallax 0.28x)
+    ctx.save();
+    ctx.fillStyle = "#0C274A";
+    ctx.beginPath();
+    ctx.moveTo(0, this.height);
+    const midMountainScroll = this.bgScrollX * 0.28;
+    for (let mmx = 0; mmx <= this.width + 40; mmx += 35) {
+      const worldMmx = mmx + midMountainScroll;
+      const mmPeak = Math.sin(worldMmx * 0.007) * (this.height * 0.12) + Math.cos(worldMmx * 0.015) * (this.height * 0.05);
+      ctx.lineTo(mmx, this.height * 0.68 - mmPeak);
+    }
+    ctx.lineTo(this.width, this.height);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // 7. Panorama Seamless de la Villa Navideña Iluminada
     if (this.imgBgPanorama.complete && this.imgBgPanorama.naturalWidth > 0) {
       const imgW = this.imgBgPanorama.naturalWidth;
       const imgH = this.imgBgPanorama.naturalHeight;
@@ -2012,13 +2180,6 @@ export class FlyingElfGame extends BaseGame {
         ctx.drawImage(this.imgBgPanorama, offsetX, drawY, drawW, drawH);
         offsetX += drawW - 1;
       }
-    } else {
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, this.height);
-      skyGrad.addColorStop(0, "#030A16");
-      skyGrad.addColorStop(0.5, "#091B33");
-      skyGrad.addColorStop(1, "#122E54");
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, this.width, this.height);
     }
   }
 
@@ -2068,24 +2229,24 @@ export class FlyingElfGame extends BaseGame {
    * - Cajas de regalos
    */
   private renderGroundDecorations(ctx: CanvasRenderingContext2D): void {
-    const floorBaseY = this.height - 55;
+    const floorBaseY = this.height - Math.min(36, Math.max(22, this.height * 0.10));
 
-    // 1. Capa base de montículos de nieve con degradado invernal
+    // 1. Capa base de nieve suave y estilizada que enmarca el suelo sin tapar el camino
     ctx.save();
-    const snowGrad = ctx.createLinearGradient(0, floorBaseY - 35, 0, this.height);
-    snowGrad.addColorStop(0, "rgba(225, 245, 254, 0.95)");
-    snowGrad.addColorStop(0.3, "rgba(179, 229, 252, 0.95)");
-    snowGrad.addColorStop(1, "rgba(79, 134, 198, 0.98)");
+    const snowGrad = ctx.createLinearGradient(0, floorBaseY - 18, 0, this.height);
+    snowGrad.addColorStop(0, "rgba(225, 245, 254, 0.70)");
+    snowGrad.addColorStop(0.3, "rgba(179, 229, 252, 0.85)");
+    snowGrad.addColorStop(1, "rgba(28, 54, 94, 0.95)");
 
     ctx.fillStyle = snowGrad;
     ctx.beginPath();
     ctx.moveTo(0, this.height);
 
-    // Ondulación suave de la nieve
+    // Ondulación sutil y elegante de la nieve
     const step = 45;
     for (let x = 0; x <= this.width + step; x += step) {
       const worldX = x + this.groundScrollX;
-      const wave = Math.sin(worldX * 0.012) * 14 + Math.cos(worldX * 0.024) * 8;
+      const wave = Math.sin(worldX * 0.012) * 6 + Math.cos(worldX * 0.024) * 3;
       const y = floorBaseY + wave;
       ctx.lineTo(x, y);
     }
@@ -2095,7 +2256,7 @@ export class FlyingElfGame extends BaseGame {
 
     // Borde brillante de escarcha/hielo sobre la cresta de nieve
     ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 1.8;
     ctx.stroke();
     ctx.restore();
 
