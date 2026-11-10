@@ -181,27 +181,28 @@ html, body {
               url('../public/assets/images/fondo-empresas.webp') center center / cover no-repeat #07111e;
   align-items: center;
   justify-content: center;
-  padding: clamp(14px, 3vh, 32px);
+  padding: clamp(10px, 1.8vh, 22px) clamp(14px, 2.5vw, 32px);
   text-align: center;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .attract-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(10px, 2vh, 22px);
-  max-width: 680px;
+  gap: clamp(6px, 1.4vh, 16px);
+  max-width: clamp(540px, 72vw, 860px);
   width: 100%;
 }
 
 .attract-logo-box {
   width: 100%;
-  max-width: clamp(340px, 75vw, 560px);
-  max-height: clamp(160px, 28vh, 260px);
+  max-width: clamp(260px, 42vw, 440px);
+  max-height: clamp(105px, 18vh, 175px);
   display: flex;
   justify-content: center;
-  margin: clamp(4px, 1vh, 12px) 0;
+  margin: clamp(2px, 0.5vh, 6px) 0;
 }
 
 .attract-logo {
@@ -215,12 +216,12 @@ html, body {
 
 @keyframes floatLogo {
   0% { transform: translateY(0) scale(1); }
-  100% { transform: translateY(-8px) scale(1.04); }
+  100% { transform: translateY(-6px) scale(1.03); }
 }
 
 .attract-title {
   font-family: var(--font-festive);
-  font-size: clamp(1.9rem, 5.2vw, 3.5rem);
+  font-size: clamp(1.5rem, 3.2vw, 2.7rem);
   font-weight: 900;
   color: #FFF275;
   text-shadow: 
@@ -229,42 +230,42 @@ html, body {
     0 6px 0 #6A1A24,
     0 8px 20px rgba(0, 0, 0, 0.95),
     0 0 35px rgba(255, 215, 0, 0.8);
-  letter-spacing: 2px;
-  line-height: 1.15;
+  letter-spacing: 1.5px;
+  line-height: 1.12;
 }
 
 .attract-subtitle {
   font-family: var(--font-main);
-  font-size: clamp(1rem, 2.4vw, 1.4rem);
+  font-size: clamp(0.85rem, 1.4vw, 1.12rem);
   color: #E2E8F0;
   font-weight: 600;
   max-width: 90%;
 }
 
 .attract-button-wrapper {
-  margin: clamp(10px, 2vh, 26px) 0;
+  margin: clamp(4px, 1.2vh, 14px) 0;
 }
 
 .btn-play-big {
   background: linear-gradient(135deg, #FF416C 0%, #C0392B 50%, #900C3F 100%);
-  border: 4px solid var(--color-gold);
+  border: 3.5px solid var(--color-gold);
   color: var(--color-white);
-  padding: clamp(14px, 2.2vh, 22px) clamp(28px, 5vw, 55px);
+  padding: clamp(10px, 1.6vh, 16px) clamp(22px, 3.5vw, 44px);
   border-radius: 60px;
-  font-size: clamp(1.2rem, 3.8vw, 1.95rem);
+  font-size: clamp(1.05rem, 2.2vw, 1.55rem);
   font-weight: 900;
   font-family: var(--font-game);
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(10px, 2.5vw, 18px);
-  box-shadow: 0 12px 35px rgba(255, 65, 108, 0.65), 0 0 25px rgba(255, 215, 0, 0.5), inset 0 2px 6px rgba(255, 255, 255, 0.6);
+  gap: clamp(8px, 1.8vw, 14px);
+  box-shadow: 0 10px 28px rgba(255, 65, 108, 0.60), 0 0 20px rgba(255, 215, 0, 0.45), inset 0 2px 6px rgba(255, 255, 255, 0.6);
   cursor: pointer;
   animation: pulseBigBtn 2s infinite;
   white-space: nowrap;
   text-shadow: 0 2px 6px rgba(0,0,0,0.7);
-  min-height: 64px;
+  min-height: clamp(48px, 6.5vh, 60px);
 }
 
 .btn-play-big:active {
@@ -274,23 +275,25 @@ html, body {
 
 .attract-games-preview {
   display: flex;
-  flex-wrap: wrap;
-  gap: clamp(8px, 1.8vw, 14px);
+  flex-wrap: nowrap;
+  gap: clamp(8px, 1.2vw, 14px);
   justify-content: center;
-  max-width: 90%;
+  width: auto;
+  max-width: 98%;
 }
 
 .preview-badge {
-  background: rgba(15, 30, 55, 0.8);
-  border: 1.5px solid rgba(255, 215, 0, 0.6);
-  padding: clamp(6px, 1vh, 10px) clamp(12px, 2vw, 20px);
+  background: rgba(15, 30, 55, 0.85);
+  border: 1.5px solid rgba(255, 215, 0, 0.65);
+  padding: clamp(5px, 0.8vh, 8px) clamp(10px, 1.4vw, 16px);
   border-radius: 25px;
-  font-size: clamp(0.85rem, 1.9vw, 1.1rem);
+  font-size: clamp(0.76rem, 1.05vw, 0.95rem);
   font-weight: 700;
   font-family: var(--font-main);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  white-space: nowrap;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
@@ -406,7 +409,7 @@ html, body {
   gap: clamp(12px, 1.8vw, 22px);
   width: 100%;
   max-width: 920px;
-  padding-bottom: 16px;
+  padding-bottom: clamp(24px, 4vh, 48px);
 }
 
 .menu-grid .game-card-fantasy {
@@ -1879,10 +1882,10 @@ html, body {
    ========================================================================== */
 .kiosk-footer-carousel {
   width: 100%;
-  height: clamp(130px, 15.5vh, 155px);
-  min-height: 126px;
+  height: clamp(94px, 12vh, 118px);
+  min-height: 90px;
   background: transparent;
-  border-top: 3.5px solid var(--color-gold);
+  border-top: 3px solid var(--color-gold);
   position: relative;
   overflow: hidden;
   z-index: 100;
@@ -1989,8 +1992,8 @@ html, body {
   background: linear-gradient(180deg, #FFFFFF 0%, #FDFBF7 60%, #F5EEDC 100%);
   border: 2.2px solid #D4AF37;
   border-radius: 14px;
-  height: clamp(70px, 9.5vh, 90px);
-  width: clamp(155px, 19vw, 215px);
+  height: clamp(56px, 7.8vh, 76px);
+  width: clamp(130px, 15vw, 180px);
   padding: 4px clamp(8px, 1.2vw, 14px);
   display: flex;
   align-items: center;
@@ -2006,8 +2009,8 @@ html, body {
 
 /* Placa compacta proporcionada para logos verticales o cuadrados (Practi Arepa y Factor Humano) */
 .banner-logo-card.fit-compact {
-  width: clamp(110px, 13vw, 140px);
-  padding: 4px 8px;
+  width: clamp(90px, 11vw, 120px);
+  padding: 3px 6px;
 }
 
 /* Fondo azul corporativo exacto (#293483) */
@@ -2112,7 +2115,7 @@ html, body {
   gap: clamp(12px, 2vw, 32px);
   box-sizing: border-box;
   border-radius: 0;
-  padding: 8px clamp(16px, 2.5vw, 48px) 18px clamp(16px, 2.5vw, 48px);
+  padding: 4px clamp(12px, 2vw, 36px) 14px clamp(12px, 2vw, 36px);
   border: none;
   box-shadow: none;
   background: transparent;
