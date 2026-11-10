@@ -159,7 +159,7 @@ export const BANNER_CONFIG = {
           src: "./assets/logos/horiz-factor-humano.webp",
           alt: "Logotipo oficial de Factor Humano S.A.S.",
           name: "FACTOR HUMANO S.A.S.",
-          fitMode: "compact"
+          fitMode: "standard"
         }
       ],
       statusNote: "CONFIRMADO_AFICHE"
@@ -283,7 +283,7 @@ export const BANNER_CONFIG = {
       subtitle: "13 minijuegos arcade táctiles navideños, desafíos contra reloj, tablero de récords y fantásticos premios al instante.",
       subtitleIcon: "zap",
       highlights: [
-        { label: "13 Minijuegos Arcade", icon: "gamepad-2" },
+        { label: "12 Minijuegos Arcade", icon: "gamepad-2" },
         { label: "Retos Táctiles en Pantalla", icon: "zap" },
         { label: "Premios al Instante", icon: "trophy" }
       ],
@@ -471,6 +471,74 @@ export const BANNER_CONFIG = {
           src: "./assets/logos/clean-imebu.webp",
           alt: "Alcaldía de Bucaramanga e IMEBU - Instituto Municipal de Empleo y Fomento Empresarial",
           name: "IMEBU",
+          fitMode: "standard"
+        }
+      ],
+      statusNote: "CONFIRMADO_LOGO"
+    },
+
+    // PATROCINADOR OFICIAL 9/10: COCA-COLA
+    {
+      id: "hero-coca-cola",
+      type: "hero-billboard",
+      themeClass: "theme-coca-cola",
+      kickerText: "LA MAGIA DE COMPARTIR EN FAMILIA",
+      kickerIcon: "sparkles",
+      title: "¡DESTAPA LA MAGIA DE LA NAVIDAD CON COCA-COLA!",
+      titleIcon: "gift",
+      subtitle: "Celebra momentos únicos e inolvidables en la Feria Mágica del Juguete con el auténtico sabor que une a todas las familias.",
+      subtitleIcon: "star",
+      highlights: [
+        { label: "Sabor Original", icon: "heart" },
+        { label: "Magia en Familia", icon: "sparkles" },
+        { label: "Feria Mágica 2026", icon: "star" }
+      ],
+      badgeText: "SABOR OFICIAL",
+      badgeIcon: "star",
+      ctaText: "¡Disfruta bien fría tu Coca-Cola en la feria!",
+      ctaIcon: "sparkles",
+      accentColor: "#F40009",
+      bgGradient: "linear-gradient(90deg, #2B0306 0%, #6E0B14 50%, #2B0306 100%)",
+      bgImage: "./assets/banners/3.png",
+      logos: [
+        {
+          src: "./assets/logos/clean-coca-cola.webp",
+          alt: "Logotipo oficial de Coca-Cola",
+          name: "COCA-COLA",
+          fitMode: "standard"
+        }
+      ],
+      statusNote: "CONFIRMADO_LOGO"
+    },
+
+    // PATROCINADOR OFICIAL 10/10: EL MAICITO
+    {
+      id: "hero-maicito",
+      type: "hero-billboard",
+      themeClass: "theme-maicito-snacks",
+      kickerText: "EL SABOR MÁS CRUJIENTE DE LA FERIA",
+      kickerIcon: "star",
+      title: "¡CRUJIENTES, DELICIOSOS Y 100% SANTANDEREANOS!",
+      titleIcon: "award",
+      subtitle: "Acompaña tu recorrido navideño con los mejores pasabocas y snacks de maíz tradicionales hechos con orgullo local.",
+      subtitleIcon: "sparkles",
+      highlights: [
+        { label: "100% Maíz Seleccionado", icon: "award" },
+        { label: "Sabor Tradicional", icon: "heart" },
+        { label: "Snack Oficial de la Feria", icon: "star" }
+      ],
+      badgeText: "SNACK OFICIAL",
+      badgeIcon: "award",
+      ctaText: "Encuentra tus paquetes favoritos en la zona gastronómica",
+      ctaIcon: "arrow-right",
+      accentColor: "#FBBF24",
+      bgGradient: "linear-gradient(90deg, #1C1302 0%, #4D3507 50%, #1C1302 100%)",
+      bgImage: "./assets/banners/6.png",
+      logos: [
+        {
+          src: "./assets/logos/clean-maicito.webp",
+          alt: "Logotipo oficial de El Maicito",
+          name: "EL MAICITO",
           fitMode: "standard"
         }
       ],

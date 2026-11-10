@@ -120,7 +120,14 @@ export class ToyMatchGame extends BaseGame {
     this.sponsors = [
       { id: "campus", name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.webp") },
       { id: "cajasan", name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.webp") },
+      { id: "coca", name: "Coca-Cola", logo: this.getImage("./assets/logos/clean-coca-cola.webp") },
+      { id: "maicito", name: "El Maicito", logo: this.getImage("./assets/logos/clean-maicito.webp") },
       { id: "imebu", name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.webp") },
+      { id: "mariposa", name: "Mariposa", logo: this.getImage("./assets/logos/clean-mariposa.webp") },
+      { id: "angelus", name: "Ángelus", logo: this.getImage("./assets/logos/clean-angelus.webp") },
+      { id: "practi", name: "Practi Arepa", logo: this.getImage("./assets/logos/clean-practi-arepa.webp") },
+      { id: "fundalas", name: "Fundalas", logo: this.getImage("./assets/logos/clean-fundalas.webp") },
+      { id: "factor", name: "Factor Humano", logo: this.getImage("./assets/logos/clean-factor-humano.webp") },
       { id: "feria", name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.webp") }
     ];
   }

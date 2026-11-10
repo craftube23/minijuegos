@@ -278,11 +278,15 @@ export class SantaSkiGame extends BaseGame {
 
     this.sponsors = [
       { id: "feria", name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.webp"), color: "#E53935" },
+      { id: "coca", name: "Coca-Cola", logo: this.getImage("./assets/logos/clean-coca-cola.webp"), color: "#F40009" },
+      { id: "maicito", name: "El Maicito", logo: this.getImage("./assets/logos/clean-maicito.webp"), color: "#FBBF24" },
       { id: "campus", name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.webp"), color: "#00E5FF" },
       { id: "cajasan", name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.webp"), color: "#FF9100" },
       { id: "imebu", name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.webp"), color: "#00E676" },
       { id: "fundalas", name: "Fundalas", logo: this.getImage("./assets/logos/clean-fundalas.webp"), color: "#AB47BC" },
       { id: "mariposa", name: "Mariposa", logo: this.getImage("./assets/logos/clean-mariposa.webp"), color: "#EC407A" },
+      { id: "angelus", name: "Ángelus", logo: this.getImage("./assets/logos/clean-angelus.webp"), color: "#3B82F6" },
+      { id: "factor", name: "Factor Humano", logo: this.getImage("./assets/logos/clean-factor-humano.webp"), color: "#EF4444" },
       { id: "practi", name: "Practi-Arepa", logo: this.getImage("./assets/logos/clean-practi-arepa.webp"), color: "#FFD600" }
     ];
 

@@ -157,6 +157,8 @@ export class WorkshopChaosGame extends BaseGame {
       { name: "Factor Humano", logo: this.loadImage("./assets/logos/clean-factor-humano.webp") },
       { name: "Fundalas", logo: this.loadImage("./assets/logos/clean-fundalas.webp") },
       { name: "Practi Arepa", logo: this.loadImage("./assets/logos/clean-practi-arepa.webp") },
+      { name: "Coca-Cola", logo: this.loadImage("./assets/logos/clean-coca-cola.webp") },
+      { name: "El Maicito", logo: this.loadImage("./assets/logos/clean-maicito.webp") },
       { name: "Feria Mágica", logo: this.fairLogo }
     ];
   }

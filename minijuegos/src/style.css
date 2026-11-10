@@ -1879,8 +1879,8 @@ html, body {
    ========================================================================== */
 .kiosk-footer-carousel {
   width: 100%;
-  height: clamp(118px, 14.5vh, 146px);
-  min-height: 112px;
+  height: clamp(130px, 15.5vh, 155px);
+  min-height: 126px;
   background: transparent;
   border-top: 3.5px solid var(--color-gold);
   position: relative;
@@ -2107,10 +2107,10 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(14px, 2.2vw, 36px);
+  gap: clamp(12px, 2vw, 32px);
   box-sizing: border-box;
   border-radius: 0;
-  padding: 8px clamp(18px, 3.2vw, 56px) 18px clamp(18px, 3.2vw, 56px);
+  padding: 10px clamp(16px, 2.5vw, 48px) 14px clamp(16px, 2.5vw, 48px);
   border: none;
   box-shadow: none;
   background: transparent;
@@ -2124,7 +2124,7 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   z-index: 2;
   padding: 0 4px;
 }
@@ -2670,6 +2670,42 @@ html, body {
   letter-spacing: 0.6px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 0 14px rgba(52, 211, 153, 0.8);
 }
+/* ==========================================================================
+   THEME COCA-COLA
+   ========================================================================== */
+.theme-coca-cola .banner-headline {
+  color: #FFFFFF !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(244, 0, 9, 0.45);
+}
+.theme-coca-cola .kicker-pill {
+  border-color: #F40009;
+  color: #FCA5A5;
+  background: rgba(43, 3, 6, 0.90);
+}
+.theme-coca-cola .banner-highlight-chip {
+  background: rgba(43, 3, 6, 0.75);
+  border-color: rgba(244, 0, 9, 0.5);
+  color: #FEE2E2;
+}
+
+/* ==========================================================================
+   THEME EL MAICITO
+   ========================================================================== */
+.theme-maicito-snacks .banner-headline {
+  color: #FFFBEB !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(251, 191, 36, 0.45);
+}
+.theme-maicito-snacks .kicker-pill {
+  border-color: #FBBF24;
+  color: #FDE68A;
+  background: rgba(28, 19, 2, 0.90);
+}
+.theme-maicito-snacks .banner-highlight-chip {
+  background: rgba(28, 19, 2, 0.75);
+  border-color: rgba(251, 191, 36, 0.5);
+  color: #FEF3C7;
+}
+
 .theme-imebu-progress .kicker-pill {
   font-family: 'Fredoka', sans-serif;
   background: rgba(4, 27, 18, 0.92);
@@ -3625,44 +3661,51 @@ html, body {
   }
 
   .kiosk-footer-carousel {
-    height: 26px;
-    min-height: 26px;
+    height: 58px;
+    min-height: 58px;
     border-top-width: 1.5px;
   }
 
   .banner-hero-container,
   .banner-event-container {
-    gap: 5px;
-    padding: 1px 6px;
+    gap: 8px;
+    padding: 3px 8px 8px 8px;
+    align-items: center;
   }
 
   .banner-logo-card {
-    height: 20px;
-    width: 44px;
-    padding: 1px 2px;
-    border-radius: 4px;
+    height: 40px;
+    width: clamp(68px, 10vw, 90px);
+    padding: 2px 4px;
+    border-radius: 6px;
+  }
+
+  .banner-logo-card.fit-compact {
+    width: clamp(48px, 7vw, 64px);
   }
 
   .event-logo-emblem {
-    height: 20px;
-    width: 32px;
+    height: 38px;
+    width: 48px;
   }
 
   .banner-headline {
-    font-size: 0.62rem;
-    line-height: 1;
+    font-size: 0.75rem;
+    line-height: 1.15;
+    margin: 0;
   }
 
   .banner-subline {
-    display: none;
+    font-size: 0.60rem;
+    line-height: 1.15;
+    margin: 0;
+    display: block;
   }
 
-  .banner-badge-wrapper {
-    display: none;
-  }
-
+  .banner-highlights-row,
+  .banner-badge-wrapper,
   .event-cta-block {
-    display: none;
+    display: none !important;
   }
 
   .attract-logo-box {
@@ -11508,19 +11551,20 @@ html, body {
   }
 
   .kiosk-footer-carousel {
-    height: 44px !important;
-    min-height: 44px !important;
+    height: 68px !important;
+    min-height: 68px !important;
     border-top-width: 2px !important;
   }
 
   .banner-hero-container,
   .banner-event-container {
-    padding: 2px 10px 8px 10px !important;
-    gap: 8px !important;
+    padding: 4px 12px 10px 12px !important;
+    gap: 10px !important;
+    align-items: center !important;
   }
 
   .kiosk-swiper .kiosk-swiper-pagination {
-    bottom: 1px !important;
+    bottom: 2px !important;
     gap: 4px !important;
   }
 
@@ -11534,19 +11578,41 @@ html, body {
   }
 
   .banner-logo-card {
-    height: 30px !important;
-    width: clamp(52px, 7vw, 70px) !important;
-    padding: 2px 4px !important;
+    height: 46px !important;
+    width: clamp(80px, 12vw, 110px) !important;
+    padding: 2px 6px !important;
+    border-radius: 8px !important;
+  }
+
+  .banner-logo-card.fit-compact {
+    width: clamp(56px, 8vw, 76px) !important;
+  }
+
+  .banner-kicker,
+  .event-kicker {
+    margin-bottom: 1px !important;
+  }
+
+  .kicker-pill {
+    font-size: 0.58rem !important;
+    padding: 1px 6px !important;
   }
 
   .banner-headline {
-    font-size: 0.72rem !important;
-    line-height: 1.1 !important;
+    font-size: 0.82rem !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
   }
 
   .banner-subline {
-    font-size: 0.56rem !important;
-    line-height: 1.1 !important;
+    font-size: 0.65rem !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
+  }
+
+  .banner-highlights-row,
+  .banner-badge-wrapper {
+    display: none !important;
   }
 
   .banner-badge-pill {

@@ -373,7 +373,7 @@ export class GameBannerCarousel {
     if (kicker) {
       this.activeTimeline.fromTo(
         kicker,
-        { y: -6, opacity: 0 },
+        { y: 4, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.28 },
         "-=0.3"
       );

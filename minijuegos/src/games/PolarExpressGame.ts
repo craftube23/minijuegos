@@ -206,7 +206,14 @@ export class PolarExpressGame extends BaseGame {
     this.sponsors = [
       { name: "Campuslands", logo: this.getImage("./assets/logos/clean-campuslands.webp") },
       { name: "Cajasan", logo: this.getImage("./assets/logos/clean-cajasan.webp") },
+      { name: "Coca-Cola", logo: this.getImage("./assets/logos/clean-coca-cola.webp") },
+      { name: "El Maicito", logo: this.getImage("./assets/logos/clean-maicito.webp") },
       { name: "IMEBU", logo: this.getImage("./assets/logos/clean-imebu.webp") },
+      { name: "Mariposa", logo: this.getImage("./assets/logos/clean-mariposa.webp") },
+      { name: "Ángelus", logo: this.getImage("./assets/logos/clean-angelus.webp") },
+      { name: "Practi Arepa", logo: this.getImage("./assets/logos/clean-practi-arepa.webp") },
+      { name: "Fundalas", logo: this.getImage("./assets/logos/clean-fundalas.webp") },
+      { name: "Factor Humano", logo: this.getImage("./assets/logos/clean-factor-humano.webp") },
       { name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.webp") }
     ];
   }
