@@ -47,7 +47,7 @@ export class AudioManager {
   private gameBgmVolume: number = 0.50;
   private howlSfxRegistry: Map<string, HowlSfxEntry> = new Map();
   public static readonly PRIMARY_THEME_SONG: string = "./assets/audio/jingle-oficial-feria-magica.wav";
-  public static readonly SLICE_CUT_SFX: string = "./assets/audio/cortaregalos/corte_effec.mp3";
+  public static readonly SLICE_CUT_SFX: string = "./assets/audio/cortaregalos/corte_effec.wav";
   private currentBgmPath: string = "./assets/audio/jingle-oficial-feria-magica.wav";
 
   private constructor() {
