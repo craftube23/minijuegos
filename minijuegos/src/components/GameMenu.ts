@@ -57,16 +57,6 @@ export class GameMenu {
       gemColor: "#00E5FF"
     },
     {
-      id: "tree-melody",
-      title: "Tambores del Cascanueces",
-      imageSrc: "./assets/images/icon-tambores.webp",
-      frameImageSrc: "./assets/images/marco-juego-verde.webp",
-      themeClass: "theme-forest-green",
-      category: "TAIKO & RITMO",
-      tagline: "¡Sigue el ritmo del elfo en los tambores mágicos!",
-      gemColor: "#FFB300"
-    },
-    {
       id: "magic-pairs",
       title: "Parejas de Juguetes",
       imageSrc: "./assets/images/targetas/icon cartas.webp",
@@ -105,16 +95,6 @@ export class GameMenu {
       category: "REFLEJOS & ACCIÓN",
       tagline: "¡Salva los juguetes que salen disparados de la máquina!",
       gemColor: "#FF9100"
-    },
-    {
-      id: "christmas-jump",
-      title: "¡Salto Mágico Navideño!",
-      imageSrc: "./assets/images/icon-salto-magico.webp",
-      frameImageSrc: "./assets/images/marco-juego-azul.webp",
-      themeClass: "theme-stone-blue",
-      category: "ARCADE & SALTO",
-      tagline: "¡Salta sobre plataformas nevadas y vuela con cohetes!",
-      gemColor: "#00E5FF"
     },
     {
       id: "gift-tower",

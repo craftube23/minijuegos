@@ -237,6 +237,9 @@ export class OrnamentPopGame extends BaseGame {
     this.showTimer = true;
     this.showLives = false;
 
+    // Precargar audio de corte en memoria para eliminar cualquier delay
+    this.audio.preloadNinjaSliceAudio();
+
     this.bgImg = this.getImage("./assets/images/fondo-habitacion.webp");
     this.pinataImg = this.getImage("./assets/images/pinata-estrella.webp");
     this.gingerbreadImg = this.getImage("./assets/images/galleta-jengibre.webp");

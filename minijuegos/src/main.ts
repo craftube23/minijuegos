@@ -346,12 +346,10 @@ class KioskApp {
   private registerGames(): void {
     this.gameLoaders.set("toy-catch", async () => new (await import("./games/ToyCatchGame")).ToyCatchGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("bell-symphony", async () => new (await import("./games/BellSymphonyGame")).BellSymphonyGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameLoaders.set("tree-melody", async () => new (await import("./games/NutcrackerDrumsGame")).NutcrackerDrumsGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("magic-pairs", async () => new (await import("./games/MagicPairsGame")).MagicPairsGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("santa-hills", async () => new (await import("./games/SantaHillsGame")).SantaHillsGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("snowball-target", async () => new (await import("./games/SnowballTargetGame")).SnowballTargetGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("workshop-chaos", async () => new (await import("./games/WorkshopChaosGame")).WorkshopChaosGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameLoaders.set("christmas-jump", async () => new (await import("./games/MagicJumpGame")).MagicJumpGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("gift-tower", async () => new (await import("./games/GiftTowerGame")).GiftTowerGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("polar-express", async () => new (await import("./games/PolarExpressGame")).PolarExpressGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("ornament-pop", async () => new (await import("./games/OrnamentPopGame")).OrnamentPopGame(this.canvas, this.input, this.audio, this.particles));

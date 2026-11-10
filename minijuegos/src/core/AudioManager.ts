@@ -47,16 +47,7 @@ export class AudioManager {
   private gameBgmVolume: number = 0.50;
   private howlSfxRegistry: Map<string, HowlSfxEntry> = new Map();
   public static readonly PRIMARY_THEME_SONG: string = "./assets/audio/jingle-oficial-feria-magica.wav";
-  private hasPlayedPrimaryTheme: boolean = false;
-  private playlist: string[] = [
-    "./assets/audio/jingle-bells.mp3",
-    "./assets/audio/Joy to the world.mp3",
-    "./assets/audio/Deck The Halls.mp3",
-    "./assets/audio/Dance of the Sugar Plum Fairy.mp3",
-    "./assets/audio/Up on the Housetop.mp3",
-    "./assets/audio/We Wish You a Merry Christmas.mp3"
-  ];
-  private lastSongIndex: number = -1;
+  public static readonly SLICE_CUT_SFX: string = "./assets/audio/cortaregalos/corte_effec.mp3";
   private currentBgmPath: string = "./assets/audio/jingle-oficial-feria-magica.wav";
 
   private constructor() {
@@ -125,26 +116,15 @@ export class AudioManager {
   }
 
   /**
-   * Obtiene la siguiente canción al azar de la playlist evitando repetir la anterior
+   * Obtiene la canción oficial exclusiva para el Menú / Inicio
    */
   public getRandomSong(): string {
-    if (this.playlist.length === 0) return AudioManager.PRIMARY_THEME_SONG;
-    if (this.playlist.length === 1) return this.playlist[0];
-
-    let randomIndex: number;
-    do {
-      randomIndex = Math.floor(Math.random() * this.playlist.length);
-    } while (randomIndex === this.lastSongIndex);
-
-    this.lastSongIndex = randomIndex;
-    return this.playlist[randomIndex];
+    return AudioManager.PRIMARY_THEME_SONG;
   }
 
   /**
-   * Reproduce música para el Menú / Inicio.
-   * - En el arranque inicial siempre reproduce la canción oficial principal (Jingle Oficial Feria Mágica).
-   * - Al terminar o en transiciones siguientes, reproduce aleatoriamente de la playlist sin repetir consecutivas.
-   * Si 'forceNew' es false y ya está sonando una pista, la mantiene fluida sin cortes.
+   * Reproduce exclusivamente la canción oficial de la Feria Mágica en bucle para el Menú / Inicio.
+   * Canción única oficial del slogan de la página (sin reproductor aleatorio).
    */
   public playRandomMenuBGM(forceNew: boolean = false, volume: number = 0.45): void {
     if (this.isGameActive || this.isMuted) {
@@ -154,32 +134,23 @@ export class AudioManager {
 
     this.bgmVolume = volume;
 
-    // Si ya está sonando y no se exige una nueva pista, continuar fluidamente
     if (!forceNew && this.bgmAudio && !this.bgmAudio.paused) {
       return;
     }
 
-    // La primera vez que suena la música en el arranque/inicio, usar SIEMPRE la canción principal
-    let song: string;
-    if (!this.hasPlayedPrimaryTheme) {
-      song = AudioManager.PRIMARY_THEME_SONG;
-      this.hasPlayedPrimaryTheme = true;
-    } else {
-      song = this.getRandomSong();
-    }
+    const song = AudioManager.PRIMARY_THEME_SONG;
     this.currentBgmPath = song;
 
     if (!this.bgmAudio) {
       this.bgmAudio = new Audio();
-      this.bgmAudio.addEventListener("ended", () => {
-        // Al terminar la pista (incluida la principal), pasar a la siguiente aleatoria
-        if (!this.isGameActive && !this.isMuted) {
-          this.playRandomMenuBGM(true, this.bgmVolume);
-        }
-      });
+      this.bgmAudio.loop = true;
+    } else {
+      this.bgmAudio.loop = true;
     }
 
-    this.bgmAudio.src = song;
+    if (this.bgmAudio.src !== song && !this.bgmAudio.src.endsWith("jingle-oficial-feria-magica.wav")) {
+      this.bgmAudio.src = song;
+    }
     this.bgmAudio.volume = this.bgmVolume;
     this.bgmAudio.play().catch(() => {});
   }
@@ -200,11 +171,9 @@ export class AudioManager {
 
       if (!this.bgmAudio) {
         this.bgmAudio = new Audio();
-        this.bgmAudio.addEventListener("ended", () => {
-          if (!this.isGameActive && !this.isMuted) {
-            this.playRandomMenuBGM(true, this.bgmVolume);
-          }
-        });
+        this.bgmAudio.loop = true;
+      } else {
+        this.bgmAudio.loop = true;
       }
 
       if (this.bgmAudio.paused || this.bgmAudio.src !== src) {
@@ -613,12 +582,47 @@ export class AudioManager {
 
   private lastSliceSfxAt = 0;
 
-  /** Corte exitoso de regalo/piñata (Ninja Corta-Regalos). Limita solapamientos en tajos muy seguidos. */
+  /** Precarga en memoria el audio de corte de Ninja Corta-Regalos para latencia cero instantánea */
+  public preloadNinjaSliceAudio(): void {
+    this.preloadHowlSfx(AudioManager.SLICE_CUT_SFX, 8);
+  }
+
+  /**
+   * Corte exitoso de regalo/piñata (Ninja Corta-Regalos).
+   * 0ms de latencia inmediata con Web Audio / Howler.js buffer precargado y fallback de oscilador instantáneo.
+   */
   public playSliceCut(): void {
-    const now = performance.now();
-    if (now - this.lastSliceSfxAt < 70) return;
+    const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+    if (now - this.lastSliceSfxAt < 35) return;
     this.lastSliceSfxAt = now;
-    this.playSoundEffect("./assets/audio/cortaregalos/corte_effec.mp3", 0.8, 0.95 + Math.random() * 0.15);
+
+    if (this.isMuted) return;
+    this.unlockAudio();
+
+    const played = this.playHowlSfx(AudioManager.SLICE_CUT_SFX, 0.95, 0.98 + Math.random() * 0.12, 20);
+    if (!played) {
+      this.playSoundEffect(AudioManager.SLICE_CUT_SFX, 0.9, 1.0);
+      this.playSynthesizedSliceFallback();
+    }
+  }
+
+  /** Respaldo sintetizado hiper-rápido (<1ms) para corte de katana tipo swoosh metálico limpio */
+  private playSynthesizedSliceFallback(): void {
+    if (!this.ctx || this.isMuted) return;
+    try {
+      const t = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(900, t);
+      osc.frequency.exponentialRampToValueAtTime(120, t + 0.06);
+      gain.gain.setValueAtTime(0.25, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.06);
+    } catch {}
   }
 
   /** Explosión al cortar una bomba de carbón. */
