@@ -11579,17 +11579,6 @@ html, body {
     display: none !important;
   }
 
-  body.game-active .kiosk-header {
-    height: 38px;
-    min-height: 38px;
-    padding: 0 8px;
-  }
-
-  body.game-active .header-logo {
-    height: 24px;
-    max-height: 24px;
-  }
-
   body.game-active .event-pills-row {
     display: none !important;
   }
