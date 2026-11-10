@@ -124,6 +124,40 @@ export const SPONSOR_CATALOG: Record<string, LogoConfig> = {
     bonusMultiplier: 2,
     tagline: "Apoyando el Emprendimiento"
   }
+,
+  coca: {
+    id: "logo-coca",
+    name: "Coca-Cola",
+    shortName: "Coca-Cola",
+    path: "./assets/logos/clean-coca-cola.webp",
+    alt: "Coca-Cola - Patrocinador Oficial",
+    themeColor: "#F40009",
+    accentColor: "#FFFFFF",
+    bonusMultiplier: 2,
+    tagline: "Destapa la Magia de la Navidad"
+  },
+  maicito: {
+    id: "logo-maicito",
+    name: "El Maicito",
+    shortName: "El Maicito",
+    path: "./assets/logos/clean-maicito.webp",
+    alt: "El Maicito - Patrocinador Oficial",
+    themeColor: "#FBBF24",
+    accentColor: "#0284C7",
+    bonusMultiplier: 2,
+    tagline: "Crujiente y Delicioso"
+  },
+  ilustracion: {
+    id: "logo-ilustracion",
+    name: "Mascota Oficial de la Feria",
+    shortName: "Feria Mágica",
+    path: "./assets/logos/clean-ilustracion.webp",
+    alt: "Mascota Oficial - Feria Mágica",
+    themeColor: "#10B981",
+    accentColor: "#DC2626",
+    bonusMultiplier: 2,
+    tagline: "Alegría y Diversión Familiar"
+  }
 };
 
 export const BRANDING = {
