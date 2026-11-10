@@ -1945,7 +1945,7 @@ html, body {
 /* Paginación táctil discreta de Swiper */
 .kiosk-swiper .kiosk-swiper-pagination {
   position: absolute !important;
-  bottom: 3px !important;
+  bottom: 2px !important;
   left: 50% !important;
   transform: translateX(-50%);
   width: auto !important;
@@ -1956,7 +1956,9 @@ html, body {
   z-index: 10;
   padding: 1px 8px;
   border-radius: 10px;
-  background: rgba(4, 11, 23, 0.55);
+  background: rgba(4, 11, 23, 0.75);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
   pointer-events: auto;
 }
 
@@ -2110,7 +2112,7 @@ html, body {
   gap: clamp(12px, 2vw, 32px);
   box-sizing: border-box;
   border-radius: 0;
-  padding: 10px clamp(16px, 2.5vw, 48px) 14px clamp(16px, 2.5vw, 48px);
+  padding: 8px clamp(16px, 2.5vw, 48px) 18px clamp(16px, 2.5vw, 48px);
   border: none;
   box-shadow: none;
   background: transparent;

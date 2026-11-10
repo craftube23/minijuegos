@@ -367,8 +367,8 @@ export class FlyingElfGame extends BaseGame {
     this.imgHouseObstacle = this.getImage("./assets/images/casa-obstaculo.webp");
     this.imgIcicle = this.getImage("./assets/images/estalactita-hielo.webp");
 
-    // 4. Carteles de Publicidad con Logos Integrados de Todos los Patrocinadores
-    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu"];
+    // 4. Carteles de Publicidad con Logos Integrados de Todos los Patrocinadores Oficiales (11 marcas)
+    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu", "coca", "maicito"];
     for (const key of cartelKeys) {
       this.cartelImages.set(key, this.getImage(`./assets/images/cartel-${key}.webp`));
     }
@@ -407,9 +407,9 @@ export class FlyingElfGame extends BaseGame {
     this.initialGameDuration = this.timeRemaining > 5 ? this.timeRemaining : 45;
 
     this.elfX = Math.max(140, this.width * 0.22);
-    this.elfHeight = Math.max(85, Math.min(145, this.height * 0.24));
+    this.elfHeight = Math.max(88, Math.min(145, this.height * 0.24));
     this.elfWidth = this.elfHeight;
-    this.elfY = this.height * 0.45;
+    this.elfY = this.height * 0.36;
     this.elfVy = 0;
     this.elfAngle = 0;
     this.hitCooldown = 0;
@@ -451,7 +451,7 @@ export class FlyingElfGame extends BaseGame {
   private initBackgroundSigns(): void {
     const spacing = 480;
     const count = Math.ceil(this.width / spacing) + 3;
-    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu"];
+    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu", "coca", "maicito"];
     for (let i = 0; i < count; i++) {
       const sponsorKey = cartelKeys[this.nextSignSponsorIndex % cartelKeys.length];
       this.nextSignSponsorIndex++;
@@ -650,9 +650,9 @@ export class FlyingElfGame extends BaseGame {
     // Actualizar posición vertical
     this.elfY += this.elfVy * dt;
 
-    // Límites de pantalla seguros
-    const minY = 90;
-    const maxY = this.height - 130;
+    // Límites de pantalla seguros con la villa elevada
+    const minY = 65;
+    const maxY = this.height - 110;
     if (this.elfY < minY) {
       this.elfY = minY;
       this.elfVy = 0;
@@ -1263,9 +1263,9 @@ export class FlyingElfGame extends BaseGame {
     this.wasThrusting = false;
     this.flyAudioCooldown = 0;
     this.elfX = Math.max(140, this.width * 0.22);
-    this.elfHeight = Math.max(85, Math.min(145, this.height * 0.24));
+    this.elfHeight = Math.max(88, Math.min(145, this.height * 0.24));
     this.elfWidth = this.elfHeight;
-    this.elfY = this.height * 0.45;
+    this.elfY = this.height * 0.36;
     this.elfVy = 0;
     this.elfAngle = 0;
     this.initGroundProps();
@@ -1319,6 +1319,8 @@ export class FlyingElfGame extends BaseGame {
     let thumbY: number, thumbH: number, itemSize: number, gap: number, totalThumbW: number, thumbStartX: number;
     let btnW: number, btnH: number, btnX: number, btnY: number, hintY: number;
 
+    const rosterCount = ELF_ROSTER.length;
+
     if (isLandscape) {
       // Mantener proporción áurea de la tarjeta hero (~2.25:1) sin estirarse en pantallas ultra anchas
       heroH = Math.min(250, Math.max(140, this.height * (isShortHeight ? 0.42 : 0.46)));
@@ -1332,8 +1334,8 @@ export class FlyingElfGame extends BaseGame {
 
       thumbH = Math.min(44, Math.max(30, this.height * (isShortHeight ? 0.095 : 0.09)));
       gap = 4;
-      itemSize = Math.min(thumbH, Math.floor((heroW - 8 * gap) / 9));
-      totalThumbW = 9 * itemSize + 8 * gap;
+      itemSize = Math.min(thumbH, Math.floor((heroW - (rosterCount - 1) * gap) / rosterCount));
+      totalThumbW = rosterCount * itemSize + (rosterCount - 1) * gap;
       thumbStartX = (this.width - totalThumbW) / 2;
       thumbY = heroY + heroH + (isShortHeight ? 6 : 10);
 
@@ -1355,9 +1357,9 @@ export class FlyingElfGame extends BaseGame {
 
       thumbH = Math.min(56, Math.max(38, this.height * 0.075));
       const availW = Math.min(this.width * 0.94, 520);
-      gap = Math.max(4, Math.min(8, Math.floor((availW - 9 * 36) / 8)));
-      itemSize = Math.min(thumbH, Math.floor((availW - 8 * gap) / 9));
-      totalThumbW = 9 * itemSize + 8 * gap;
+      gap = Math.max(3, Math.min(6, Math.floor((availW - rosterCount * 32) / (rosterCount - 1))));
+      itemSize = Math.min(thumbH, Math.floor((availW - (rosterCount - 1) * gap) / rosterCount));
+      totalThumbW = rosterCount * itemSize + (rosterCount - 1) * gap;
       thumbStartX = (this.width - totalThumbW) / 2;
       thumbY = heroY + heroH + 12;
 
@@ -1972,8 +1974,8 @@ export class FlyingElfGame extends BaseGame {
    */
   private renderBackgroundSigns(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    // Alinear carteles de patrocinadores naturalmente en la orilla del camino nevado
-    const signBaseY = this.height - Math.min(130, Math.max(85, this.height * 0.28));
+    // Alinear carteles de patrocinadores naturalmente en la orilla del camino nevado elevado
+    const signBaseY = this.height - Math.min(110, Math.max(70, this.height * 0.22));
 
     for (const sign of this.backgroundSigns) {
       if (sign.x < -200 || sign.x > this.width + 200) continue;
@@ -2098,7 +2100,7 @@ export class FlyingElfGame extends BaseGame {
     ctx.save();
     const sleighCycle = (this.totalPlayTime * 0.08) % 1.0;
     const sleighX = (this.width + 300) - sleighCycle * (this.width + 600);
-    const sleighY = this.height * 0.14 + Math.sin(this.totalPlayTime * 1.8) * 12;
+    const sleighY = this.height * 0.09 + Math.sin(this.totalPlayTime * 1.8) * 10;
     if (sleighX > -150 && sleighX < this.width + 150) {
       for (let s = 1; s <= 6; s++) {
         const trailX = sleighX + s * 14;
@@ -2137,7 +2139,7 @@ export class FlyingElfGame extends BaseGame {
     for (let mx = 0; mx <= this.width + 60; mx += 50) {
       const worldMx = mx + mountainScroll;
       const mPeak = Math.sin(worldMx * 0.0035) * (this.height * 0.16) + Math.cos(worldMx * 0.008) * (this.height * 0.08);
-      ctx.lineTo(mx, this.height * 0.58 - mPeak);
+      ctx.lineTo(mx, this.height * 0.44 - mPeak);
     }
     ctx.lineTo(this.width, this.height);
     ctx.closePath();
@@ -2157,7 +2159,7 @@ export class FlyingElfGame extends BaseGame {
     for (let mmx = 0; mmx <= this.width + 40; mmx += 35) {
       const worldMmx = mmx + midMountainScroll;
       const mmPeak = Math.sin(worldMmx * 0.007) * (this.height * 0.12) + Math.cos(worldMmx * 0.015) * (this.height * 0.05);
-      ctx.lineTo(mmx, this.height * 0.68 - mmPeak);
+      ctx.lineTo(mmx, this.height * 0.54 - mmPeak);
     }
     ctx.lineTo(this.width, this.height);
     ctx.closePath();
@@ -2169,11 +2171,12 @@ export class FlyingElfGame extends BaseGame {
       const imgW = this.imgBgPanorama.naturalWidth;
       const imgH = this.imgBgPanorama.naturalHeight;
 
-      // Escalar por altura para preservar la vista completa del cielo, aurora y villa
-      const scale = this.height / imgH;
+      // Escalar para que las casas y la villa ocupen el plano medio-superior y llenen el espacio vertical armónicamente
+      const scale = Math.max(1.18, (this.height * 1.34) / imgH);
       const drawW = imgW * scale;
-      const drawH = this.height;
-      const drawY = 0;
+      const drawH = imgH * scale;
+      // Elevar la villa para eliminar el espacio vacío superior y dar protagonismo a los tejados y chimeneas
+      const drawY = this.height - drawH + Math.round(this.height * 0.10);
 
       let offsetX = -(this.bgScrollX % drawW);
       while (offsetX < this.width) {
@@ -2229,14 +2232,15 @@ export class FlyingElfGame extends BaseGame {
    * - Cajas de regalos
    */
   private renderGroundDecorations(ctx: CanvasRenderingContext2D): void {
-    const floorBaseY = this.height - Math.min(36, Math.max(22, this.height * 0.10));
+    const floorBaseY = this.height - Math.min(56, Math.max(32, this.height * 0.11));
 
-    // 1. Capa base de nieve suave y estilizada que enmarca el suelo sin tapar el camino
+    // 1. Capa de nieve transparente y escarcha sutil que no tapa el camino de la villa
     ctx.save();
-    const snowGrad = ctx.createLinearGradient(0, floorBaseY - 18, 0, this.height);
-    snowGrad.addColorStop(0, "rgba(225, 245, 254, 0.70)");
-    snowGrad.addColorStop(0.3, "rgba(179, 229, 252, 0.85)");
-    snowGrad.addColorStop(1, "rgba(28, 54, 94, 0.95)");
+    const snowGrad = ctx.createLinearGradient(0, floorBaseY - 26, 0, this.height);
+    snowGrad.addColorStop(0, "rgba(255, 255, 255, 0.0)");
+    snowGrad.addColorStop(0.35, "rgba(225, 245, 254, 0.15)");
+    snowGrad.addColorStop(0.75, "rgba(179, 229, 252, 0.25)");
+    snowGrad.addColorStop(1, "rgba(28, 54, 94, 0.35)");
 
     ctx.fillStyle = snowGrad;
     ctx.beginPath();
@@ -2246,7 +2250,7 @@ export class FlyingElfGame extends BaseGame {
     const step = 45;
     for (let x = 0; x <= this.width + step; x += step) {
       const worldX = x + this.groundScrollX;
-      const wave = Math.sin(worldX * 0.012) * 6 + Math.cos(worldX * 0.024) * 3;
+      const wave = Math.sin(worldX * 0.012) * 5 + Math.cos(worldX * 0.024) * 2.5;
       const y = floorBaseY + wave;
       ctx.lineTo(x, y);
     }
@@ -2254,9 +2258,9 @@ export class FlyingElfGame extends BaseGame {
     ctx.closePath();
     ctx.fill();
 
-    // Borde brillante de escarcha/hielo sobre la cresta de nieve
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
-    ctx.lineWidth = 1.8;
+    // Borde brillante de escarcha/hielo translúcido sobre la cresta de nieve
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+    ctx.lineWidth = 1.2;
     ctx.stroke();
     ctx.restore();
 

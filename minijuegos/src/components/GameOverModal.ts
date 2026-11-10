@@ -201,13 +201,6 @@ export class GameOverModal {
             <span>${isRhythmGame ? "¡REINTENTAR CANCIÓN!" : "¡VOLVER A INTENTAR!"}</span>
           </button>
 
-          ${isRhythmGame ? `
-            <button id="btn-modal-change-song" class="btn-action btn-change-song" title="Elegir otra canción de campanas">
-              ${getIconSvg("music", { size: 18, color: "#ffffff" })}
-              <span>CAMBIAR CANCIÓN</span>
-            </button>
-          ` : ""}
-
           <button id="btn-modal-menu" class="btn-action btn-menu" title="Volver al menú de minijuegos">
             ${getIconSvg("grid", { size: 20, color: "#ffffff" })}
             <span>OTROS JUEGOS</span>
