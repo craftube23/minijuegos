@@ -829,9 +829,10 @@ export class FlyingElfGame extends BaseGame {
     const itemScale = Math.min(1.0, Math.max(0.65, this.height / 540));
     size = Math.round(size * itemScale);
 
-    const topMargin = Math.max(70, this.height * 0.16);
-    const bottomMargin = Math.max(80, this.height * 0.22);
-    const playH = Math.max(80, this.height - topMargin - bottomMargin);
+    const topMargin = Math.max(80, this.height * 0.18);
+    const floorBaseY = this.height - Math.min(95, Math.max(65, this.height * 0.15));
+    const bottomMargin = this.height - (floorBaseY - 45);
+    const playH = Math.max(70, this.height - topMargin - bottomMargin);
     const baseSpawnY = topMargin + Math.random() * playH;
 
     // Ocasionalmente genera una fila o arco de 2-3 coleccionables desafiantes
@@ -910,11 +911,12 @@ export class FlyingElfGame extends BaseGame {
         oscillateTime: Math.random() * Math.PI * 2
       });
     } else {
-      // Casa rústica navideña con tejado nevado y chimenea proporcional a la altura de pantalla
-      const maxHouseH = Math.min(240, (this.height - 90) * 0.40);
-      const oHeight = Math.max(75, Math.min(maxHouseH, this.height * 0.28 + Math.random() * (this.height * 0.10)));
+      // Casa rústica navideña con tejado nevado y chimenea anclada sólidamente en el suelo nevado
+      const floorBaseY = this.height - Math.min(95, Math.max(65, this.height * 0.15));
+      const maxHouseH = Math.min(240, (this.height - 90) * 0.38);
+      const oHeight = Math.max(75, Math.min(maxHouseH, this.height * 0.26 + Math.random() * (this.height * 0.10)));
       const oWidth = Math.round(oHeight * 1.05);
-      const startY = this.height - oHeight - 20;
+      const startY = floorBaseY - oHeight + 12;
 
       this.obstacles.push({
         x: this.width + 100,
@@ -1974,32 +1976,43 @@ export class FlyingElfGame extends BaseGame {
    */
   private renderBackgroundSigns(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    // Alinear carteles de patrocinadores naturalmente en la orilla del camino nevado elevado
-    const signBaseY = this.height - Math.min(110, Math.max(70, this.height * 0.22));
 
     for (const sign of this.backgroundSigns) {
       if (sign.x < -200 || sign.x > this.width + 200) continue;
 
-      ctx.save();
-      ctx.translate(sign.x, signBaseY);
-      ctx.scale(sign.scale * 0.35, sign.scale * 0.35);
-
+      const worldX = sign.x + this.groundScrollX;
+      const groundY = this.getSnowGroundY(worldX);
+      const s = sign.scale * 0.35;
       const imgToDraw = this.cartelImages.get(sign.sponsorKey) || this.cartelImages.get("feria");
+
       if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth > 0) {
+        ctx.save();
+        // Plantar la base del poste exactamente en la cresta de la nieve (+ 12px dentro del montículo)
+        ctx.translate(sign.x, groundY + 12);
+        ctx.scale(s, s);
+
         // Resplandor cálido de las luces navideñas del cartel con tono distintivo de la marca
         const sponsorCfg = BRANDING.getLogoConfig(sign.sponsorKey);
         const themeColor = sponsorCfg?.themeColor || "#FFD700";
         const lightFlicker = 0.8 + Math.sin(sign.lightPhase) * 0.2;
-        const signGlow = ctx.createRadialGradient(0, 0, imgToDraw.naturalWidth * 0.2, 0, 0, imgToDraw.naturalWidth * 0.6);
+        const signGlow = ctx.createRadialGradient(0, -imgToDraw.naturalHeight * 0.6, imgToDraw.naturalWidth * 0.2, 0, -imgToDraw.naturalHeight * 0.6, imgToDraw.naturalWidth * 0.65);
         const alphaHex = Math.min(255, Math.max(0, Math.floor(0.40 * lightFlicker * 255))).toString(16).padStart(2, "0");
         signGlow.addColorStop(0, `${themeColor}${alphaHex}`);
         signGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
         ctx.fillStyle = signGlow;
-        ctx.fillRect(-imgToDraw.naturalWidth * 0.6, -imgToDraw.naturalHeight * 0.6, imgToDraw.naturalWidth * 1.2, imgToDraw.naturalHeight * 1.2);
+        ctx.fillRect(-imgToDraw.naturalWidth * 0.6, -imgToDraw.naturalHeight * 1.1, imgToDraw.naturalWidth * 1.2, imgToDraw.naturalHeight * 1.1);
 
-        ctx.drawImage(imgToDraw, -imgToDraw.naturalWidth / 2, -imgToDraw.naturalHeight / 2);
+        // Dibujar el cartel hacia arriba desde la base del poste (y = 0)
+        ctx.drawImage(imgToDraw, -imgToDraw.naturalWidth / 2, -imgToDraw.naturalHeight);
+
+        // Montículo de nieve blanca en la base del cartel para enraizarlo físicamente en la escena
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath();
+        ctx.ellipse(0, -4, 45, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
       }
-      ctx.restore();
     }
     ctx.restore();
   }
@@ -2231,13 +2244,24 @@ export class FlyingElfGame extends BaseGame {
    * - Vallas de madera con guirnaldas y luces
    * - Cajas de regalos
    */
+  /**
+   * Obtiene la coordenada Y exacta de la cresta de nieve en cualquier posición X del mundo.
+   * Garantiza que el suelo, los carteles de patrocinadores, las farolas, las vallas,
+   * los árboles y los obstáculos estén 100% perfectamente anclados sin flotar jamás.
+   */
+  public getSnowGroundY(worldX: number): number {
+    const floorBaseY = this.height - Math.min(95, Math.max(65, this.height * 0.15));
+    const wave = Math.sin(worldX * 0.013) * 7 + Math.cos(worldX * 0.026) * 3.5;
+    return floorBaseY + wave;
+  }
+
   private renderGroundDecorations(ctx: CanvasRenderingContext2D): void {
-    const floorBaseY = this.height - Math.min(52, Math.max(34, this.height * 0.09));
+    const floorBaseY = this.height - Math.min(95, Math.max(65, this.height * 0.15));
 
     ctx.save();
 
     // 1. Capa trasera de colinas de nieve suave (Back snowdrift bank)
-    const backGrad = ctx.createLinearGradient(0, floorBaseY - 22, 0, this.height);
+    const backGrad = ctx.createLinearGradient(0, floorBaseY - 26, 0, this.height);
     backGrad.addColorStop(0, "#E0F2FE");
     backGrad.addColorStop(0.5, "#BAE6FD");
     backGrad.addColorStop(1, "#7DD3FC");
@@ -2246,18 +2270,18 @@ export class FlyingElfGame extends BaseGame {
     ctx.moveTo(0, this.height);
     for (let x = 0; x <= this.width + 30; x += 30) {
       const worldX = x + this.groundScrollX * 0.7;
-      const wave = Math.sin(worldX * 0.009) * 9 + Math.cos(worldX * 0.018) * 5;
-      ctx.lineTo(x, floorBaseY - 10 + wave);
+      const wave = Math.sin(worldX * 0.009) * 10 + Math.cos(worldX * 0.018) * 6;
+      ctx.lineTo(x, floorBaseY - 12 + wave);
     }
     ctx.lineTo(this.width, this.height);
     ctx.closePath();
     ctx.fill();
 
     // 2. Capa principal delantera de nieve pura, blanca y bien marcada (100% opaca)
-    const frontGrad = ctx.createLinearGradient(0, floorBaseY - 14, 0, this.height);
+    const frontGrad = ctx.createLinearGradient(0, floorBaseY - 16, 0, this.height);
     frontGrad.addColorStop(0, "#FFFFFF");
-    frontGrad.addColorStop(0.22, "#F0F9FF");
-    frontGrad.addColorStop(0.60, "#CFE5F8");
+    frontGrad.addColorStop(0.20, "#F0F9FF");
+    frontGrad.addColorStop(0.55, "#CFE5F8");
     frontGrad.addColorStop(1, "#8EBCE6");
     ctx.fillStyle = frontGrad;
     ctx.beginPath();
@@ -2267,8 +2291,7 @@ export class FlyingElfGame extends BaseGame {
     const crestPoints: { x: number; y: number }[] = [];
     for (let x = 0; x <= this.width + step; x += step) {
       const worldX = x + this.groundScrollX;
-      const wave = Math.sin(worldX * 0.013) * 7 + Math.cos(worldX * 0.026) * 3.5;
-      const y = floorBaseY + wave;
+      const y = this.getSnowGroundY(worldX);
       crestPoints.push({ x, y });
       ctx.lineTo(x, y);
     }
@@ -2329,7 +2352,7 @@ export class FlyingElfGame extends BaseGame {
       if (prop.x < -100 || prop.x > this.width + 100) continue;
 
       const worldX = prop.x + this.groundScrollX;
-      const groundY = floorBaseY + Math.sin(worldX * 0.012) * 14 + Math.cos(worldX * 0.024) * 8;
+      const groundY = this.getSnowGroundY(worldX);
 
       ctx.save();
       ctx.translate(prop.x, groundY);
@@ -2540,11 +2563,15 @@ export class FlyingElfGame extends BaseGame {
     ctx.save();
     for (const obs of this.obstacles) {
       if (obs.type === "house") {
+        // Anclar la base de la casa exactamente en la nieve viva
+        const groundY = this.getSnowGroundY(obs.x + obs.width / 2 + this.groundScrollX);
+        obs.y = groundY - obs.height + 12;
+
         // Sombra de contacto de la casa sobre la nieve
         ctx.save();
-        ctx.fillStyle = "rgba(10, 20, 45, 0.38)";
+        ctx.fillStyle = "rgba(10, 20, 45, 0.42)";
         ctx.beginPath();
-        ctx.ellipse(obs.x + obs.width / 2, obs.y + obs.height - 2, obs.width * 0.52, 8, 0, 0, Math.PI * 2);
+        ctx.ellipse(obs.x + obs.width / 2, obs.y + obs.height - 4, obs.width * 0.54, 9, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
@@ -2665,6 +2692,27 @@ export class FlyingElfGame extends BaseGame {
         } else if (item.type === "candy" && this.imgCandy.complete) {
           ctx.drawImage(this.imgCandy, -item.size / 2, -item.size / 2, item.size, item.size);
         } else if (item.type === "teddy" && this.imgTeddy.complete) {
+          // Globo festivo de helio que sostiene al osito flotando mágicamente
+          const balloonY = -item.size * 0.68;
+          ctx.save();
+          ctx.strokeStyle = "#FFD700";
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(0, -item.size * 0.25);
+          ctx.quadraticCurveTo(Math.sin(this.gliderSwayTime * 2.5) * 4, balloonY * 0.5, 0, balloonY + 8);
+          ctx.stroke();
+
+          ctx.fillStyle = "#E53935";
+          ctx.beginPath();
+          ctx.ellipse(0, balloonY, item.size * 0.28, item.size * 0.36, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = "rgba(255, 255, 255, 0.70)";
+          ctx.beginPath();
+          ctx.ellipse(-item.size * 0.08, balloonY - item.size * 0.10, item.size * 0.08, item.size * 0.14, -0.3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
           ctx.drawImage(this.imgTeddy, -item.size / 2, -item.size / 2, item.size, item.size);
         } else {
           ctx.fillStyle = "#00E676";
