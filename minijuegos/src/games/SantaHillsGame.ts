@@ -54,6 +54,7 @@ interface ScenicProp {
   kind: "tree" | "house" | "banner";
   scale: number;
   variant: number;
+  sponsorKey?: string;
 }
 
 interface DistantProp {
@@ -161,7 +162,7 @@ export class SantaHillsGame extends BaseGame {
   private segmentsSinceFlat: number = 0;
   private lastKind: SegmentKind = "flat";
   private occupied: Array<[number, number]> = [];
-  private nextLogoX: number = 2600;
+  private nextLogoX: number = 800;
   private flatCounter: number = 0;
 
   // Entidades
@@ -288,7 +289,7 @@ export class SantaHillsGame extends BaseGame {
     this.genY = Y_START;
     this.segmentsSinceFlat = 0;
     this.lastKind = "flat";
-    this.nextLogoX = 2600;
+    this.nextLogoX = 800;
     this.flatCounter = 0;
     this.occupied.push([-600, 700]);
     this.addScenic(380, "tree", 1.0);
@@ -663,21 +664,24 @@ export class SantaHillsGame extends BaseGame {
         const sponsor = BRANDING.getRandomSponsor();
         this.addCollectible(x, this.terrainY(x) - 135, "logo_sponsor", sponsor.id);
         this.reserve(x - 70, x + 70);
-        this.nextLogoX = x + rand(3600, 4800);
+        this.nextLogoX = x + rand(1100, 1800);
         return;
       }
     }
   }
 
-  private addScenic(x: number, kind: ScenicProp["kind"], scale: number): void {
-    this.scenic.push({ worldX: x, kind, scale, variant: Math.floor(x / 97) % 2 });
+  private addScenic(x: number, kind: ScenicProp["kind"], scale: number, sponsorKey?: string): void {
+    this.scenic.push({ worldX: x, kind, scale, variant: Math.floor(x / 97) % 2, sponsorKey });
   }
 
   private decorateSegment(a: number, b: number): void {
-    // Vallas oficiales en algunos llanos
+    // Vallas oficiales de patrocinadores en llanos
     if (this.lastKind === "flat" && this.flatCounter % 2 === 0) {
       const bx = b - 110;
-      if (this.isFree(bx - 90, bx + 90)) this.addScenic(bx, "banner", 1);
+      if (this.isFree(bx - 90, bx + 90)) {
+        const sp = BRANDING.getRandomSponsor();
+        this.addScenic(bx, "banner", 1, sp.id);
+      }
     }
 
     // Árboles y casas en espacios libres con pendiente suave
@@ -1326,9 +1330,37 @@ export class SantaHillsGame extends BaseGame {
         w = 150 * p.scale;
         sink = 14;
       } else {
-        img = p.variant === 0 ? this.imgSignFeria : this.imgSignSponsor;
-        w = 135;
+        w = 138;
         sink = 12;
+        const spKey = p.sponsorKey || "feria";
+        const sp = BRANDING.getLogoConfig(spKey);
+        const spLogo = this.getSponsorImage(sp.id) || this.imgMedallonFeria;
+
+        img = this.imgSignSponsor && this.imgSignSponsor.complete && this.imgSignSponsor.naturalWidth
+          ? this.imgSignSponsor
+          : this.imgSignFeria;
+
+        if (img && img.complete && img.naturalWidth) {
+          const h = w * (img.naturalHeight / img.naturalWidth);
+          ctx.drawImage(img, x - w / 2, gy - h + sink, w, h);
+          if (spLogo && spLogo.complete && spLogo.naturalWidth) {
+            const aspect = spLogo.naturalWidth / (spLogo.naturalHeight || 1);
+            let lw = w * 0.58;
+            let lh = lw / aspect;
+            if (lh > h * 0.44) {
+              lh = h * 0.44;
+              lw = lh * aspect;
+            }
+            // Fondo blanco nítido y logo de patrocinador centrado en la valla
+            ctx.fillStyle = "#FFFFFF";
+            ctx.beginPath();
+            ctx.roundRect(x - lw / 2 - 3, gy - h + sink + h * 0.18 - lh / 2 - 2, lw + 6, lh + 4, 3);
+            ctx.fill();
+            ctx.drawImage(spLogo, x - lw / 2, gy - h + sink + h * 0.18 - lh / 2, lw, lh);
+          }
+        }
+        this.drawSnowMound(ctx, x, p.worldX, w * 0.42, 16);
+        continue;
       }
       if (!img.complete || !img.naturalWidth) continue;
       const h = w * (img.naturalHeight / img.naturalWidth);

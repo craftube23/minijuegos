@@ -224,6 +224,7 @@ export class SantaSkiGame extends BaseGame {
 
   private sponsors: SponsorInfo[] = [];
   private nextBillboardIdx = 0;
+  private nextStarSponsorIdx = 0;
   public onOpenTutorial?: () => void;
 
   constructor(
@@ -684,7 +685,7 @@ export class SantaSkiGame extends BaseGame {
               collected: false
             });
           }
-        } else if (roll < 0.94) {
+        } else if (roll < 0.88) {
           // Regalo satinado para acumular puntos
           this.entities.push({
             id: this.nextEntityId++,
@@ -697,7 +698,8 @@ export class SantaSkiGame extends BaseGame {
             giftIdx: Math.floor(Math.random() * this.giftImgs.length)
           });
         } else {
-          // Estrella dorada de patrocinador (Super Turbo e invulnerabilidad)
+          // Estrella / Medallón flotante de patrocinador oficial (Super Turbo e invulnerabilidad)
+          const starSponsorIdx = (this.nextStarSponsorIdx++) % this.sponsors.length;
           this.entities.push({
             id: this.nextEntityId++,
             x: spawnX,
@@ -705,7 +707,8 @@ export class SantaSkiGame extends BaseGame {
             w: 72,
             h: 72,
             kind: "star",
-            collected: false
+            collected: false,
+            sponsorIdx: starSponsorIdx
           });
         }
       }
@@ -1227,9 +1230,9 @@ export class SantaSkiGame extends BaseGame {
           this.addScore(250 * multiplier);
           this.audio.playPowerUp();
           this.particles.emitConfetti(w, 32);
-          const sponsor = this.sponsors[Math.floor(Math.random() * this.sponsors.length)];
-          this.triggerLogoPowerUp(sponsor.id, 6);
-          this.addFloatingText("¡SUPER TURBO DORADO!", w / 2, h * 0.25, "#FFD700", 1.4);
+          const sp = this.sponsors[(ent.sponsorIdx ?? 0) % this.sponsors.length] || this.sponsors[0];
+          this.triggerLogoPowerUp(sp.id, 6);
+          this.addFloatingText(`¡BONUS ${sp.name.toUpperCase()}! TURBO x2`, w / 2, h * 0.25, sp.color || "#FFD700", 1.45);
         }
       } else {
         // Obstáculos sólidos (árboles, muñecos de nieve, carteles de madera, cristales, troncos, chalets)
@@ -1606,14 +1609,54 @@ export class SantaSkiGame extends BaseGame {
           drawFitted(ctx, gImg, sx, sy, ent.w, ent.h);
         }
       } else if (ent.kind === "star") {
-        if (imgReady(this.starImg)) {
-          const pulse = 1 + Math.sin(t * 8) * 0.12;
-          ctx.save();
-          ctx.translate(sx + ent.w / 2, sy + ent.h / 2);
-          ctx.scale(pulse, pulse);
-          drawFitted(ctx, this.starImg, -ent.w / 2, -ent.h / 2, ent.w, ent.h);
-          ctx.restore();
+        const sp = this.sponsors[(ent.sponsorIdx ?? 0) % this.sponsors.length] || this.sponsors[0];
+        const pulse = 1 + Math.sin(t * 8) * 0.12;
+        const cx = sx + ent.w / 2;
+        const cy = sy + ent.h / 2;
+        const r = (ent.w / 2) * pulse;
+
+        ctx.save();
+        // Halo temático resplandeciente del patrocinador
+        const haloGrad = ctx.createRadialGradient(cx, cy, r * 0.25, cx, cy, r * 1.35);
+        haloGrad.addColorStop(0, (sp.color || "#FFD700") + "99");
+        haloGrad.addColorStop(0.55, (sp.color || "#FFD700") + "35");
+        haloGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = haloGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 1.35, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Medallón circular blanco reflectante
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.72, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = sp.color || "#FFD700";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Logo oficial del patrocinador centrado
+        if (sp && imgReady(sp.logo)) {
+          const logoAspect = sp.logo.naturalWidth / (sp.logo.naturalHeight || 1);
+          let lw = r * 1.15;
+          let lh = lw / logoAspect;
+          if (lh > r * 1.05) {
+            lh = r * 1.05;
+            lw = lh * logoAspect;
+          }
+          ctx.drawImage(sp.logo, cx - lw / 2, cy - lh / 2, lw, lh);
+        } else if (imgReady(this.starImg)) {
+          drawFitted(ctx, this.starImg, cx - r * 0.7, cy - r * 0.7, r * 1.4, r * 1.4);
         }
+
+        // Anillo de brillo dorado exterior
+        const rot = t * 2.5;
+        ctx.strokeStyle = "rgba(255, 215, 0, 0.85)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.88, rot, rot + Math.PI * 1.3);
+        ctx.stroke();
+        ctx.restore();
       }
     }
 
