@@ -807,7 +807,12 @@ export class SnowBattleGame extends BaseGame {
     this.combo++;
     this.enemiesDefeatedCount++;
     if (this.enemiesDefeatedCount >= this.nextUpgradeKillThreshold) {
-      this.triggerUpgradeSelection();
+      this.nextUpgradeKillThreshold += 12;
+      this.upgradeLevel++;
+      this.particles.emitConfetti(this.width, 30);
+      this.addFloatingText("¡OLEADA SUPERADA! +300", this.px, this.py - 70, "#FFD700", 1.35);
+      this.addScore(300);
+      this.dropPowerUp(this.px, this.py);
     }
     this.comboPulse = 0.35;
     const basePoints = e.kind === "yeti" ? 1500 : e.kind === "snowman" ? 100 : 75;
@@ -1061,7 +1066,8 @@ export class SnowBattleGame extends BaseGame {
   // ==========================================================================
   // SISTEMA DE MEJORAS ROGUELIKE (UPGRADE SELECTION)
   // ==========================================================================
-  private triggerUpgradeSelection(): void {
+  public triggerUpgradeSelection(): void {
+    return; // Desactivado modal de mejoras artificial estilo roguelike
     if (this.isUpgradeModalActive || this.isDying || this.isGameOver) return;
     this.isUpgradeModalActive = true;
     this.upgradeAnimTimer = 0;

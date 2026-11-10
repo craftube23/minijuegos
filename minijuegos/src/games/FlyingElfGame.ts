@@ -28,7 +28,9 @@ export type ElfCharacterId =
   | "angelus"
   | "factor"
   | "fundalas"
-  | "imebu";
+  | "imebu"
+  | "coca"
+  | "maicito";
 
 export interface ElfCharacterDef {
   id: ElfCharacterId;
@@ -181,6 +183,36 @@ export const ELF_ROSTER: ElfCharacterDef[] = [
     spritePath: "./assets/images/elfo-volador-imebu.webp",
     iconPath: "./assets/images/icon-elfo-imebu.webp",
     soundNote: 4
+  },
+  {
+    id: "coca",
+    name: "Elfo Coca-Cola",
+    sponsorName: "Coca-Cola",
+    subtitle: "Destapa la Magia de la Navidad",
+    badgeText: "PATROCINADOR OFICIAL",
+    perkName: "Chispa Festiva",
+    perkDesc: "Estela efervescente de burbujas rojas y aceleración suave",
+    themeColor: "#F40009",
+    glowColor: "rgba(244, 0, 9, 0.45)",
+    accentColor: "#FFFFFF",
+    spritePath: "./assets/images/elfo-volador-coca.webp",
+    iconPath: "./assets/images/icon-elfo-coca.webp",
+    soundNote: 5
+  },
+  {
+    id: "maicito",
+    name: "Elfo El Maicito",
+    sponsorName: "El Maicito",
+    subtitle: "Crujiente Tradición Santandereana",
+    badgeText: "PATROCINADOR OFICIAL",
+    perkName: "Crujido Dorado",
+    perkDesc: "Multiplicador de monedas de maíz y planeo dorado",
+    themeColor: "#FBBF24",
+    glowColor: "rgba(251, 191, 36, 0.45)",
+    accentColor: "#B45309",
+    spritePath: "./assets/images/elfo-volador-maicito.webp",
+    iconPath: "./assets/images/icon-elfo-maicito.webp",
+    soundNote: 3
   }
 ];
 

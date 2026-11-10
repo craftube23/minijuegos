@@ -57,6 +57,16 @@ export class GameMenu {
       gemColor: "#00E5FF"
     },
     {
+      id: "flying-elf",
+      title: "El Vuelo Mágico del Elfo",
+      imageSrc: "./assets/images/icon-elfo-volador.webp",
+      frameImageSrc: "./assets/images/marco-juego-azul.webp",
+      themeClass: "theme-stone-blue",
+      category: "ARCADE & VUELO",
+      tagline: "¡Vuela con el elfo y entrega los regalos!",
+      gemColor: "#00E5FF"
+    },
+    {
       id: "magic-pairs",
       title: "Parejas de Juguetes",
       imageSrc: "./assets/images/targetas/icon cartas.webp",

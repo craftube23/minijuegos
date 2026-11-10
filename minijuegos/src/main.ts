@@ -346,6 +346,7 @@ class KioskApp {
   private registerGames(): void {
     this.gameLoaders.set("toy-catch", async () => new (await import("./games/ToyCatchGame")).ToyCatchGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("bell-symphony", async () => new (await import("./games/BellSymphonyGame")).BellSymphonyGame(this.canvas, this.input, this.audio, this.particles));
+    this.gameLoaders.set("flying-elf", async () => new (await import("./games/FlyingElfGame")).FlyingElfGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("magic-pairs", async () => new (await import("./games/MagicPairsGame")).MagicPairsGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("santa-hills", async () => new (await import("./games/SantaHillsGame")).SantaHillsGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("snowball-target", async () => new (await import("./games/SnowballTargetGame")).SnowballTargetGame(this.canvas, this.input, this.audio, this.particles));
