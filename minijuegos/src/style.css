@@ -2671,39 +2671,109 @@ html, body {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 0 14px rgba(52, 211, 153, 0.8);
 }
 /* ==========================================================================
-   THEME COCA-COLA
+   THEME COCA-COLA (Banner 3, Fondo Rosa/Marfil Claro)
    ========================================================================== */
 .theme-coca-cola .banner-headline {
-  color: #FFFFFF !important;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(244, 0, 9, 0.45);
+  font-family: 'Titan One', 'Fredoka', cursive, sans-serif;
+  font-weight: 900;
+  color: #B91C1C !important;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.95), 0 2px 8px rgba(185, 28, 28, 0.28) !important;
 }
 .theme-coca-cola .kicker-pill {
-  border-color: #F40009;
-  color: #FCA5A5;
-  background: rgba(43, 3, 6, 0.90);
+  font-family: 'Outfit', sans-serif;
+  background: #991B1B !important;
+  border-color: #DC2626 !important;
+  color: #FEF2F2 !important;
+  text-shadow: none !important;
+}
+.theme-coca-cola .kicker-svg {
+  color: #FECDD3 !important;
+}
+.theme-coca-cola .title-svg {
+  color: #DC2626 !important;
+  filter: none !important;
+}
+.theme-coca-cola .subtitle-svg {
+  color: #B91C1C !important;
+}
+.theme-coca-cola .banner-subline {
+  color: #450A0A !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) !important;
 }
 .theme-coca-cola .banner-highlight-chip {
-  background: rgba(43, 3, 6, 0.75);
-  border-color: rgba(244, 0, 9, 0.5);
-  color: #FEE2E2;
+  background: rgba(153, 27, 27, 0.88) !important;
+  border-color: #DC2626 !important;
+  color: #FEF2F2 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+.theme-coca-cola .banner-badge-pill {
+  background: linear-gradient(180deg, #EF4444 0%, #DC2626 60%, #991B1B 100%) !important;
+  border-color: #7F1D1D !important;
+  color: #FFFFFF !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+}
+.theme-coca-cola .event-social-tag {
+  color: #991B1B !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  font-weight: 800 !important;
+}
+.theme-coca-cola .cta-svg {
+  color: #DC2626 !important;
 }
 
 /* ==========================================================================
-   THEME EL MAICITO
+   THEME EL MAICITO (Banner 6, Fondo Crema Festivo Claro)
    ========================================================================== */
 .theme-maicito-snacks .banner-headline {
-  color: #FFFBEB !important;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(251, 191, 36, 0.45);
+  font-family: 'Titan One', 'Fredoka', cursive, sans-serif;
+  font-weight: 900;
+  color: #0A3871 !important;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.95), 0 2px 8px rgba(10, 56, 113, 0.28) !important;
 }
 .theme-maicito-snacks .kicker-pill {
-  border-color: #FBBF24;
-  color: #FDE68A;
-  background: rgba(28, 19, 2, 0.90);
+  font-family: 'Outfit', sans-serif;
+  background: #0A3871 !important;
+  border-color: #F59E0B !important;
+  color: #FEF3C7 !important;
+  text-shadow: none !important;
+}
+.theme-maicito-snacks .kicker-svg {
+  color: #FBBF24 !important;
+}
+.theme-maicito-snacks .title-svg {
+  color: #D97706 !important;
+  filter: none !important;
+}
+.theme-maicito-snacks .subtitle-svg {
+  color: #0A3871 !important;
+}
+.theme-maicito-snacks .banner-subline {
+  color: #0F172A !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) !important;
 }
 .theme-maicito-snacks .banner-highlight-chip {
-  background: rgba(28, 19, 2, 0.75);
-  border-color: rgba(251, 191, 36, 0.5);
-  color: #FEF3C7;
+  background: rgba(10, 56, 113, 0.88) !important;
+  border-color: #F59E0B !important;
+  color: #FEF3C7 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+.theme-maicito-snacks .banner-badge-pill {
+  background: linear-gradient(180deg, #F59E0B 0%, #D97706 60%, #92400E 100%) !important;
+  border-color: #78350F !important;
+  color: #FFFFFF !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+}
+.theme-maicito-snacks .event-social-tag {
+  color: #0A3871 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  font-weight: 800 !important;
+}
+.theme-maicito-snacks .cta-svg {
+  color: #D97706 !important;
 }
 
 .theme-imebu-progress .kicker-pill {
