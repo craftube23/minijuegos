@@ -93,7 +93,13 @@ html, body {
 .kiosk-header-left,
 .kiosk-header-right {
   display: flex;
+  align-items: center;
   gap: 12px;
+  min-width: 90px;
+}
+
+.kiosk-header-right {
+  justify-content: flex-end;
 }
 
 .kiosk-header-center {
