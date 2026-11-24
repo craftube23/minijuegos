@@ -1885,10 +1885,10 @@ html, body {
    ========================================================================== */
 .kiosk-footer-carousel {
   width: 100%;
-  height: clamp(120px, 14.5vh, 144px);
-  min-height: 118px;
+  height: clamp(160px, 12vh, 230px);
+  min-height: 160px;
   background: transparent;
-  border-top: 3px solid var(--color-gold);
+  border-top: 3.5px solid var(--color-gold);
   position: relative;
   overflow: hidden;
   z-index: 100;
@@ -12056,4 +12056,73 @@ img, svg, .attract-logo, .header-logo, .banner-logo-img, .card-art, .fantasy-mod
 
 .kiosk-footer-carousel {
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* ==============================================================================
+   TÓTEM KIOSCO VERTICAL DE 55 PULGADAS (1080x1920 PORTRAIT)
+   Gran formato: banner inferior majestuoso y área de juego completa
+   ============================================================================== */
+@media (min-width: 700px) and (orientation: portrait) {
+  .kiosk-footer-carousel {
+    height: clamp(210px, 12vh, 255px) !important;
+    min-height: 210px !important;
+    border-top: 4px solid var(--color-gold) !important;
+  }
+
+  .banner-hero-container,
+  .banner-event-container {
+    padding: 10px clamp(20px, 3vw, 44px) 22px clamp(20px, 3vw, 44px) !important;
+    gap: clamp(18px, 2.5vw, 40px) !important;
+  }
+
+  .banner-logo-card {
+    height: clamp(105px, 6.8vh, 138px) !important;
+    width: clamp(205px, 22vw, 290px) !important;
+    border-radius: 20px !important;
+    padding: 8px 18px !important;
+    border-width: 3px !important;
+  }
+
+  .banner-logo-card.fit-compact {
+    width: clamp(135px, 15vw, 185px) !important;
+  }
+
+  .banner-headline {
+    font-size: clamp(1.35rem, 2.2vw, 1.85rem) !important;
+    line-height: 1.2 !important;
+  }
+
+  .banner-subline {
+    font-size: clamp(1.0rem, 1.4vw, 1.3rem) !important;
+    line-height: 1.25 !important;
+  }
+
+  .kicker-pill,
+  .event-kicker-pill {
+    font-size: clamp(0.85rem, 1.1vw, 1.05rem) !important;
+    padding: 4px 14px !important;
+    border-radius: 14px !important;
+  }
+
+  .banner-badge-pill,
+  .event-pill {
+    font-size: clamp(0.82rem, 1.05vw, 1.0rem) !important;
+    padding: 5px 14px !important;
+    border-radius: 12px !important;
+  }
+
+  .kiosk-swiper .kiosk-swiper-pagination {
+    bottom: 5px !important;
+    gap: 8px !important;
+    padding: 3px 12px !important;
+  }
+
+  .kiosk-swiper .swiper-pagination-bullet {
+    width: 8px !important;
+    height: 8px !important;
+  }
+
+  .kiosk-swiper .swiper-pagination-bullet-active {
+    width: 26px !important;
+  }
 }
