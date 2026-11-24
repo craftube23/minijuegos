@@ -11994,3 +11994,66 @@ html, body {
     line-height: 1.05 !important;
   }
 }
+
+/* ==============================================================================
+   OPTIMIZACIÓN EXTREMA DE RENDIMIENTO PARA KIOSCO TÁCTIL (MALI-G52 / 2GB RAM)
+   Eliminación de filtros GPU pesados, sombras difusas y animaciones en bucle
+   ============================================================================== */
+
+/* 1. Eliminar filtros drop-shadow que saturan la memoria de la GPU */
+img, svg, .attract-logo, .header-logo, .banner-logo-img, .card-art, .fantasy-modal-hero-art {
+  filter: none !important;
+}
+
+/* 2. Suprimir text-shadows complejos que obligan a recalcular tipografías */
+.attract-title, .attract-subtitle, .btn-play-big, .kiosk-btn, .card-fantasy-title, .modal-title {
+  text-shadow: none !important;
+}
+
+/* 3. Desactivar animaciones continuas infinitas para evitar repintados a 60 FPS */
+.attract-logo,
+.btn-play-big,
+.card-art,
+.card-fantasy-ribbon,
+.fantasy-sparkle,
+.crest-halo,
+.crest-icon,
+.pill-star,
+.pill-dot,
+.gem-icon,
+.star-icon,
+.santa-icon,
+.hero-icon,
+.bag-icon,
+.intro-magic-glow,
+.intro-sparkle,
+.intro-star-logo,
+.intro-star-wrapper {
+  animation: none !important;
+}
+
+/* 4. Simplificar box-shadows difusos a bordes sólidos de alto rendimiento */
+.btn-play-big {
+  box-shadow: 0 4px 0 #7A0C2B !important;
+  animation: none !important;
+}
+
+.kiosk-btn {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+}
+
+.game-card-fantasy {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+.modal-card {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8) !important;
+}
+
+.kiosk-header {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+}
+
+.kiosk-footer-carousel {
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.6) !important;
+}

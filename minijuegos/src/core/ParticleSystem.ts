@@ -30,38 +30,17 @@ export interface Particle {
 export class ParticleSystem {
   private particles: Particle[] = [];
   private snowFlakes: Particle[] = [];
-  private maxSnowFlakes: number = 32; // Control estricto de memoria adaptativo
 
   constructor(width: number, height: number) {
     this.initSnow(width, height);
   }
 
   /**
-   * Inicializa la nieve ambiente multinivel
+   * Inicializa la nieve ambiente multinivel (Desactivada para ultra-rendimiento en kiosco)
    */
-  public initSnow(width: number, height: number): void {
-    const isMobile = typeof window !== 'undefined' && (
-      window.innerWidth < 900 || 
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-    );
-    this.maxSnowFlakes = isMobile ? 24 : 38;
+  public initSnow(_width: number, _height: number): void {
+    // 0 copos de nieve para garantizar 60 FPS estables sin carga de GPU Mali-G52
     this.snowFlakes = [];
-    for (let i = 0; i < this.maxSnowFlakes; i++) {
-      const isForeground = i % 3 === 0;
-      this.snowFlakes.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * (isForeground ? 1.2 : 0.6),
-        vy: isForeground ? 1.8 + Math.random() * 2.2 : 0.8 + Math.random() * 1.2,
-        size: isForeground ? 3.5 + Math.random() * 3.5 : 1.5 + Math.random() * 2.0,
-        color: "#FFFFFF",
-        alpha: isForeground ? 0.65 + Math.random() * 0.3 : 0.25 + Math.random() * 0.35,
-        life: 1,
-        maxLife: 1,
-        type: "snow",
-        layer: isForeground ? "front" : "back"
-      });
-    }
   }
 
   /**
@@ -91,47 +70,50 @@ export class ParticleSystem {
   }
 
   /**
-   * Genera una explosión de chispas o estrellas en una posición (x, y)
+   * Genera una explosión mínima de chispas en una posición (x, y) - Reducida para kiosco
    */
-  public emitBurst(x: number, y: number, color: string = "#FFD700", count: number = 15): void {
-    if (this.particles.length > 150) return;
-    for (let i = 0; i < count; i++) {
-      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
-      const speed = 2 + Math.random() * 6;
+  public emitBurst(x: number, y: number, color: string = "#FFD700", count: number = 4): void {
+    if (this.particles.length > 20) return;
+    const finalCount = Math.min(count, 4);
+    for (let i = 0; i < finalCount; i++) {
+      const angle = (Math.PI * 2 * i) / finalCount + Math.random() * 0.5;
+      const speed = 2 + Math.random() * 4;
       this.particles.push({
         x,
         y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        size: 3 + Math.random() * 5,
+        size: 3 + Math.random() * 3,
         color,
         alpha: 1.0,
         life: 0,
-        maxLife: 28 + Math.random() * 18,
+        maxLife: 15 + Math.random() * 10,
         type: "spark"
       });
     }
   }
 
   /**
-   * Genera una explosión de confeti multicolor para celebraciones
+   * Genera una explosión ligera de confeti multicolor para celebraciones
    */
-  public emitConfetti(width: number, count: number = 50): void {
-    const colors = ["#FF416C", "#FFD700", "#2ECC71", "#00E5FF", "#9B59B6", "#FFFFFF"];
-    for (let i = 0; i < count; i++) {
+  public emitConfetti(width: number, count: number = 6): void {
+    if (this.particles.length > 20) return;
+    const finalCount = Math.min(count, 6);
+    const colors = ["#FF416C", "#FFD700", "#2ECC71", "#00E5FF"];
+    for (let i = 0; i < finalCount; i++) {
       this.particles.push({
         x: Math.random() * width,
-        y: -10 - Math.random() * 100,
-        vx: (Math.random() - 0.5) * 4,
-        vy: 3 + Math.random() * 5,
-        size: 6 + Math.random() * 8,
+        y: -10 - Math.random() * 40,
+        vx: (Math.random() - 0.5) * 3,
+        vy: 2 + Math.random() * 3,
+        size: 5 + Math.random() * 4,
         color: colors[Math.floor(Math.random() * colors.length)],
         alpha: 1.0,
         life: 0,
-        maxLife: 100 + Math.random() * 50,
+        maxLife: 40 + Math.random() * 20,
         type: "confetti",
         rotation: Math.random() * Math.PI * 2,
-        vRot: (Math.random() - 0.5) * 0.2
+        vRot: (Math.random() - 0.5) * 0.1
       });
     }
   }
@@ -181,7 +163,8 @@ export class ParticleSystem {
   /**
    * Dibuja todas las partículas en el Canvas con renderizado por lotes (Batch Rendering)
    */
-  public draw(ctx: CanvasRenderingContext2D, renderSnow: boolean = true): void {
+  public draw(ctx: CanvasRenderingContext2D, renderSnow: boolean = false): void {
+    if (this.particles.length === 0 && (!renderSnow || this.snowFlakes.length === 0)) return;
     ctx.save();
 
     // 1. Dibujar nieve por lotes (1 solo fill para todas las partículas)

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
@@ -14,6 +16,17 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
         hideSystemUI();
+
+        // Optimización directa del WebView para GPU Mali-G52 y 2GB de RAM:
+        WebView webView = getBridge() != null ? getBridge().getWebView() : null;
+        if (webView != null) {
+            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            WebSettings settings = webView.getSettings();
+            settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+            settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+            settings.setDomStorageEnabled(true);
+            settings.setDatabaseEnabled(true);
+        }
     }
 
     @Override

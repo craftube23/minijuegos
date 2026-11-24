@@ -2086,52 +2086,6 @@ export class FlyingElfGame extends BaseGame {
       }
     }
 
-    // Estrella fugaz ocasional en la lejanía
-    const meteorCycle = (this.totalPlayTime * 0.35) % 12;
-    if (meteorCycle < 1.4) {
-      const mProgress = meteorCycle / 1.4;
-      const mx = (this.width * 0.85) - mProgress * (this.width * 0.45);
-      const my = (this.height * 0.06) + mProgress * (this.height * 0.22);
-      const mLen = 50 * (1 - mProgress);
-      const mAlpha = Math.sin(mProgress * Math.PI) * 0.85;
-      const mGrad = ctx.createLinearGradient(mx, my, mx + mLen, my - mLen * 0.4);
-      mGrad.addColorStop(0, `rgba(255, 255, 255, ${mAlpha})`);
-      mGrad.addColorStop(0.4, `rgba(180, 230, 255, ${mAlpha * 0.7})`);
-      mGrad.addColorStop(1, "rgba(0, 229, 255, 0)");
-      ctx.strokeStyle = mGrad;
-      ctx.lineWidth = 2.0;
-      ctx.beginPath();
-      ctx.moveTo(mx, my);
-      ctx.lineTo(mx + mLen, my - mLen * 0.4);
-      ctx.stroke();
-    }
-    ctx.restore();
-
-    // 3. Aurora Boreal Mágica (Cortinas ondulantes de luz esmeralda, cian y violeta)
-    ctx.save();
-    ctx.globalCompositeOperation = "screen";
-    const auroraTime = this.totalPlayTime * 0.8;
-    const auroraBands = [
-      { color1: "rgba(16, 185, 129, 0.32)", color2: "rgba(5, 150, 105, 0)", yBase: this.height * 0.16, freq: 0.006, amp: 28, speed: 0.7 },
-      { color1: "rgba(6, 182, 212, 0.28)", color2: "rgba(2, 132, 199, 0)", yBase: this.height * 0.12, freq: 0.009, amp: 22, speed: 1.1 },
-      { color1: "rgba(168, 85, 247, 0.22)", color2: "rgba(126, 34, 206, 0)", yBase: this.height * 0.22, freq: 0.005, amp: 34, speed: 0.5 }
-    ];
-
-    for (const b of auroraBands) {
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      for (let x = 0; x <= this.width + 40; x += 30) {
-        const wave = Math.sin(x * b.freq + auroraTime * b.speed) * b.amp + Math.cos(x * b.freq * 0.5 - auroraTime * 0.4) * (b.amp * 0.5);
-        ctx.lineTo(x, b.yBase + wave);
-      }
-      ctx.lineTo(this.width + 40, 0);
-      ctx.closePath();
-      const aGrad = ctx.createLinearGradient(0, 0, 0, this.height * 0.35);
-      aGrad.addColorStop(0, b.color1);
-      aGrad.addColorStop(1, b.color2);
-      ctx.fillStyle = aGrad;
-      ctx.fill();
-    }
     ctx.restore();
 
     // 4. Trineo de Santa Claus Volando en la Lejanía con estela de oro
@@ -2654,24 +2608,13 @@ export class FlyingElfGame extends BaseGame {
       if (item.type === "logo_sponsor" || item.type === "logo_feria" || item.type === "logo_campus") {
         const sponsorKey = item.sponsorId || (item.type === "logo_campus" ? "campus" : "feria");
         const sponsor = BRANDING.getLogoConfig(sponsorKey);
-        const glow = ctx.createRadialGradient(0, 0, item.size * 0.25, 0, 0, item.size * 0.72);
-        glow.addColorStop(0, sponsor.themeColor + "80");
-        glow.addColorStop(1, "rgba(0, 0, 0, 0)");
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(0, 0, item.size * 0.72, 0, Math.PI * 2);
-        ctx.fill();
 
         // Medallón oficial del patrocinador (Fondo blanco nítido y aro temático brillante)
         const rot = Math.sin(this.gliderSwayTime * 1.5) * 0.12;
         ctx.rotate(rot);
 
         const radius = item.size * 0.48;
-        const bgGrad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
-        bgGrad.addColorStop(0, "#FFFFFF");
-        bgGrad.addColorStop(0.85, "rgba(248, 250, 252, 0.98)");
-        bgGrad.addColorStop(1, sponsor.themeColor + "99");
-        ctx.fillStyle = bgGrad;
+        ctx.fillStyle = "#FFFFFF";
         ctx.beginPath();
         ctx.arc(0, 0, radius, 0, Math.PI * 2);
         ctx.fill();
@@ -2695,26 +2638,11 @@ export class FlyingElfGame extends BaseGame {
           ctx.drawImage(sponsorImg, -logoW / 2, -logoH / 2, logoW, logoH);
         }
       } else if (item.type === "logo_star") {
-        const glow = ctx.createRadialGradient(0, 0, item.size * 0.25, 0, 0, item.size * 0.72);
-        glow.addColorStop(0, "rgba(255, 215, 0, 0.45)");
-        glow.addColorStop(1, "rgba(255, 215, 0, 0)");
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(0, 0, item.size * 0.72, 0, Math.PI * 2);
-        ctx.fill();
-
         if (this.imgStarLogo.complete) {
           ctx.rotate(this.gliderSwayTime * 1.1);
           ctx.drawImage(this.imgStarLogo, -item.size / 2, -item.size / 2, item.size, item.size);
         }
       } else {
-        const glow = ctx.createRadialGradient(0, 0, item.size * 0.2, 0, 0, item.size * 0.65);
-        glow.addColorStop(0, "rgba(0, 230, 118, 0.35)");
-        glow.addColorStop(1, "rgba(0, 230, 118, 0)");
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(0, 0, item.size * 0.65, 0, Math.PI * 2);
-        ctx.fill();
 
         if (item.type === "gift_red" && this.imgGiftRed.complete) {
           ctx.drawImage(this.imgGiftRed, -item.size / 2, -item.size / 2, item.size, item.size);
@@ -2769,14 +2697,10 @@ export class FlyingElfGame extends BaseGame {
     const curElfDef = ELF_ROSTER.find((e) => e.id === this.selectedElf) || ELF_ROSTER[0];
     const elfSprite = this.elfSprites.get(this.selectedElf) || this.imgElfFeria;
 
-    // Escudo de Burbuja Mágica durante Turbo/Imán activo (Gradiente temático del patrocinador)
+    // Escudo de Burbuja Mágica durante Turbo/Imán activo
     if (this.isLogoPowerUpActive) {
       ctx.save();
-      const shieldGrad = ctx.createRadialGradient(0, 0, 30, 0, 0, 95);
-      shieldGrad.addColorStop(0, curElfDef.glowColor);
-      shieldGrad.addColorStop(0.75, curElfDef.glowColor);
-      shieldGrad.addColorStop(1, "rgba(255, 255, 255, 0.92)");
-      ctx.fillStyle = shieldGrad;
+      ctx.fillStyle = curElfDef.glowColor;
       ctx.beginPath();
       ctx.arc(0, 0, 95, 0, Math.PI * 2);
       ctx.fill();
@@ -2807,18 +2731,6 @@ export class FlyingElfGame extends BaseGame {
 
   private renderAtmosphere(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-
-    // 1. Copos de nieve con velocidad vinculada al desplazamiento real
-    ctx.fillStyle = "rgba(255, 255, 255, 0.70)";
-    const snowScroll = this.groundScrollX * 0.75;
-    for (let s = 0; s < 28; s++) {
-      const sx = ((s * 48 - snowScroll * (0.8 + (s % 4) * 0.25)) % this.width + this.width) % this.width;
-      const sy = (s * 62 + this.gliderSwayTime * 25) % this.height;
-      const sRadius = 1.5 + (s % 3) * 0.8;
-      ctx.beginPath();
-      ctx.arc(sx, sy, sRadius, 0, Math.PI * 2);
-      ctx.fill();
-    }
 
     // 2. Líneas de viento dinámicas / Speedlines (Aparecen conforme aumenta la velocidad)
     if (this.speedMultiplier > 1.25) {

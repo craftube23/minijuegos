@@ -1029,16 +1029,6 @@ class KioskApp {
       if (this.appState === "playing" && this.currentGame) {
         this.currentGame.update(dt);
         this.currentGame.draw();
-      } else {
-        // Dibujar partículas de nieve ambiente y chispas táctiles de fondo con HiDPI
-        const ctx = this.canvas.getContext("2d");
-        if (ctx) {
-          const dpr = this.logicalWidth > 0 ? this.canvas.width / this.logicalWidth : 1;
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          ctx.clearRect(0, 0, this.logicalWidth, this.logicalHeight);
-          this.particles.update(this.logicalWidth, this.logicalHeight);
-          this.particles.draw(ctx, true);
-        }
       }
 
       requestAnimationFrame(loop);
