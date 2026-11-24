@@ -336,6 +336,14 @@ export class FlyingElfGame extends BaseGame {
   private imgTeddy: HTMLImageElement;
   private imgStarLogo: HTMLImageElement;
 
+  // Caché de degradados para evitar recolección de basura (GC) en Mali-G52 con 2GB RAM
+  private cachedSkyGrad: CanvasGradient | null = null;
+  private cachedSkyGradH: number = -1;
+  private cachedBackGrad: CanvasGradient | null = null;
+  private cachedBackGradY: number = -1;
+  private cachedFrontGrad: CanvasGradient | null = null;
+  private cachedFrontGradY: number = -1;
+
   constructor(
     canvas: HTMLCanvasElement,
     input: InputManager,
@@ -2040,13 +2048,16 @@ export class FlyingElfGame extends BaseGame {
    * - Panorama de la Villa Navideña iluminada con integración continua
    */
   private renderSingleUnifiedWorld(ctx: CanvasRenderingContext2D): void {
-    // 1. Cielo Nocturno Profundo Cósmico
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, this.height);
-    skyGrad.addColorStop(0, "#010714");
-    skyGrad.addColorStop(0.35, "#061329");
-    skyGrad.addColorStop(0.7, "#0C2344");
-    skyGrad.addColorStop(1, "#16345C");
-    ctx.fillStyle = skyGrad;
+    // 1. Cielo Nocturno Profundo Cósmico (Reutilizar degradado en caché)
+    if (!this.cachedSkyGrad || this.cachedSkyGradH !== this.height) {
+      this.cachedSkyGrad = ctx.createLinearGradient(0, 0, 0, this.height);
+      this.cachedSkyGrad.addColorStop(0, "#010714");
+      this.cachedSkyGrad.addColorStop(0.35, "#061329");
+      this.cachedSkyGrad.addColorStop(0.7, "#0C2344");
+      this.cachedSkyGrad.addColorStop(1, "#16345C");
+      this.cachedSkyGradH = this.height;
+    }
+    ctx.fillStyle = this.cachedSkyGrad;
     ctx.fillRect(0, 0, this.width, this.height);
 
     // 2. Campo Estelar Centelleante (36 estrellas con brillo oscilante)
@@ -2275,11 +2286,14 @@ export class FlyingElfGame extends BaseGame {
     ctx.save();
 
     // 1. Capa trasera de colinas de nieve suave (Back snowdrift bank)
-    const backGrad = ctx.createLinearGradient(0, floorBaseY - 26, 0, this.height);
-    backGrad.addColorStop(0, "#E0F2FE");
-    backGrad.addColorStop(0.5, "#BAE6FD");
-    backGrad.addColorStop(1, "#7DD3FC");
-    ctx.fillStyle = backGrad;
+    if (!this.cachedBackGrad || this.cachedBackGradY !== floorBaseY) {
+      this.cachedBackGrad = ctx.createLinearGradient(0, floorBaseY - 26, 0, this.height);
+      this.cachedBackGrad.addColorStop(0, "#E0F2FE");
+      this.cachedBackGrad.addColorStop(0.5, "#BAE6FD");
+      this.cachedBackGrad.addColorStop(1, "#7DD3FC");
+      this.cachedBackGradY = floorBaseY;
+    }
+    ctx.fillStyle = this.cachedBackGrad;
     ctx.beginPath();
     ctx.moveTo(0, this.height);
     for (let x = 0; x <= this.width + 30; x += 30) {
@@ -2292,12 +2306,15 @@ export class FlyingElfGame extends BaseGame {
     ctx.fill();
 
     // 2. Capa principal delantera de nieve pura, blanca y bien marcada (100% opaca)
-    const frontGrad = ctx.createLinearGradient(0, floorBaseY - 16, 0, this.height);
-    frontGrad.addColorStop(0, "#FFFFFF");
-    frontGrad.addColorStop(0.20, "#F0F9FF");
-    frontGrad.addColorStop(0.55, "#CFE5F8");
-    frontGrad.addColorStop(1, "#8EBCE6");
-    ctx.fillStyle = frontGrad;
+    if (!this.cachedFrontGrad || this.cachedFrontGradY !== floorBaseY) {
+      this.cachedFrontGrad = ctx.createLinearGradient(0, floorBaseY - 16, 0, this.height);
+      this.cachedFrontGrad.addColorStop(0, "#FFFFFF");
+      this.cachedFrontGrad.addColorStop(0.20, "#F0F9FF");
+      this.cachedFrontGrad.addColorStop(0.55, "#CFE5F8");
+      this.cachedFrontGrad.addColorStop(1, "#8EBCE6");
+      this.cachedFrontGradY = floorBaseY;
+    }
+    ctx.fillStyle = this.cachedFrontGrad;
     ctx.beginPath();
     ctx.moveTo(0, this.height);
 

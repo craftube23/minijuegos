@@ -77,7 +77,6 @@ html, body {
   height: clamp(82px, 12vh, 98px);
   min-height: 82px;
   background: linear-gradient(180deg, rgba(15, 36, 68, 0.98) 0%, rgba(8, 21, 39, 0.98) 100%);
-  backdrop-filter: blur(10px);
   border-bottom: 3px solid var(--color-gold);
   display: flex;
   align-items: center;
@@ -850,8 +849,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at center, rgba(12, 27, 51, 0.82) 0%, rgba(4, 10, 18, 0.94) 100%);
-  backdrop-filter: blur(8px);
+  background: radial-gradient(circle at center, rgba(12, 27, 51, 0.92) 0%, rgba(4, 10, 18, 0.98) 100%);
   z-index: 150;
   pointer-events: none;
   animation: fadeInQuick 0.2s ease-out;
@@ -1102,8 +1100,7 @@ html, body {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: radial-gradient(circle at 50% 50%, rgba(10, 20, 36, 0.94) 0%, rgba(3, 7, 14, 0.98) 100%);
-  backdrop-filter: blur(10px);
+  background: radial-gradient(circle at 50% 50%, rgba(10, 20, 36, 0.96) 0%, rgba(3, 7, 14, 0.99) 100%);
   align-items: center;
   justify-content: center;
   padding: clamp(6px, 1.5vh, 16px);
@@ -2167,8 +2164,6 @@ html, body {
   color: #FFD700;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   text-transform: uppercase;
 }
 
@@ -2232,8 +2227,6 @@ html, body {
   font-weight: 800;
   color: #FFF9C4;
   letter-spacing: 0.25px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   white-space: nowrap;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
@@ -6856,7 +6849,6 @@ html, body {
   align-items: center;
   text-align: center;
   max-width: min(92vw, 680px);
-  backdrop-filter: blur(10px);
 }
 
 .smash-subtag-pill {
@@ -6994,9 +6986,7 @@ html, body {
 .ski-tutorial-backdrop {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(10, 24, 48, 0.88) 0%, rgba(3, 8, 18, 0.98) 100%);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: radial-gradient(circle at center, rgba(10, 24, 48, 0.94) 0%, rgba(3, 8, 18, 0.99) 100%);
 }
 
 .ski-tutorial-card {
@@ -11252,8 +11242,6 @@ html, body {
   border-radius: 24px;
   padding: 8px 14px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), 0 0 15px rgba(255, 215, 0, 0.35);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   animation: promptSlideIn 0.35s ease-out;
   max-width: 94vw;
   pointer-events: auto;

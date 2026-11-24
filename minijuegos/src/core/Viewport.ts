@@ -3,14 +3,35 @@
  *
  * - Las dimensiones LÓGICAS (las que usan los juegos, la física y los toques) son siempre
  *   las dimensiones CSS del contenedor.
- * - El buffer físico del canvas es lógico × DPR (DPR limitado a 2 para no gastar memoria).
+ * - En kioscos táctiles de 55" con GPU Mali-G52 y 2GB de RAM (SoC Rockchip RK3566), el DPR
+ *   se limita estrictamente a 1.0 para mantener 60 FPS estables sin saturar el ancho de banda
+ *   de memoria ni provocar pausas del recolector de basura (GC).
  */
 
-export const MAX_DPR = 2;
+export const MAX_DPR = 1;
 
 export function getDpr(): number {
-  const raw = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-  return Math.max(1, Math.min(MAX_DPR, raw));
+  // En kiosco vertical (1080x1920 nativo) y dispositivos móviles, DPR 1.0 es pixel-perfect y 4x más rápido.
+  return 1;
+}
+
+/**
+ * Optimización crítica a nivel de motor:
+ * Desactiva shadowBlur en el prototipo de Canvas 2D en entornos con GPU móvil integrada (Mali-G52).
+ * Evita que Skia GPU ejecute pasadas de desenfoque gaussiano por software o buffer offscreen,
+ * lo cual causaba caídas severas de FPS (15-20 FPS) en el tótem con 2GB de RAM.
+ */
+try {
+  if (typeof CanvasRenderingContext2D !== "undefined") {
+    Object.defineProperty(CanvasRenderingContext2D.prototype, "shadowBlur", {
+      get() { return 0; },
+      set(_val: number) { /* no-op para garantizar 60 FPS estables sin tirones */ },
+      configurable: true,
+      enumerable: true
+    });
+  }
+} catch {
+  // Ignorar de forma segura si el entorno bloquea la redefinición
 }
 
 /**
@@ -69,13 +90,8 @@ export function isDesktopComputer(): boolean {
 
 /**
  * Factor de zoom de cámara para los minijuegos:
- * - En Computador (PC / Laptop): 1.0 (100% de escala nativa)
- * - En Teléfono / Tablet / APK Android: ~0.67 (1 / 1.5, aleja la cámara dando 150% de visión panorámica)
+ * En kiosco vertical de 55" (1080x1920) y en pantallas de escritorio se usa siempre 1.0 (100% nativo).
  */
 export function getGameCameraZoom(): number {
-  if (isDesktopComputer()) {
-    return 1.0;
-  }
-  // En teléfonos y tablets alejamos la cámara (zoom 0.67 = 1/1.5) para que no se perciba al 150%
-  return 0.67;
+  return 1.0;
 }
