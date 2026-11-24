@@ -36,58 +36,74 @@ export class ParticleSystem {
   }
 
   /**
-   * Inicializa la nieve ambiente multinivel (Desactivada para ultra-rendimiento en kiosco)
+   * Inicializa la nieve ambiente multinivel (24 copos ligeros de alto rendimiento a 60 FPS)
    */
-  public initSnow(_width: number, _height: number): void {
-    // 0 copos de nieve para garantizar 60 FPS estables sin carga de GPU Mali-G52
+  public initSnow(width: number, height: number): void {
+    const flakeCount = 24;
     this.snowFlakes = [];
-  }
-
-  /**
-   * Estela táctil mágica (Touch Magic Trail)
-   */
-  public emitTouchTrail(x: number, y: number, count: number = 3): void {
-    // Limitar partículas totales activas a 120 para no saturar memoria
-    if (true) return; // Estela del cursor desactivada permanentemente
-
-    const colors = ["#FFD700", "#FFF9C4", "#FFFFFF", "#FF80AB", "#00E5FF"];
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 0.5 + Math.random() * 2.5;
-      this.particles.push({
-        x: x + (Math.random() - 0.5) * 14,
-        y: y + (Math.random() - 0.5) * 14,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed + 0.4, // Suave caída
-        size: 2.5 + Math.random() * 3.5,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        alpha: 0.9,
+    for (let i = 0; i < flakeCount; i++) {
+      const isFront = i % 3 === 0;
+      this.snowFlakes.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: isFront ? 0.9 + Math.random() * 0.7 : 0.4 + Math.random() * 0.4,
+        size: isFront ? 2.2 + Math.random() * 1.8 : 1.2 + Math.random() * 1.2,
+        color: "rgba(255, 255, 255, 0.85)",
+        alpha: isFront ? 0.85 : 0.5,
         life: 0,
-        maxLife: 20 + Math.random() * 15,
-        type: Math.random() > 0.4 ? "star" : "spark"
+        maxLife: 99999,
+        type: "snow",
+        layer: isFront ? "front" : "back"
       });
     }
   }
 
   /**
-   * Genera una explosión mínima de chispas en una posición (x, y) - Reducida para kiosco
+   * Estela táctil mágica (Touch Magic Trail) - ligera, suave y reactiva
    */
-  public emitBurst(x: number, y: number, color: string = "#FFD700", count: number = 4): void {
-    if (this.particles.length > 20) return;
-    const finalCount = Math.min(count, 4);
+  public emitTouchTrail(x: number, y: number, count: number = 2): void {
+    if (this.particles.length > 30) return;
+
+    const colors = ["#FFD700", "#FFF9C4", "#FFFFFF", "#00E5FF"];
+    const actualCount = Math.min(count, 2);
+    for (let i = 0; i < actualCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 0.5 + Math.random() * 1.5;
+      this.particles.push({
+        x: x + (Math.random() - 0.5) * 10,
+        y: y + (Math.random() - 0.5) * 10,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed + 0.3,
+        size: 2.0 + Math.random() * 2.5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 0.9,
+        life: 0,
+        maxLife: 16 + Math.random() * 10,
+        type: "star"
+      });
+    }
+  }
+
+  /**
+   * Genera una explosión festiva de chispas en una posición (x, y)
+   */
+  public emitBurst(x: number, y: number, color: string = "#FFD700", count: number = 6): void {
+    if (this.particles.length > 35) return;
+    const finalCount = Math.min(count, 6);
     for (let i = 0; i < finalCount; i++) {
-      const angle = (Math.PI * 2 * i) / finalCount + Math.random() * 0.5;
-      const speed = 2 + Math.random() * 4;
+      const angle = (Math.PI * 2 * i) / finalCount + Math.random() * 0.4;
+      const speed = 1.5 + Math.random() * 3;
       this.particles.push({
         x,
         y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        size: 3 + Math.random() * 3,
+        size: 2.5 + Math.random() * 2.5,
         color,
         alpha: 1.0,
         life: 0,
-        maxLife: 15 + Math.random() * 10,
+        maxLife: 18 + Math.random() * 10,
         type: "spark"
       });
     }
