@@ -28,68 +28,10 @@ export class ScreenTransition {
   }
 
   /**
-   * 1. Transición Inicial: Tormenta de Nieve Mágica & Revelación Cinemática
+   * 1. Transición Inicial: Inicio Inmediato (Arranque ultra-rápido para 2GB RAM)
    */
-  public runInitialSnowstorm(container: HTMLElement, onRevealed: () => void): void {
-    const curtain = document.createElement("div");
-    curtain.className = "snowstorm-curtain";
-    curtain.innerHTML = `
-      <div class="intro-magic-box">
-        <!-- Logo Estrella 3D Animado con Aura y Chispas -->
-        <div class="intro-star-wrapper">
-          <div class="intro-magic-glow"></div>
-          <img src="./assets/images/estrella con logo.webp" alt="Feria Mágica del Juguete" class="intro-star-logo" />
-          <div class="intro-sparkle s1">✦</div>
-          <div class="intro-sparkle s2">✧</div>
-          <div class="intro-sparkle s3">✦</div>
-          <div class="intro-sparkle s4">★</div>
-        </div>
-
-        <!-- Título 3D Volumétrico Dorado -->
-        <h1 class="intro-magic-title">FERIA MÁGICA</h1>
-        <div class="intro-magic-badge">DEL JUGUETE</div>
-
-        <!-- Barra de Carga Mágica Iluminada -->
-        <div class="intro-progress-container">
-          <div class="intro-progress-bar">
-            <div class="intro-progress-fill" id="intro-progress-fill"></div>
-            <div class="intro-progress-glint"></div>
-          </div>
-        </div>
-
-        <!-- Texto de Estado Dinámico -->
-        <p class="intro-magic-status" id="intro-status-text">Preparando la magia navideña...</p>
-      </div>
-    `;
-
-    container.appendChild(curtain);
-
-    const fillEl = curtain.querySelector<HTMLElement>("#intro-progress-fill");
-    const textEl = curtain.querySelector<HTMLElement>("#intro-status-text");
-
-    // Animación de llenado de barra y cambio de textos mágicos
-    if (fillEl) {
-      setTimeout(() => { fillEl.style.width = "40%"; }, 100);
-      setTimeout(() => { 
-        fillEl.style.width = "75%"; 
-        if (textEl) textEl.textContent = "Empacando juguetes mágicos...";
-      }, 700);
-      setTimeout(() => { 
-        fillEl.style.width = "100%"; 
-        if (textEl) textEl.textContent = "¡Feria lista! Abriendo puertas...";
-      }, 1350);
-    }
-
-    // Secuencia de dispersión, sonido y revelación
-    setTimeout(() => {
-      this.audio.playWhoosh();
-      curtain.classList.add("is-revealed");
-
-      setTimeout(() => {
-        curtain.remove();
-        onRevealed();
-      }, 650);
-    }, 1850);
+  public runInitialSnowstorm(_container: HTMLElement, onRevealed: () => void): void {
+    onRevealed();
   }
 
   /**
@@ -179,79 +121,16 @@ export class ScreenTransition {
   }
 
   /**
-   * 4. Transición Landing -> Kiosquito: Apertura de Puertas del Gran Regalo Navideño 2D Stylized Art
+   * 4. Transición Landing -> Kiosquito: Cambio Inmediato (0ms, 0 consumo de memoria)
    */
   public runHandsTearLandingTransition(
-    container: HTMLElement,
-    particles: ParticleSystem,
+    _container: HTMLElement,
+    _particles: ParticleSystem,
     onMidpoint: () => void,
     onComplete: () => void
   ): void {
-    const overlay = document.createElement("div");
-    overlay.className = "gift-transition-overlay fantasy-gift-mode";
-    
-    overlay.innerHTML = `
-      <!-- Solapas Izquierda y Derecha de Arte Conceptual 2D -->
-      <div class="fantasy-gift-flap flap-left"></div>
-      <div class="fantasy-gift-flap flap-right"></div>
-      <div class="fantasy-gift-seam-glow"></div>
-
-      <!-- Partículas Mágicas Flotantes -->
-      <div class="fantasy-gift-sparkles">
-        <span class="f-sparkle s1">✦</span>
-        <span class="f-sparkle s2">★</span>
-        <span class="f-sparkle s3">✦</span>
-        <span class="f-sparkle s4">★</span>
-        <span class="f-sparkle s5">✦</span>
-        <span class="f-sparkle s6">★</span>
-      </div>
-
-      <!-- Medallón Central Tallado en Oro y Fantasía -->
-      <div class="fantasy-crest-badge" style="--seal-theme-color: #FFD700">
-        <div class="fantasy-crest-glow"></div>
-        <div class="fantasy-crest-icon-wrapper">
-          <img src="./assets/images/estrella con logo.webp" alt="Feria Mágica" class="fantasy-crest-logo-img" />
-        </div>
-        <h2 class="fantasy-crest-title">FERIA MÁGICA</h2>
-        <div class="fantasy-crest-pill">
-          <span class="fantasy-pill-star">✦</span>
-          <span>¡ABRIENDO KIOSCO DE JUEGOS!</span>
-          <span class="fantasy-pill-star">✦</span>
-        </div>
-      </div>
-    `;
-
-    container.appendChild(overlay);
-    this.audio.playWhoosh();
-
-    requestAnimationFrame(() => {
-      overlay.classList.add("is-wrapping");
-    });
-
-    // 1. A los 380ms: Pantalla 100% cubierta con el arte del regalo. Cambiar vista detrás
-    setTimeout(() => {
-      onMidpoint();
-
-      // 2. A los 580ms: Desempaque mágico y apertura de puertas en 3D
-      setTimeout(() => {
-        this.audio.playGiftUnwrap();
-
-        const bounds = container.getBoundingClientRect();
-        particles.emitBurst(bounds.width / 2, bounds.height * 0.5, "#FFD700", 45);
-        particles.emitConfetti(bounds.width, 65);
-
-        overlay.classList.remove("is-wrapping");
-        overlay.classList.add("is-unwrapping");
-
-        // 3. A los 550ms tras abrirse: Remover overlay y finalizar
-        setTimeout(() => {
-          overlay.remove();
-          onComplete();
-        }, 550);
-
-      }, 200);
-
-    }, 380);
+    onMidpoint();
+    onComplete();
   }
 
   /**
@@ -259,12 +138,17 @@ export class ScreenTransition {
    * Sincronizado milimétricamente con los 3 rasgados de audio (0.22s, 0.74s, 1.28s) a 1.85s de duración total.
    */
   public runExcitedKidGiftTransition(
-    container: HTMLElement,
-    gameData: { title: string; icon: string; themeColor?: string; subtitle?: string },
-    particles: ParticleSystem,
+    _container: HTMLElement,
+    _gameData: { title: string; icon: string; themeColor?: string; subtitle?: string },
+    _particles: ParticleSystem,
     onMidpoint: () => void,
     onComplete: () => void
   ): void {
+    onMidpoint();
+    onComplete();
+  }
+
+  public _unused(container: any, gameData: any, particles: any, onMidpoint: any, onComplete: any) {
     const overlay = document.createElement("div");
     // Selección aleatoria entre 4 patrones dinámicos: Cruzado X, Transversal Zig-Zag, Corte en V y Doble Cuchillada
     const patternIndex = Math.floor(Math.random() * 4);
