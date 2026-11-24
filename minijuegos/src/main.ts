@@ -672,39 +672,7 @@ class KioskApp {
    * Estela mágica táctil (Touch Magic Trail - Optimizado sin Reflow)
    */
   private setupTouchMagicTrail(): void {
-    let lastX = 0;
-    let lastY = 0;
-
-    const emit = (clientX: number, clientY: number, count: number) => {
-      const rect = this.cachedCanvasRect || this.canvas.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-      this.particles.emitTouchTrail(x, y, count);
-    };
-
-    window.addEventListener(
-      "pointermove",
-      (e) => {
-        const dx = e.clientX - lastX;
-        const dy = e.clientY - lastY;
-        if (dx * dx + dy * dy > 350) {
-          lastX = e.clientX;
-          lastY = e.clientY;
-          emit(e.clientX, e.clientY, 1);
-        }
-      },
-      { passive: true }
-    );
-
-    window.addEventListener(
-      "pointerdown",
-      (e) => {
-        lastX = e.clientX;
-        lastY = e.clientY;
-        emit(e.clientX, e.clientY, 2);
-      },
-      { passive: true }
-    );
+    void this.cachedCanvasRect;
   }
 
   /**
@@ -1061,14 +1029,6 @@ class KioskApp {
       if (this.appState === "playing" && this.currentGame) {
         this.currentGame.update(dt);
         this.currentGame.draw();
-      } else {
-        // En pantalla de inicio y menú, animar suave nieve ambiente y partículas táctiles
-        const ctx = this.canvas.getContext("2d");
-        if (ctx && this.logicalWidth > 0 && this.logicalHeight > 0) {
-          ctx.clearRect(0, 0, this.logicalWidth, this.logicalHeight);
-          this.particles.update(this.logicalWidth, this.logicalHeight);
-          this.particles.draw(ctx, true);
-        }
       }
 
       requestAnimationFrame(loop);
