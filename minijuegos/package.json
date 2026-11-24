@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:apk": "npm run build && npx cap sync android && cd android && gradlew.bat assembleDebug",
     "preview": "vite preview"
   },
   "devDependencies": {

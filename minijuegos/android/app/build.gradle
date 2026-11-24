@@ -56,3 +56,31 @@ try {
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
+
+// Copia automática del APK a D:\Download tras cada compilación assembleDebug
+tasks.register('copyApkToDownload') {
+    doLast {
+        def srcApk = file("${layout.buildDirectory.get().asFile}/outputs/apk/debug/app-debug.apk")
+        def destDir = file("D:/Download")
+        if (srcApk.exists()) {
+            if (!destDir.exists()) {
+                destDir.mkdirs()
+            }
+            copy {
+                from srcApk
+                into destDir
+            }
+            println "\n======================================================="
+            println ">>> APK COPIADO EXITOSAMENTE A: D:\\Download\\app-debug.apk <<<"
+            println "=======================================================\n"
+        }
+    }
+}
+
+afterEvaluate {
+    if (tasks.findByName('assembleDebug')) {
+        tasks.named('assembleDebug').configure {
+            finalizedBy 'copyApkToDownload'
+        }
+    }
+}
