@@ -253,6 +253,7 @@ export class BellSymphonyGame extends BaseGame {
   private bpm: number = 138;
   private songDuration: number = 129;
   private currentTime: number = 0;
+  private startLeadInTimer: number = 0;
   private noteSpeed: number = 520;
   private hitLineY: number = 0;
   private laneWidth: number = 0;
@@ -542,12 +543,7 @@ export class BellSymphonyGame extends BaseGame {
     ScreenTransition.getInstance().runCountdown(mainContainer, this.particles, () => {
       this.gameState = "playing";
       this.currentTime = 0;
-      if (!this.audio.getIsMuted() && this.bgAudioElement) {
-        this.bgAudioElement.currentTime = 0;
-        this.bgAudioElement.play().catch((err) => {
-          console.warn("⚠️ Autoplay pendiente o bloqueado:", err);
-        });
-      }
+      this.startLeadInTimer = 2.0; // 2 segundos silenciosos y sin notas para prepararse
       this.particles.emitConfetti(this.width, 35);
     });
   }
@@ -1051,6 +1047,7 @@ export class BellSymphonyGame extends BaseGame {
    * Presión de un carril: verifica timing según las ventanas de la dificultad activa
    */
   private handleLanePress(lane: number): void {
+    if (this.startLeadInTimer > 0) return;
     this.lanePressed[lane] = true;
     this.playHitsound(lane);
 
@@ -1446,6 +1443,25 @@ export class BellSymphonyGame extends BaseGame {
       return;
     }
 
+    // Retardo inicial de 2 segundos: comienza sin música y sin notas para permitir posicionarse
+    if (this.startLeadInTimer > 0) {
+      this.startLeadInTimer -= dt;
+      this.beatPulse = (Date.now() / 1000 * 2) % 1.0;
+      this.currentTime = 0;
+      this.updateAmbient(dt);
+
+      if (this.startLeadInTimer <= 0) {
+        this.startLeadInTimer = 0;
+        if (!this.audio.getIsMuted() && this.bgAudioElement) {
+          this.bgAudioElement.currentTime = 0;
+          this.bgAudioElement.play().catch((err) => {
+            console.warn("⚠️ Autoplay pendiente o bloqueado:", err);
+          });
+        }
+      }
+      return;
+    }
+
     if (this.bgAudioElement && !this.bgAudioElement.paused && this.bgAudioElement.currentTime > 0) {
       const audioTime = this.bgAudioElement.currentTime;
       const diff = audioTime - this.currentTime;
@@ -1727,8 +1743,43 @@ export class BellSymphonyGame extends BaseGame {
     }
 
     // ==========================================================================
-    // RENDERIZADO DE NOTAS Y NOTAS SOSTENIDAS (SUSTAIN NOTES)
+    // RENDERIZADO DE NOTAS Y NOTAS SOSTENIDAS (O CARTEL DE PREPARACIÓN DE 2S)
     // ==========================================================================
+    if (this.startLeadInTimer > 0) {
+      const countNum = Math.ceil(this.startLeadInTimer);
+      const cx = this.laneStartX + totalW / 2;
+      const cy = this.hitLineY - 140;
+
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      // Resplandor cálido
+      const radGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, 180);
+      radGrad.addColorStop(0, "rgba(255, 215, 0, 0.22)");
+      radGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = radGrad;
+      ctx.fillRect(cx - 200, cy - 100, 400, 200);
+
+      // Cartel elegante navideño
+      ctx.fillStyle = "rgba(4, 15, 30, 0.90)";
+      ctx.strokeStyle = "rgba(255, 215, 0, 0.95)";
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.roundRect(cx - 160, cy - 55, 320, 110, 18);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#FFD700";
+      ctx.font = "900 22px 'Titan One', 'Fredoka', cursive, sans-serif";
+      ctx.fillText("¡PREPÁRATE!", cx, cy - 20);
+
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "900 46px 'Titan One', 'Fredoka', cursive, sans-serif";
+      ctx.fillText(String(countNum), cx, cy + 22);
+
+      ctx.restore();
+    } else {
     for (let ni = this.noteStartIdx; ni < this.noteEndIdx; ni++) {
       const note = this.notes[ni];
       if (note.missed || note.sustainCompleted || note.sustainFailed) continue;
@@ -1935,6 +1986,7 @@ export class BellSymphonyGame extends BaseGame {
         ctx.restore();
       }
     }
+    } // Fin else (startLeadInTimer)
 
     // Anillos de impacto y contador de combo
     this.drawHitRings(ctx);

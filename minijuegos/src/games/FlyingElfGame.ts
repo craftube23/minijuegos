@@ -328,10 +328,8 @@ export class FlyingElfGame extends BaseGame {
   private imgBgPanorama: HTMLImageElement;
   private imgHouseObstacle: HTMLImageElement;
   private imgIcicle: HTMLImageElement;
-  private imgTree: HTMLImageElement;
   private imgGiftRed: HTMLImageElement;
   private imgGiftGreen: HTMLImageElement;
-  private imgGiftRed2: HTMLImageElement;
   private imgCandy: HTMLImageElement;
   private imgTeddy: HTMLImageElement;
   private imgStarLogo: HTMLImageElement;
@@ -381,13 +379,9 @@ export class FlyingElfGame extends BaseGame {
       this.cartelImages.set(key, this.getImage(`./assets/images/cartel-${key}.webp`));
     }
 
-    // 5. Decoraciones de Piso
-    this.imgTree = this.getImage("./assets/images/arbol.webp");
-
-    // 6. Coleccionables Ilustrados 2D
+    // 5. Coleccionables Ilustrados 2D
     this.imgGiftRed = this.getImage("./assets/images/regalo-rojo.webp");
     this.imgGiftGreen = this.getImage("./assets/images/regalo-verde.webp");
-    this.imgGiftRed2 = this.getImage("./assets/images/regalo-rojo2.webp");
     this.imgCandy = this.getImage("./assets/images/baston-caramelo.webp");
     this.imgTeddy = this.getImage("./assets/images/osito.webp");
     this.imgStarLogo = this.getImage("./assets/images/estrella con logo.webp");
@@ -472,22 +466,9 @@ export class FlyingElfGame extends BaseGame {
     }
   }
 
-  private get propFactor(): number {
-    return 1 + (this.layoutScale - 1) * 0.3;
-  }
-
   private initGroundProps(): void {
-    const spacing = 180 * this.propFactor;
-    const count = Math.ceil(this.width / spacing) + 3;
-    const propTypes: ("lamp" | "tree" | "fence" | "gift_pile")[] = ["lamp", "tree", "fence", "gift_pile", "lamp", "tree"];
-    for (let i = 0; i < count; i++) {
-      this.groundProps.push({
-        x: i * spacing + (Math.random() * 40 - 20),
-        type: propTypes[i % propTypes.length],
-        scale: 0.85 + Math.random() * 0.3,
-        lightPhase: Math.random() * Math.PI * 2
-      });
-    }
+    // Las farolas y vallas procedurales han sido eliminadas por solicitud del usuario
+    this.groundProps = [];
   }
 
   public override resize(width: number, height: number): void {
@@ -765,28 +746,9 @@ export class FlyingElfGame extends BaseGame {
     }
   }
 
-  private updateGroundProps(_dt: number, scrollSpeed: number): void {
-    const spacing = 190 * this.propFactor;
-    for (let i = 0; i < this.groundProps.length; i++) {
-      const prop = this.groundProps[i];
-      prop.x -= scrollSpeed;
-      prop.lightPhase += _dt * 3.5;
-    }
-
-    // Reciclar props que salen por la izquierda
-    for (let i = 0; i < this.groundProps.length; i++) {
-      const prop = this.groundProps[i];
-      if (prop.x < -160 * this.propFactor) {
-        // Encontrar el prop más a la derecha
-        let maxX = 0;
-        for (const p of this.groundProps) {
-          if (p.x > maxX) maxX = p.x;
-        }
-        prop.x = Math.max(this.width + 40, maxX + spacing + (Math.random() * 30 - 15));
-        const propTypes: ("lamp" | "tree" | "fence" | "gift_pile")[] = ["lamp", "tree", "fence", "gift_pile"];
-        prop.type = propTypes[Math.floor(Math.random() * propTypes.length)];
-        prop.scale = 0.85 + Math.random() * 0.3;
-      }
+  private updateGroundProps(_dt: number, _scrollSpeed: number): void {
+    if (this.groundProps.length > 0) {
+      this.groundProps = [];
     }
   }
 
@@ -2369,216 +2331,7 @@ export class FlyingElfGame extends BaseGame {
 
     ctx.restore();
 
-    // 2. Elementos decorativos (Props de suelo)
-    for (const prop of this.groundProps) {
-      if (prop.x < -100 * this.propFactor || prop.x > this.width + 100 * this.propFactor) continue;
-
-      const worldX = prop.x + this.groundScrollX;
-      const groundY = this.getSnowGroundY(worldX);
-
-      ctx.save();
-      ctx.translate(prop.x, groundY);
-      ctx.scale(prop.scale * this.propFactor, prop.scale * this.propFactor);
-
-      if (prop.type === "lamp") {
-        // Farola Victoriana Dorada con Luz Cálida
-        this.drawStreetLamp(ctx, prop.lightPhase);
-      } else if (prop.type === "tree") {
-        // Pino Navideño con Luces de Colores
-        this.drawFestiveTree(ctx, prop.lightPhase);
-      } else if (prop.type === "fence") {
-        // Valla de Madera con Guirnalda
-        this.drawGarlandFence(ctx, prop.lightPhase);
-      } else if (prop.type === "gift_pile") {
-        // Pila de Regalos en la Nieve
-        this.drawGiftPile(ctx);
-      }
-
-      ctx.restore();
-    }
-  }
-
-  private drawStreetLamp(ctx: CanvasRenderingContext2D, lightPhase: number): void {
-    const flicker = 0.85 + Math.sin(lightPhase) * 0.15;
-
-    // Resplandor cálido de la farola
-    ctx.save();
-    const lampGlow = ctx.createRadialGradient(0, -68, 5, 0, -68, 55);
-    lampGlow.addColorStop(0, `rgba(255, 224, 130, ${0.7 * flicker})`);
-    lampGlow.addColorStop(0.5, `rgba(255, 160, 0, ${0.35 * flicker})`);
-    lampGlow.addColorStop(1, "rgba(255, 160, 0, 0)");
-    ctx.fillStyle = lampGlow;
-    ctx.beginPath();
-    ctx.arc(0, -68, 55, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // Poste de hierro forjado oscuro con detalles dorados
-    ctx.fillStyle = "#1A2530";
-    ctx.fillRect(-3.5, -60, 7, 60);
-
-    // Base del poste
-    ctx.fillStyle = "#0F1720";
-    ctx.beginPath();
-    ctx.roundRect(-8, -4, 16, 8, 2);
-    ctx.fill();
-
-    // Corona y campana de la farola
-    ctx.fillStyle = "#D4AF37"; // Dorado
-    ctx.beginPath();
-    ctx.moveTo(-10, -60);
-    ctx.lineTo(10, -60);
-    ctx.lineTo(7, -78);
-    ctx.lineTo(-7, -78);
-    ctx.closePath();
-    ctx.fill();
-
-    // Cristal encendido
-    ctx.fillStyle = `rgba(255, 241, 118, ${0.95 * flicker})`;
-    ctx.beginPath();
-    ctx.arc(0, -68, 8, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Tejadillo con nieve
-    ctx.fillStyle = "#37474F";
-    ctx.beginPath();
-    ctx.moveTo(-13, -76);
-    ctx.lineTo(0, -88);
-    ctx.lineTo(13, -76);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = "#ECEFF1"; // Nieve sobre el tejadillo
-    ctx.beginPath();
-    ctx.arc(0, -87, 4, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  private drawFestiveTree(ctx: CanvasRenderingContext2D, lightPhase: number): void {
-    if (this.imgTree.complete && this.imgTree.naturalWidth > 0) {
-      ctx.drawImage(this.imgTree, -32, -85, 64, 90);
-    } else {
-      // Dibujo estilizado de pino invernal
-      ctx.fillStyle = "#1B4D3E";
-      // Nivel inferior
-      ctx.beginPath();
-      ctx.moveTo(-28, 0);
-      ctx.lineTo(0, -45);
-      ctx.lineTo(28, 0);
-      ctx.closePath();
-      ctx.fill();
-
-      // Nivel medio
-      ctx.fillStyle = "#246B56";
-      ctx.beginPath();
-      ctx.moveTo(-22, -30);
-      ctx.lineTo(0, -68);
-      ctx.lineTo(22, -30);
-      ctx.closePath();
-      ctx.fill();
-
-      // Nivel superior
-      ctx.fillStyle = "#2E8B6E";
-      ctx.beginPath();
-      ctx.moveTo(-15, -55);
-      ctx.lineTo(0, -85);
-      ctx.lineTo(15, -55);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    // Luces navideñas parpadeantes sobre el árbol
-    const colors = ["#FF1744", "#FFEA00", "#00E676", "#00E5FF"];
-    for (let l = 0; l < 5; l++) {
-      const lx = (l - 2) * 11;
-      const ly = -20 - l * 12;
-      const lightAlpha = 0.4 + Math.sin(lightPhase + l * 1.5) * 0.55;
-      ctx.save();
-      const col = colors[l % colors.length];
-      // Halo exterior
-      ctx.globalAlpha = Math.max(0.1, lightAlpha * 0.35);
-      ctx.fillStyle = col;
-      ctx.beginPath();
-      ctx.arc(lx, ly, 6.5, 0, Math.PI * 2);
-      ctx.fill();
-      // Núcleo brillante
-      ctx.globalAlpha = Math.max(0.2, Math.min(1, lightAlpha));
-      ctx.beginPath();
-      ctx.arc(lx, ly, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-  }
-
-  private drawGarlandFence(ctx: CanvasRenderingContext2D, lightPhase: number): void {
-    // Postes de madera rústica
-    ctx.fillStyle = "#5D4037";
-    ctx.fillRect(-35, -36, 8, 40);
-    ctx.fillRect(27, -36, 8, 40);
-
-    // Tablas horizontales
-    ctx.fillStyle = "#795548";
-    ctx.fillRect(-35, -30, 70, 6);
-    ctx.fillRect(-35, -16, 70, 6);
-
-    // Sombrero de nieve sobre los postes
-    ctx.fillStyle = "#ECEFF1";
-    ctx.beginPath();
-    ctx.arc(-31, -36, 6, Math.PI, 0);
-    ctx.arc(31, -36, 6, Math.PI, 0);
-    ctx.fill();
-
-    // Guirnalda de pino colgante
-    ctx.strokeStyle = "#2E7D32";
-    ctx.lineWidth = 4.5;
-    ctx.beginPath();
-    ctx.moveTo(-31, -26);
-    ctx.quadraticCurveTo(0, -10, 31, -26);
-    ctx.stroke();
-
-    // Moño rojo central con luces
-    ctx.fillStyle = "#D50000";
-    ctx.beginPath();
-    ctx.arc(0, -12, 4.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    const lightFlash = 0.5 + Math.sin(lightPhase * 2) * 0.5;
-    ctx.fillStyle = `rgba(255, 235, 59, ${lightFlash})`;
-    ctx.beginPath();
-    ctx.arc(-15, -18, 2.5, 0, Math.PI * 2);
-    ctx.arc(15, -18, 2.5, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  private drawGiftPile(ctx: CanvasRenderingContext2D): void {
-    // Regalo rojo principal
-    if (this.imgGiftRed2.complete && this.imgGiftRed2.naturalWidth > 0) {
-      ctx.drawImage(this.imgGiftRed2, -28, -36, 36, 36);
-    } else if (this.imgGiftRed.complete && this.imgGiftRed.naturalWidth > 0) {
-      ctx.drawImage(this.imgGiftRed, -26, -34, 34, 34);
-    } else {
-      ctx.fillStyle = "#D32F2F";
-      ctx.fillRect(-24, -30, 30, 30);
-    }
-
-    // Regalo verde secundario
-    if (this.imgGiftGreen.complete && this.imgGiftGreen.naturalWidth > 0) {
-      ctx.drawImage(this.imgGiftGreen, 2, -28, 28, 28);
-    } else {
-      ctx.fillStyle = "#388E3C";
-      ctx.fillRect(2, -24, 24, 24);
-    }
-
-    // Bastón de caramelo apoyado
-    if (this.imgCandy.complete && this.imgCandy.naturalWidth > 0) {
-      ctx.drawImage(this.imgCandy, -8, -38, 20, 38);
-    }
-
-    // Nieve cubriendo la base de los regalos
-    ctx.fillStyle = "rgba(236, 239, 241, 0.9)";
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 32, 7, 0, 0, Math.PI * 2);
-    ctx.fill();
+    // 2. Elementos decorativos (Farolas y vallas eliminadas por completo para mantener la nieve limpia y estética)
   }
 
   private renderObstacles(ctx: CanvasRenderingContext2D): void {
