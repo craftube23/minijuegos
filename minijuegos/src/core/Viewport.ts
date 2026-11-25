@@ -11,8 +11,18 @@
 export const MAX_DPR = 1;
 
 export function getDpr(): number {
-  // En kiosco vertical (1080x1920 nativo) y dispositivos móviles, DPR 1.0 es pixel-perfect y 4x más rápido.
   return 1;
+}
+
+/**
+ * Escala del buffer de render. En pantallas grandes (tótem) se dibuja al 80% y el CSS
+ * lo estira: ~36% menos píxeles por frame. Física y toques siguen en medidas lógicas.
+ * Poner 1 para volver a resolución nativa.
+ */
+export const LARGE_SCREEN_RENDER_SCALE = 0.8;
+
+export function getRenderScale(logicalW: number, logicalH: number): number {
+  return logicalW * logicalH > 1_200_000 ? LARGE_SCREEN_RENDER_SCALE : getDpr();
 }
 
 /**
@@ -39,7 +49,7 @@ try {
  * Devuelve el DPR aplicado. El tamaño visual lo sigue controlando el CSS.
  */
 export function applyCanvasSize(canvas: HTMLCanvasElement, logicalW: number, logicalH: number): number {
-  const dpr = getDpr();
+  const dpr = getRenderScale(logicalW, logicalH);
   const pw = Math.max(1, Math.round(logicalW * dpr));
   const ph = Math.max(1, Math.round(logicalH * dpr));
   if (canvas.width !== pw) canvas.width = pw;
