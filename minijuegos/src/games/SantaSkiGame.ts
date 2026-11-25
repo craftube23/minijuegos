@@ -292,8 +292,8 @@ export class SantaSkiGame extends BaseGame {
       { id: "practi", name: "Practi-Arepa", logo: this.getImage("./assets/logos/clean-practi-arepa.webp"), color: "#FFD600" }
     ];
 
-    // Sistema profesional de nieve multicapa (Fondo, Cristales Medios y Primer Plano Bokeh)
-    for (let i = 0; i < 135; i++) {
+    // Sistema profesional de nieve multicapa optimizado (Fondo, Cristales Medios y Primer Plano Bokeh)
+    for (let i = 0; i < 45; i++) {
       const layer = Math.random() < 0.40 ? 0 : (Math.random() < 0.82 ? 1 : 2);
       let r = 1.6;
       let alpha = 0.75;
@@ -1725,45 +1725,44 @@ export class SantaSkiGame extends BaseGame {
     }
     ctx.restore();
 
-    // 8. Nevada profesional multicapa cinematográfica
+    // 8. Nevada profesional multicapa optimizada (Batched, cero allocs de gradientes)
     ctx.save();
+    // Capa 0: Polvo de nieve lejana batcheada
+    ctx.fillStyle = "rgba(235, 245, 255, 0.55)";
+    ctx.beginPath();
     for (const flake of this.snowFlakes) {
       if (flake.layer === 0) {
-        ctx.fillStyle = `rgba(235, 245, 255, ${flake.alpha * 0.6})`;
-        ctx.beginPath();
+        ctx.moveTo(flake.x + flake.r, flake.y);
         ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (flake.layer === 1) {
-        ctx.save();
-        ctx.translate(flake.x, flake.y);
-        ctx.rotate(flake.rotation || 0);
-        ctx.strokeStyle = `rgba(255, 255, 255, ${flake.alpha})`;
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        for (let i = 0; i < 3; i++) {
-          const ang = (i * Math.PI) / 3;
-          const cos = Math.cos(ang) * flake.r * 1.3;
-          const sin = Math.sin(ang) * flake.r * 1.3;
-          ctx.moveTo(-cos, -sin);
-          ctx.lineTo(cos, sin);
-        }
-        ctx.stroke();
-        ctx.fillStyle = `rgba(255, 255, 255, ${flake.alpha * 0.9})`;
-        ctx.beginPath();
-        ctx.arc(0, 0, flake.r * 0.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      } else {
-        const bokehGrad = ctx.createRadialGradient(flake.x, flake.y, 0, flake.x, flake.y, flake.r);
-        bokehGrad.addColorStop(0, `rgba(255, 255, 255, ${flake.alpha * 0.55})`);
-        bokehGrad.addColorStop(0.6, `rgba(240, 248, 255, ${flake.alpha * 0.3})`);
-        bokehGrad.addColorStop(1, "rgba(220, 240, 255, 0)");
-        ctx.fillStyle = bokehGrad;
-        ctx.beginPath();
-        ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
-        ctx.fill();
       }
     }
+    ctx.fill();
+
+    // Capa 1: Copos cristalinos batcheados (sin transform matrix per-flake)
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    for (const flake of this.snowFlakes) {
+      if (flake.layer === 1) {
+        const r = flake.r * 1.1;
+        ctx.moveTo(flake.x - r, flake.y);
+        ctx.lineTo(flake.x + r, flake.y);
+        ctx.moveTo(flake.x, flake.y - r);
+        ctx.lineTo(flake.x, flake.y + r);
+      }
+    }
+    ctx.stroke();
+
+    // Capa 2: Copos bokeh suaves de primer plano (Círculos batcheados sin createRadialGradient)
+    ctx.fillStyle = "rgba(240, 248, 255, 0.35)";
+    ctx.beginPath();
+    for (const flake of this.snowFlakes) {
+      if (flake.layer === 2) {
+        ctx.moveTo(flake.x + flake.r, flake.y);
+        ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
+      }
+    }
+    ctx.fill();
     ctx.restore();
 
     // 8. Líneas de velocidad y viento (efecto de alta velocidad por racha)

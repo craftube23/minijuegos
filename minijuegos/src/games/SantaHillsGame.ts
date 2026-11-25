@@ -178,6 +178,16 @@ export class SantaHillsGame extends BaseGame {
   private tracks: SkiTrackPoint[] = [];
   private trackSeg: number = 0;
   private comboCount: number = 0;
+
+  // Caché zero-alloc de gradientes
+  private cachedSkyGrad: CanvasGradient | null = null;
+  private cachedSkyH: number = 0;
+  private cachedDistantGrad: CanvasGradient | null = null;
+  private cachedDistantBottom: number = 0;
+  private cachedFogGrad: CanvasGradient | null = null;
+  private cachedFogBottom: number = 0;
+  private cachedBodyGrad: CanvasGradient | null = null;
+  private cachedBodyBottom: number = 0;
   private comboTimer: number = 0;
   private hitCooldown: number = 0;
 
@@ -1122,10 +1132,14 @@ export class SantaHillsGame extends BaseGame {
         flip = !flip;
       }
     } else {
-      const g = ctx.createLinearGradient(0, 0, 0, this.height);
-      g.addColorStop(0, "#0B1D3A");
-      g.addColorStop(1, "#3A6E96");
-      ctx.fillStyle = g;
+      if (!this.cachedSkyGrad || this.cachedSkyH !== this.height) {
+        const g = ctx.createLinearGradient(0, 0, 0, this.height);
+        g.addColorStop(0, "#0B1D3A");
+        g.addColorStop(1, "#3A6E96");
+        this.cachedSkyGrad = g;
+        this.cachedSkyH = this.height;
+      }
+      ctx.fillStyle = this.cachedSkyGrad;
       ctx.fillRect(0, 0, this.width, this.height);
     }
   }
@@ -1153,11 +1167,15 @@ export class SantaHillsGame extends BaseGame {
     for (let x = -20; x <= this.VW + 20; x += 16) ctx.lineTo(x, this.distantY(off + x));
     ctx.lineTo(this.VW + 20, bottomDist);
     ctx.closePath();
-    const g = ctx.createLinearGradient(0, 240, 0, bottomDist);
-    g.addColorStop(0, "#A9C9DF");
-    g.addColorStop(0.5, "#7FA6C4");
-    g.addColorStop(1, "#5D86A8");
-    ctx.fillStyle = g;
+    if (!this.cachedDistantGrad || this.cachedDistantBottom !== bottomDist) {
+      const g = ctx.createLinearGradient(0, 240, 0, bottomDist);
+      g.addColorStop(0, "#A9C9DF");
+      g.addColorStop(0.5, "#7FA6C4");
+      g.addColorStop(1, "#5D86A8");
+      this.cachedDistantGrad = g;
+      this.cachedDistantBottom = bottomDist;
+    }
+    ctx.fillStyle = this.cachedDistantGrad;
     ctx.fill();
 
     // Cresta nevada lejana
@@ -1190,10 +1208,14 @@ export class SantaHillsGame extends BaseGame {
     ctx.globalAlpha = 1;
 
     // Velo de niebla para separar planos
-    const fog = ctx.createLinearGradient(0, 260, 0, bottomDist);
-    fog.addColorStop(0, "rgba(200, 225, 242, 0)");
-    fog.addColorStop(1, "rgba(200, 225, 242, 0.35)");
-    ctx.fillStyle = fog;
+    if (!this.cachedFogGrad || this.cachedFogBottom !== bottomDist) {
+      const fog = ctx.createLinearGradient(0, 260, 0, bottomDist);
+      fog.addColorStop(0, "rgba(200, 225, 242, 0)");
+      fog.addColorStop(1, "rgba(200, 225, 242, 0.35)");
+      this.cachedFogGrad = fog;
+      this.cachedFogBottom = bottomDist;
+    }
+    ctx.fillStyle = this.cachedFogGrad;
     ctx.fillRect(-20, 200, this.VW + 40, bottomDist);
   }
 
@@ -1219,11 +1241,15 @@ export class SantaHillsGame extends BaseGame {
     ctx.lineTo(xs[n - 1], bottom);
     ctx.lineTo(xs[0], bottom);
     ctx.closePath();
-    const body = ctx.createLinearGradient(0, Y_HIGH, 0, bottom);
-    body.addColorStop(0, "#DDEFF9");
-    body.addColorStop(0.45, "#B4D7EC");
-    body.addColorStop(1, "#86B4D3");
-    ctx.fillStyle = body;
+    if (!this.cachedBodyGrad || this.cachedBodyBottom !== bottom) {
+      const body = ctx.createLinearGradient(0, Y_HIGH, 0, bottom);
+      body.addColorStop(0, "#DDEFF9");
+      body.addColorStop(0.45, "#B4D7EC");
+      body.addColorStop(1, "#86B4D3");
+      this.cachedBodyGrad = body;
+      this.cachedBodyBottom = bottom;
+    }
+    ctx.fillStyle = this.cachedBodyGrad;
     ctx.fill();
 
     // 2. Estratos de nieve que siguen el relieve (dan volumen pintado)

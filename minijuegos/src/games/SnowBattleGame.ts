@@ -1619,12 +1619,13 @@ export class SnowBattleGame extends BaseGame {
     // Copos ambientales encima de la escena
     ctx.save();
     ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+    ctx.beginPath();
     for (const f of this.flakes) {
       if (f.x > w || f.y > h) continue;
-      ctx.beginPath();
+      ctx.moveTo(f.x + f.r, f.y);
       ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-      ctx.fill();
     }
+    ctx.fill();
     ctx.restore();
 
     this.joystick.draw(ctx, this.lastDt);

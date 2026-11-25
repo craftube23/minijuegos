@@ -2061,32 +2061,20 @@ export class FlyingElfGame extends BaseGame {
     ctx.fillStyle = this.cachedSkyGrad;
     ctx.fillRect(0, 0, this.width, this.height);
 
-    // 2. Campo Estelar Centelleante (36 estrellas con brillo oscilante)
+    // 2. Campo Estelar Centelleante (Batched en un único trazo para máximo FPS)
     ctx.save();
     const starTime = this.totalPlayTime * 1.5;
+    ctx.fillStyle = "rgba(235, 245, 255, 0.75)";
+    ctx.beginPath();
     for (let i = 0; i < 36; i++) {
       const sx = ((i * 73 - this.bgScrollX * 0.08) % (this.width + 100) + (this.width + 100)) % (this.width + 100) - 50;
       const sy = (i * 31 + Math.sin(i * 1.7) * 20) % (this.height * 0.48);
       const twinkle = 0.4 + Math.sin(starTime + i * 1.3) * 0.45;
-      const starR = (i % 3 === 0 ? 2.0 : 1.2) * twinkle;
-      ctx.fillStyle = i % 4 === 0 ? `rgba(255, 230, 160, ${twinkle})` : `rgba(200, 240, 255, ${twinkle})`;
-      ctx.beginPath();
-      ctx.arc(sx, sy, Math.max(0.6, starR), 0, Math.PI * 2);
-      ctx.fill();
-
-      // Cruz de destello en estrellas más brillantes
-      if (i % 5 === 0 && twinkle > 0.6) {
-        ctx.strokeStyle = `rgba(255, 255, 255, ${twinkle * 0.7})`;
-        ctx.lineWidth = 0.8;
-        ctx.beginPath();
-        ctx.moveTo(sx - 4, sy);
-        ctx.lineTo(sx + 4, sy);
-        ctx.moveTo(sx, sy - 4);
-        ctx.lineTo(sx, sy + 4);
-        ctx.stroke();
-      }
+      const starR = Math.max(0.6, (i % 3 === 0 ? 1.8 : 1.1) * twinkle);
+      ctx.moveTo(sx + starR, sy);
+      ctx.arc(sx, sy, starR, 0, Math.PI * 2);
     }
-
+    ctx.fill();
     ctx.restore();
 
     // 4. Trineo de Santa Claus Volando en la Lejanía con estela de oro

@@ -157,6 +157,17 @@ export class PolarExpressGame extends BaseGame {
   private pointerDown = false;
   private pointerStartY = 0;
 
+  // Caché zero-alloc de gradientes
+  private cachedSkyGrad: CanvasGradient | null = null;
+  private cachedSkySnowTop = 0;
+  private cachedAuroraGrad: CanvasGradient | null = null;
+  private cachedAuroraSnowTop = 0;
+  private cachedMistGrad: CanvasGradient | null = null;
+  private cachedMistSnowTop = 0;
+  private cachedSnowGrad: CanvasGradient | null = null;
+  private cachedSnowH = 0;
+  private cachedSnowTop = 0;
+
   private readonly stationNames = [
     "ESTACIÓN VILLA NOEL",
     "ESTACIÓN CUMBRE BOREAL",
@@ -872,36 +883,24 @@ export class PolarExpressGame extends BaseGame {
       ctx.restore();
     }
 
-    // Vapor volumétrico de la chimenea
+    // Vapor volumétrico de la chimenea (optimizado sin radial gradients por partícula)
     for (const s of this.steam) {
-      ctx.save();
-      const alpha = Math.max(0, s.life) * 0.72;
-      ctx.globalAlpha = alpha;
-      const grad = ctx.createRadialGradient(s.x - s.r * 0.2, s.y - s.r * 0.2, s.r * 0.1, s.x, s.y, s.r);
-      if (s.turboTint) {
-        grad.addColorStop(0, "#FFFFFF");
-        grad.addColorStop(0.55, "#B2EBF2");
-        grad.addColorStop(1, "rgba(0, 229, 255, 0)");
-      } else {
-        grad.addColorStop(0, "#FFFFFF");
-        grad.addColorStop(0.6, "#E2EEF8");
-        grad.addColorStop(1, "rgba(226, 238, 248, 0)");
-      }
-      ctx.fillStyle = grad;
+      const alpha = Math.max(0, s.life) * 0.45;
+      ctx.fillStyle = s.turboTint ? `rgba(178, 235, 242, ${alpha})` : `rgba(226, 238, 248, ${alpha})`;
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fill();
-      ctx.restore();
     }
 
-    // Copos de nieve en primer plano
+    // Copos de nieve en primer plano batcheados en un único trazo
     ctx.save();
     ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
+    ctx.beginPath();
     for (const f of this.snowFlakes) {
-      ctx.beginPath();
+      ctx.moveTo(f.x + f.r, f.y);
       ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-      ctx.fill();
     }
+    ctx.fill();
     ctx.restore();
 
     // Líneas de velocidad durante el Turbo
@@ -932,34 +931,41 @@ export class PolarExpressGame extends BaseGame {
   private drawBackdrop(ctx: CanvasRenderingContext2D, w: number, h: number): void {
     const snowTop = this.laneYs[0] - this.trainH * 0.26;
 
-    // 1. Cielo polar nocturno
-    const sky = ctx.createLinearGradient(0, 0, 0, snowTop);
-    sky.addColorStop(0, "#050E26");
-    sky.addColorStop(0.55, "#13295E");
-    sky.addColorStop(1, "#3A68A8");
-    ctx.fillStyle = sky;
+    // 1. Cielo polar nocturno (Caché zero-alloc)
+    if (!this.cachedSkyGrad || this.cachedSkySnowTop !== snowTop) {
+      const sky = ctx.createLinearGradient(0, 0, 0, snowTop);
+      sky.addColorStop(0, "#050E26");
+      sky.addColorStop(0.55, "#13295E");
+      sky.addColorStop(1, "#3A68A8");
+      this.cachedSkyGrad = sky;
+      this.cachedSkySnowTop = snowTop;
+    }
+    ctx.fillStyle = this.cachedSkyGrad;
     ctx.fillRect(0, 0, w, snowTop + 20);
 
-    // 2. Estrellas titilantes
+    // 2. Estrellas titilantes batcheadas
     ctx.save();
+    ctx.fillStyle = "#FFF9C4";
+    ctx.beginPath();
     for (const st of this.skyStars) {
-      const twinkle = 0.45 + 0.55 * Math.sin(this.animClock * 2.8 + st.phase);
-      ctx.globalAlpha = twinkle;
-      ctx.fillStyle = "#FFF9C4";
-      ctx.beginPath();
+      ctx.moveTo(st.x + st.r, st.y);
       ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
-      ctx.fill();
     }
+    ctx.fill();
     ctx.restore();
 
-    // 3. Cortinas de Aurora Boreal animadas
+    // 3. Cortinas de Aurora Boreal animadas (Caché zero-alloc)
     ctx.save();
-    const auroraGrad = ctx.createLinearGradient(0, 20, 0, snowTop * 0.65);
-    auroraGrad.addColorStop(0, "rgba(0, 230, 118, 0)");
-    auroraGrad.addColorStop(0.45, "rgba(0, 230, 118, 0.16)");
-    auroraGrad.addColorStop(0.75, "rgba(0, 229, 255, 0.14)");
-    auroraGrad.addColorStop(1, "rgba(138, 43, 226, 0)");
-    ctx.fillStyle = auroraGrad;
+    if (!this.cachedAuroraGrad || this.cachedAuroraSnowTop !== snowTop) {
+      const auroraGrad = ctx.createLinearGradient(0, 20, 0, snowTop * 0.65);
+      auroraGrad.addColorStop(0, "rgba(0, 230, 118, 0)");
+      auroraGrad.addColorStop(0.45, "rgba(0, 230, 118, 0.16)");
+      auroraGrad.addColorStop(0.75, "rgba(0, 229, 255, 0.14)");
+      auroraGrad.addColorStop(1, "rgba(138, 43, 226, 0)");
+      this.cachedAuroraGrad = auroraGrad;
+      this.cachedAuroraSnowTop = snowTop;
+    }
+    ctx.fillStyle = this.cachedAuroraGrad;
     ctx.beginPath();
     ctx.moveTo(0, snowTop * 0.55);
     for (let x = 0; x <= w; x += 40) {
@@ -984,20 +990,29 @@ export class PolarExpressGame extends BaseGame {
       }
     }
 
-    // 5. Neblina suave de transición en el horizonte nevado
-    const mist = ctx.createLinearGradient(0, snowTop - 26, 0, snowTop + 22);
-    mist.addColorStop(0, "rgba(218, 236, 255, 0)");
-    mist.addColorStop(0.6, "rgba(225, 240, 255, 0.85)");
-    mist.addColorStop(1, "#E4F0FE");
-    ctx.fillStyle = mist;
+    // 5. Neblina suave de transición en el horizonte nevado (Caché zero-alloc)
+    if (!this.cachedMistGrad || this.cachedMistSnowTop !== snowTop) {
+      const mist = ctx.createLinearGradient(0, snowTop - 26, 0, snowTop + 22);
+      mist.addColorStop(0, "rgba(218, 236, 255, 0)");
+      mist.addColorStop(0.6, "rgba(225, 240, 255, 0.85)");
+      mist.addColorStop(1, "#E4F0FE");
+      this.cachedMistGrad = mist;
+      this.cachedMistSnowTop = snowTop;
+    }
+    ctx.fillStyle = this.cachedMistGrad;
     ctx.fillRect(0, snowTop - 26, w, 48);
 
-    // 6. Campo nevado bajo las 3 vías
-    const snow = ctx.createLinearGradient(0, snowTop, 0, h);
-    snow.addColorStop(0, "#E4F0FE");
-    snow.addColorStop(0.5, "#CCE0F8");
-    snow.addColorStop(1, "#9FBCE2");
-    ctx.fillStyle = snow;
+    // 6. Campo nevado bajo las 3 vías (Caché zero-alloc)
+    if (!this.cachedSnowGrad || this.cachedSnowH !== h || this.cachedSnowTop !== snowTop) {
+      const snow = ctx.createLinearGradient(0, snowTop, 0, h);
+      snow.addColorStop(0, "#E4F0FE");
+      snow.addColorStop(0.5, "#CCE0F8");
+      snow.addColorStop(1, "#9FBCE2");
+      this.cachedSnowGrad = snow;
+      this.cachedSnowH = h;
+      this.cachedSnowTop = snowTop;
+    }
+    ctx.fillStyle = this.cachedSnowGrad;
     ctx.fillRect(0, snowTop, w, h - snowTop);
 
     // 7. Pinos en parallax medio
