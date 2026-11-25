@@ -118,6 +118,8 @@ export class FlyingElfStoryTutorialModal {
   public hide(): void {
     if (!this.isVisible) return;
     this.clearStepTimers();
+    // Matar animaciones en bucle: si siguen vivas, gastan CPU durante la partida
+    gsap.killTweensOf(this.container.querySelectorAll("*"));
 
     const card = this.container.querySelector(".ski-tutorial-card");
     if (card) {

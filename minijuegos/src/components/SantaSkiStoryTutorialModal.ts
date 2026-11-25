@@ -127,6 +127,8 @@ export class SantaSkiStoryTutorialModal {
   public hide(): void {
     if (!this.isVisible) return;
     this.clearStepTimers();
+    // Matar animaciones en bucle: si siguen vivas, gastan CPU durante la partida
+    gsap.killTweensOf(this.container.querySelectorAll("*"));
 
     gsap.to(this.container.querySelector(".ski-tutorial-card"), {
       scale: 0.9,

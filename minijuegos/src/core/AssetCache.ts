@@ -44,6 +44,30 @@ export class AssetCache {
     return img;
   }
 
+  private scaledMap: Map<string, HTMLCanvasElement> = new Map();
+
+  /**
+   * Copia de una imagen ya escalada al tamaño en píxeles pedido (se calcula una sola vez).
+   * Dibujarla es una copia 1:1, mucho más barata que reescalar la original en cada frame.
+   * Guarda una sola copia por imagen.
+   */
+  public getScaled(img: HTMLImageElement, pixelW: number, pixelH: number): HTMLCanvasElement {
+    const w = Math.max(1, Math.round(pixelW));
+    const h = Math.max(1, Math.round(pixelH));
+    const key = `${img.src}_${w}x${h}`;
+    let c = this.scaledMap.get(key);
+    if (!c) {
+      c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      if (img.complete && img.naturalWidth > 0) {
+        c.getContext("2d")!.drawImage(img, 0, 0, w, h);
+        this.scaledMap.set(key, c);
+      }
+    }
+    return c;
+  }
+
   /**
    * Devuelve si una imagen está completamente cargada y lista para dibujarse.
    */

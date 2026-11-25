@@ -21,6 +21,8 @@
  * Arte Stylized 2D Game Art. Cero emojis.
  */
 
+import { AssetCache } from "../core/AssetCache";
+import { getRenderScale } from "../core/Viewport";
 import { BaseGame } from "../core/BaseGame";
 import type { InputManager } from "../core/InputManager";
 import type { AudioManager } from "../core/AudioManager";
@@ -985,8 +987,10 @@ export class PolarExpressGame extends BaseGame {
       const th = this.bgImage.naturalHeight * scale;
       const off = (this.scrollX * 0.18) % tw;
       const by = snowTop + 14 - th;
+      const rs = getRenderScale(this.width, this.height);
+      const tile = AssetCache.getInstance().getScaled(this.bgImage, (tw + 1) * rs, th * rs);
       for (let x = -off; x < w; x += tw) {
-        ctx.drawImage(this.bgImage, x, by, tw + 1, th);
+        ctx.drawImage(tile, x, by, tw + 1, th);
       }
     }
 

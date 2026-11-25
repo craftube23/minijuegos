@@ -12,6 +12,8 @@
  * - Scroll infinito continuo y pre-cargado desde el primer frame.
  */
 
+import { AssetCache } from "../core/AssetCache";
+import { getRenderScale } from "../core/Viewport";
 import { BaseGame } from "../core/BaseGame";
 import { InputManager } from "../core/InputManager";
 import { AudioManager } from "../core/AudioManager";
@@ -2159,9 +2161,11 @@ export class FlyingElfGame extends BaseGame {
       // Elevar la villa para eliminar el espacio vacío superior y dar protagonismo a los tejados y chimeneas
       const drawY = this.height - drawH + Math.round(this.height * 0.10);
 
+      const rs = getRenderScale(this.width, this.height);
+      const tile = AssetCache.getInstance().getScaled(this.imgBgPanorama, (Math.ceil(drawW) + 1) * rs, drawH * rs);
       let offsetX = -(this.bgScrollX % drawW);
       while (offsetX < this.width) {
-        ctx.drawImage(this.imgBgPanorama, Math.floor(offsetX), drawY, Math.ceil(drawW) + 1, drawH);
+        ctx.drawImage(tile, Math.floor(offsetX), drawY, Math.ceil(drawW) + 1, drawH);
         offsetX += drawW;
       }
     }
