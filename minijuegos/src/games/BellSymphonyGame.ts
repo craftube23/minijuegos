@@ -256,6 +256,8 @@ export class BellSymphonyGame extends BaseGame {
   private noteSpeed: number = 520;
   private hitLineY: number = 0;
   private laneWidth: number = 0;
+  private laneTintGrads: CanvasGradient[] = [];
+  private laneTintKeys: string[] = [];
   private laneStartX: number = 0;
 
   // Intro de Créditos Guitar Hero
@@ -332,7 +334,8 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   private recalculateLayout(): void {
-    const totalTrackWidth = Math.min(this.width * 0.94, 620);
+    // Carriles más anchos en tótem vertical alargado (antes tope 620px)
+    const totalTrackWidth = Math.min(this.width * 0.94, this.height > 1000 ? 1000 : 620);
     this.laneWidth = totalTrackWidth / 4;
     this.laneStartX = (this.width - totalTrackWidth) / 2;
     // Línea de impacto adaptativa: no muy pegada al fondo en pantallas cortas
@@ -345,7 +348,7 @@ export class BellSymphonyGame extends BaseGame {
     const song = this.songList[this.selectedSongIndex];
     if (song) {
       const diffCfg = DIFFICULTY_CONFIGS[this.selectedDifficulty] || DIFFICULTY_CONFIGS.normal;
-      const speedScale = this.height <= 700 ? 0.65 : 1.0;
+      const speedScale = this.height <= 700 ? 0.65 : Math.max(1.0, Math.min(1.5, this.height / 900));
       this.noteSpeed = Math.round(song.speed * speedScale * diffCfg.speedMultiplier);
     }
   }
@@ -473,7 +476,7 @@ export class BellSymphonyGame extends BaseGame {
 
     this.showLives = true;
     this.bpm = song.bpm;
-    const speedScale = this.height <= 700 ? 0.65 : 1.0;
+    const speedScale = this.height <= 700 ? 0.65 : Math.max(1.0, Math.min(1.5, this.height / 900));
     this.noteSpeed = Math.round(song.speed * speedScale * diffCfg.speedMultiplier);
     this.currentTime = 0;
     this.combo = 0;
@@ -1586,9 +1589,15 @@ export class BellSymphonyGame extends BaseGame {
 
       // Tinte de carril con el color de la nota, late con el ritmo
       ctx.save();
-      const tint = ctx.createLinearGradient(0, this.hitLineY, 0, this.hitLineY - this.height * 0.55);
-      tint.addColorStop(0, lane.glowColor);
-      tint.addColorStop(1, "rgba(0, 0, 0, 0)");
+      const tintKey = `${this.hitLineY}|${this.height}|${lane.glowColor}`;
+      if (this.laneTintKeys[i] !== tintKey) {
+        const g = ctx.createLinearGradient(0, this.hitLineY, 0, this.hitLineY - this.height * 0.55);
+        g.addColorStop(0, lane.glowColor);
+        g.addColorStop(1, "rgba(0, 0, 0, 0)");
+        this.laneTintGrads[i] = g;
+        this.laneTintKeys[i] = tintKey;
+      }
+      const tint = this.laneTintGrads[i];
       ctx.globalAlpha = 0.16 + 0.14 * Math.pow(1 - this.beatPulse, 2);
       ctx.fillStyle = tint;
       ctx.fillRect(lx, 0, this.laneWidth, this.hitLineY);
@@ -1637,7 +1646,7 @@ export class BellSymphonyGame extends BaseGame {
       const cy = this.hitLineY;
       const radius = this.height <= 700
         ? Math.min(this.laneWidth * 0.28, 26)
-        : Math.min(this.laneWidth * 0.38, 38);
+        : Math.min(this.laneWidth * 0.38, 38 * Math.max(1, this.laneWidth / 155));
       const isPressed = this.lanePressed[i];
       const scale = isPressed ? 0.90 : (1.0 + Math.sin(this.beatPulse * Math.PI) * 0.05);
 
@@ -1691,7 +1700,7 @@ export class BellSymphonyGame extends BaseGame {
       const noteX = this.laneStartX + note.lane * this.laneWidth + this.laneWidth / 2;
       const radius = this.height <= 700
         ? Math.min(this.laneWidth * 0.27, 24)
-        : Math.min(this.laneWidth * 0.36, 36);
+        : Math.min(this.laneWidth * 0.36, 36 * Math.max(1, this.laneWidth / 155));
       const isSustainNote = note.type === "sustain" && note.duration > 0;
 
       // Si es NOTA SOSTENIDA: Dibujar cuerpo y cola

@@ -661,7 +661,7 @@ export class FlyingElfGame extends BaseGame {
 
     // Límites de pantalla seguros con la villa elevada
     const minY = 65;
-    const maxY = this.height - 110;
+    const maxY = this.getFloorBaseY() - this.elfHeight * 0.35;
     if (this.elfY < minY) {
       this.elfY = minY;
       this.elfVy = 0;
@@ -839,7 +839,7 @@ export class FlyingElfGame extends BaseGame {
     size = Math.round(size * itemScale);
 
     const topMargin = Math.max(80, this.height * 0.18);
-    const floorBaseY = this.height - Math.min(95, Math.max(65, this.height * 0.15));
+    const floorBaseY = this.getFloorBaseY();
     const bottomMargin = this.height - (floorBaseY - 45);
     const playH = Math.max(70, this.height - topMargin - bottomMargin);
     const baseSpawnY = topMargin + Math.random() * playH;
@@ -901,6 +901,12 @@ export class FlyingElfGame extends BaseGame {
     return Math.max(1, Math.min(2, this.height / 650));
   }
 
+  /** Y del borde superior de la nieve; más alta en pantallas altas. */
+  private getFloorBaseY(): number {
+    const thickness = Math.max(65, Math.min(95 * this.layoutScale * 1.5, this.height * 0.15));
+    return this.height - thickness;
+  }
+
   private get elfScale(): number {
     return 1 + (this.layoutScale - 1) * 0.6;
   }
@@ -931,7 +937,7 @@ export class FlyingElfGame extends BaseGame {
       });
     } else {
       // Casa rústica navideña con tejado nevado y chimenea anclada sólidamente en el suelo nevado
-      const floorBaseY = this.height - Math.min(95, Math.max(65, this.height * 0.15));
+      const floorBaseY = this.getFloorBaseY();
       const ls = this.layoutScale;
       const maxHouseH = Math.min(240 * ls, (this.height - 90) * 0.38);
       const oHeight = Math.max(75 * ls, Math.min(maxHouseH, this.height * 0.26 + Math.random() * (this.height * 0.10)));
@@ -2243,13 +2249,13 @@ export class FlyingElfGame extends BaseGame {
    * los árboles y los obstáculos estén 100% perfectamente anclados sin flotar jamás.
    */
   public getSnowGroundY(worldX: number): number {
-    const floorBaseY = this.height - Math.min(95, Math.max(65, this.height * 0.15));
+    const floorBaseY = this.getFloorBaseY();
     const wave = Math.sin(worldX * 0.013) * 7 + Math.cos(worldX * 0.026) * 3.5;
     return floorBaseY + wave;
   }
 
   private renderGroundDecorations(ctx: CanvasRenderingContext2D): void {
-    const floorBaseY = this.height - Math.min(95, Math.max(65, this.height * 0.15));
+    const floorBaseY = this.getFloorBaseY();
 
     ctx.save();
 
