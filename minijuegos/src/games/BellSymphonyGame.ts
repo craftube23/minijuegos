@@ -257,6 +257,9 @@ export class BellSymphonyGame extends BaseGame {
   private hitLineY: number = 0;
   private laneWidth: number = 0;
   private laneTintGrads: CanvasGradient[] = [];
+  // Ventana de notas activas [noteStartIdx, noteEndIdx): solo se actualizan/dibujan las que están en pantalla
+  private noteStartIdx: number = 0;
+  private noteEndIdx: number = 0;
   private laneTintKeys: string[] = [];
   private laneStartX: number = 0;
 
@@ -1030,6 +1033,10 @@ export class BellSymphonyGame extends BaseGame {
       });
     }
 
+    this.notes.sort((a, b) => a.targetTime - b.targetTime);
+    this.noteStartIdx = 0;
+    this.noteEndIdx = 0;
+
     const lastItem = adaptedChart[adaptedChart.length - 1];
     if (lastItem) {
       const calculatedEnd = lastItem.time + (lastItem.duration || 0) + 3.0;
@@ -1051,7 +1058,8 @@ export class BellSymphonyGame extends BaseGame {
     let closestNote: FallingNote | null = null;
     let minDiff = 999;
 
-    for (const note of this.notes) {
+    for (let ni = this.noteStartIdx; ni < this.noteEndIdx; ni++) {
+      const note = this.notes[ni];
       // Regla estricta: Una nota ya tocada (!note.hit) o fallada (!note.missed) nunca se puede volver a tomar
       if (note.lane === lane && !note.hit && !note.missed) {
         const diff = Math.abs(note.targetTime - this.currentTime);
@@ -1131,7 +1139,8 @@ export class BellSymphonyGame extends BaseGame {
       this.triggerShake(0.12, 4);
 
       // Si intentó presionar en la mitad del cuerpo de un sustain no tomado a tiempo:
-      for (const note of this.notes) {
+      for (let ni = this.noteStartIdx; ni < this.noteEndIdx; ni++) {
+        const note = this.notes[ni];
         if (note.lane === lane && !note.hit && !note.sustainCompleted) {
           if (note.type === "sustain" && this.currentTime > note.targetTime + 0.24 && this.currentTime < note.targetTime + note.duration + 0.15) {
             note.sustainFailed = true;
@@ -1165,7 +1174,8 @@ export class BellSymphonyGame extends BaseGame {
   private handleLaneRelease(lane: number): void {
     this.lanePressed[lane] = false;
 
-    for (const note of this.notes) {
+    for (let ni = this.noteStartIdx; ni < this.noteEndIdx; ni++) {
+      const note = this.notes[ni];
       if (note.lane === lane && note.isHolding && !note.sustainCompleted) {
         note.isHolding = false;
         const laneCenterX = this.laneStartX + lane * this.laneWidth + this.laneWidth / 2;
@@ -1278,7 +1288,6 @@ export class BellSymphonyGame extends BaseGame {
     const w = this.width;
     const h = this.height;
     const totalW = this.laneWidth * 4;
-    const cx = this.laneStartX + totalW / 2;
     const hot = this.isStarPowerActive || this.combo >= 20;
     const inv = 1 - this.beatPulse;
     const flash = (hot ? 0.20 : 0.09) * inv * inv;
@@ -1287,36 +1296,19 @@ export class BellSymphonyGame extends BaseGame {
 
     // Destello al compás desde el centro de la pista
     const activeSponsor = BRANDING.getLogoConfig(this.activeStarPowerSponsorId || "feria");
-    const burst = ctx.createRadialGradient(cx, h * 0.55, 20, cx, h * 0.55, Math.max(w, h) * 0.7);
-    if (this.isStarPowerActive) {
-      burst.addColorStop(0, `${activeSponsor.themeColor}55`);
-      burst.addColorStop(1, "rgba(0, 0, 0, 0)");
-    } else {
-      burst.addColorStop(0, `rgba(255, 200, 90, ${flash + 0.04})`);
-      burst.addColorStop(1, "rgba(0, 0, 0, 0)");
-    }
-    ctx.fillStyle = burst;
-    ctx.fillRect(0, 0, w, h);
+    // Destello al compás (rectángulos planos: sin gradientes a pantalla completa por frame)
+    ctx.globalAlpha = this.isStarPowerActive ? 0.22 : Math.min(0.5, flash + 0.04);
+    ctx.fillStyle = this.isStarPowerActive ? activeSponsor.themeColor : "#FFC85A";
+    ctx.fillRect(this.laneStartX, 0, totalW, h);
+    ctx.globalAlpha = 1;
 
-    // Haces de luz a los costados de la pista
-    const beamAlpha = 0.07 + 0.10 * inv;
-    for (const side of [-1, 1]) {
-      const bx = side < 0 ? this.laneStartX : this.laneStartX + totalW;
-      const beam = ctx.createLinearGradient(bx, 0, bx + side * Math.min(180, w * 0.14), 0);
-      if (this.isStarPowerActive) {
-        beam.addColorStop(0, `${activeSponsor.themeColor}44`);
-        beam.addColorStop(1, "rgba(0, 0, 0, 0)");
-      } else {
-        beam.addColorStop(0, `rgba(255, 200, 90, ${beamAlpha})`);
-        beam.addColorStop(1, "rgba(0, 0, 0, 0)");
-      }
-      ctx.fillStyle = beam;
-      if (side < 0) {
-        ctx.fillRect(Math.max(0, bx - Math.min(180, w * 0.14)), 0, Math.min(180, w * 0.14), h);
-      } else {
-        ctx.fillRect(bx, 0, Math.min(180, w * 0.14), h);
-      }
-    }
+    // Haces de luz a los costados de la pista (planos)
+    const beamW = Math.min(90, w * 0.07);
+    ctx.globalAlpha = this.isStarPowerActive ? 0.16 : 0.05 + 0.08 * inv;
+    ctx.fillStyle = this.isStarPowerActive ? activeSponsor.themeColor : "#FFC85A";
+    ctx.fillRect(Math.max(0, this.laneStartX - beamW), 0, beamW, h);
+    ctx.fillRect(this.laneStartX + totalW, 0, beamW, h);
+    ctx.globalAlpha = 1;
 
     // Ecualizador de luces que rebota con la música
     const barW = 9;
@@ -1411,6 +1403,25 @@ export class BellSymphonyGame extends BaseGame {
     // Silenciado intencionalmente: No generar tonos/frecuencias sintéticas para que la música del juego suene limpia sin interferencias
   }
 
+  /** Recalcula la ventana de notas visibles/activas (las notas están ordenadas por tiempo). */
+  private updateNoteWindow(): void {
+    const notes = this.notes;
+    const len = notes.length;
+    let start = this.noteStartIdx;
+    if (start > len) start = 0;
+    while (start < len) {
+      const n = notes[start];
+      const finished = n.missed || n.sustainCompleted || n.sustainFailed || (n.hit && !n.isHolding);
+      if (finished && this.currentTime - (n.targetTime + n.duration) > 0.5) start++;
+      else break;
+    }
+    const lead = this.hitLineY / Math.max(1, this.noteSpeed) + 0.5;
+    let end = Math.max(start, this.noteEndIdx);
+    while (end < len && notes[end].targetTime <= this.currentTime + lead) end++;
+    this.noteStartIdx = start;
+    this.noteEndIdx = end;
+  }
+
   protected onUpdate(dt: number): void {
     if (this.gameState === "song-select" || this.gameState === "countdown") {
       this.beatPulse = (Date.now() / 1000 * 2) % 1.0;
@@ -1455,8 +1466,10 @@ export class BellSymphonyGame extends BaseGame {
 
     this.beatPulse = (this.currentTime * (this.bpm / 60)) % 1.0;
 
-    // Actualización de Notas & NOTAS SOSTENIDAS
-    for (const note of this.notes) {
+    // Actualización de Notas & NOTAS SOSTENIDAS (solo la ventana activa)
+    this.updateNoteWindow();
+    for (let ni = this.noteStartIdx; ni < this.noteEndIdx; ni++) {
+      const note = this.notes[ni];
       const laneCenterX = this.laneStartX + note.lane * this.laneWidth + this.laneWidth / 2;
 
       // 1. Manejo del Sustain activo (Holding)
@@ -1532,10 +1545,11 @@ export class BellSymphonyGame extends BaseGame {
     const lastChartNote = this.notes.length > 0 ? this.notes[this.notes.length - 1] : null;
     const lastNoteEndTime = lastChartNote ? lastChartNote.targetTime + (lastChartNote.duration || 0) : this.songDuration;
     const allNotesResolved =
+      this.currentTime >= lastNoteEndTime + 2.0 &&
       this.notes.length > 0 &&
       this.notes.every((n) => n.missed || (n.hit && (!n.isHolding || n.sustainCompleted || n.sustainFailed)));
 
-    if (this.currentTime >= this.songDuration || (allNotesResolved && this.currentTime >= lastNoteEndTime + 2.0)) {
+    if (this.currentTime >= this.songDuration || allNotesResolved) {
       this.endGame();
     }
   }
@@ -1691,7 +1705,8 @@ export class BellSymphonyGame extends BaseGame {
     // ==========================================================================
     // RENDERIZADO DE NOTAS Y NOTAS SOSTENIDAS (SUSTAIN NOTES)
     // ==========================================================================
-    for (const note of this.notes) {
+    for (let ni = this.noteStartIdx; ni < this.noteEndIdx; ni++) {
+      const note = this.notes[ni];
       if (note.missed || note.sustainCompleted || note.sustainFailed) continue;
       if (note.type === "normal" && note.hit) continue;
       if (note.type === "sustain" && note.hit && !note.isHolding) continue;

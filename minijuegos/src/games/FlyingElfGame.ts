@@ -738,7 +738,7 @@ export class FlyingElfGame extends BaseGame {
   }
 
   private updateBackgroundSigns(_dt: number, scrollSpeed: number): void {
-    const spacing = 520;
+    const spacing = 520 * (1 + (this.layoutScale - 1) * 0.7);
     for (let i = 0; i < this.backgroundSigns.length; i++) {
       const sign = this.backgroundSigns[i];
       sign.x -= scrollSpeed * 0.72; // Movimiento de fondo medio / parallax
@@ -748,7 +748,7 @@ export class FlyingElfGame extends BaseGame {
     const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu"];
     for (let i = 0; i < this.backgroundSigns.length; i++) {
       const sign = this.backgroundSigns[i];
-      if (sign.x < -220) {
+      if (sign.x < -220 * this.layoutScale) {
         let maxX = 0;
         for (const s of this.backgroundSigns) {
           if (s.x > maxX) maxX = s.x;
@@ -851,7 +851,7 @@ export class FlyingElfGame extends BaseGame {
       const offsetY = k * (Math.random() > 0.5 ? 25 : -25);
       const clampedY = Math.max(topMargin, Math.min(this.height - bottomMargin, baseSpawnY + offsetY));
 
-      this.collectibles.push({
+      const item = {
         x: this.width + 80 + offsetX,
         y: clampedY,
         size: size,
@@ -859,7 +859,9 @@ export class FlyingElfGame extends BaseGame {
         points: points,
         bobOffset: Math.random() * Math.PI * 2,
         bobSpeed: 3.0 + Math.random() * 1.5
-      });
+      };
+      this.resolveItemOverlap(item);
+      this.collectibles.push(item);
     }
   }
 
@@ -881,7 +883,7 @@ export class FlyingElfGame extends BaseGame {
     const playH = Math.max(80, this.height - topMargin - bottomMargin);
     const clampedY = topMargin + Math.random() * playH;
 
-    this.collectibles.push({
+    const logoItem: CollectibleItem = {
       x: this.width + 90,
       y: clampedY,
       size: logoSize,
@@ -890,7 +892,9 @@ export class FlyingElfGame extends BaseGame {
       points: 500,
       bobOffset: Math.random() * Math.PI * 2,
       bobSpeed: 3.2
-    });
+    };
+    this.resolveItemOverlap(logoItem);
+    this.collectibles.push(logoItem);
 
     // Destello de anticipación mágica con el color distintivo del patrocinador
     this.particles.emitBurst(this.width + 80, clampedY, isStar ? "#FFD700" : sponsor.themeColor, 16);
@@ -909,6 +913,24 @@ export class FlyingElfGame extends BaseGame {
 
   private get elfScale(): number {
     return 1 + (this.layoutScale - 1) * 0.6;
+  }
+
+  /** Evita que un coleccionable quede dentro de una casa o estalactita. */
+  private resolveItemOverlap(item: { x: number; y: number; size: number }): void {
+    const half = item.size / 2 + 8;
+    const minY = Math.max(75, this.height * 0.12);
+    for (const obs of this.obstacles) {
+      const oh = obs.type === "icicle" ? (obs.baseHeight ?? obs.height) + (obs.oscillateAmp || 0) : obs.height;
+      const top = obs.type === "icicle" ? 0 : obs.y;
+      const bottom = obs.type === "icicle" ? oh : obs.y + obs.height;
+      if (item.x + half < obs.x || item.x - half > obs.x + obs.width) continue;
+      if (item.y + half < top || item.y - half > bottom) continue;
+      if (obs.type === "house") {
+        item.y = Math.max(minY, obs.y - half - 10);
+      } else {
+        item.y = Math.min(this.getFloorBaseY() - half - 20, bottom + half + 10);
+      }
+    }
   }
 
   private spawnObstacle(): void {
@@ -954,6 +976,7 @@ export class FlyingElfGame extends BaseGame {
         smokeTimer: 0.1
       });
     }
+    for (const c of this.collectibles) this.resolveItemOverlap(c);
   }
 
   private updateCollectibles(dt: number, scrollSpeed: number): void {
@@ -2020,11 +2043,12 @@ export class FlyingElfGame extends BaseGame {
     ctx.save();
 
     for (const sign of this.backgroundSigns) {
-      if (sign.x < -200 || sign.x > this.width + 200) continue;
+      const signMargin = 200 * this.layoutScale;
+      if (sign.x < -signMargin || sign.x > this.width + signMargin) continue;
 
       const worldX = sign.x + this.groundScrollX;
       const groundY = this.getSnowGroundY(worldX);
-      const s = sign.scale * 0.35;
+      const s = sign.scale * 0.35 * (1 + (this.layoutScale - 1) * 1.25);
       const imgToDraw = this.cartelImages.get(sign.sponsorKey) || this.cartelImages.get("feria");
 
       if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth > 0) {
@@ -2037,12 +2061,13 @@ export class FlyingElfGame extends BaseGame {
         const sponsorCfg = BRANDING.getLogoConfig(sign.sponsorKey);
         const themeColor = sponsorCfg?.themeColor || "#FFD700";
         const lightFlicker = 0.8 + Math.sin(sign.lightPhase) * 0.2;
-        const signGlow = ctx.createRadialGradient(0, -imgToDraw.naturalHeight * 0.6, imgToDraw.naturalWidth * 0.2, 0, -imgToDraw.naturalHeight * 0.6, imgToDraw.naturalWidth * 0.65);
-        const alphaHex = Math.min(255, Math.max(0, Math.floor(0.40 * lightFlicker * 255))).toString(16).padStart(2, "0");
-        signGlow.addColorStop(0, `${themeColor}${alphaHex}`);
-        signGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
-        ctx.fillStyle = signGlow;
-        ctx.fillRect(-imgToDraw.naturalWidth * 0.6, -imgToDraw.naturalHeight * 1.1, imgToDraw.naturalWidth * 1.2, imgToDraw.naturalHeight * 1.1);
+        // Resplandor plano barato (sin gradiente por frame)
+        ctx.globalAlpha = 0.22 * lightFlicker;
+        ctx.fillStyle = themeColor;
+        ctx.beginPath();
+        ctx.ellipse(0, -imgToDraw.naturalHeight * 0.55, imgToDraw.naturalWidth * 0.62, imgToDraw.naturalHeight * 0.58, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
 
         // Dibujar el cartel hacia arriba desde la base del poste (y = 0)
         ctx.drawImage(imgToDraw, -imgToDraw.naturalWidth / 2, -imgToDraw.naturalHeight);
@@ -2386,13 +2411,13 @@ export class FlyingElfGame extends BaseGame {
 
     // Resplandor cálido de la farola
     ctx.save();
-    const lampGlow = ctx.createRadialGradient(0, -68, 5, 0, -68, 55);
-    lampGlow.addColorStop(0, `rgba(255, 224, 130, ${0.7 * flicker})`);
-    lampGlow.addColorStop(0.5, `rgba(255, 160, 0, ${0.35 * flicker})`);
-    lampGlow.addColorStop(1, "rgba(255, 160, 0, 0)");
-    ctx.fillStyle = lampGlow;
+    ctx.fillStyle = `rgba(255, 160, 0, ${0.22 * flicker})`;
     ctx.beginPath();
     ctx.arc(0, -68, 55, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = `rgba(255, 224, 130, ${0.5 * flicker})`;
+    ctx.beginPath();
+    ctx.arc(0, -68, 24, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 
