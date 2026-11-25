@@ -341,6 +341,8 @@ export class FlyingElfGame extends BaseGame {
   private cachedBackGradY: number = -1;
   private cachedFrontGrad: CanvasGradient | null = null;
   private cachedFrontGradY: number = -1;
+  private cachedLedgeGrad: CanvasGradient | null = null;
+  private cachedJetStreamGrad: Map<string, CanvasGradient> = new Map();
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -2202,15 +2204,15 @@ export class FlyingElfGame extends BaseGame {
     ctx.lineWidth = 2.5;
     const windOffset = (this.gliderSwayTime * 500) % (this.width + 200);
 
+    ctx.beginPath();
     for (let w = 0; w < 4; w++) {
       const wx = this.width - ((windOffset + w * 180) % (this.width + 200));
       const wy = 150 + w * 120 + Math.sin(this.gliderSwayTime + w) * 30;
 
-      ctx.beginPath();
       ctx.moveTo(wx + 100, wy);
       ctx.quadraticCurveTo(wx + 40, wy + (this.windForceY > 0 ? 25 : -25), wx, wy);
-      ctx.stroke();
     }
+    ctx.stroke();
     ctx.restore();
   }
 
@@ -2302,8 +2304,13 @@ export class FlyingElfGame extends BaseGame {
     }
     ctx.stroke();
 
-    // 4. Efectos de nieve: Cristales centelleantes / destellos brillantes sobre la nieve
+    // 4. Efectos de nieve: Cristales centelleantes optimizados en una sola pasada de dibujo (Batched)
     const glintTime = this.totalPlayTime * 3.5;
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(224, 242, 254, 0.75)";
+    ctx.fillStyle = "#FFFFFF";
+
+    ctx.beginPath();
     for (let i = 0; i < 22; i++) {
       const gx = ((i * 127 - this.groundScrollX * 0.85) % (this.width + 120) + (this.width + 120)) % (this.width + 120) - 60;
       const worldGx = gx + this.groundScrollX;
@@ -2311,23 +2318,14 @@ export class FlyingElfGame extends BaseGame {
       const gy = floorBaseY + wave + 2 + (i % 3) * 5;
       const twinkle = 0.3 + Math.sin(glintTime + i * 1.6) * 0.65;
       if (twinkle > 0.45) {
-        ctx.save();
-        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, twinkle)})`;
-        ctx.strokeStyle = `rgba(224, 242, 254, ${Math.min(1, twinkle * 0.85)})`;
-        ctx.lineWidth = 1;
         const gSize = 2.5 + (i % 2) * 1.5;
-        ctx.beginPath();
         ctx.moveTo(gx - gSize, gy);
         ctx.lineTo(gx + gSize, gy);
         ctx.moveTo(gx, gy - gSize);
         ctx.lineTo(gx, gy + gSize);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(gx, gy, 1.0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
       }
     }
+    ctx.stroke();
 
     ctx.restore();
 
@@ -2366,12 +2364,15 @@ export class FlyingElfGame extends BaseGame {
           ctx.fillRect(obs.x, 0, obs.width, obs.height);
         }
 
-        // Borde superior de escarcha y nieve estilizada (Stylized 2D Game Art) para fusión perfecta con el cielo
-        const ledgeGrad = ctx.createLinearGradient(obs.x - 10, 0, obs.x + obs.width + 10, 16);
-        ledgeGrad.addColorStop(0, "rgba(220, 245, 255, 0.95)");
-        ledgeGrad.addColorStop(0.5, "rgba(255, 255, 255, 1.0)");
-        ledgeGrad.addColorStop(1, "rgba(180, 230, 255, 0.95)");
-        ctx.fillStyle = ledgeGrad;
+        // Borde superior de escarcha y nieve estilizada (Stylized 2D Game Art) con degradado en caché
+        if (!this.cachedLedgeGrad) {
+          const lg = ctx.createLinearGradient(0, 0, 0, 16);
+          lg.addColorStop(0, "rgba(220, 245, 255, 0.95)");
+          lg.addColorStop(0.5, "rgba(255, 255, 255, 1.0)");
+          lg.addColorStop(1, "rgba(180, 230, 255, 0.95)");
+          this.cachedLedgeGrad = lg;
+        }
+        ctx.fillStyle = this.cachedLedgeGrad;
         ctx.beginPath();
         ctx.roundRect(obs.x - 8, 0, obs.width + 16, 12, [0, 0, 8, 8]);
         ctx.fill();
@@ -2542,26 +2543,32 @@ export class FlyingElfGame extends BaseGame {
       }
     }
 
-    // 3. Estela aerodinámica detrás del parapente del elfo a altas velocidades
+    // 3. Estela aerodinámica detrás del parapente del elfo a altas velocidades (Zero-alloc)
     if (this.speedMultiplier > 1.35) {
       const tailLen = (this.speedMultiplier - 1.2) * 55;
       const tailAlpha = Math.min(0.65, (this.speedMultiplier - 1.2) * 0.40);
       const curElf = ELF_ROSTER.find(e => e.id === this.selectedElf) || ELF_ROSTER[0];
 
-      const grad = ctx.createLinearGradient(this.elfX - 55, this.elfY, this.elfX - 55 - tailLen, this.elfY);
-      grad.addColorStop(0, curElf.themeColor);
-      grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+      let grad = this.cachedJetStreamGrad.get(curElf.id);
+      if (!grad) {
+        grad = ctx.createLinearGradient(0, 0, -90, 0);
+        grad.addColorStop(0, curElf.themeColor);
+        grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+        this.cachedJetStreamGrad.set(curElf.id, grad);
+      }
 
+      ctx.save();
+      ctx.translate(this.elfX - 50, this.elfY);
       ctx.strokeStyle = grad;
       ctx.lineWidth = 3.5;
       ctx.globalAlpha = tailAlpha;
       ctx.beginPath();
-      ctx.moveTo(this.elfX - 50, this.elfY - 12);
-      ctx.lineTo(this.elfX - 50 - tailLen, this.elfY - 12);
-      ctx.moveTo(this.elfX - 50, this.elfY + 12);
-      ctx.lineTo(this.elfX - 50 - tailLen, this.elfY + 12);
+      ctx.moveTo(0, -12);
+      ctx.lineTo(-tailLen, -12);
+      ctx.moveTo(0, 12);
+      ctx.lineTo(-tailLen, 12);
       ctx.stroke();
-      ctx.globalAlpha = 1.0;
+      ctx.restore();
     }
 
     ctx.restore();
