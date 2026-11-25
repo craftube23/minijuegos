@@ -1297,19 +1297,35 @@ export class BellSymphonyGame extends BaseGame {
 
     // Destello al compás desde el centro de la pista
     const activeSponsor = BRANDING.getLogoConfig(this.activeStarPowerSponsorId || "feria");
-    // Destello al compás (rectángulos planos: sin gradientes a pantalla completa por frame)
-    ctx.globalAlpha = this.isStarPowerActive ? 0.22 : Math.min(0.5, flash + 0.04);
-    ctx.fillStyle = this.isStarPowerActive ? activeSponsor.themeColor : "#FFC85A";
-    ctx.fillRect(this.laneStartX, 0, totalW, h);
-    ctx.globalAlpha = 1;
+    // Destello al compás desde el centro de la pista
+    const cx = this.laneStartX + totalW / 2;
+    const burst = ctx.createRadialGradient(cx, h * 0.55, 20, cx, h * 0.55, Math.max(w, h) * 0.7);
+    if (this.isStarPowerActive) {
+      burst.addColorStop(0, `${activeSponsor.themeColor}55`);
+      burst.addColorStop(1, "rgba(0, 0, 0, 0)");
+    } else {
+      burst.addColorStop(0, `rgba(255, 200, 90, ${flash + 0.04})`);
+      burst.addColorStop(1, "rgba(0, 0, 0, 0)");
+    }
+    ctx.fillStyle = burst;
+    ctx.fillRect(0, 0, w, h);
 
-    // Haces de luz a los costados de la pista (planos)
-    const beamW = Math.min(90, w * 0.07);
-    ctx.globalAlpha = this.isStarPowerActive ? 0.16 : 0.05 + 0.08 * inv;
-    ctx.fillStyle = this.isStarPowerActive ? activeSponsor.themeColor : "#FFC85A";
-    ctx.fillRect(Math.max(0, this.laneStartX - beamW), 0, beamW, h);
-    ctx.fillRect(this.laneStartX + totalW, 0, beamW, h);
-    ctx.globalAlpha = 1;
+    // Haces de luz a los costados de la pista
+    const beamAlpha = 0.07 + 0.10 * inv;
+    const beamW = Math.min(180, w * 0.14);
+    for (const side of [-1, 1]) {
+      const bx = side < 0 ? this.laneStartX : this.laneStartX + totalW;
+      const beam = ctx.createLinearGradient(bx, 0, bx + side * beamW, 0);
+      if (this.isStarPowerActive) {
+        beam.addColorStop(0, `${activeSponsor.themeColor}44`);
+        beam.addColorStop(1, "rgba(0, 0, 0, 0)");
+      } else {
+        beam.addColorStop(0, `rgba(255, 200, 90, ${beamAlpha})`);
+        beam.addColorStop(1, "rgba(0, 0, 0, 0)");
+      }
+      ctx.fillStyle = beam;
+      ctx.fillRect(side < 0 ? Math.max(0, bx - beamW) : bx, 0, beamW, h);
+    }
 
     // Ecualizador de luces que rebota con la música
     const barW = 9;
@@ -1805,17 +1821,21 @@ export class BellSymphonyGame extends BaseGame {
 
           // Aura luminosa y estela corta (solo para notas que NO son sustain)
           if (!note.hit) {
-            ctx.globalAlpha = 0.4;
-            ctx.fillStyle = sponsor.themeColor;
+            const aura = ctx.createRadialGradient(0, 0, starR * 0.2, 0, 0, starR * 1.6);
+            aura.addColorStop(0, sponsor.themeColor);
+            aura.addColorStop(0.8, "rgba(255, 255, 255, 0.3)");
+            aura.addColorStop(1, "rgba(0, 0, 0, 0)");
+            ctx.fillStyle = aura;
             ctx.beginPath();
-            ctx.arc(0, 0, starR * 1.35, 0, Math.PI * 2);
+            ctx.arc(0, 0, starR * 1.6, 0, Math.PI * 2);
             ctx.fill();
-            ctx.globalAlpha = 1;
 
             if (!isSustainNote) {
               const tailLen = Math.min(44, this.height * 0.06);
-              ctx.globalAlpha = 0.3;
-              ctx.fillStyle = sponsor.themeColor;
+              const tail = ctx.createLinearGradient(0, 0, 0, -tailLen);
+              tail.addColorStop(0, sponsor.themeColor);
+              tail.addColorStop(1, "rgba(0, 0, 0, 0)");
+              ctx.fillStyle = tail;
               ctx.beginPath();
               ctx.moveTo(-radius * 0.55, 0);
               ctx.lineTo(radius * 0.55, 0);
@@ -1823,7 +1843,6 @@ export class BellSymphonyGame extends BaseGame {
               ctx.lineTo(-radius * 0.12, -tailLen);
               ctx.closePath();
               ctx.fill();
-              ctx.globalAlpha = 1;
             }
           }
 
@@ -1878,17 +1897,20 @@ export class BellSymphonyGame extends BaseGame {
           // Estela de cometa compacta + aura luminosa detrás de la nota
           if (!note.hit) {
             const auraColor = lane.glowColor;
-            ctx.globalAlpha = 0.35;
-            ctx.fillStyle = auraColor;
+            const aura = ctx.createRadialGradient(0, 0, drawSize * 0.1, 0, 0, drawSize * 0.95);
+            aura.addColorStop(0, auraColor);
+            aura.addColorStop(1, "rgba(0, 0, 0, 0)");
+            ctx.fillStyle = aura;
             ctx.beginPath();
-            ctx.arc(0, 0, drawSize * 0.7, 0, Math.PI * 2);
+            ctx.arc(0, 0, drawSize * 0.95, 0, Math.PI * 2);
             ctx.fill();
-            ctx.globalAlpha = 1;
 
             if (!isSustainNote) {
               const tailLen = Math.min(44, this.height * 0.06);
-              ctx.globalAlpha = 0.3;
-              ctx.fillStyle = lane.glowColor;
+              const tail = ctx.createLinearGradient(0, 0, 0, -tailLen);
+              tail.addColorStop(0, lane.glowColor);
+              tail.addColorStop(1, "rgba(0, 0, 0, 0)");
+              ctx.fillStyle = tail;
               ctx.beginPath();
               ctx.moveTo(-radius * 0.55, 0);
               ctx.lineTo(radius * 0.55, 0);
@@ -1896,7 +1918,6 @@ export class BellSymphonyGame extends BaseGame {
               ctx.lineTo(-radius * 0.12, -tailLen);
               ctx.closePath();
               ctx.fill();
-              ctx.globalAlpha = 1;
             }
           }
 

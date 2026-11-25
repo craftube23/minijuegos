@@ -473,11 +473,11 @@ export class FlyingElfGame extends BaseGame {
   }
 
   private get propFactor(): number {
-    return 1 + (this.layoutScale - 1) * 1.2;
+    return 1 + (this.layoutScale - 1) * 0.3;
   }
 
   private initGroundProps(): void {
-    const spacing = 180 * this.propFactor * 0.8;
+    const spacing = 180 * this.propFactor;
     const count = Math.ceil(this.width / spacing) + 3;
     const propTypes: ("lamp" | "tree" | "fence" | "gift_pile")[] = ["lamp", "tree", "fence", "gift_pile", "lamp", "tree"];
     for (let i = 0; i < count; i++) {
@@ -766,7 +766,7 @@ export class FlyingElfGame extends BaseGame {
   }
 
   private updateGroundProps(_dt: number, scrollSpeed: number): void {
-    const spacing = 190 * this.propFactor * 0.8;
+    const spacing = 190 * this.propFactor;
     for (let i = 0; i < this.groundProps.length; i++) {
       const prop = this.groundProps[i];
       prop.x -= scrollSpeed;
@@ -2403,13 +2403,13 @@ export class FlyingElfGame extends BaseGame {
 
     // Resplandor cálido de la farola
     ctx.save();
-    ctx.fillStyle = `rgba(255, 160, 0, ${0.22 * flicker})`;
+    const lampGlow = ctx.createRadialGradient(0, -68, 5, 0, -68, 55);
+    lampGlow.addColorStop(0, `rgba(255, 224, 130, ${0.7 * flicker})`);
+    lampGlow.addColorStop(0.5, `rgba(255, 160, 0, ${0.35 * flicker})`);
+    lampGlow.addColorStop(1, "rgba(255, 160, 0, 0)");
+    ctx.fillStyle = lampGlow;
     ctx.beginPath();
     ctx.arc(0, -68, 55, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = `rgba(255, 224, 130, ${0.5 * flicker})`;
-    ctx.beginPath();
-    ctx.arc(0, -68, 24, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 
@@ -2587,7 +2587,7 @@ export class FlyingElfGame extends BaseGame {
       if (obs.type === "house") {
         // Anclar la base de la casa exactamente en la nieve viva
         const groundY = this.getSnowGroundY(obs.x + obs.width / 2 + this.groundScrollX);
-        obs.y = groundY - obs.height + 12 + obs.height * 0.06;
+        obs.y = groundY - obs.height + 12 + obs.height * 0.12;
 
         // Sombra de contacto de la casa sobre la nieve
         ctx.save();
