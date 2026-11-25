@@ -415,7 +415,7 @@ export class FlyingElfGame extends BaseGame {
     this.initialGameDuration = this.timeRemaining > 5 ? this.timeRemaining : 45;
 
     this.elfX = Math.max(140, this.width * 0.22);
-    this.elfHeight = Math.max(88, Math.min(145, this.height * 0.24));
+    this.elfHeight = Math.max(88, Math.min(145 * this.elfScale, this.height * 0.24));
     this.elfWidth = this.elfHeight;
     this.elfY = this.height * 0.36;
     this.elfVy = 0;
@@ -489,7 +489,7 @@ export class FlyingElfGame extends BaseGame {
   public override resize(width: number, height: number): void {
     super.resize(width, height);
     this.elfX = Math.max(140, this.width * 0.22);
-    this.elfHeight = Math.max(85, Math.min(145, this.height * 0.24));
+    this.elfHeight = Math.max(85, Math.min(145 * this.elfScale, this.height * 0.24));
     this.elfWidth = this.elfHeight;
   }
 
@@ -582,7 +582,7 @@ export class FlyingElfGame extends BaseGame {
       if (!this.isWindActive) {
         this.isWindActive = true;
         this.windTimer = 2.8 + Math.random() * 1.0;
-        const windIntensity = (240 + Math.random() * 160) * Math.min(1.4, this.speedMultiplier);
+        const windIntensity = (240 + Math.random() * 160) * Math.min(1.4, this.speedMultiplier) * this.layoutScale;
         this.windForceY = (Math.random() > 0.5 ? 1 : -1) * windIntensity;
         this.audio.playWindGust();
       } else {
@@ -618,12 +618,13 @@ export class FlyingElfGame extends BaseGame {
     this.wasThrusting = thrusting;
 
     // 4. Físicas ágiles pero dóciles del Elfo
-    const gravity = 1420; // px/s^2
-    const lift = 2380;    // px/s^2
+    const ls = this.layoutScale;
+    const gravity = 1420 * ls; // px/s^2 (escala con la altura en tótem alargado)
+    const lift = 2380 * ls;    // px/s^2
 
     if (thrusting) {
       this.elfVy -= lift * dt;
-      if (this.elfVy < -580) this.elfVy = -580;
+      if (this.elfVy < -580 * ls) this.elfVy = -580 * ls;
       this.elfTargetAngle = -0.22;
 
       // Estela mágica de vuelo adaptada al personaje elegido
@@ -643,7 +644,7 @@ export class FlyingElfGame extends BaseGame {
       }
     } else {
       this.elfVy += gravity * dt;
-      if (this.elfVy > 600) this.elfVy = 600;
+      if (this.elfVy > 600 * ls) this.elfVy = 600 * ls;
       this.elfTargetAngle = 0.16;
     }
 
@@ -895,14 +896,24 @@ export class FlyingElfGame extends BaseGame {
     this.particles.emitBurst(this.width + 80, clampedY, isStar ? "#FFD700" : sponsor.themeColor, 16);
   }
 
+  /** Factor de escala por altura: 1 en pantallas normales, hasta 2 en tótem vertical alargado. */
+  private get layoutScale(): number {
+    return Math.max(1, Math.min(2, this.height / 650));
+  }
+
+  private get elfScale(): number {
+    return 1 + (this.layoutScale - 1) * 0.6;
+  }
+
   private spawnObstacle(): void {
     const isTopObstacle = Math.random() > 0.52;
     const canOscillate = this.totalPlayTime > 8 && Math.random() < Math.min(0.65, 0.35 + (this.totalPlayTime / 45));
 
     if (isTopObstacle) {
       // Estalactita de hielo colgante adaptada a la altura de pantalla
-      const maxIcicleH = Math.min(220, (this.height - 90) * 0.38);
-      const oHeight = Math.max(70, Math.min(maxIcicleH, this.height * 0.26 + Math.random() * (this.height * 0.10)));
+      const ls = this.layoutScale;
+      const maxIcicleH = Math.min(220 * ls, (this.height - 90) * 0.38);
+      const oHeight = Math.max(70 * ls, Math.min(maxIcicleH, this.height * 0.26 + Math.random() * (this.height * 0.10)));
       const oWidth = Math.round(oHeight * 0.55);
 
       this.obstacles.push({
@@ -915,14 +926,15 @@ export class FlyingElfGame extends BaseGame {
         type: "icicle",
         isOscillating: canOscillate,
         oscillateSpeed: (2.2 + Math.random() * 1.8) * Math.min(1.5, this.speedMultiplier),
-        oscillateAmp: Math.min(25, this.height * 0.05 + Math.random() * 15),
+        oscillateAmp: Math.min(25 * this.layoutScale, this.height * 0.05 + Math.random() * 15),
         oscillateTime: Math.random() * Math.PI * 2
       });
     } else {
       // Casa rústica navideña con tejado nevado y chimenea anclada sólidamente en el suelo nevado
       const floorBaseY = this.height - Math.min(95, Math.max(65, this.height * 0.15));
-      const maxHouseH = Math.min(240, (this.height - 90) * 0.38);
-      const oHeight = Math.max(75, Math.min(maxHouseH, this.height * 0.26 + Math.random() * (this.height * 0.10)));
+      const ls = this.layoutScale;
+      const maxHouseH = Math.min(240 * ls, (this.height - 90) * 0.38);
+      const oHeight = Math.max(75 * ls, Math.min(maxHouseH, this.height * 0.26 + Math.random() * (this.height * 0.10)));
       const oWidth = Math.round(oHeight * 1.05);
       const startY = floorBaseY - oHeight + 12;
 
@@ -1066,10 +1078,12 @@ export class FlyingElfGame extends BaseGame {
       }
 
       // Colisión precisa con la hitbox del Elfo
-      const elfLeft = this.elfX - 34;
-      const elfRight = this.elfX + 34;
-      const elfTop = this.elfY - 38;
-      const elfBottom = this.elfY + 38;
+      const hbX = Math.max(34, this.elfHeight * 0.235);
+      const hbY = Math.max(38, this.elfHeight * 0.262);
+      const elfLeft = this.elfX - hbX;
+      const elfRight = this.elfX + hbX;
+      const elfTop = this.elfY - hbY;
+      const elfBottom = this.elfY + hbY;
 
       if (obs.type === "icicle") {
         const obsLeft = obs.x + obs.width * 0.18;
@@ -1273,7 +1287,7 @@ export class FlyingElfGame extends BaseGame {
     this.wasThrusting = false;
     this.flyAudioCooldown = 0;
     this.elfX = Math.max(140, this.width * 0.22);
-    this.elfHeight = Math.max(88, Math.min(145, this.height * 0.24));
+    this.elfHeight = Math.max(88, Math.min(145 * this.elfScale, this.height * 0.24));
     this.elfWidth = this.elfHeight;
     this.elfY = this.height * 0.36;
     this.elfVy = 0;
