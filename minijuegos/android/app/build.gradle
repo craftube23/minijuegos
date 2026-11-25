@@ -57,22 +57,47 @@ try {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
 
-// Copia automática del APK a D:\Download tras cada compilación assembleDebug
+// Copia automática del APK a Descargas / D:\Download tras cada compilación assembleDebug
 tasks.register('copyApkToDownload') {
     doLast {
         def srcApk = file("${layout.buildDirectory.get().asFile}/outputs/apk/debug/app-debug.apk")
-        def destDir = file("D:/Download")
         if (srcApk.exists()) {
-            if (!destDir.exists()) {
-                destDir.mkdirs()
+            // 1. Intento en D:\Download si la unidad D: está disponible
+            try {
+                def dDrive = file("D:/")
+                if (dDrive.exists()) {
+                    def destDirD = file("D:/Download")
+                    if (!destDirD.exists()) {
+                        destDirD.mkdirs()
+                    }
+                    copy {
+                        from srcApk
+                        into destDirD
+                    }
+                    println "\n======================================================="
+                    println ">>> APK COPIADO EXITOSAMENTE A: D:\\Download\\app-debug.apk <<<"
+                    println "=======================================================\n"
+                }
+            } catch (Exception e) {
+                println "Aviso al copiar a D: " + e.getMessage()
             }
-            copy {
-                from srcApk
-                into destDir
+
+            // 2. Copia de respaldo garantizada en Carpeta Descargas de Windows
+            try {
+                def userHome = System.getProperty("user.home")
+                def userDownloads = file("${userHome}/Downloads")
+                if (userDownloads.exists()) {
+                    copy {
+                        from srcApk
+                        into userDownloads
+                    }
+                    println "\n======================================================="
+                    println ">>> APK COPIADO EXITOSAMENTE A: ${userDownloads.absolutePath}\\app-debug.apk <<<"
+                    println "=======================================================\n"
+                }
+            } catch (Exception e) {
+                println "Aviso al copiar a Downloads: " + e.getMessage()
             }
-            println "\n======================================================="
-            println ">>> APK COPIADO EXITOSAMENTE A: D:\\Download\\app-debug.apk <<<"
-            println "=======================================================\n"
         }
     }
 }
