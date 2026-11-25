@@ -214,6 +214,7 @@ export class PolarExpressGame extends BaseGame {
       { name: "Practi Arepa", logo: this.getImage("./assets/logos/clean-practi-arepa.webp") },
       { name: "Fundalas", logo: this.getImage("./assets/logos/clean-fundalas.webp") },
       { name: "Factor Humano", logo: this.getImage("./assets/logos/clean-factor-humano.webp") },
+      { name: "Confort Express", logo: this.getImage("./assets/logos/clean-confort.webp") },
       { name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.webp") }
     ];
   }

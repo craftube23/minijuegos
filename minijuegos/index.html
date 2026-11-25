@@ -37,6 +37,17 @@
         <div id="attract-screen" class="kiosk-overlay attract-layer"></div>
         <div id="menu-screen" class="kiosk-overlay menu-layer" style="display: none;"></div>
         <div id="gameover-modal" class="kiosk-overlay modal-layer" style="display: none;"></div>
+
+        <!-- Salvapantallas de Video de Inactividad -->
+        <div id="attract-video-modal" class="attract-video-layer" style="display: none;">
+          <video id="attract-video" playsinline preload="auto">
+            <source src="./assets/video/attract-video.mp4" type="video/mp4">
+            <source src="./assets/video/attract-video.mp4" type="video/quicktime">
+          </video>
+          <div class="attract-video-hint">
+            <span>✨ Toca la pantalla para jugar ✨</span>
+          </div>
+        </div>
       </main>
 
       <!-- 3. CARRUSEL PUBLICITARIO INFERIOR (Según boceto wireframe) -->

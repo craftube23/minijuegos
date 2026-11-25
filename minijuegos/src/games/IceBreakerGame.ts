@@ -470,6 +470,7 @@ export class IceBreakerGame extends BaseGame {
       { id: "practi", name: "Practi Arepa", logo: this.getImage("./assets/logos/clean-practi-arepa.webp") },
       { id: "fundalas", name: "Fundalas", logo: this.getImage("./assets/logos/clean-fundalas.webp") },
       { id: "factor", name: "Factor Humano", logo: this.getImage("./assets/logos/clean-factor-humano.webp") },
+      { id: "confort", name: "Confort Express", logo: this.getImage("./assets/logos/clean-confort.webp") },
       { id: "feria", name: "Feria Mágica", logo: this.getImage("./assets/logos/clean-feria-magica.webp") }
     ];
   }

@@ -147,6 +147,17 @@ export const SPONSOR_CATALOG: Record<string, LogoConfig> = {
     bonusMultiplier: 2,
     tagline: "Crujiente y Delicioso"
   },
+  confort: {
+    id: "logo-confort",
+    name: "Confort Express",
+    shortName: "Confort Express",
+    path: "./assets/logos/clean-confort.webp",
+    alt: "Confort Express - Patrocinador Oficial",
+    themeColor: "#00E676",
+    accentColor: "#007A33",
+    bonusMultiplier: 2,
+    tagline: "Comodidad y Rapidez en tu Viaje"
+  },
   ilustracion: {
     id: "logo-ilustracion",
     name: "Mascota Oficial de la Feria",

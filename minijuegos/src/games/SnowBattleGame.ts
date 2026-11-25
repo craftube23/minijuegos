@@ -285,6 +285,11 @@ export class SnowBattleGame extends BaseGame {
     this.heartImg = this.getImage(base + "heart-ui.webp");
     this.backgroundImg = this.getImage(base + "fondo-plaza-nevada.webp");
 
+    const cartelKeys = ["coca", "campus", "maicito", "cajasan", "confort", "feria", "imebu"];
+    for (const key of cartelKeys) {
+      this.cartelImages.set(key, this.getImage(`./assets/images/cartel-${key}.webp`));
+    }
+
     for (let i = 0; i < 60; i++) {
       this.flakes.push({
         x: Math.random() * 1600,
@@ -1548,7 +1553,7 @@ export class SnowBattleGame extends BaseGame {
 
         // Carteles oficiales de patrocinadores decorando la plaza nevada
     const bounds = this.getArenaBounds();
-    const bannerKeys = ["coca", "campus", "maicito", "cajasan"];
+    const bannerKeys = ["coca", "campus", "maicito", "cajasan", "confort"];
     const bannerCount = bannerKeys.length;
     const bannerStep = bounds.width / (bannerCount + 1);
     for (let bi = 0; bi < bannerCount; bi++) {

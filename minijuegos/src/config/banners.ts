@@ -545,6 +545,40 @@ export const BANNER_CONFIG = {
       statusNote: "CONFIRMADO_LOGO"
     },
 
+    // PATROCINADOR OFICIAL 11/11: CONFORT EXPRESS
+    {
+      id: "hero-confort",
+      type: "hero-billboard",
+      themeClass: "theme-confort-express",
+      kickerText: "TRANSPORTE Y LOGÍSTICA OFICIAL DE LA FERIA",
+      kickerIcon: "star",
+      title: "¡CONFORT EXPRESS • COMODIDAD Y RAPIDEZ EN TU VIAJE!",
+      titleIcon: "award",
+      subtitle: "Viaja seguro, cómodo y a tiempo en estas fiestas navideñas con el servicio de transporte líder en Santander.",
+      subtitleIcon: "sparkles",
+      highlights: [
+        { label: "Seguridad y Confort", icon: "shield" },
+        { label: "Puntualidad Garantizada", icon: "calendar" },
+        { label: "Transporte Oficial", icon: "star" }
+      ],
+      badgeText: "TRANSPORTE OFICIAL",
+      badgeIcon: "award",
+      ctaText: "¡Viaja cómodo y seguro con Confort Express en estas navidades!",
+      ctaIcon: "arrow-right",
+      accentColor: "#00E676",
+      bgGradient: "linear-gradient(90deg, #021F0D 0%, #064E24 50%, #021F0D 100%)",
+      bgImage: "./assets/banners/1.png",
+      logos: [
+        {
+          src: "./assets/logos/clean-confort.webp",
+          alt: "Logotipo oficial de Confort Express",
+          name: "CONFORT EXPRESS",
+          fitMode: "standard"
+        }
+      ],
+      statusNote: "CONFIRMADO_LOGO"
+    },
+
     // =========================================================================
     // EVENTO 5/6: ZONA FOTOGRÁFICA MÁGICA CON SANTA Y DUENDES
     // =========================================================================

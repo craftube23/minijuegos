@@ -375,8 +375,8 @@ export class FlyingElfGame extends BaseGame {
     this.imgHouseObstacle = this.getImage("./assets/images/casa-obstaculo.webp");
     this.imgIcicle = this.getImage("./assets/images/estalactita-hielo.webp");
 
-    // 4. Carteles de Publicidad con Logos Integrados de Todos los Patrocinadores Oficiales (11 marcas)
-    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu", "coca", "maicito"];
+    // 4. Carteles de Publicidad con Logos Integrados de Todos los Patrocinadores Oficiales (12 marcas)
+    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu", "coca", "maicito", "confort"];
     for (const key of cartelKeys) {
       this.cartelImages.set(key, this.getImage(`./assets/images/cartel-${key}.webp`));
     }
@@ -455,7 +455,7 @@ export class FlyingElfGame extends BaseGame {
   private initBackgroundSigns(): void {
     const spacing = 480;
     const count = Math.ceil(this.width / spacing) + 3;
-    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu", "coca", "maicito"];
+    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu", "coca", "maicito", "confort"];
     for (let i = 0; i < count; i++) {
       const sponsorKey = cartelKeys[this.nextSignSponsorIndex % cartelKeys.length];
       this.nextSignSponsorIndex++;
@@ -732,7 +732,7 @@ export class FlyingElfGame extends BaseGame {
       sign.lightPhase += _dt * 3.0;
     }
 
-    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu"];
+    const cartelKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu", "coca", "maicito", "confort"];
     for (let i = 0; i < this.backgroundSigns.length; i++) {
       const sign = this.backgroundSigns[i];
       if (sign.x < -220 * this.layoutScale) {

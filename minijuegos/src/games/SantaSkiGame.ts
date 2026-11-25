@@ -288,6 +288,7 @@ export class SantaSkiGame extends BaseGame {
       { id: "mariposa", name: "Mariposa", logo: this.getImage("./assets/logos/clean-mariposa.webp"), color: "#EC407A" },
       { id: "angelus", name: "Ángelus", logo: this.getImage("./assets/logos/clean-angelus.webp"), color: "#3B82F6" },
       { id: "factor", name: "Factor Humano", logo: this.getImage("./assets/logos/clean-factor-humano.webp"), color: "#EF4444" },
+      { id: "confort", name: "Confort Express", logo: this.getImage("./assets/logos/clean-confort.webp"), color: "#00E676" },
       { id: "practi", name: "Practi-Arepa", logo: this.getImage("./assets/logos/clean-practi-arepa.webp"), color: "#FFD600" }
     ];
 

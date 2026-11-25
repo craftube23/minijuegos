@@ -95,6 +95,12 @@ class KioskApp {
   // Temporizador de inactividad
   private lastUserInteractionTime: number = Date.now();
 
+  // Salvapantallas de Video Promocional / Attract
+  private attractVideoModal: HTMLElement | null = null;
+  private attractVideo: HTMLVideoElement | null = null;
+  private isAttractVideoPlaying: boolean = false;
+  private attractVideoIdleSeconds: number = 30;
+
   // Game Loop
   private lastFrameTime: number = performance.now();
   private logicalWidth: number = 0;
@@ -975,11 +981,14 @@ class KioskApp {
   }
 
   /**
-   * Detector de inactividad para reiniciar el tótem automáticamente en menús/salvapantallas
+   * Detector de inactividad para reiniciar el tótem automáticamente en menús y activar video promocional
    */
   private setupInactivityWatcher(): void {
     const resetTimer = () => {
       this.lastUserInteractionTime = Date.now();
+      if (this.isAttractVideoPlaying) {
+        this.hideAttractVideo();
+      }
     };
 
     window.addEventListener("pointerdown", resetTimer, { passive: true });
@@ -997,13 +1006,79 @@ class KioskApp {
       }
 
       const elapsedSeconds = (Date.now() - this.lastUserInteractionTime) / 1000;
-      if (elapsedSeconds >= KIOSK_CONFIG.inactivityTimeoutSeconds) {
-        if (this.appState !== "attract" && !this.isTransitioning) {
+      if (this.appState !== "attract" && !this.isTransitioning) {
+        if (elapsedSeconds >= KIOSK_CONFIG.inactivityTimeoutSeconds) {
           console.log("⏱️ Tiempo de inactividad superado. Regresando a pantalla de bienvenida...");
           this.goToAttractScreen();
         }
+      } else if (this.appState === "attract" && !this.isTransitioning && !this.isAttractVideoPlaying) {
+        // En pantalla de bienvenida, tras el tiempo de inactividad activar el video salvapantallas
+        if (elapsedSeconds >= this.attractVideoIdleSeconds) {
+          console.log("🎬 Pantalla de inicio inactiva. Iniciando video promocional...");
+          this.showAttractVideo();
+        }
       }
-    }, 2000);
+    }, 1500);
+  }
+
+  /**
+   * Muestra el video promocional a pantalla completa en modo salvapantallas/attract
+   */
+  private showAttractVideo(): void {
+    if (this.isAttractVideoPlaying || this.appState !== "attract" || this.isTransitioning) return;
+    if (!this.attractVideoModal || !this.attractVideo) {
+      this.attractVideoModal = document.getElementById("attract-video-modal");
+      this.attractVideo = document.getElementById("attract-video") as HTMLVideoElement;
+      if (this.attractVideo) {
+        this.attractVideo.addEventListener("ended", () => {
+          this.hideAttractVideo();
+        });
+      }
+      if (this.attractVideoModal) {
+        const exitHandler = (e: Event) => {
+          e.stopPropagation();
+          this.hideAttractVideo();
+        };
+        this.attractVideoModal.addEventListener("pointerdown", exitHandler);
+        this.attractVideoModal.addEventListener("touchstart", exitHandler, { passive: false });
+        this.attractVideoModal.addEventListener("click", exitHandler);
+      }
+    }
+
+    if (!this.attractVideoModal || !this.attractVideo) return;
+
+    this.isAttractVideoPlaying = true;
+    this.attractVideoModal.style.display = "flex";
+    this.audio.pauseMenuBGM();
+
+    this.attractVideo.currentTime = 0;
+    this.attractVideo.muted = false;
+    const playPromise = this.attractVideo.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        if (this.attractVideo) {
+          this.attractVideo.muted = true;
+          this.attractVideo.play().catch(err => console.warn("Video autoplay failed:", err));
+        }
+      });
+    }
+  }
+
+  /**
+   * Oculta el video promocional y regresa limpiamente al menú de inicio
+   */
+  private hideAttractVideo(): void {
+    if (!this.isAttractVideoPlaying) return;
+    this.isAttractVideoPlaying = false;
+    if (this.attractVideo) {
+      this.attractVideo.pause();
+      this.attractVideo.currentTime = 0;
+    }
+    if (this.attractVideoModal) {
+      this.attractVideoModal.style.display = "none";
+    }
+    this.audio.resumeMenuBGM();
+    this.resetInactivity();
   }
 
   private resetInactivity(): void {

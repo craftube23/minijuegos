@@ -232,8 +232,8 @@ export class SantaHillsGame extends BaseGame {
     this.imgTree = load("./assets/images/arbol.webp");
     this.imgHouse = load("./assets/images/casa-navidena-clean.webp");
 
-    // Carteles oficiales de patrocinadores con arte 2D integrado (11 patrocinadores)
-    const sponsorKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu", "coca", "maicito"];
+    // Carteles oficiales de patrocinadores con arte 2D integrado (12 patrocinadores)
+    const sponsorKeys = ["feria", "campus", "cajasan", "practi", "mariposa", "angelus", "factor", "fundalas", "imebu", "coca", "maicito", "confort"];
     for (const k of sponsorKeys) {
       this.cartelImages.set(k, load(`./assets/images/cartel-${k}.webp`));
     }
