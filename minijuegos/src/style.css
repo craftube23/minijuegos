@@ -12063,52 +12063,85 @@ img, svg, .attract-logo, .header-logo, .banner-logo-img, .card-art, .fantasy-mod
    Gran formato: banner inferior majestuoso y área de juego completa
    ============================================================================== */
 @media (min-width: 700px) and (orientation: portrait) {
+  /* Header grande para pantalla alargada */
+  .kiosk-header {
+    height: clamp(140px, 8.5vh, 200px) !important;
+    min-height: 140px !important;
+    border-bottom-width: 4px !important;
+  }
+
+  .header-logo {
+    height: clamp(110px, 6.8vh, 160px) !important;
+    max-height: 160px !important;
+    max-width: clamp(380px, 52vw, 620px) !important;
+  }
+
+  .kiosk-header .kiosk-btn {
+    min-height: 84px !important;
+    min-width: 84px !important;
+    font-size: 1.6rem !important;
+    padding: 14px 24px !important;
+    border-radius: 20px !important;
+  }
+
+  .kiosk-header .kiosk-btn svg {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .kiosk-header-left,
+  .kiosk-header-right {
+    min-width: 160px !important;
+    gap: 18px !important;
+  }
+
+  /* Banner publicitario inferior grande */
   .kiosk-footer-carousel {
-    height: clamp(210px, 12vh, 255px) !important;
-    min-height: 210px !important;
-    border-top: 4px solid var(--color-gold) !important;
+    height: clamp(320px, 17vh, 440px) !important;
+    min-height: 320px !important;
+    border-top: 5px solid var(--color-gold) !important;
   }
 
   .banner-hero-container,
   .banner-event-container {
-    padding: 10px clamp(20px, 3vw, 44px) 22px clamp(20px, 3vw, 44px) !important;
-    gap: clamp(18px, 2.5vw, 40px) !important;
+    padding: 16px clamp(28px, 3.5vw, 56px) 34px clamp(28px, 3.5vw, 56px) !important;
+    gap: clamp(26px, 3vw, 52px) !important;
   }
 
   .banner-logo-card {
-    height: clamp(105px, 6.8vh, 138px) !important;
-    width: clamp(205px, 22vw, 290px) !important;
-    border-radius: 20px !important;
-    padding: 8px 18px !important;
-    border-width: 3px !important;
+    height: clamp(190px, 10.5vh, 260px) !important;
+    width: clamp(330px, 34vw, 480px) !important;
+    border-radius: 26px !important;
+    padding: 12px 26px !important;
+    border-width: 4px !important;
   }
 
   .banner-logo-card.fit-compact {
-    width: clamp(135px, 15vw, 185px) !important;
+    width: clamp(220px, 24vw, 320px) !important;
   }
 
   .banner-headline {
-    font-size: clamp(1.35rem, 2.2vw, 1.85rem) !important;
+    font-size: clamp(2rem, 3.2vw, 2.9rem) !important;
     line-height: 1.2 !important;
   }
 
   .banner-subline {
-    font-size: clamp(1.0rem, 1.4vw, 1.3rem) !important;
+    font-size: clamp(1.4rem, 2vw, 2rem) !important;
     line-height: 1.25 !important;
   }
 
   .kicker-pill,
   .event-kicker-pill {
-    font-size: clamp(0.85rem, 1.1vw, 1.05rem) !important;
-    padding: 4px 14px !important;
-    border-radius: 14px !important;
+    font-size: clamp(1.1rem, 1.6vw, 1.5rem) !important;
+    padding: 6px 20px !important;
+    border-radius: 18px !important;
   }
 
   .banner-badge-pill,
   .event-pill {
-    font-size: clamp(0.82rem, 1.05vw, 1.0rem) !important;
-    padding: 5px 14px !important;
-    border-radius: 12px !important;
+    font-size: clamp(1.05rem, 1.5vw, 1.4rem) !important;
+    padding: 7px 20px !important;
+    border-radius: 16px !important;
   }
 
   .kiosk-swiper .kiosk-swiper-pagination {
