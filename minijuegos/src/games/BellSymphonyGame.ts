@@ -258,6 +258,7 @@ export class BellSymphonyGame extends BaseGame {
   private laneWidth: number = 0;
   private laneTintGrads: CanvasGradient[] = [];
   // Ventana de notas activas [noteStartIdx, noteEndIdx): solo se actualizan/dibujan las que están en pantalla
+  private bgCache: HTMLCanvasElement | null = null;
   private noteStartIdx: number = 0;
   private noteEndIdx: number = 0;
   private laneTintKeys: string[] = [];
@@ -1559,7 +1560,14 @@ export class BellSymphonyGame extends BaseGame {
     ctx.fillRect(0, 0, this.width, this.height);
 
     if (this.bgImage && this.bgImage.complete && this.bgImage.naturalWidth > 0) {
-      ctx.drawImage(this.bgImage, 0, 0, this.width, this.height);
+      if (!this.bgCache || this.bgCache.width !== this.width || this.bgCache.height !== this.height) {
+        const oc = document.createElement("canvas");
+        oc.width = Math.max(1, Math.round(this.width));
+        oc.height = Math.max(1, Math.round(this.height));
+        oc.getContext("2d")!.drawImage(this.bgImage, 0, 0, oc.width, oc.height);
+        this.bgCache = oc;
+      }
+      ctx.drawImage(this.bgCache, 0, 0);
       ctx.fillStyle = "rgba(4, 12, 24, 0.85)";
       ctx.fillRect(0, 0, this.width, this.height);
     }
@@ -1797,21 +1805,17 @@ export class BellSymphonyGame extends BaseGame {
 
           // Aura luminosa y estela corta (solo para notas que NO son sustain)
           if (!note.hit) {
-            const aura = ctx.createRadialGradient(0, 0, starR * 0.2, 0, 0, starR * 1.6);
-            aura.addColorStop(0, sponsor.themeColor);
-            aura.addColorStop(0.8, "rgba(255, 255, 255, 0.3)");
-            aura.addColorStop(1, "rgba(0, 0, 0, 0)");
-            ctx.fillStyle = aura;
+            ctx.globalAlpha = 0.4;
+            ctx.fillStyle = sponsor.themeColor;
             ctx.beginPath();
-            ctx.arc(0, 0, starR * 1.6, 0, Math.PI * 2);
+            ctx.arc(0, 0, starR * 1.35, 0, Math.PI * 2);
             ctx.fill();
+            ctx.globalAlpha = 1;
 
             if (!isSustainNote) {
               const tailLen = Math.min(44, this.height * 0.06);
-              const tail = ctx.createLinearGradient(0, 0, 0, -tailLen);
-              tail.addColorStop(0, sponsor.themeColor);
-              tail.addColorStop(1, "rgba(0, 0, 0, 0)");
-              ctx.fillStyle = tail;
+              ctx.globalAlpha = 0.3;
+              ctx.fillStyle = sponsor.themeColor;
               ctx.beginPath();
               ctx.moveTo(-radius * 0.55, 0);
               ctx.lineTo(radius * 0.55, 0);
@@ -1819,6 +1823,7 @@ export class BellSymphonyGame extends BaseGame {
               ctx.lineTo(-radius * 0.12, -tailLen);
               ctx.closePath();
               ctx.fill();
+              ctx.globalAlpha = 1;
             }
           }
 
@@ -1873,20 +1878,17 @@ export class BellSymphonyGame extends BaseGame {
           // Estela de cometa compacta + aura luminosa detrás de la nota
           if (!note.hit) {
             const auraColor = lane.glowColor;
-            const aura = ctx.createRadialGradient(0, 0, drawSize * 0.1, 0, 0, drawSize * 0.95);
-            aura.addColorStop(0, auraColor);
-            aura.addColorStop(1, "rgba(0, 0, 0, 0)");
-            ctx.fillStyle = aura;
+            ctx.globalAlpha = 0.35;
+            ctx.fillStyle = auraColor;
             ctx.beginPath();
-            ctx.arc(0, 0, drawSize * 0.95, 0, Math.PI * 2);
+            ctx.arc(0, 0, drawSize * 0.7, 0, Math.PI * 2);
             ctx.fill();
+            ctx.globalAlpha = 1;
 
             if (!isSustainNote) {
               const tailLen = Math.min(44, this.height * 0.06);
-              const tail = ctx.createLinearGradient(0, 0, 0, -tailLen);
-              tail.addColorStop(0, lane.glowColor);
-              tail.addColorStop(1, "rgba(0, 0, 0, 0)");
-              ctx.fillStyle = tail;
+              ctx.globalAlpha = 0.3;
+              ctx.fillStyle = lane.glowColor;
               ctx.beginPath();
               ctx.moveTo(-radius * 0.55, 0);
               ctx.lineTo(radius * 0.55, 0);
@@ -1894,6 +1896,7 @@ export class BellSymphonyGame extends BaseGame {
               ctx.lineTo(-radius * 0.12, -tailLen);
               ctx.closePath();
               ctx.fill();
+              ctx.globalAlpha = 1;
             }
           }
 

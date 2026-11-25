@@ -472,8 +472,12 @@ export class FlyingElfGame extends BaseGame {
     }
   }
 
+  private get propFactor(): number {
+    return 1 + (this.layoutScale - 1) * 1.2;
+  }
+
   private initGroundProps(): void {
-    const spacing = 180;
+    const spacing = 180 * this.propFactor * 0.8;
     const count = Math.ceil(this.width / spacing) + 3;
     const propTypes: ("lamp" | "tree" | "fence" | "gift_pile")[] = ["lamp", "tree", "fence", "gift_pile", "lamp", "tree"];
     for (let i = 0; i < count; i++) {
@@ -762,7 +766,7 @@ export class FlyingElfGame extends BaseGame {
   }
 
   private updateGroundProps(_dt: number, scrollSpeed: number): void {
-    const spacing = 190;
+    const spacing = 190 * this.propFactor * 0.8;
     for (let i = 0; i < this.groundProps.length; i++) {
       const prop = this.groundProps[i];
       prop.x -= scrollSpeed;
@@ -772,7 +776,7 @@ export class FlyingElfGame extends BaseGame {
     // Reciclar props que salen por la izquierda
     for (let i = 0; i < this.groundProps.length; i++) {
       const prop = this.groundProps[i];
-      if (prop.x < -160) {
+      if (prop.x < -160 * this.propFactor) {
         // Encontrar el prop más a la derecha
         let maxX = 0;
         for (const p of this.groundProps) {
@@ -2057,18 +2061,6 @@ export class FlyingElfGame extends BaseGame {
         ctx.translate(sign.x, groundY + 12);
         ctx.scale(s, s);
 
-        // Resplandor cálido de las luces navideñas del cartel con tono distintivo de la marca
-        const sponsorCfg = BRANDING.getLogoConfig(sign.sponsorKey);
-        const themeColor = sponsorCfg?.themeColor || "#FFD700";
-        const lightFlicker = 0.8 + Math.sin(sign.lightPhase) * 0.2;
-        // Resplandor plano barato (sin gradiente por frame)
-        ctx.globalAlpha = 0.22 * lightFlicker;
-        ctx.fillStyle = themeColor;
-        ctx.beginPath();
-        ctx.ellipse(0, -imgToDraw.naturalHeight * 0.55, imgToDraw.naturalWidth * 0.62, imgToDraw.naturalHeight * 0.58, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-
         // Dibujar el cartel hacia arriba desde la base del poste (y = 0)
         ctx.drawImage(imgToDraw, -imgToDraw.naturalWidth / 2, -imgToDraw.naturalHeight);
 
@@ -2379,14 +2371,14 @@ export class FlyingElfGame extends BaseGame {
 
     // 2. Elementos decorativos (Props de suelo)
     for (const prop of this.groundProps) {
-      if (prop.x < -100 || prop.x > this.width + 100) continue;
+      if (prop.x < -100 * this.propFactor || prop.x > this.width + 100 * this.propFactor) continue;
 
       const worldX = prop.x + this.groundScrollX;
       const groundY = this.getSnowGroundY(worldX);
 
       ctx.save();
       ctx.translate(prop.x, groundY);
-      ctx.scale(prop.scale, prop.scale);
+      ctx.scale(prop.scale * this.propFactor, prop.scale * this.propFactor);
 
       if (prop.type === "lamp") {
         // Farola Victoriana Dorada con Luz Cálida
@@ -2595,7 +2587,7 @@ export class FlyingElfGame extends BaseGame {
       if (obs.type === "house") {
         // Anclar la base de la casa exactamente en la nieve viva
         const groundY = this.getSnowGroundY(obs.x + obs.width / 2 + this.groundScrollX);
-        obs.y = groundY - obs.height + 12;
+        obs.y = groundY - obs.height + 12 + obs.height * 0.06;
 
         // Sombra de contacto de la casa sobre la nieve
         ctx.save();
