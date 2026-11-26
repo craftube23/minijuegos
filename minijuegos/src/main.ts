@@ -91,10 +91,17 @@ class KioskApp {
   // Temporizador de inactividad
   private lastUserInteractionTime: number = Date.now();
 
-  // Salvapantallas de Video Promocional / Attract
+  // Salvapantallas de Video Promocional / Attract (Playlist de 4 videos optimizados)
   private attractVideoModal: HTMLElement | null = null;
   private attractVideo: HTMLVideoElement | null = null;
   private isAttractVideoPlaying: boolean = false;
+  private readonly attractVideosList: string[] = [
+    "./assets/video/video-1-feria.mp4",
+    "./assets/video/video-2-odontologia.mp4",
+    "./assets/video/video-3-mundo-guarigua.mp4",
+    "./assets/video/video-4-cajasan-lagos.mp4"
+  ];
+  private currentAttractVideoIndex: number = 0;
 
   // Game Loop
   private lastFrameTime: number = performance.now();
@@ -978,6 +985,7 @@ class KioskApp {
 
   /**
    * Muestra el video promocional a pantalla completa en modo salvapantallas/attract
+   * Rota de forma cíclica entre los 4 videos oficiales optimizados.
    */
   private showAttractVideo(): void {
     if (this.isAttractVideoPlaying || this.appState !== "attract" || this.isTransitioning) return;
@@ -986,12 +994,16 @@ class KioskApp {
       this.attractVideo = document.getElementById("attract-video") as HTMLVideoElement;
       if (this.attractVideo) {
         this.attractVideo.addEventListener("ended", () => {
+          // Avanzar al siguiente video de la rotación para la próxima vez
+          this.currentAttractVideoIndex = (this.currentAttractVideoIndex + 1) % this.attractVideosList.length;
           this.hideAttractVideo(true);
         });
       }
       if (this.attractVideoModal) {
         const exitHandler = (e: Event) => {
           e.stopPropagation();
+          // Avanzar al siguiente video en la lista para que la próxima inactividad sea fresca
+          this.currentAttractVideoIndex = (this.currentAttractVideoIndex + 1) % this.attractVideosList.length;
           this.hideAttractVideo(false);
           this.attractScreen.onStartClick?.();
         };
@@ -1006,6 +1018,14 @@ class KioskApp {
     this.isAttractVideoPlaying = true;
     this.attractVideoModal.style.display = "flex";
     this.audio.pauseMenuBGM();
+
+    // Sincronizar el video correspondiente de la playlist rotativa
+    const targetSrc = this.attractVideosList[this.currentAttractVideoIndex];
+    const cleanCurrentSrc = this.attractVideo.getAttribute("src") || "";
+    if (!cleanCurrentSrc.endsWith(targetSrc.replace("./", ""))) {
+      this.attractVideo.src = targetSrc;
+      this.attractVideo.load();
+    }
 
     this.attractVideo.currentTime = 0;
     this.attractVideo.muted = false;
