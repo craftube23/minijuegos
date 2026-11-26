@@ -136,6 +136,7 @@ export class AudioManager {
     this.bgmVolume = volume;
 
     if (!forceNew && this.bgmAudio && !this.bgmAudio.paused) {
+      this.bgmAudio.loop = loop;
       return;
     }
 
@@ -154,6 +155,9 @@ export class AudioManager {
 
     if (this.bgmAudio.src !== song && !this.bgmAudio.src.endsWith("jingle-oficial-feria-magica.wav")) {
       this.bgmAudio.src = song;
+    }
+    if (forceNew) {
+      this.bgmAudio.currentTime = 0;
     }
     this.bgmAudio.volume = this.bgmVolume;
     this.bgmAudio.play().catch(() => {});

@@ -36,8 +36,6 @@ import { MagicPairsStoryTutorialModal } from "./components/MagicPairsStoryTutori
 import { SantaHillsStoryTutorialModal } from "./components/SantaHillsStoryTutorialModal";
 import { NutcrackerDrumsStoryTutorialModal } from "./components/NutcrackerDrumsStoryTutorialModal";
 import { SnowballTargetStoryTutorialModal } from "./components/SnowballTargetStoryTutorialModal";
-import { WorkshopChaosStoryTutorialModal } from "./components/WorkshopChaosStoryTutorialModal";
-import { PolarExpressStoryTutorialModal } from "./components/PolarExpressStoryTutorialModal";
 import { OrnamentPopStoryTutorialModal } from "./components/OrnamentPopStoryTutorialModal";
 import { UniversalStoryTutorialModal } from "./components/UniversalStoryTutorialModal";
 
@@ -72,8 +70,6 @@ class KioskApp {
   public hillsTutorialModal: SantaHillsStoryTutorialModal;
   public drumsTutorialModal: NutcrackerDrumsStoryTutorialModal;
   public targetTutorialModal: SnowballTargetStoryTutorialModal;
-  public workshopTutorialModal: WorkshopChaosStoryTutorialModal;
-  public polarTutorialModal: PolarExpressStoryTutorialModal;
   public ornamentTutorialModal: OrnamentPopStoryTutorialModal;
   public universalTutorialModal: UniversalStoryTutorialModal;
 
@@ -99,7 +95,6 @@ class KioskApp {
   private attractVideoModal: HTMLElement | null = null;
   private attractVideo: HTMLVideoElement | null = null;
   private isAttractVideoPlaying: boolean = false;
-  private attractVideoIdleSeconds: number = 30;
 
   // Game Loop
   private lastFrameTime: number = performance.now();
@@ -138,8 +133,6 @@ class KioskApp {
     this.hillsTutorialModal = new SantaHillsStoryTutorialModal("santa-hills-tutorial-modal", this.audio);
     this.drumsTutorialModal = new NutcrackerDrumsStoryTutorialModal("nutcracker-drums-tutorial-modal", this.audio);
     this.targetTutorialModal = new SnowballTargetStoryTutorialModal("snowball-target-tutorial-modal", this.audio);
-    this.workshopTutorialModal = new WorkshopChaosStoryTutorialModal("workshop-chaos-tutorial-modal", this.audio);
-    this.polarTutorialModal = new PolarExpressStoryTutorialModal("polar-express-tutorial-modal", this.audio);
     this.ornamentTutorialModal = new OrnamentPopStoryTutorialModal("ornament-pop-tutorial-modal", this.audio);
     this.universalTutorialModal = new UniversalStoryTutorialModal("universal-story-tutorial-modal", this.audio);
 
@@ -303,9 +296,6 @@ class KioskApp {
     this.gameLoaders.set("magic-pairs", async () => new (await import("./games/MagicPairsGame")).MagicPairsGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("santa-hills", async () => new (await import("./games/SantaHillsGame")).SantaHillsGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("snowball-target", async () => new (await import("./games/SnowballTargetGame")).SnowballTargetGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameLoaders.set("workshop-chaos", async () => new (await import("./games/WorkshopChaosGame")).WorkshopChaosGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameLoaders.set("gift-tower", async () => new (await import("./games/GiftTowerGame")).GiftTowerGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameLoaders.set("polar-express", async () => new (await import("./games/PolarExpressGame")).PolarExpressGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("ornament-pop", async () => new (await import("./games/OrnamentPopGame")).OrnamentPopGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("toy-match", async () => new (await import("./games/ToyMatchGame")).ToyMatchGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("santa-ski", async () => new (await import("./games/SantaSkiGame")).SantaSkiGame(this.canvas, this.input, this.audio, this.particles));
@@ -551,32 +541,6 @@ class KioskApp {
       }
     };
 
-    // Callbacks del Tutorial Animado de ¡El Expreso Polar Mágico!
-    this.polarTutorialModal.onPlayGame = () => {
-      this.isTransitioning = true;
-      this.audio.stopMenuBGM();
-      this.launchGameWithCountdown("polar-express");
-    };
-
-    this.polarTutorialModal.onClose = () => {
-      if (this.appState === "menu") {
-        this.instructionsModal.show("polar-express");
-      }
-    };
-
-    // Callbacks del Tutorial Animado de ¡El Caos del Taller Mágico!
-    this.workshopTutorialModal.onPlayGame = () => {
-      this.isTransitioning = true;
-      this.audio.stopMenuBGM();
-      this.launchGameWithCountdown("workshop-chaos");
-    };
-
-    this.workshopTutorialModal.onClose = () => {
-      if (this.appState === "menu") {
-        this.instructionsModal.show("workshop-chaos");
-      }
-    };
-
     // Al terminar la mini-historia animada → Mostrar el modal de instrucciones rápidas
     this.storyModal.onComplete = () => {
       const activeStory = (this.storyModal as any).currentStory;
@@ -618,10 +582,6 @@ class KioskApp {
         this.targetTutorialModal.show(0);
       } else if (gameId === "ornament-pop") {
         this.ornamentTutorialModal.show(0);
-      } else if (gameId === "polar-express") {
-        this.polarTutorialModal.show(0);
-      } else if (gameId === "workshop-chaos") {
-        this.workshopTutorialModal.show(0);
       } else {
         this.universalTutorialModal.show(gameId, 0);
       }
@@ -759,10 +719,7 @@ class KioskApp {
       "magic-pairs": { title: "Parejas de Juguetes", icon: getIconSvg("cards", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
       "santa-hills": { title: "El Descenso de Santa", icon: getIconSvg("gift", { size: 36, color: "#FF2A4D" }), themeColor: "#FF2A4D" },
       "snowball-target": { title: "Tiro al Blanco Navideño", icon: getIconSvg("target", { size: 36, color: "#00E676" }), themeColor: "#00E676" },
-      "workshop-chaos": { title: "¡El Caos del Taller Mágico!", icon: getIconSvg("sparkles", { size: 36, color: "#FF9100" }), themeColor: "#FF9100" },
       "magic-jump": { title: "¡Salto Mágico Navideño!", icon: getIconSvg("sparkles", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" },
-      "gift-tower": { title: "¡Torre de Regalos Mágica!", icon: getIconSvg("gift", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" },
-      "polar-express": { title: "¡El Expreso Polar Mágico!", icon: getIconSvg("sparkles", { size: 36, color: "#FF2A4D" }), themeColor: "#FF2A4D" },
       "ornament-pop": { title: "¡Burbujas de Adornos!", icon: getIconSvg("star", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" },
       "toy-match": { title: "¡Juguetería Mágica!", icon: getIconSvg("sparkles", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" },
       "santa-ski": { title: "¡Esquí Alpino de Santa!", icon: getIconSvg("sparkles", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" },
@@ -788,8 +745,6 @@ class KioskApp {
     this.hillsTutorialModal.hide();
     this.drumsTutorialModal.hide();
     this.targetTutorialModal.hide();
-    this.workshopTutorialModal.hide();
-    this.polarTutorialModal.hide();
     this.ornamentTutorialModal.hide();
     this.universalTutorialModal.hide();
   }
@@ -817,10 +772,6 @@ class KioskApp {
       this.targetTutorialModal.show(0);
     } else if (gameId === "ornament-pop") {
       this.ornamentTutorialModal.show(0);
-    } else if (gameId === "polar-express") {
-      this.polarTutorialModal.show(0);
-    } else if (gameId === "workshop-chaos") {
-      this.workshopTutorialModal.show(0);
     } else {
       this.universalTutorialModal.show(gameId, 0);
     }
@@ -1016,16 +967,12 @@ class KioskApp {
       const elapsedSeconds = (Date.now() - this.lastUserInteractionTime) / 1000;
       if (this.appState !== "attract" && !this.isTransitioning) {
         if (elapsedSeconds >= KIOSK_CONFIG.inactivityTimeoutSeconds) {
-          console.log("⏱️ Tiempo de inactividad superado. Regresando a pantalla de bienvenida...");
+          console.log("⏱️ Tiempo de inactividad superado en menú. Regresando a pantalla de bienvenida...");
           this.goToAttractScreen();
         }
-      } else if (this.appState === "attract" && !this.isTransitioning && !this.isAttractVideoPlaying) {
-        // En pantalla de bienvenida, tras el tiempo de inactividad activar el video salvapantallas
-        if (elapsedSeconds >= this.attractVideoIdleSeconds) {
-          console.log("🎬 Pantalla de inicio inactiva. Iniciando video promocional...");
-          this.showAttractVideo();
-        }
       }
+      // Nota: En pantalla de bienvenida ('attract'), NO usamos temporizador de inactividad
+      // para no cortar la canción oficial (1:33). El video se activa únicamente al terminar el audio (onMenuBGMEnded).
     }, 1500);
   }
 
