@@ -25,6 +25,7 @@ import {
   drawNightSky,
   drawPill
 } from "./shared/gameDraw";
+import { AssetCache } from "../core/AssetCache";
 
 interface SponsorInfo {
   id: string;
@@ -590,7 +591,7 @@ export class ToyMatchGame extends BaseGame {
     if (imgReady(this.bgImg)) {
       ctx.save();
       ctx.globalAlpha = 0.5;
-      ctx.drawImage(this.bgImg, 0, 0, w, h);
+      ctx.drawImage(AssetCache.getInstance().getScaled(this.bgImg, this.canvas.width, this.canvas.height), 0, 0, w, h);
       ctx.restore();
     }
 

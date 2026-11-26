@@ -138,24 +138,6 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
     ],
     controls: "Toca o haz clic en cualquier diana para disparar tu resortera"
   },
-  "workshop-chaos": {
-    id: "workshop-chaos",
-    title: "¡El Caos del Taller Mágico!",
-    iconName: "sparkles",
-    themeColor: "#FF9100",
-    goal: "¡La máquina de juguetes sufrió una sobrecarga! Toca los juguetes y regalos que salen volando antes de que caigan, y evita el carbón y los paquetes defectuosos.",
-    positiveItems: [
-      { iconName: "gift", label: "Regalos y Peluches (+10 a +15 pts)" },
-      { iconName: "target", label: "Robots y Coches (+20 a +25 pts)" },
-      { iconName: "star", label: "Regalos Patrocinados con Logo (¡+Bonus y Energía!)" },
-      { iconName: "sparkles", label: "Fiebre de Juguetes (¡Lluvia dorada y Puntos x2!)" }
-    ],
-    negativeItems: [
-      { iconName: "flame", label: "Carbón Ardiente (-30 pts y Rompe Combo)" },
-      { iconName: "skull", label: "Regalo Defectuoso (-25 pts y Rompe Combo)" }
-    ],
-    controls: "Toca rápidamente los juguetes en pantalla antes de que caigan"
-  },
   "christmas-jump": {
     id: "christmas-jump",
     title: "¡Salto Mágico Navideño!",
@@ -175,41 +157,6 @@ export const GAME_INSTRUCTIONS: Record<string, GameInstructionData> = {
       { iconName: "flame", label: "Caída al Fondo (El trampolín te salva, pero reinicia tu combo)" }
     ],
     controls: "Arrastra el dedo hacia los lados, usa los botones táctiles [ ◀ IZQUIERDA / DERECHA ▶ ] o usa [ ◄ / ► / A / D ]"
-  },
-  "gift-tower": {
-    id: "gift-tower",
-    title: "¡Torre de Regalos Mágica!",
-    iconName: "gift",
-    themeColor: "#FFD700",
-    goal: "¡Suelta los paquetes en el momento exacto para construir la torre más alta hacia el cielo!",
-    positiveItems: [
-      { iconName: "gift", label: "Alineación Perfecta (+300 pts y combo musical)" },
-      { iconName: "star", label: "Cajas de Patrocinador (¡+500 pts y expansión mágica!)" },
-      { iconName: "sparkles", label: "Fiebre Navideña (¡Puntos dobles tras 3 perfectos!)" },
-      { iconName: "target", label: "Joyero Real y Reloj Mágico (+750 pts o +1 Vida Extra)" }
-    ],
-    negativeItems: [
-      { iconName: "flame", label: "Desbordes (Rebanan la caja haciéndola más estrecha)" },
-      { iconName: "skull", label: "Caer fuera de la torre (-1 Vida)" }
-    ],
-    controls: "Toca la pantalla o usa [ Espacio / Enter / ▼ ] para soltar la caja"
-  },
-  "polar-express": {
-    id: "polar-express",
-    title: "¡El Expreso Polar Mágico!",
-    iconName: "sparkles",
-    themeColor: "#FF2A4D",
-    goal: "¡Conduce la locomotora mágica por tres vías! Cambia de carril para recoger regalos y estrellas y esquivar muñecos de nieve, cristales de hielo, troncos y carbón.",
-    positiveItems: [
-      { iconName: "gift", label: "Regalos (+50 pts)" },
-      { iconName: "star", label: "Estrella Brillante (+150 pts)" },
-      { iconName: "sparkles", label: "Regalo de Patrocinador (¡Turbo Vapor: invencible y +300 pts!)" }
-    ],
-    negativeItems: [
-      { iconName: "snowflake", label: "Muñecos, cristales y troncos (pierdes una vida)" },
-      { iconName: "flame", label: "Carbón en la vía (pierdes una vida)" }
-    ],
-    controls: "Toca o arrastra hacia la vía a la que quieres ir, o usa [ ▲ / ▼ ] / [ W / S ]"
   },
   "ornament-pop": {
     id: "ornament-pop",

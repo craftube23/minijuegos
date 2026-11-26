@@ -20,6 +20,7 @@ import { InputManager } from "../core/InputManager";
 import { AudioManager } from "../core/AudioManager";
 import { ParticleSystem } from "../core/ParticleSystem";
 import { Haptics } from "../utils/haptics";
+import { AssetCache } from "../core/AssetCache";
 
 interface DrumPad {
   id: number; // 0: Rojo (DON), 1: Dorado (STAR), 2: Azul (KA)
@@ -572,7 +573,7 @@ export class NutcrackerDrumsGame extends BaseGame {
   protected onDraw(ctx: CanvasRenderingContext2D): void {
     // 1. Fondo de la Habitación Navideña Cálida
     if (this.bgRoom && this.bgRoom.complete && this.bgRoom.naturalWidth > 0) {
-      ctx.drawImage(this.bgRoom, 0, 0, this.width, this.height);
+      ctx.drawImage(AssetCache.getInstance().getScaled(this.bgRoom, this.canvas.width, this.canvas.height), 0, 0, this.width, this.height);
       // Tinte nocturno atmosférico para resaltar escenario y reflectores
       ctx.fillStyle = "rgba(6, 12, 28, 0.60)";
       ctx.fillRect(0, 0, this.width, this.height);

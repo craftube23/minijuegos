@@ -239,42 +239,6 @@ export class GameStoryCinemaModal {
     this.stories.set("tree-melody", drumsStory);
     this.stories.set("nutcracker-drums", { ...drumsStory, gameId: "nutcracker-drums" });
 
-    // 8. VISTE AL MUÑECO DE NIEVE (HolidayDressUpGame)
-    this.stories.set("gift-tower", {
-      gameId: "gift-tower",
-      gameTitle: "¡TORRE DE REGALOS MÁGICA!",
-      subTag: "¡CONSTRUYE HACIA LA ESTRELLA!",
-      headline: "¡APILA HASTA LAS ESTRELLAS!",
-      tagline: "¡La grúa mágica de Santa balancea los paquetes! Apílalos con precisión milimétrica.",
-      pageIllustrationBg: "./assets/images/fondo-nieve.webp",
-      heroLayerImg: "./assets/images/icon-torre-regalos.webp",
-      heroLayerScale: 1.2,
-      heroLayerOffsetY: 0,
-      props: [
-        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-tower-gold", xPercent: -36, yPercent: -30, delayOffset: 0.15, scale: 0.85 },
-        { src: "./assets/images/estrella con logo.webp", className: "prop-tower-star", xPercent: 36, yPercent: -45, delayOffset: 0.28, scale: 0.95 }
-      ],
-      playHeroSound: (a) => a.playPowerUp()
-    });
-
-    // 9. EL CAOS DEL TALLER MÁGICO (WorkshopChaosGame)
-    this.stories.set("workshop-chaos", {
-      gameId: "workshop-chaos",
-      gameTitle: "¡EL CAOS DEL TALLER MÁGICO!",
-      subTag: "¡MÁQUINA FUERA DE CONTROL!",
-      headline: "¡RESCATA LOS JUGUETES!",
-      tagline: "¡La máquina mágica escupe juguetes al aire! Tócalos antes de que caigan.",
-      pageIllustrationBg: "./assets/images/fondo-habitacion.webp",
-      heroLayerImg: "./assets/images/icon-caos-taller.webp",
-      heroLayerScale: 1.2,
-      heroLayerOffsetY: 0,
-      props: [
-        { src: "./assets/images/coche-juguete.webp", className: "prop-chaos-car", xPercent: -35, yPercent: -35, delayOffset: 0.14, scale: 0.9, rotateDeg: -15 },
-        { src: "./assets/images/robot.webp", className: "prop-chaos-robot", xPercent: 35, yPercent: -38, delayOffset: 0.26, scale: 0.9, rotateDeg: 18 }
-      ],
-      playHeroSound: (a) => a.playCatchItem(1.2)
-    });
-
     // 10. SALTO MÁGICO NAVIDEÑO (MagicJumpGame)
     this.stories.set("magic-jump", {
       gameId: "magic-jump",
@@ -291,24 +255,6 @@ export class GameStoryCinemaModal {
         { src: "./assets/images/estrella con logo.webp", className: "prop-jump-star", xPercent: 36, yPercent: -55, delayOffset: 0.28, scale: 0.95 }
       ],
       playHeroSound: (a) => a.playElfFly()
-    });
-
-    // 11. EL EXPRESO POLAR MÁGICO (PolarExpressGame)
-    this.stories.set("polar-express", {
-      gameId: "polar-express",
-      gameTitle: "¡EL EXPRESO POLAR MÁGICO!",
-      subTag: "¡A TODA MÁQUINA POR LA NIEVE!",
-      headline: "¡CAMBIA DE VÍA!",
-      tagline: "¡Guía la locomotora navideña, recoge regalos y esquiva los obstáculos!",
-      pageIllustrationBg: "./assets/images/fondo-nieve.webp",
-      heroLayerImg: "./assets/images/icon-expreso-polar.webp",
-      heroLayerScale: 1.2,
-      heroLayerOffsetY: 4,
-      props: [
-        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-train-gift", xPercent: 38, yPercent: -30, delayOffset: 0.16, scale: 0.9 },
-        { src: "./assets/images/obstaculo-muneco.webp", className: "prop-train-snow", xPercent: -38, yPercent: -20, delayOffset: 0.28, scale: 0.85 }
-      ],
-      playHeroSound: (a) => a.playPowerUp()
     });
 
     // 13. BURBUJAS DE ADORNOS (OrnamentPopGame)

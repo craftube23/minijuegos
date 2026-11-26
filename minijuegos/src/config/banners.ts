@@ -280,10 +280,10 @@ export const BANNER_CONFIG = {
       kickerIcon: "gamepad-2",
       title: "¡JUEGA GRATIS EN PANTALLAS GIGANTES Y GANA!",
       titleIcon: "trophy",
-      subtitle: "13 minijuegos arcade táctiles navideños, desafíos contra reloj, tablero de récords y fantásticos premios al instante.",
+      subtitle: "10 minijuegos arcade táctiles navideños, desafíos contra reloj, tablero de récords y fantásticos premios al instante.",
       subtitleIcon: "zap",
       highlights: [
-        { label: "13 Minijuegos Arcade", icon: "gamepad-2" },
+        { label: "10 Minijuegos Arcade", icon: "gamepad-2" },
         { label: "Retos Táctiles en Pantalla", icon: "zap" },
         { label: "Premios al Instante", icon: "trophy" }
       ],

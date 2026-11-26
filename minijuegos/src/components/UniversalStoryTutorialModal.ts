@@ -542,10 +542,7 @@ export class UniversalStoryTutorialModal {
       "magic-pairs": "./assets/images/icon-cartas.webp",
       "santa-hills": "./assets/images/santa-trineo.webp",
       "snowball-target": "./assets/images/icon-tiro-al-blanco.webp",
-      "workshop-chaos": "./assets/images/icon-caos-taller.webp",
       "christmas-jump": "./assets/images/icon-salto-magico.webp",
-      "gift-tower": "./assets/images/icon-torre-regalos.webp",
-      "polar-express": "./assets/images/icon-expreso-polar.webp",
       "ornament-pop": "./assets/images/icon-rompe-hielos.webp",
       "toy-match": "./assets/images/icon-jugueteria-magica.webp",
       "santa-ski": "./assets/images/santa-ski-straight.webp",
@@ -1014,51 +1011,6 @@ export class UniversalStoryTutorialModal {
       ]
     });
 
-    // 8. CAOS EN EL TALLER
-    this.database.set("workshop-chaos", {
-      gameId: "workshop-chaos",
-      gameTitle: "¡El Caos del Taller Mágico!",
-      themeColor: "#FF9100",
-      steps: [
-        {
-          tag: "CAPÍTULO 1 • LA HISTORIA",
-          title: "¡Sobrecarga en la Máquina de Juguetes!",
-          badge: "HISTORIA FESTIVA",
-          badgeColor: "#FFD700",
-          storyText: "¡La máquina empacadora de duendes tuvo una sobrecarga de engranajes y está disparando juguetes por los aires! Salva la Navidad atrapándolos a todos antes de que caigan.",
-          proTip: "¡Mantén tus reflejos al máximo nivel!",
-          stageType: "generic_story"
-        },
-        {
-          tag: "CAPÍTULO 2 • CONTROLES",
-          title: "¡Toca los Juguetes en el Aire!",
-          badge: "REFLEJOS RÁPIDOS",
-          badgeColor: "#00E5FF",
-          storyText: "Toca con rapidez cada peluche, robot y caja de regalo mientras vuelan por la pantalla antes de que caigan al piso del taller.",
-          proTip: "¡Los juguetes que giran en el vértice del salto son más fáciles de atrapar!",
-          stageType: "generic_controls"
-        },
-        {
-          tag: "CAPÍTULO 3 • PUNTOS & FIEBRE DORADA",
-          title: "¡Fiebre de Juguetes x2!",
-          badge: "LLUVIA DE PUNTOS",
-          badgeColor: "#00E676",
-          storyText: "Toca regalos patrocinados con logo para recargar el medidor de energía y desatar la <strong>Fiebre de Juguetes</strong>: ¡lluvia masiva de regalos dorados con puntos dobles!",
-          proTip: "¡Los robots y coches mecánicos otorgan el doble de puntos!",
-          stageType: "generic_points"
-        },
-        {
-          tag: "CAPÍTULO 4 • ¡PELIGRO!",
-          title: "¡Evita el Carbón y Cajas Defectuosas!",
-          badge: "PENALIZACIONES",
-          badgeColor: "#FF1744",
-          storyText: "Tocar carbón ardiente o paquetes con calavera te restará entre 25 y 30 puntos y romperá de inmediato tu racha de combo.",
-          proTip: "¡Mira antes de tocar para no pinchar las trampas!",
-          stageType: "generic_hazards"
-        }
-      ]
-    });
-
     // 9. SALTO MÁGICO NAVIDEÑO (Christmas Jump)
     this.database.set("christmas-jump", {
       gameId: "christmas-jump",
@@ -1099,96 +1051,6 @@ export class UniversalStoryTutorialModal {
           badgeColor: "#FF1744",
           storyText: "¡Salta sobre la cabeza de los <strong>Duendes del Hielo</strong> para aplastarlos y rebotar con +350 pts! Si te golpean por los lados perderás tu combo. ¡Cuidado con el hielo frágil!",
           proTip: "¡Las nubes de algodón desaparecen tras 1 solo rebote: planifica bien tus saltos!",
-          stageType: "generic_hazards"
-        }
-      ]
-    });
-
-    // 10. LA TORRE DE REGALOS (GiftTowerGame)
-    this.database.set("gift-tower", {
-      gameId: "gift-tower",
-      gameTitle: "¡Torre de Regalos Mágica!",
-      themeColor: "#FFD700",
-      steps: [
-        {
-          tag: "CAPÍTULO 1 • LA HISTORIA",
-          title: "¡Construyendo la Torre Hacia el Cielo!",
-          badge: "HISTORIA FESTIVA",
-          badgeColor: "#FFD700",
-          storyText: "Los niños de Santander sueñan con la torre de regalos más alta jamás construida. ¡Coordina el gancho de la grúa mágica y apila los paquetes hasta alcanzar las nubes!",
-          proTip: "¡La precisión milimétrica es la clave del récord!",
-          stageType: "generic_story"
-        },
-        {
-          tag: "CAPÍTULO 2 • CONTROLES",
-          title: "¡Toca para Soltar el Paquete!",
-          badge: "TIMING PERFECTO",
-          badgeColor: "#00E5FF",
-          storyText: "Toca la pantalla o usa <strong>[ Espacio / Enter / ▼ ]</strong> en el instante en que el paquete oscilante esté exactamente alineado con la base inferior.",
-          proTip: "¡Suelta la caja un milisegundo antes de que llegue al centro para compensar la caída!",
-          stageType: "generic_controls"
-        },
-        {
-          tag: "CAPÍTULO 3 • PUNTOS & ALINEACIÓN PERFECTA",
-          title: "¡Alineación Perfecta y Expansión!",
-          badge: "COMBOS",
-          badgeColor: "#00E676",
-          storyText: "Si alineas el paquete a la perfección ganarás +300 pts y notas musicales armónicas. ¡Las cajas de patrocinador otorgan +500 pts y expanden el tamaño de tu base!",
-          proTip: "¡Tres perfectos seguidos activan la Fiebre Navideña con puntos dobles!",
-          stageType: "generic_points"
-        },
-        {
-          tag: "CAPÍTULO 4 • ¡PELIGRO!",
-          title: "¡Los Desbordes Recortan la Caja!",
-          badge: "VIDAS",
-          badgeColor: "#FF1744",
-          storyText: "La parte del paquete que sobresalga de la base será rebanada, haciendo la torre cada vez más estrecha. Si una caja cae completamente al vacío perderás 1 vida.",
-          proTip: "¡Tienes 3 vidas en total; construye con serenidad!",
-          stageType: "generic_hazards"
-        }
-      ]
-    });
-
-    // 11. EL EXPRESO POLAR (PolarExpressGame)
-    this.database.set("polar-express", {
-      gameId: "polar-express",
-      gameTitle: "¡El Expreso Polar Mágico!",
-      themeColor: "#FF2A4D",
-      steps: [
-        {
-          tag: "CAPÍTULO 1 • LA HISTORIA",
-          title: "¡A Toda Máquina por las Vías Nevadas!",
-          badge: "HISTORIA FESTIVA",
-          badgeColor: "#FFD700",
-          storyText: "¡La locomotora mágica de vapor atraviesa a toda velocidad los bosques de pino de Santander! Conduce el tren cambiando de vía para recoger los regalos y evitar los bloqueos.",
-          proTip: "¡Mantén los ojos bien abiertos al frente del camino!",
-          stageType: "generic_story"
-        },
-        {
-          tag: "CAPÍTULO 2 • CONTROLES",
-          title: "¡Cambia Entre las 3 Vías!",
-          badge: "CAMBIO DE CARRIL",
-          badgeColor: "#00E5FF",
-          storyText: "Toca directamente la vía a la que quieres moverte, o usa las flechas <strong>[ ▲ / ▼ ]</strong> o <strong>[ W / S ]</strong> para cambiar de carril ágilmente.",
-          proTip: "¡Cambiar de carril a tiempo evita choques en curvas cerradas!",
-          stageType: "generic_controls"
-        },
-        {
-          tag: "CAPÍTULO 3 • PUNTOS & TURBO VAPOR",
-          title: "¡Regalos y Turbo Vapor Invencible!",
-          badge: "POWER-UP",
-          badgeColor: "#00E676",
-          storyText: "Recoge paquetes (+50 pts) y estrellas (+150 pts). Al agarrar el <strong>Regalo de Patrocinador</strong> activarás el <strong>Turbo Vapor</strong>: ¡el tren se vuelve dorado e indestructible!",
-          proTip: "¡En Turbo Vapor puedes arrasar con todos los obstáculos en tu vía!",
-          stageType: "generic_points"
-        },
-        {
-          tag: "CAPÍTULO 4 • ¡PELIGRO!",
-          title: "¡Muñecos, Cristales y Troncos!",
-          badge: "VIDAS",
-          badgeColor: "#FF1744",
-          storyText: "Chocar contra los muñecos de nieve, troncos caídos o montones de carbón dañará la locomotora costándote una de tus 3 vidas.",
-          proTip: "¡Anticipa los obstáculos con varias vías de antelación!",
           stageType: "generic_hazards"
         }
       ]

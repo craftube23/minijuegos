@@ -23,6 +23,7 @@ import type { InputManager } from "../core/InputManager";
 import type { AudioManager } from "../core/AudioManager";
 import type { ParticleSystem } from "../core/ParticleSystem";
 import { SPONSOR_CATALOG } from "../config/branding";
+import { LayerCache, drawGlow } from "../core/RenderCache";
 
 type TargetKind =
   | "gingerbread"
@@ -1139,7 +1140,19 @@ export class OrnamentPopGame extends BaseGame {
     ctx.restore();
   }
 
+  private readonly dojoLayer = new LayerCache();
+  private readonly billboardLayer = new LayerCache();
+
   private drawDojoBackground(ctx: CanvasRenderingContext2D): void {
+    const w = this.width;
+    const h = this.height;
+    const ready = this.bgImg.complete && this.bgImg.naturalWidth > 0;
+
+    // Foto + viñeta a pantalla completa: se componen una sola vez
+    this.dojoLayer.draw(ctx, `${w}|${h}|${ready}`, 0, 0, w, h, (layer) => this.paintDojoBackground(layer));
+  }
+
+  private paintDojoBackground(ctx: CanvasRenderingContext2D): void {
     const w = this.width;
     const h = this.height;
 
@@ -1170,14 +1183,23 @@ export class OrnamentPopGame extends BaseGame {
     const boardH = isShort ? 50 : 68;
     const boardX = isShort ? 14 : (w - boardW) * 0.5;
     const boardY = isShort ? this.height - boardH - 10 : 128;
+    const logoReady = sponsor.logo.complete && sponsor.logo.naturalWidth > 0;
+    const key = `${this.billboardSponsorIdx % this.sponsors.length}|${w}|${this.height}|${this.isLogoPowerUpActive}|${logoReady}`;
+    this.billboardLayer.draw(ctx, key, boardX - 3, boardY - 3, boardW + 6, boardH + 6, (layer) =>
+      this.paintDojoSponsorBillboard(layer, sponsor, boardX, boardY, boardW, boardH, isShort)
+    );
+  }
 
+  private paintDojoSponsorBillboard(
+    ctx: CanvasRenderingContext2D,
+    sponsor: OrnamentPopGame["sponsors"][number],
+    boardX: number,
+    boardY: number,
+    boardW: number,
+    boardH: number,
+    isShort: boolean
+  ): void {
     ctx.save();
-
-    // Resplandor cuando se activa un patrocinador o combo
-    if (this.billboardGlowTimer > 0 || this.isLogoPowerUpActive) {
-      ctx.shadowColor = sponsor.themeColor;
-      ctx.shadowBlur = isShort ? 14 : 22;
-    }
 
     // Marco de madera noble y bronce del Dojo
     const bgGrad = ctx.createLinearGradient(boardX, boardY, boardX, boardY + boardH);
@@ -1190,7 +1212,6 @@ export class OrnamentPopGame extends BaseGame {
     ctx.roundRect(boardX, boardY, boardW, boardH, isShort ? 12 : 16);
     ctx.fill();
     ctx.stroke();
-    ctx.shadowBlur = 0;
 
     // Medallón claro a la izquierda para máxima legibilidad del logo
     const logoBoxW = isShort ? 70 : 92;
@@ -1504,31 +1525,16 @@ export class OrnamentPopGame extends BaseGame {
 
       if (t.kind === "bomb") {
         const pulse = 1 + Math.sin(this.animClock * 18) * 0.12;
-        const dangerGlow = ctx.createRadialGradient(0, 0, t.r * 0.3, 0, 0, t.r * 1.55 * pulse);
-        dangerGlow.addColorStop(0, "rgba(255, 23, 68, 0.58)");
-        dangerGlow.addColorStop(1, "rgba(255, 23, 68, 0)");
-        ctx.fillStyle = dangerGlow;
-        ctx.beginPath();
-        ctx.arc(0, 0, t.r * 1.55 * pulse, 0, Math.PI * 2);
-        ctx.fill();
+        drawGlow(ctx, 0, 0, t.r * 1.55 * pulse, 0.3 / 1.55, [[0, "rgba(255, 23, 68, 0.58)"], [1, "rgba(255, 23, 68, 0)"]]);
       } else if (t.kind === "frostGoblin") {
         const pulse = 1 + Math.sin(this.animClock * 14) * 0.15;
-        const goblinAura = ctx.createRadialGradient(0, 0, t.r * 0.2, 0, 0, t.r * 1.65 * pulse);
-        goblinAura.addColorStop(0, "rgba(0, 229, 255, 0.65)");
-        goblinAura.addColorStop(0.7, "rgba(0, 150, 255, 0.3)");
-        goblinAura.addColorStop(1, "rgba(0, 229, 255, 0)");
-        ctx.fillStyle = goblinAura;
-        ctx.beginPath();
-        ctx.arc(0, 0, t.r * 1.65 * pulse, 0, Math.PI * 2);
-        ctx.fill();
+        drawGlow(ctx, 0, 0, t.r * 1.65 * pulse, 0.2 / 1.65, [
+          [0, "rgba(0, 229, 255, 0.65)"],
+          [0.7, "rgba(0, 150, 255, 0.3)"],
+          [1, "rgba(0, 229, 255, 0)"]
+        ]);
       } else if (t.kind === "frozenGift") {
-        const frostAura = ctx.createRadialGradient(0, 0, t.r * 0.3, 0, 0, t.r * 1.45);
-        frostAura.addColorStop(0, "rgba(128, 216, 255, 0.45)");
-        frostAura.addColorStop(1, "rgba(0, 0, 0, 0)");
-        ctx.fillStyle = frostAura;
-        ctx.beginPath();
-        ctx.arc(0, 0, t.r * 1.45, 0, Math.PI * 2);
-        ctx.fill();
+        drawGlow(ctx, 0, 0, t.r * 1.45, 0.3 / 1.45, [[0, "rgba(128, 216, 255, 0.45)"], [1, "rgba(0, 0, 0, 0)"]]);
       } else if (
         t.kind === "timeClock" ||
         t.kind === "pinataBoss" ||
@@ -1544,13 +1550,7 @@ export class OrnamentPopGame extends BaseGame {
             : t.kind === "frenzyOrb"
             ? "rgba(0, 230, 118, 0.5)"
             : "rgba(255, 215, 0, 0.55)";
-        const aura = ctx.createRadialGradient(0, 0, t.r * 0.3, 0, 0, t.r * 1.65);
-        aura.addColorStop(0, auraColor);
-        aura.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = aura;
-        ctx.beginPath();
-        ctx.arc(0, 0, t.r * 1.65, 0, Math.PI * 2);
-        ctx.fill();
+        drawGlow(ctx, 0, 0, t.r * 1.65, 0.3 / 1.65, [[0, auraColor], [1, "rgba(0,0,0,0)"]]);
       }
 
       const img = this.getSpriteForKind(t.kind);

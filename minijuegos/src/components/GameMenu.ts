@@ -97,36 +97,6 @@ export class GameMenu {
       gemColor: "#00E676"
     },
     {
-      id: "workshop-chaos",
-      title: "¡El Caos del Taller Mágico!",
-      imageSrc: "./assets/images/icon-caos-taller.webp",
-      frameImageSrc: "./assets/images/marco-juego-rojo.webp",
-      themeClass: "theme-wood-red",
-      category: "REFLEJOS & ACCIÓN",
-      tagline: "¡Salva los juguetes que salen disparados de la máquina!",
-      gemColor: "#FF9100"
-    },
-    {
-      id: "gift-tower",
-      title: "¡Torre de Regalos Mágica!",
-      imageSrc: "./assets/images/icon-torre-regalos.webp",
-      frameImageSrc: "./assets/images/marco-juego-rojo.webp",
-      themeClass: "theme-wood-red",
-      category: "EQUILIBRIO & APILADO",
-      tagline: "¡Apila los regalos con la grúa mágica y crea la torre más alta!",
-      gemColor: "#FFD700"
-    },
-    {
-      id: "polar-express",
-      title: "¡El Expreso Polar Mágico!",
-      imageSrc: "./assets/images/icon-expreso-polar.webp",
-      frameImageSrc: "./assets/images/marco-juego-verde.webp",
-      themeClass: "theme-forest-green",
-      category: "CARRERA & REFLEJOS",
-      tagline: "¡Cambia de vía, recoge regalos y esquiva obstáculos!",
-      gemColor: "#00E676"
-    },
-    {
       id: "ornament-pop",
       title: "¡Ninja Corta-Regalos!",
       imageSrc: "./assets/images/icon-ninja-regalos.webp",
