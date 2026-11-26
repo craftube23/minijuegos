@@ -171,8 +171,8 @@ class KioskApp {
       });
     }
 
-    // 10. Iniciar música de fondo festiva para inicio y menú
-    this.audio.playMenuBGM();
+    // 10. Iniciar música de fondo festiva para inicio (no-loop para alternar con video tras terminar)
+    this.audio.playRandomMenuBGM(false, 0.45, false);
 
     (window as any).kioskApp = this;
 
@@ -353,11 +353,19 @@ class KioskApp {
    * Conecta los botones y transiciones entre pantallas
    */
   private setupNavigationCallbacks(): void {
+    // 0. Callback cuando finaliza la canción de bienvenida en modo Attract → Arranca video promocional
+    this.audio.onMenuBGMEnded = () => {
+      if (this.appState === "attract" && !this.isTransitioning && !this.isAttractVideoPlaying) {
+        console.log("🎬 Canción de bienvenida finalizada. Mostrando video promocional a pantalla completa...");
+        this.showAttractVideo();
+      }
+    };
+
     // 1. Al presionar "Toca para Jugar" en el Salvapantallas → Manos de Santa desgarran el gran paquete para revelar el Menú
     this.attractScreen.onStartClick = () => {
       this.audio.unlockAudio();
       this.audio.playTap();
-      this.audio.resumeMenuBGM();
+      this.audio.playRandomMenuBGM(false, 0.45, true);
       this.tryEnterFullscreen();
 
       if (this.isTransitioning) return;
@@ -968,7 +976,7 @@ class KioskApp {
       this.games.delete(id);
     }
     this.carousel.resume();
-    this.audio.resumeMenuBGM();
+    this.audio.playRandomMenuBGM(true, 0.45, false);
     this.isTransitioning = false;
     this.appState = "attract";
     this.handleResize();
@@ -1031,13 +1039,14 @@ class KioskApp {
       this.attractVideo = document.getElementById("attract-video") as HTMLVideoElement;
       if (this.attractVideo) {
         this.attractVideo.addEventListener("ended", () => {
-          this.hideAttractVideo();
+          this.hideAttractVideo(true);
         });
       }
       if (this.attractVideoModal) {
         const exitHandler = (e: Event) => {
           e.stopPropagation();
-          this.hideAttractVideo();
+          this.hideAttractVideo(false);
+          this.attractScreen.onStartClick?.();
         };
         this.attractVideoModal.addEventListener("pointerdown", exitHandler);
         this.attractVideoModal.addEventListener("touchstart", exitHandler, { passive: false });
@@ -1055,10 +1064,11 @@ class KioskApp {
     this.attractVideo.muted = false;
     const playPromise = this.attractVideo.play();
     if (playPromise !== undefined) {
-      playPromise.catch(() => {
+      playPromise.catch((err) => {
+        console.warn("Video autoplay unmuted failed, intentando con muted:", err);
         if (this.attractVideo) {
           this.attractVideo.muted = true;
-          this.attractVideo.play().catch(err => console.warn("Video autoplay failed:", err));
+          this.attractVideo.play().catch(e => console.warn("Video play failed:", e));
         }
       });
     }
@@ -1067,7 +1077,7 @@ class KioskApp {
   /**
    * Oculta el video promocional y regresa limpiamente al menú de inicio
    */
-  private hideAttractVideo(): void {
+  private hideAttractVideo(returnToAttractWelcome: boolean = true): void {
     if (!this.isAttractVideoPlaying) return;
     this.isAttractVideoPlaying = false;
     if (this.attractVideo) {
@@ -1077,7 +1087,9 @@ class KioskApp {
     if (this.attractVideoModal) {
       this.attractVideoModal.style.display = "none";
     }
-    this.audio.resumeMenuBGM();
+    if (returnToAttractWelcome) {
+      this.goToAttractScreen();
+    }
     this.resetInactivity();
   }
 

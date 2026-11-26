@@ -46,6 +46,7 @@ export class AudioManager {
   private gameBgmAudio: HTMLAudioElement | null = null;
   private gameBgmVolume: number = 0.50;
   private howlSfxRegistry: Map<string, HowlSfxEntry> = new Map();
+  public onMenuBGMEnded?: () => void;
   public static readonly PRIMARY_THEME_SONG: string = "./assets/audio/jingle-oficial-feria-magica.wav";
   public static readonly SLICE_CUT_SFX: string = "./assets/audio/cortaregalos/corte_effec.wav";
   private currentBgmPath: string = "./assets/audio/jingle-oficial-feria-magica.wav";
@@ -123,10 +124,10 @@ export class AudioManager {
   }
 
   /**
-   * Reproduce exclusivamente la canción oficial de la Feria Mágica en bucle para el Menú / Inicio.
+   * Reproduce exclusivamente la canción oficial de la Feria Mágica para el Menú / Inicio.
    * Canción única oficial del slogan de la página (sin reproductor aleatorio).
    */
-  public playRandomMenuBGM(forceNew: boolean = false, volume: number = 0.45): void {
+  public playRandomMenuBGM(forceNew: boolean = false, volume: number = 0.45, loop: boolean = true): void {
     if (this.isGameActive || this.isMuted) {
       this.stopMenuBGM();
       return;
@@ -143,10 +144,13 @@ export class AudioManager {
 
     if (!this.bgmAudio) {
       this.bgmAudio = new Audio();
-      this.bgmAudio.loop = true;
-    } else {
-      this.bgmAudio.loop = true;
     }
+    this.bgmAudio.loop = loop;
+    this.bgmAudio.onended = () => {
+      if (!this.bgmAudio?.loop && this.onMenuBGMEnded) {
+        this.onMenuBGMEnded();
+      }
+    };
 
     if (this.bgmAudio.src !== song && !this.bgmAudio.src.endsWith("jingle-oficial-feria-magica.wav")) {
       this.bgmAudio.src = song;
@@ -159,7 +163,7 @@ export class AudioManager {
    * Reproduce música de fondo ambiental (BGM)
    * Solo suena en inicio y menú; NUNCA dentro de un minijuego
    */
-  public playMenuBGM(src?: string, volume: number = 0.45): void {
+  public playMenuBGM(src?: string, volume: number = 0.45, loop: boolean = true): void {
     if (src) {
       if (this.isGameActive || this.isMuted) {
         this.stopMenuBGM();
@@ -171,10 +175,13 @@ export class AudioManager {
 
       if (!this.bgmAudio) {
         this.bgmAudio = new Audio();
-        this.bgmAudio.loop = true;
-      } else {
-        this.bgmAudio.loop = true;
       }
+      this.bgmAudio.loop = loop;
+      this.bgmAudio.onended = () => {
+        if (!this.bgmAudio?.loop && this.onMenuBGMEnded) {
+          this.onMenuBGMEnded();
+        }
+      };
 
       if (this.bgmAudio.paused || this.bgmAudio.src !== src) {
         this.bgmAudio.src = src;
@@ -182,7 +189,7 @@ export class AudioManager {
         this.bgmAudio.play().catch(() => {});
       }
     } else {
-      this.playRandomMenuBGM(false, volume);
+      this.playRandomMenuBGM(false, volume, loop);
     }
   }
 
@@ -206,9 +213,9 @@ export class AudioManager {
   /**
    * Reanuda la música de fondo de forma fluida (o cambia de pista si se solicita)
    */
-  public resumeMenuBGM(forceNew: boolean = false): void {
+  public resumeMenuBGM(forceNew: boolean = false, loop: boolean = true): void {
     this.isGameActive = false;
-    this.playRandomMenuBGM(forceNew, this.bgmVolume);
+    this.playRandomMenuBGM(forceNew, this.bgmVolume, loop);
   }
 
   /**

@@ -85,7 +85,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "sparkles",
       accentColor: "#FFD700",
       bgGradient: "linear-gradient(90deg, #2A0712 0%, #68122B 50%, #2A0712 100%)",
-      bgImage: "./assets/banners/8.png",
+      bgImage: "./assets/banners/totem/8.webp",
       logos: [
         {
           src: "./assets/logos/clean-feria-magica.webp",
@@ -119,7 +119,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "arrow-right",
       accentColor: "#38BDF8",
       bgGradient: "linear-gradient(90deg, #04192E 0%, #0A365C 50%, #04192E 100%)",
-      bgImage: "./assets/banners/7.png",
+      bgImage: "./assets/banners/totem/7.webp",
       logos: [
         {
           src: "./assets/logos/horiz-fundalas.webp",
@@ -153,7 +153,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "phone-call",
       accentColor: "#FF5252",
       bgGradient: "linear-gradient(90deg, #1F070E 0%, #420F1E 50%, #1F070E 100%)",
-      bgImage: "./assets/banners/4.png",
+      bgImage: "./assets/banners/totem/4.webp",
       logos: [
         {
           src: "./assets/logos/horiz-factor-humano.webp",
@@ -189,7 +189,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "sparkles",
       accentColor: "#FFD700",
       bgGradient: "linear-gradient(90deg, #072A18 0%, #115E36 50%, #072A18 100%)",
-      bgImage: "./assets/banners/5.png",
+      bgImage: "./assets/banners/totem/5.webp",
       logos: [
         {
           src: "./assets/logos/clean-feria-magica.webp",
@@ -223,7 +223,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "arrow-right",
       accentColor: "#00E5FF",
       bgGradient: "linear-gradient(90deg, #041224 0%, #08284D 50%, #041224 100%)",
-      bgImage: "./assets/banners/1.png",
+      bgImage: "./assets/banners/totem/1.webp",
       logos: [
         {
           src: "./assets/logos/horiz-campuslands.webp",
@@ -257,7 +257,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "phone-call",
       accentColor: "#E2E8F0",
       bgGradient: "linear-gradient(90deg, #061326 0%, #0E294D 50%, #061326 100%)",
-      bgImage: "./assets/banners/11.png",
+      bgImage: "./assets/banners/totem/11.webp",
       logos: [
         {
           src: "./assets/logos/horiz-angelus.webp",
@@ -293,7 +293,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "gift",
       accentColor: "#FFD700",
       bgGradient: "linear-gradient(90deg, #1E0B36 0%, #4A157A 50%, #1E0B36 100%)",
-      bgImage: "./assets/banners/6.png",
+      bgImage: "./assets/banners/totem/6.webp",
       logos: [
         {
           src: "./assets/logos/clean-feria-magica.webp",
@@ -327,7 +327,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "shopping-bag",
       accentColor: "#FFB300",
       bgGradient: "linear-gradient(90deg, #240C05 0%, #4D1A0A 50%, #240C05 100%)",
-      bgImage: "./assets/banners/9.png",
+      bgImage: "./assets/banners/totem/8.webp",
       logos: [
         {
           src: "./assets/logos/clean-practi-arepa.webp",
@@ -361,7 +361,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "shopping-bag",
       accentColor: "#FFD500",
       bgGradient: "linear-gradient(90deg, #26060E 0%, #4D1020 50%, #26060E 100%)",
-      bgImage: "./assets/banners/3.png",
+      bgImage: "./assets/banners/totem/3.webp",
       logos: [
         {
           src: "./assets/logos/clean-mariposa.webp",
@@ -397,7 +397,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "shopping-bag",
       accentColor: "#FFD700",
       bgGradient: "linear-gradient(90deg, #330814 0%, #7A142E 50%, #330814 100%)",
-      bgImage: "./assets/banners/12.png",
+      bgImage: "./assets/banners/totem/12.webp",
       logos: [
         {
           src: "./assets/logos/clean-feria-magica.webp",
@@ -431,7 +431,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "arrow-right",
       accentColor: "#FFA000",
       bgGradient: "linear-gradient(90deg, #051833 0%, #0C2E5E 50%, #051833 100%)",
-      bgImage: "./assets/banners/10.png",
+      bgImage: "./assets/banners/totem/10.webp",
       logos: [
         {
           src: "./assets/logos/clean-cajasan.webp",
@@ -465,7 +465,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "trending-up",
       accentColor: "#00E676",
       bgGradient: "linear-gradient(90deg, #041B12 0%, #0A3D27 50%, #041B12 100%)",
-      bgImage: "./assets/banners/2.png",
+      bgImage: "./assets/banners/totem/2.webp",
       logos: [
         {
           src: "./assets/logos/clean-imebu.webp",
@@ -499,7 +499,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "sparkles",
       accentColor: "#F40009",
       bgGradient: "linear-gradient(90deg, #2B0306 0%, #6E0B14 50%, #2B0306 100%)",
-      bgImage: "./assets/banners/3.png",
+      bgImage: "./assets/banners/totem/3.webp",
       logos: [
         {
           src: "./assets/logos/clean-coca-cola.webp",
@@ -533,7 +533,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "arrow-right",
       accentColor: "#FBBF24",
       bgGradient: "linear-gradient(90deg, #1C1302 0%, #4D3507 50%, #1C1302 100%)",
-      bgImage: "./assets/banners/6.png",
+      bgImage: "./assets/banners/totem/6.webp",
       logos: [
         {
           src: "./assets/logos/clean-maicito.webp",
@@ -567,7 +567,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "arrow-right",
       accentColor: "#00E676",
       bgGradient: "linear-gradient(90deg, #021F0D 0%, #064E24 50%, #021F0D 100%)",
-      bgImage: "./assets/banners/1.png",
+      bgImage: "./assets/banners/totem/1.webp",
       logos: [
         {
           src: "./assets/logos/clean-confort.webp",
@@ -603,7 +603,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "sparkles",
       accentColor: "#00E5FF",
       bgGradient: "linear-gradient(90deg, #051A2E 0%, #0D3E6B 50%, #051A2E 100%)",
-      bgImage: "./assets/banners/13.png",
+      bgImage: "./assets/banners/totem/13.webp",
       logos: [
         {
           src: "./assets/logos/clean-feria-magica.webp",
@@ -639,7 +639,7 @@ export const BANNER_CONFIG = {
       ctaIcon: "ticket",
       accentColor: "#FFD700",
       bgGradient: "linear-gradient(90deg, #041B12 0%, #0E472C 50%, #041B12 100%)",
-      bgImage: "./assets/banners/14.png",
+      bgImage: "./assets/banners/totem/14.webp",
       logos: [
         {
           src: "./assets/logos/clean-feria-magica.webp",
