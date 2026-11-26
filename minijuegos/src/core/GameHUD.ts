@@ -31,6 +31,18 @@ export interface HUDState {
 }
 
 export class GameHUD {
+  // Cachés zero-alloc para eliminar recolección de basura (GC) en el bucle a 60 FPS
+  private static cachedHudGrad: CanvasGradient | null = null;
+  private static cachedHudGradH: number = -1;
+
+  private static cachedScorePlaqueGrad: CanvasGradient | null = null;
+  private static cachedScorePlaqueKey: string = "";
+
+  private static cachedClapperGrad: CanvasGradient | null = null;
+  private static cachedBellGrad: CanvasGradient | null = null;
+  private static cachedRimGrad: CanvasGradient | null = null;
+  private static cachedHeartGrad: CanvasGradient | null = null;
+
   private static drawClockIcon(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, isUrgent: boolean): void {
     ctx.save();
     ctx.translate(Math.round(x), Math.round(y));
@@ -76,11 +88,15 @@ export class GameHUD {
         : Math.max(48, Math.min(62, state.height * 0.080))));
 
     // 1. BARRA BASE SUPERIOR: Totalmente opaca (#0A1422) para que ningún elemento inferior traspase
-    const hudGrad = ctx.createLinearGradient(0, 0, 0, hudH);
-    hudGrad.addColorStop(0, "#132438");
-    hudGrad.addColorStop(0.7, "#0A1422");
-    hudGrad.addColorStop(1, "#050B13");
-    ctx.fillStyle = hudGrad;
+    if (!this.cachedHudGrad || this.cachedHudGradH !== hudH) {
+      const g = ctx.createLinearGradient(0, 0, 0, hudH);
+      g.addColorStop(0, "#132438");
+      g.addColorStop(0.7, "#0A1422");
+      g.addColorStop(1, "#050B13");
+      this.cachedHudGrad = g;
+      this.cachedHudGradH = hudH;
+    }
+    ctx.fillStyle = this.cachedHudGrad;
     ctx.fillRect(0, 0, state.width, hudH);
 
     // Ribete de madera caoba + filete de oro noble
@@ -112,12 +128,17 @@ export class GameHUD {
     const scorePlaqueW = Math.round(scoreTextW + starRadius * 2 + (isNarrow ? 16 : 24));
     const scorePlaqueX = paddingX;
 
-    // Fondo de placa de puntuación con borde nítido
+    // Fondo de placa de puntuación con borde nítido (Caché zero-alloc)
     ctx.save();
-    const scorePlaqueGrad = ctx.createLinearGradient(scorePlaqueX, plaqueY, scorePlaqueX, plaqueY + plaqueH);
-    scorePlaqueGrad.addColorStop(0, "rgba(30, 41, 59, 0.95)");
-    scorePlaqueGrad.addColorStop(1, "rgba(15, 23, 42, 0.98)");
-    ctx.fillStyle = scorePlaqueGrad;
+    const plaqueKey = `${scorePlaqueX}_${plaqueY}_${plaqueH}`;
+    if (!this.cachedScorePlaqueGrad || this.cachedScorePlaqueKey !== plaqueKey) {
+      const g = ctx.createLinearGradient(scorePlaqueX, plaqueY, scorePlaqueX, plaqueY + plaqueH);
+      g.addColorStop(0, "rgba(30, 41, 59, 0.95)");
+      g.addColorStop(1, "rgba(15, 23, 42, 0.98)");
+      this.cachedScorePlaqueGrad = g;
+      this.cachedScorePlaqueKey = plaqueKey;
+    }
+    ctx.fillStyle = this.cachedScorePlaqueGrad;
     ctx.beginPath();
     ctx.roundRect(scorePlaqueX, plaqueY, scorePlaqueW, plaqueH, 8);
     ctx.fill();
@@ -457,22 +478,28 @@ export class GameHUD {
     ctx.fill();
     ctx.stroke();
 
-    const clapperGrad = ctx.createRadialGradient(-0.8, 7.5, 0.5, 0, 8.5, 3.2);
-    clapperGrad.addColorStop(0, "#FFF3B0");
-    clapperGrad.addColorStop(0.4, "#FFD700");
-    clapperGrad.addColorStop(1, "#8A4E00");
-    ctx.fillStyle = clapperGrad;
+    if (!this.cachedClapperGrad) {
+      const g = ctx.createRadialGradient(-0.8, 7.5, 0.5, 0, 8.5, 3.2);
+      g.addColorStop(0, "#FFF3B0");
+      g.addColorStop(0.4, "#FFD700");
+      g.addColorStop(1, "#8A4E00");
+      this.cachedClapperGrad = g;
+    }
+    ctx.fillStyle = this.cachedClapperGrad;
     ctx.beginPath();
     ctx.arc(0, 8.5, 2.8, 0, Math.PI * 2);
     ctx.fill();
 
-    const bellGrad = ctx.createLinearGradient(-8, -6, 8, 6);
-    bellGrad.addColorStop(0, "#FFF9C4");
-    bellGrad.addColorStop(0.25, "#FFEB3B");
-    bellGrad.addColorStop(0.65, "#FFB300");
-    bellGrad.addColorStop(1, "#E65100");
+    if (!this.cachedBellGrad) {
+      const g = ctx.createLinearGradient(-8, -6, 8, 6);
+      g.addColorStop(0, "#FFF9C4");
+      g.addColorStop(0.25, "#FFEB3B");
+      g.addColorStop(0.65, "#FFB300");
+      g.addColorStop(1, "#E65100");
+      this.cachedBellGrad = g;
+    }
 
-    ctx.fillStyle = bellGrad;
+    ctx.fillStyle = this.cachedBellGrad;
     ctx.beginPath();
     ctx.moveTo(-3.5, -6.5);
     ctx.bezierCurveTo(-6, -4, -8.5, 1.5, -10.5, 6);
@@ -485,11 +512,14 @@ export class GameHUD {
     ctx.lineWidth = 1.3;
     ctx.stroke();
 
-    const rimGrad = ctx.createLinearGradient(-11, 5, 11, 8.5);
-    rimGrad.addColorStop(0, "#FFE082");
-    rimGrad.addColorStop(0.5, "#FFD54F");
-    rimGrad.addColorStop(1, "#FF8F00");
-    ctx.fillStyle = rimGrad;
+    if (!this.cachedRimGrad) {
+      const g = ctx.createLinearGradient(-11, 5, 11, 8.5);
+      g.addColorStop(0, "#FFE082");
+      g.addColorStop(0.5, "#FFD54F");
+      g.addColorStop(1, "#FF8F00");
+      this.cachedRimGrad = g;
+    }
+    ctx.fillStyle = this.cachedRimGrad;
     ctx.beginPath();
     ctx.roundRect(-11.5, 5, 23, 3.6, 1.8);
     ctx.fill();
@@ -608,12 +638,15 @@ export class GameHUD {
       return;
     }
 
-    const heartGrad = ctx.createLinearGradient(0, -11, 0, 6);
-    heartGrad.addColorStop(0, "#FF5252");
-    heartGrad.addColorStop(0.5, "#D50000");
-    heartGrad.addColorStop(1, "#8A0000");
+    if (!this.cachedHeartGrad) {
+      const g = ctx.createLinearGradient(0, -11, 0, 6);
+      g.addColorStop(0, "#FF5252");
+      g.addColorStop(0.5, "#D50000");
+      g.addColorStop(1, "#8A0000");
+      this.cachedHeartGrad = g;
+    }
 
-    ctx.fillStyle = heartGrad;
+    ctx.fillStyle = this.cachedHeartGrad;
     ctx.beginPath();
     ctx.moveTo(0, 5.5);
     ctx.bezierCurveTo(-12, -4.5, -10, -13, 0, -6.5);

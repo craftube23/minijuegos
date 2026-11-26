@@ -39,6 +39,11 @@ export function makeSkyStars(count: number): SkyStar[] {
   return stars;
 }
 
+let cachedSkyGrad: CanvasGradient | null = null;
+let cachedSkyGradH: number = -1;
+let cachedAurGrad: CanvasGradient | null = null;
+let cachedAurGradH: number = -1;
+
 /** Cielo nocturno de feria con estrellas titilantes y luna */
 export function drawNightSky(
   ctx: CanvasRenderingContext2D,
@@ -48,21 +53,29 @@ export function drawNightSky(
   stars: SkyStar[],
   scrollY: number = 0
 ): void {
-  const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, "#060B24");
-  grad.addColorStop(0.55, "#10224D");
-  grad.addColorStop(1, "#1C3A73");
-  ctx.fillStyle = grad;
+  if (!cachedSkyGrad || cachedSkyGradH !== h) {
+    const g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, "#060B24");
+    g.addColorStop(0.55, "#10224D");
+    g.addColorStop(1, "#1C3A73");
+    cachedSkyGrad = g;
+    cachedSkyGradH = h;
+  }
+  ctx.fillStyle = cachedSkyGrad;
   ctx.fillRect(0, 0, w, h);
 
   // Aurora suave
   ctx.save();
   ctx.globalAlpha = 0.22;
-  const aur = ctx.createLinearGradient(0, h * 0.1, 0, h * 0.55);
-  aur.addColorStop(0, "rgba(0,229,160,0)");
-  aur.addColorStop(0.5, "rgba(0,229,160,0.9)");
-  aur.addColorStop(1, "rgba(0,160,255,0)");
-  ctx.fillStyle = aur;
+  if (!cachedAurGrad || cachedAurGradH !== h) {
+    const a = ctx.createLinearGradient(0, h * 0.1, 0, h * 0.55);
+    a.addColorStop(0, "rgba(0,229,160,0)");
+    a.addColorStop(0.5, "rgba(0,229,160,0.9)");
+    a.addColorStop(1, "rgba(0,160,255,0)");
+    cachedAurGrad = a;
+    cachedAurGradH = h;
+  }
+  ctx.fillStyle = cachedAurGrad;
   ctx.beginPath();
   ctx.moveTo(0, h * 0.3);
   for (let x = 0; x <= w; x += 40) {
@@ -74,28 +87,36 @@ export function drawNightSky(
   ctx.fill();
   ctx.restore();
 
-  for (const s of stars) {
-    const tw = 0.55 + 0.45 * Math.sin(t * 1.8 + s.p);
-    ctx.globalAlpha = tw;
+  // Estrellas por lotes (Batch Rendering en 1 solo trazado)
+  if (stars.length > 0) {
+    ctx.save();
+    ctx.globalAlpha = 0.8;
     ctx.fillStyle = "#FFFDE7";
     ctx.beginPath();
-    ctx.arc(s.x * w, ((s.y * h + scrollY * 0.15) % h + h) % h, s.r, 0, Math.PI * 2);
+    for (const s of stars) {
+      const y = ((s.y * h + scrollY * 0.15) % h + h) % h;
+      const x = s.x * w;
+      ctx.moveTo(x + s.r, y);
+      ctx.arc(x, y, s.r, 0, Math.PI * 2);
+    }
     ctx.fill();
+    ctx.restore();
   }
-  ctx.globalAlpha = 1;
 
-  // Luna con halo
+  // Luna con halo (Capa pura translúcida sin recrear gradiente radial cada frame)
   const mx = w * 0.84;
   const my = h * 0.2 + scrollY * 0.04;
-  const halo = ctx.createRadialGradient(mx, my, 6, mx, my, 70);
-  halo.addColorStop(0, "rgba(255,248,220,0.55)");
-  halo.addColorStop(1, "rgba(255,248,220,0)");
-  ctx.fillStyle = halo;
-  ctx.fillRect(mx - 80, my - 80, 160, 160);
+  ctx.save();
+  ctx.fillStyle = "rgba(255, 248, 220, 0.18)";
+  ctx.beginPath();
+  ctx.arc(mx, my, 45, 0, Math.PI * 2);
+  ctx.fill();
+
   ctx.fillStyle = "#FFF8DC";
   ctx.beginPath();
   ctx.arc(mx, my, 20, 0, Math.PI * 2);
   ctx.fill();
+  ctx.restore();
 }
 
 /** Pastilla informativa (altura, combo, piso...) con borde dorado */

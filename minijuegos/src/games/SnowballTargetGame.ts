@@ -195,6 +195,13 @@ export class SnowballTargetGame extends BaseGame {
   private lanternFlicker: number = 0;
   private ambientSnowDrift: { x: number; y: number; speed: number; size: number }[] = [];
 
+  // Cachés zero-alloc para 60 FPS
+  private cachedFeverAura: CanvasGradient | null = null;
+  private cachedFeverW: number = -1;
+  private cachedFeverH: number = -1;
+  private cachedIceVignette: CanvasGradient | null = null;
+  private cachedIceVignetteH: number = -1;
+
   constructor(
     canvas: HTMLCanvasElement,
     input: InputManager,
@@ -1284,34 +1291,46 @@ export class SnowballTargetGame extends BaseGame {
       ctx.fillRect(0, 0, w, h);
     }
 
-    // Efecto de resplandor del Modo Fiebre
+    // Efecto de resplandor del Modo Fiebre (Caché zero-alloc)
     if (this.isFeverMode) {
-      const feverAura = ctx.createRadialGradient(w / 2, h * 0.45, 40, w / 2, h * 0.45, w * 0.75);
-      feverAura.addColorStop(0, "rgba(255, 215, 0, 0.25)");
-      feverAura.addColorStop(0.6, "rgba(255, 69, 0, 0.15)");
-      feverAura.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = feverAura;
+      if (!this.cachedFeverAura || this.cachedFeverW !== w || this.cachedFeverH !== h) {
+        const feverAura = ctx.createRadialGradient(w / 2, h * 0.45, 40, w / 2, h * 0.45, w * 0.75);
+        feverAura.addColorStop(0, "rgba(255, 215, 0, 0.25)");
+        feverAura.addColorStop(0.6, "rgba(255, 69, 0, 0.15)");
+        feverAura.addColorStop(1, "rgba(0, 0, 0, 0)");
+        this.cachedFeverAura = feverAura;
+        this.cachedFeverW = w;
+        this.cachedFeverH = h;
+      }
+      ctx.fillStyle = this.cachedFeverAura;
       ctx.fillRect(0, 0, w, h);
     }
 
-    // Efecto de Ventisca Glacial (Cajasan)
+    // Efecto de Ventisca Glacial (Cajasan - Caché zero-alloc)
     if (this.blizzardFreezeTimer > 0) {
-      const iceVignette = ctx.createLinearGradient(0, 0, 0, h);
-      iceVignette.addColorStop(0, "rgba(0, 229, 255, 0.22)");
-      iceVignette.addColorStop(0.5, "rgba(128, 222, 234, 0.08)");
-      iceVignette.addColorStop(1, "rgba(0, 229, 255, 0.24)");
-      ctx.fillStyle = iceVignette;
+      if (!this.cachedIceVignette || this.cachedIceVignetteH !== h) {
+        const iceVignette = ctx.createLinearGradient(0, 0, 0, h);
+        iceVignette.addColorStop(0, "rgba(0, 229, 255, 0.22)");
+        iceVignette.addColorStop(0.5, "rgba(128, 222, 234, 0.08)");
+        iceVignette.addColorStop(1, "rgba(0, 229, 255, 0.24)");
+        this.cachedIceVignette = iceVignette;
+        this.cachedIceVignetteH = h;
+      }
+      ctx.fillStyle = this.cachedIceVignette;
       ctx.fillRect(0, 0, w, h);
     }
 
     // 1.5. Guirnalda de patrocinadores en la pared
     this.drawBackgroundSponsorBanner(ctx);
 
-    // 2. Nieve ambiente
-    ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-    for (const flake of this.ambientSnowDrift) {
+    // 2. Nieve ambiente optimizada (Trazado por lotes en una sola llamada a fill)
+    if (this.ambientSnowDrift.length > 0) {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
       ctx.beginPath();
-      ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+      for (const flake of this.ambientSnowDrift) {
+        ctx.moveTo(flake.x + flake.size, flake.y);
+        ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+      }
       ctx.fill();
     }
 

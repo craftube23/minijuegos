@@ -33,6 +33,92 @@ export class VirtualJoystick {
   private outY = 0;
   private outMag = 0;
 
+  // Sprites cacheados offscreen para ultra-rendimiento (Cero llamadas a createRadialGradient por frame)
+  private baseCanvas: HTMLCanvasElement | null = null;
+  private knobCanvas: HTMLCanvasElement | null = null;
+  private baseR: number = 0;
+  private knobR: number = 0;
+
+  private ensureSprites(): void {
+    if (this.baseCanvas && this.knobCanvas) return;
+
+    const r = this.radius;
+    const baseMargin = Math.ceil(r * 1.25);
+    const baseSize = baseMargin * 2;
+    this.baseR = baseMargin;
+
+    const baseC = document.createElement("canvas");
+    baseC.width = baseSize;
+    baseC.height = baseSize;
+    const bCtx = baseC.getContext("2d")!;
+    const bcx = baseMargin;
+    const bcy = baseMargin;
+
+    const baseGrad = bCtx.createRadialGradient(bcx, bcy, r * 0.2, bcx, bcy, r * 1.15);
+    baseGrad.addColorStop(0, "rgba(255, 215, 0, 0.10)");
+    baseGrad.addColorStop(0.75, "rgba(255, 193, 7, 0.22)");
+    baseGrad.addColorStop(1, "rgba(255, 152, 0, 0.0)");
+    bCtx.fillStyle = baseGrad;
+    bCtx.beginPath();
+    bCtx.arc(bcx, bcy, r * 1.15, 0, Math.PI * 2);
+    bCtx.fill();
+
+    bCtx.strokeStyle = "rgba(255, 215, 0, 0.55)";
+    bCtx.lineWidth = 4;
+    bCtx.beginPath();
+    bCtx.arc(bcx, bcy, r, 0, Math.PI * 2);
+    bCtx.stroke();
+
+    bCtx.fillStyle = "rgba(255, 255, 255, 0.6)";
+    bCtx.beginPath();
+    for (let i = 0; i < 4; i++) {
+      const ang = (i * Math.PI) / 2;
+      bCtx.moveTo(bcx + Math.cos(ang) * r * 0.82 + 3.5, bcy + Math.sin(ang) * r * 0.82);
+      bCtx.arc(bcx + Math.cos(ang) * r * 0.82, bcy + Math.sin(ang) * r * 0.82, 3.5, 0, Math.PI * 2);
+    }
+    bCtx.fill();
+    this.baseCanvas = baseC;
+
+    // Knob
+    const kr = r * 0.46;
+    const knobMargin = Math.ceil(kr * 1.4);
+    const knobSize = knobMargin * 2;
+    this.knobR = knobMargin;
+
+    const knobC = document.createElement("canvas");
+    knobC.width = knobSize;
+    knobC.height = knobSize;
+    const kCtx = knobC.getContext("2d")!;
+    const kcx = knobMargin;
+    const kcy = knobMargin;
+
+    const knobGrad = kCtx.createRadialGradient(kcx - kr * 0.35, kcy - kr * 0.35, kr * 0.1, kcx, kcy, kr);
+    knobGrad.addColorStop(0, "rgba(255, 138, 128, 0.95)");
+    knobGrad.addColorStop(0.6, "rgba(229, 57, 53, 0.9)");
+    knobGrad.addColorStop(1, "rgba(183, 28, 28, 0.9)");
+    kCtx.fillStyle = knobGrad;
+    kCtx.beginPath();
+    kCtx.arc(kcx, kcy, kr, 0, Math.PI * 2);
+    kCtx.fill();
+
+    kCtx.strokeStyle = "#FFD700";
+    kCtx.lineWidth = 3;
+    kCtx.stroke();
+
+    kCtx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+    kCtx.lineWidth = 2;
+    kCtx.beginPath();
+    for (let i = 0; i < 3; i++) {
+      const ang = (i * Math.PI) / 3;
+      const xOff = Math.cos(ang) * kr * 0.5;
+      const yOff = Math.sin(ang) * kr * 0.5;
+      kCtx.moveTo(kcx - xOff, kcy - yOff);
+      kCtx.lineTo(kcx + xOff, kcy + yOff);
+    }
+    kCtx.stroke();
+    this.knobCanvas = knobC;
+  }
+
   constructor(
     canvas: HTMLCanvasElement,
     getLogicalSize: () => { width: number; height: number },
@@ -173,71 +259,20 @@ export class VirtualJoystick {
     }
   }
 
-  /** Dibuja el joystick flotante (solo mientras hay un pulgar activo) */
+  /** Dibuja el joystick flotante (solo mientras hay un pulgar activo) con sprites pre-renderizados */
   public draw(ctx: CanvasRenderingContext2D, dt: number = 1 / 60): void {
     const target = this.pointerId !== null ? 1 : 0;
     this.appearAlpha += (target - this.appearAlpha) * Math.min(1, dt * 14);
     if (this.appearAlpha < 0.02) return;
 
-    const a = this.appearAlpha;
-    const r = this.radius;
+    this.ensureSprites();
+
     ctx.save();
-    ctx.globalAlpha = a;
+    ctx.globalAlpha = this.appearAlpha;
 
-    // Base dorada traslúcida
-    const baseGrad = ctx.createRadialGradient(this.baseX, this.baseY, r * 0.2, this.baseX, this.baseY, r * 1.15);
-    baseGrad.addColorStop(0, "rgba(255, 215, 0, 0.10)");
-    baseGrad.addColorStop(0.75, "rgba(255, 193, 7, 0.22)");
-    baseGrad.addColorStop(1, "rgba(255, 152, 0, 0.0)");
-    ctx.fillStyle = baseGrad;
-    ctx.beginPath();
-    ctx.arc(this.baseX, this.baseY, r * 1.15, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.strokeStyle = "rgba(255, 215, 0, 0.55)";
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.arc(this.baseX, this.baseY, r, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Marcas festivas (4 puntos cardinales)
-    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
-    for (let i = 0; i < 4; i++) {
-      const ang = (i * Math.PI) / 2;
-      ctx.beginPath();
-      ctx.arc(this.baseX + Math.cos(ang) * r * 0.82, this.baseY + Math.sin(ang) * r * 0.82, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Knob rojo/dorado con brillo
-    const kr = r * 0.46;
-    const knobGrad = ctx.createRadialGradient(this.knobX - kr * 0.35, this.knobY - kr * 0.35, kr * 0.1, this.knobX, this.knobY, kr);
-    knobGrad.addColorStop(0, "rgba(255, 138, 128, 0.95)");
-    knobGrad.addColorStop(0.6, "rgba(229, 57, 53, 0.9)");
-    knobGrad.addColorStop(1, "rgba(183, 28, 28, 0.9)");
-    ctx.shadowColor = "rgba(255, 215, 0, 0.8)";
-    ctx.shadowBlur = 16;
-    ctx.fillStyle = knobGrad;
-    ctx.beginPath();
-    ctx.arc(this.knobX, this.knobY, kr, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = "#FFD700";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    // Copo de nieve en el centro del knob
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 3; i++) {
-      const ang = (i * Math.PI) / 3;
-      const cx = Math.cos(ang) * kr * 0.5;
-      const cy = Math.sin(ang) * kr * 0.5;
-      ctx.beginPath();
-      ctx.moveTo(this.knobX - cx, this.knobY - cy);
-      ctx.lineTo(this.knobX + cx, this.knobY + cy);
-      ctx.stroke();
-    }
+    // Copia 1:1 de los sprites offscreen (Cero cálculo de curvas ni gradientes en tiempo real)
+    ctx.drawImage(this.baseCanvas!, this.baseX - this.baseR, this.baseY - this.baseR);
+    ctx.drawImage(this.knobCanvas!, this.knobX - this.knobR, this.knobY - this.knobR);
 
     ctx.restore();
   }

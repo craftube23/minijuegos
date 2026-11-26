@@ -281,6 +281,8 @@ export class BellSymphonyGame extends BaseGame {
   private cachedSustainHolding: CanvasGradient[] = [];
   private cachedSponsorAura: Map<string, CanvasGradient> = new Map();
   private cachedSponsorTail: Map<string, CanvasGradient> = new Map();
+  private cachedLeadInGrad: CanvasGradient | null = null;
+  private cachedLeadInKey: string = "";
 
   // Intro de Créditos Guitar Hero
   private songIntroTimer: number = 0;
@@ -1865,11 +1867,16 @@ export class BellSymphonyGame extends BaseGame {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
-      // Resplandor cálido
-      const radGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, 180);
-      radGrad.addColorStop(0, "rgba(255, 215, 0, 0.22)");
-      radGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = radGrad;
+      // Resplandor cálido (Caché zero-alloc)
+      const leadKey = `${cx}_${cy}`;
+      if (!this.cachedLeadInGrad || this.cachedLeadInKey !== leadKey) {
+        const radGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, 180);
+        radGrad.addColorStop(0, "rgba(255, 215, 0, 0.22)");
+        radGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        this.cachedLeadInGrad = radGrad;
+        this.cachedLeadInKey = leadKey;
+      }
+      ctx.fillStyle = this.cachedLeadInGrad;
       ctx.fillRect(cx - 200, cy - 100, 400, 200);
 
       // Cartel elegante navideño

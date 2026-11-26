@@ -115,6 +115,13 @@ export class WorkshopChaosGame extends BaseGame {
   // Animación de vapor y engranajes de la máquina
   private machineAnimTime: number = 0;
 
+  // Cachés zero-alloc para 60 FPS
+  private cachedVignette: CanvasGradient | null = null;
+  private cachedVignetteW: number = -1;
+  private cachedVignetteH: number = -1;
+  private cachedMachineGrad: CanvasGradient | null = null;
+  private cachedMachineGradH: number = -1;
+
   constructor(
     canvas: HTMLCanvasElement,
     input: InputManager,
@@ -644,18 +651,23 @@ export class WorkshopChaosGame extends BaseGame {
       ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    // Viñeta cálida en los bordes
-    const vignette = ctx.createRadialGradient(
-      this.width * 0.5,
-      this.height * 0.5,
-      this.width * 0.35,
-      this.width * 0.5,
-      this.height * 0.5,
-      this.width * 0.8
-    );
-    vignette.addColorStop(0, "rgba(0, 0, 0, 0)");
-    vignette.addColorStop(1, "rgba(4, 8, 18, 0.65)");
-    ctx.fillStyle = vignette;
+    // Viñeta cálida en los bordes (Caché zero-alloc)
+    if (!this.cachedVignette || this.cachedVignetteW !== this.width || this.cachedVignetteH !== this.height) {
+      const v = ctx.createRadialGradient(
+        this.width * 0.5,
+        this.height * 0.5,
+        this.width * 0.35,
+        this.width * 0.5,
+        this.height * 0.5,
+        this.width * 0.8
+      );
+      v.addColorStop(0, "rgba(0, 0, 0, 0)");
+      v.addColorStop(1, "rgba(4, 8, 18, 0.65)");
+      this.cachedVignette = v;
+      this.cachedVignetteW = this.width;
+      this.cachedVignetteH = this.height;
+    }
+    ctx.fillStyle = this.cachedVignette;
     ctx.fillRect(0, 0, this.width, this.height);
 
     // Letreros festivos colgantes de patrocinadores en la pared superior
@@ -947,12 +959,16 @@ export class WorkshopChaosGame extends BaseGame {
     ctx.fillRect(0, machineY - 6, this.width, 6);
     ctx.restore();
 
-    // 1. Cuerpo principal de madera rústica y latón
-    const grad = ctx.createLinearGradient(0, machineY, 0, this.height);
-    grad.addColorStop(0, "#4A2810");
-    grad.addColorStop(0.3, "#2C1708");
-    grad.addColorStop(1, "#150A04");
-    ctx.fillStyle = grad;
+    // 1. Cuerpo principal de madera rústica y latón (Caché zero-alloc)
+    if (!this.cachedMachineGrad || this.cachedMachineGradH !== this.height) {
+      const grad = ctx.createLinearGradient(0, machineY, 0, this.height);
+      grad.addColorStop(0, "#4A2810");
+      grad.addColorStop(0.3, "#2C1708");
+      grad.addColorStop(1, "#150A04");
+      this.cachedMachineGrad = grad;
+      this.cachedMachineGradH = this.height;
+    }
+    ctx.fillStyle = this.cachedMachineGrad;
     ctx.fillRect(0, machineY, this.width, machineHeight);
 
     // 2. Ribete superior dorado con remaches

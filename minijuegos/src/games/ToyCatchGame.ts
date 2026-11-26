@@ -357,11 +357,7 @@ export class ToyCatchGame extends BaseGame {
         
         ctx.save();
         // Fondo blanco perlado de alto contraste (para que se distinga 100% sobre la nieve)
-        const bgGrad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
-        bgGrad.addColorStop(0, "#FFFFFF");
-        bgGrad.addColorStop(0.85, "rgba(248, 250, 252, 0.98)");
-        bgGrad.addColorStop(1, sponsor.themeColor + "99");
-        ctx.fillStyle = bgGrad;
+        ctx.fillStyle = "#FFFFFF";
         ctx.beginPath();
         ctx.arc(0, 0, radius, 0, Math.PI * 2);
         ctx.fill();
@@ -413,12 +409,8 @@ export class ToyCatchGame extends BaseGame {
       const themeColor = this.activeLogo.themeColor || "#FFD700";
 
       ctx.save();
-      // Capa 1: Resplandor radial exterior temático
-      const auraGrad = ctx.createRadialGradient(0, 0, auraRadius * 0.35, 0, 0, auraRadius);
-      auraGrad.addColorStop(0, themeColor + "A6");
-      auraGrad.addColorStop(0.65, themeColor + "4D");
-      auraGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = auraGrad;
+      // Capa 1: Resplandor translúcido exterior temático (Zero-alloc)
+      ctx.fillStyle = themeColor + "33";
       ctx.beginPath();
       ctx.arc(0, 0, auraRadius, 0, Math.PI * 2);
       ctx.fill();
