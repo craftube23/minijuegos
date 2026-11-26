@@ -201,24 +201,6 @@ export class GameStoryCinemaModal {
       playHeroSound: (a) => a.playWindGust()
     });
 
-    // 6. TIRO AL BLANCO NAVIDEÑO (SnowballTargetGame)
-    this.stories.set("snowball-target", {
-      gameId: "snowball-target",
-      gameTitle: "TIRO AL BLANCO NAVIDEÑO",
-      subTag: "¡CASETA DE FERIA DE PUNTERÍA!",
-      headline: "¡AFINA TU PUNTERÍA!",
-      tagline: "¡Apunta con bolas de nieve mágicas a las dianas y regalos!",
-      pageIllustrationBg: "./assets/images/fondo-tiro-al-blanco.webp",
-      heroLayerImg: "./assets/images/icon-tiro-al-blanco.webp",
-      heroLayerScale: 1.2,
-      heroLayerOffsetY: 5,
-      props: [
-        { src: "./assets/images/obstaculo-muneco.webp", className: "prop-target-snowy", xPercent: 44, yPercent: -5, delayOffset: 0.15, scale: 0.85 },
-        { src: "./assets/images/regalo-estilizado-dorado.webp", className: "prop-target-gold", xPercent: -42, yPercent: -22, delayOffset: 0.28, scale: 0.85 }
-      ],
-      playHeroSound: (a) => a.playPaperTear()
-    });
-
     // 7. TAMBORES DEL CASCANUECES (NutcrackerDrumsGame / tree-melody)
     const drumsStory: PopUpStoryData = {
       gameId: "tree-melody",

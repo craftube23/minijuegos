@@ -292,6 +292,12 @@ export class BellSymphonyGame extends BaseGame {
   private lanePressed: boolean[] = [false, false, false, false];
   private activePointerLanes: Map<number, number> = new Map(); // pointerId -> lane
 
+  public override triggerShake(_duration: number = 0, _intensity: number = 0): void {
+    // Desactivado intencionalmente para evitar temblores y tirones de GPU en el kiosco
+    this.shakeTimer = 0;
+    this.shakeIntensity = 0;
+  }
+
   // Métricas, Combo y Vidas (5 Campanas Doradas)
   private combo: number = 0;
   private maxCombo: number = 0;
@@ -1444,36 +1450,7 @@ export class BellSymphonyGame extends BaseGame {
       ctx.restore();
     }
 
-    // Ecualizador de luces que rebota con la música
-    const barW = 9;
-    const gap = 6;
-    const maxBars = Math.min(8, Math.floor((this.laneStartX - 16) / (barW + gap)));
-    const colors = ["#FF4D6D", "#FFD700", "#00E676", "#00E5FF"];
-    for (let i = 0; i < maxBars; i++) {
-      const energy = 0.35 + 0.65 * Math.abs(Math.sin(this.currentTime * (3.2 + i * 0.7) + i * 1.3));
-      const bh = (24 + 120 * energy) * (0.55 + 0.45 * inv) * (hot ? 1.35 : 1);
-      const c = colors[i % 4];
-      const offset = 10 + i * (barW + gap);
-      ctx.globalAlpha = 0.55;
-      ctx.fillStyle = c;
-      ctx.beginPath();
-      ctx.roundRect(this.laneStartX - offset - barW, h - bh, barW, bh, 4);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.roundRect(this.laneStartX + totalW + offset, h - bh, barW, bh, 4);
-      ctx.fill();
-    }
-
-    // Brasas / luces de feria flotando
-    for (const m of this.ambientMotes) {
-      const tw = 0.45 + 0.55 * Math.abs(Math.sin(m.phase));
-      ctx.globalAlpha = 0.5 * tw;
-      ctx.fillStyle = m.hue < 0.5 ? "#FFE082" : (m.hue < 0.8 ? "#FFFFFF" : "#FF8A80");
-      ctx.beginPath();
-      ctx.arc(m.x + Math.sin(m.phase) * 8, m.y, m.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
+    // Fondo limpio y estático sin ecualizadores oscilantes ni temblores
     ctx.restore();
   }
 
@@ -1688,7 +1665,7 @@ export class BellSymphonyGame extends BaseGame {
       j.time -= dt;
       j.y -= dt * 45;
       j.alpha = Math.max(0, j.time / 0.65);
-      j.scale = 1.0 + Math.sin(j.time * 6) * 0.15;
+      j.scale = 1.0;
       if (j.time <= 0) {
         this.activeJudgements.splice(i, 1);
       }
@@ -1808,7 +1785,7 @@ export class BellSymphonyGame extends BaseGame {
         ? Math.min(this.laneWidth * 0.28, 26)
         : Math.min(this.laneWidth * 0.38, 38 * Math.max(1, this.laneWidth / 155));
       const isPressed = this.lanePressed[i];
-      const scale = isPressed ? 0.90 : (1.0 + Math.sin(this.beatPulse * Math.PI) * 0.05);
+      const scale = isPressed ? 0.90 : 1.0;
 
       ctx.save();
       ctx.translate(cx, cy);

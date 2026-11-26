@@ -35,7 +35,6 @@ import { FlyingElfStoryTutorialModal } from "./components/FlyingElfStoryTutorial
 import { MagicPairsStoryTutorialModal } from "./components/MagicPairsStoryTutorialModal";
 import { SantaHillsStoryTutorialModal } from "./components/SantaHillsStoryTutorialModal";
 import { NutcrackerDrumsStoryTutorialModal } from "./components/NutcrackerDrumsStoryTutorialModal";
-import { SnowballTargetStoryTutorialModal } from "./components/SnowballTargetStoryTutorialModal";
 import { OrnamentPopStoryTutorialModal } from "./components/OrnamentPopStoryTutorialModal";
 import { UniversalStoryTutorialModal } from "./components/UniversalStoryTutorialModal";
 
@@ -69,7 +68,6 @@ class KioskApp {
   public pairsTutorialModal: MagicPairsStoryTutorialModal;
   public hillsTutorialModal: SantaHillsStoryTutorialModal;
   public drumsTutorialModal: NutcrackerDrumsStoryTutorialModal;
-  public targetTutorialModal: SnowballTargetStoryTutorialModal;
   public ornamentTutorialModal: OrnamentPopStoryTutorialModal;
   public universalTutorialModal: UniversalStoryTutorialModal;
 
@@ -139,7 +137,6 @@ class KioskApp {
     this.pairsTutorialModal = new MagicPairsStoryTutorialModal("magic-pairs-tutorial-modal", this.audio);
     this.hillsTutorialModal = new SantaHillsStoryTutorialModal("santa-hills-tutorial-modal", this.audio);
     this.drumsTutorialModal = new NutcrackerDrumsStoryTutorialModal("nutcracker-drums-tutorial-modal", this.audio);
-    this.targetTutorialModal = new SnowballTargetStoryTutorialModal("snowball-target-tutorial-modal", this.audio);
     this.ornamentTutorialModal = new OrnamentPopStoryTutorialModal("ornament-pop-tutorial-modal", this.audio);
     this.universalTutorialModal = new UniversalStoryTutorialModal("universal-story-tutorial-modal", this.audio);
 
@@ -302,7 +299,6 @@ class KioskApp {
     this.gameLoaders.set("flying-elf", async () => new (await import("./games/FlyingElfGame")).FlyingElfGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("magic-pairs", async () => new (await import("./games/MagicPairsGame")).MagicPairsGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("santa-hills", async () => new (await import("./games/SantaHillsGame")).SantaHillsGame(this.canvas, this.input, this.audio, this.particles));
-    this.gameLoaders.set("snowball-target", async () => new (await import("./games/SnowballTargetGame")).SnowballTargetGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("ornament-pop", async () => new (await import("./games/OrnamentPopGame")).OrnamentPopGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("toy-match", async () => new (await import("./games/ToyMatchGame")).ToyMatchGame(this.canvas, this.input, this.audio, this.particles));
     this.gameLoaders.set("santa-ski", async () => new (await import("./games/SantaSkiGame")).SantaSkiGame(this.canvas, this.input, this.audio, this.particles));
@@ -509,19 +505,6 @@ class KioskApp {
       }
     };
 
-    // Callbacks del Tutorial Animado de Tiro al Blanco Navideño
-    this.targetTutorialModal.onPlayGame = () => {
-      this.isTransitioning = true;
-      this.audio.stopMenuBGM();
-      this.launchGameWithCountdown("snowball-target");
-    };
-
-    this.targetTutorialModal.onClose = () => {
-      if (this.appState === "menu") {
-        this.instructionsModal.show("snowball-target");
-      }
-    };
-
     // Callbacks del Tutorial Animado de ¡Burbujas de Adornos!
     this.ornamentTutorialModal.onPlayGame = () => {
       this.isTransitioning = true;
@@ -585,8 +568,6 @@ class KioskApp {
         this.hillsTutorialModal.show(0);
       } else if (gameId === "tree-melody") {
         this.drumsTutorialModal.show(0);
-      } else if (gameId === "snowball-target") {
-        this.targetTutorialModal.show(0);
       } else if (gameId === "ornament-pop") {
         this.ornamentTutorialModal.show(0);
       } else {
@@ -725,7 +706,6 @@ class KioskApp {
       "flying-elf": { title: "El Vuelo Mágico del Elfo", icon: getIconSvg("wing", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
       "magic-pairs": { title: "Parejas de Juguetes", icon: getIconSvg("cards", { size: 36, color: "#D500F9" }), themeColor: "#D500F9" },
       "santa-hills": { title: "El Descenso de Santa", icon: getIconSvg("gift", { size: 36, color: "#FF2A4D" }), themeColor: "#FF2A4D" },
-      "snowball-target": { title: "Tiro al Blanco Navideño", icon: getIconSvg("target", { size: 36, color: "#00E676" }), themeColor: "#00E676" },
       "magic-jump": { title: "¡Salto Mágico Navideño!", icon: getIconSvg("sparkles", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" },
       "ornament-pop": { title: "¡Burbujas de Adornos!", icon: getIconSvg("star", { size: 36, color: "#00E5FF" }), themeColor: "#00E5FF" },
       "toy-match": { title: "¡Juguetería Mágica!", icon: getIconSvg("sparkles", { size: 36, color: "#FFD700" }), themeColor: "#FFD700" },
@@ -751,7 +731,6 @@ class KioskApp {
     this.pairsTutorialModal.hide();
     this.hillsTutorialModal.hide();
     this.drumsTutorialModal.hide();
-    this.targetTutorialModal.hide();
     this.ornamentTutorialModal.hide();
     this.universalTutorialModal.hide();
   }
@@ -775,8 +754,6 @@ class KioskApp {
       this.hillsTutorialModal.show(0);
     } else if (gameId === "tree-melody") {
       this.drumsTutorialModal.show(0);
-    } else if (gameId === "snowball-target") {
-      this.targetTutorialModal.show(0);
     } else if (gameId === "ornament-pop") {
       this.ornamentTutorialModal.show(0);
     } else {

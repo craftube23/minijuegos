@@ -325,16 +325,16 @@ export class OrnamentPopGame extends BaseGame {
         return;
       }
       const dist = Math.hypot(x - ptr.lastX, y - ptr.lastY);
-      // Prevenir bug láser multitáctil: solo cortar dentro del rango de swipe continuo (4px a 130px)
-      if (dist >= 4 && dist <= 130) {
+      // Estela de corte continuo con amplio rango para gestos rápidos en panel de 55"
+      if (dist >= 4 && dist <= 380) {
         this.checkSegmentCuts(ptr.lastX, ptr.lastY, x, y);
         ptr.lastX = x;
         ptr.lastY = y;
         this.bladePoints.push({ x, y, age: 0, pointerId: id });
-        if (this.bladePoints.length > 32) {
+        if (this.bladePoints.length > 95) {
           this.bladePoints.shift();
         }
-      } else if (dist > 130) {
+      } else if (dist > 380) {
         // Salto brusco / multitouch cross-read: reposicionar sin cortar toda la pantalla
         ptr.lastX = x;
         ptr.lastY = y;
@@ -366,7 +366,8 @@ export class OrnamentPopGame extends BaseGame {
   }
 
   private getTargetRadius(kind: TargetKind): number {
-    const base = Math.max(42, Math.min(60, Math.min(this.width, this.height) * 0.068));
+    // Objetos y regalos mucho más grandes (150px - 260px) para la pantalla gigante de 55"
+    const base = Math.max(75, Math.min(115, Math.min(this.width, this.height) * 0.10));
     if (kind === "pinataBoss") return base * 1.48;
     if (kind === "frostGoblin") return base * 1.35;
     if (kind === "frozenGift") return base * 1.18;
@@ -1063,7 +1064,7 @@ export class OrnamentPopGame extends BaseGame {
 
     for (let i = this.bladePoints.length - 1; i >= 0; i--) {
       this.bladePoints[i].age += safeDt;
-      if (this.bladePoints[i].age > 0.13) {
+      if (this.bladePoints[i].age > 0.38) {
         this.bladePoints.splice(i, 1);
       }
     }
@@ -1771,23 +1772,23 @@ export class OrnamentPopGame extends BaseGame {
     for (let i = 1; i < this.bladePoints.length; i++) {
       const p0 = this.bladePoints[i - 1];
       const p1 = this.bladePoints[i];
-      // Evitar unir trazos de dedos distintos o distancias mayores a 130px
+      // Evitar unir trazos de dedos distintos o distancias mayores a 380px
       if (p0.pointerId !== p1.pointerId) continue;
       const d = Math.hypot(p1.x - p0.x, p1.y - p0.y);
-      if (d > 130) continue;
+      if (d > 380) continue;
 
       const ratio = i / this.bladePoints.length;
-      const alpha = Math.max(0, 1 - p1.age / 0.13) * ratio;
+      const alpha = Math.max(0, 1 - p1.age / 0.38) * Math.pow(ratio, 0.7);
 
       ctx.strokeStyle = this.freezeTimer > 0 ? `rgba(0, 229, 255, ${alpha})` : `rgba(255, 215, 0, ${alpha})`;
-      ctx.lineWidth = Math.max(2, ratio * 14);
+      ctx.lineWidth = Math.max(4, ratio * 24);
       ctx.beginPath();
       ctx.moveTo(p0.x, p0.y);
       ctx.lineTo(p1.x, p1.y);
       ctx.stroke();
 
       ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
-      ctx.lineWidth = Math.max(1, ratio * 6);
+      ctx.lineWidth = Math.max(2, ratio * 10);
       ctx.beginPath();
       ctx.moveTo(p0.x, p0.y);
       ctx.lineTo(p1.x, p1.y);

@@ -107,9 +107,10 @@ export class ToyCatchGame extends BaseGame {
   }
 
   private updateBasketDimensions(): void {
-    this.basketWidth = Math.max(80, Math.min(220, Math.min(this.width * 0.28, this.height * 0.35)));
-    this.basketHeight = this.basketWidth * 0.52;
-    this.basketY = this.height - this.basketHeight * 0.85 - Math.max(8, this.height * 0.015);
+    // Saco recolector más ancho y amplio (38% del ancho de pantalla, hasta 420px) para el panel vertical de 55"
+    this.basketWidth = Math.max(160, Math.min(420, this.width * 0.38));
+    this.basketHeight = this.basketWidth * 0.54;
+    this.basketY = this.height - this.basketHeight * 0.88 - Math.max(14, this.height * 0.02);
   }
 
   public override resize(width: number, height: number): void {
@@ -203,7 +204,8 @@ export class ToyCatchGame extends BaseGame {
     let sponsorId: string | undefined;
     let points = 100;
 
-    const baseSize = Math.max(40, Math.min(95, Math.min(this.width * 0.14, this.height * 0.18)));
+    // Objetos y regalos más grandes y vistosos para visibilidad en pantalla de 55"
+    const baseSize = Math.max(70, Math.min(135, this.width * 0.125));
     let size = baseSize;
 
     if (roll < 0.15) {

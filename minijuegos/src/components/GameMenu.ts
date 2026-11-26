@@ -87,16 +87,6 @@ export class GameMenu {
       gemColor: "#FF2A4D"
     },
     {
-      id: "snowball-target",
-      title: "Tiro al Blanco Navideño",
-      imageSrc: "./assets/images/icon-tiro-al-blanco.webp",
-      frameImageSrc: "./assets/images/marco-juego-verde.webp",
-      themeClass: "theme-forest-green",
-      category: "PUNTERÍA & ARCADE",
-      tagline: "¡Apunta con bolas de nieve a las dianas y regalos!",
-      gemColor: "#00E676"
-    },
-    {
       id: "ornament-pop",
       title: "¡Ninja Corta-Regalos!",
       imageSrc: "./assets/images/icon-ninja-regalos.webp",

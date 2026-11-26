@@ -210,15 +210,17 @@ export class MagicPairsGame extends BaseGame {
       { key: "imebu_logo", name: "IMEBU", isSpecial: true }
     ];
 
-    // Número de parejas según el nivel
+    // Progresión dinámica de parejas por nivel (2x2, 3x2, 4x2, 3x4, 4x4)
     if (this.level === 1) {
       this.totalPairs = 2; // 4 cartas (2x2)
     } else if (this.level === 2) {
-      this.totalPairs = 3; // 6 cartas (2x3)
+      this.totalPairs = 3; // 6 cartas (3x2 - crece a lo ancho)
     } else if (this.level === 3) {
-      this.totalPairs = 4; // 8 cartas (2x4)
-    } else {
+      this.totalPairs = 4; // 8 cartas (4x2 / 2x4)
+    } else if (this.level === 4) {
       this.totalPairs = 6; // 12 cartas (3x4)
+    } else {
+      this.totalPairs = 8; // 16 cartas (4x4 completo)
     }
 
     // Separar juguetes clásicos y patrocinadores para garantizar presencia de marcas
@@ -294,7 +296,6 @@ export class MagicPairsGame extends BaseGame {
     if (this.cards.length === 0) return;
 
     const aspectRatio = this.width / Math.max(1, this.height);
-    const isPortrait = aspectRatio < 0.95;
     const isLandscape = aspectRatio > 1.25;
     let cols = 2;
     let rows = 2;
@@ -303,26 +304,22 @@ export class MagicPairsGame extends BaseGame {
       cols = 2;
       rows = 2;
     } else if (this.cards.length === 6) {
-      cols = isPortrait ? 2 : 3;
-      rows = isPortrait ? 3 : 2;
+      // 3 columnas de ancho x 2 filas para aprovechar todo el ancho del panel vertical
+      cols = 3;
+      rows = 2;
     } else if (this.cards.length === 8) {
-      cols = isPortrait ? 2 : 4;
-      rows = isPortrait ? 4 : 2;
+      cols = isLandscape ? 4 : 4;
+      rows = 2;
+    } else if (this.cards.length === 12) {
+      cols = isLandscape ? 4 : 3;
+      rows = isLandscape ? 3 : 4;
+    } else if (this.cards.length === 16) {
+      // Cuadrícula 4x4 completa
+      cols = 4;
+      rows = 4;
     } else {
-      // 12 cartas
-      if (aspectRatio > 1.6) {
-        cols = 6;
-        rows = 2;
-      } else if (isLandscape) {
-        cols = 4;
-        rows = 3;
-      } else if (aspectRatio < 0.65) {
-        cols = 2;
-        rows = 6;
-      } else {
-        cols = 3;
-        rows = 4;
-      }
+      cols = isLandscape ? 4 : 3;
+      rows = Math.ceil(this.cards.length / cols);
     }
 
     const header = this.getHeaderLayout();
