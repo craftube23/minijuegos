@@ -40,6 +40,10 @@ public class MainActivity extends BridgeActivity {
         });
 
         // Optimización directa del WebView para GPU Mali-G52 y 2GB de RAM:
+        applyWebViewSettings();
+    }
+
+    private void applyWebViewSettings() {
         WebView webView = getBridge() != null ? getBridge().getWebView() : null;
         if (webView != null) {
             webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
@@ -50,6 +54,12 @@ public class MainActivity extends BridgeActivity {
             settings.setDatabaseEnabled(true);
             settings.setMediaPlaybackRequiresUserGesture(false);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        applyWebViewSettings();
     }
 
     @Override

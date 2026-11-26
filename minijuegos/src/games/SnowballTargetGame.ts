@@ -31,8 +31,6 @@ import { InputManager } from "../core/InputManager";
 import { AudioManager } from "../core/AudioManager";
 import { ParticleSystem } from "../core/ParticleSystem";
 import { BRANDING, type LogoConfig } from "../config/branding";
-import { LayerCache, drawGlow } from "../core/RenderCache";
-import { AssetCache } from "../core/AssetCache";
 
 export type TargetType =
   | "bullseye"        // Diana concéntrica clásica (+200)
@@ -1283,8 +1281,7 @@ export class SnowballTargetGame extends BaseGame {
 
     // 1. Fondo de Caseta
     if (this.bgCarnivalImage && this.bgCarnivalImage.complete && this.bgCarnivalImage.naturalWidth > 0) {
-      const bg = AssetCache.getInstance().getScaled(this.bgCarnivalImage, this.canvas.width, this.canvas.height);
-      ctx.drawImage(bg, 0, 0, w, h);
+      ctx.drawImage(this.bgCarnivalImage, 0, 0, w, h);
     } else {
       const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
       bgGrad.addColorStop(0, "#1A0E08");
@@ -1440,28 +1437,22 @@ export class SnowballTargetGame extends BaseGame {
       const colorIdx = Math.floor((i + this.feverMarqueeOffset * 0.12) % marqueeColors.length);
       const color = marqueeColors[Math.abs(colorIdx)];
 
-      drawGlow(ctx, bx, by, 22, 2 / 22, [[0, color], [1, "rgba(0, 0, 0, 0)"]]);
+      const glow = ctx.createRadialGradient(bx, by, 2, bx, by, 22);
+      glow.addColorStop(0, color);
+      glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(bx, by, 22, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     ctx.restore();
   }
 
-  private readonly garlandLayer = new LayerCache();
-
   private drawBackgroundSponsorBanner(ctx: CanvasRenderingContext2D): void {
-    const w = this.width;
-    const h = this.height;
-
     const sponsors = BRANDING.getAllSponsors();
-    const count = sponsors.length;
-    if (count === 0) return;
-
-    const r = Math.min(24, Math.max(16, w * 0.024));
-    const loaded = sponsors.filter((sp) => this.getSponsorImage(sp.id)?.complete).length;
-    const key = `${w}|${h}|${this.activeLogo?.id}|${loaded}`;
-    this.garlandLayer.draw(ctx, key, 0, h * 0.285 - r * 2, w, h * 0.038 + r * 5, (layer) =>
-      this.paintSponsorGarland(layer, sponsors)
-    );
+    if (sponsors.length === 0) return;
+    this.paintSponsorGarland(ctx, sponsors);
   }
 
   private paintSponsorGarland(ctx: CanvasRenderingContext2D, sponsors: ReturnType<typeof BRANDING.getAllSponsors>): void {
@@ -1713,7 +1704,13 @@ export class SnowballTargetGame extends BaseGame {
     const pulse = Math.sin(target.bobPhase) * 3;
 
     // Resplandor dorado
-    drawGlow(ctx, 0, pulse, size * 0.8, 0.2 / 0.8, [[0, "rgba(255, 215, 0, 0.55)"], [1, "rgba(0, 0, 0, 0)"]]);
+    const glow = ctx.createRadialGradient(0, pulse, size * 0.2, 0, pulse, size * 0.8);
+    glow.addColorStop(0, "rgba(255, 215, 0, 0.55)");
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(0, pulse, size * 0.8, 0, Math.PI * 2);
+    ctx.fill();
 
     if (this.spritePinata && this.spritePinata.complete && this.spritePinata.naturalWidth > 0) {
       ctx.drawImage(this.spritePinata, -size / 2, -size / 2 + pulse, size, size);
@@ -1735,7 +1732,13 @@ export class SnowballTargetGame extends BaseGame {
     const size = target.width * 1.05;
     const bob = Math.sin(target.bobPhase) * 4;
 
-    drawGlow(ctx, 0, bob, size * 0.75, 0.2 / 0.75, [[0, "rgba(0, 230, 118, 0.5)"], [1, "rgba(0, 0, 0, 0)"]]);
+    const glow = ctx.createRadialGradient(0, bob, size * 0.2, 0, bob, size * 0.75);
+    glow.addColorStop(0, "rgba(0, 230, 118, 0.5)");
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(0, bob, size * 0.75, 0, Math.PI * 2);
+    ctx.fill();
 
     if (this.spriteClock && this.spriteClock.complete && this.spriteClock.naturalWidth > 0) {
       ctx.drawImage(this.spriteClock, -size / 2, -size / 2 + bob, size, size);
@@ -1797,7 +1800,13 @@ export class SnowballTargetGame extends BaseGame {
 
   private drawIceGoblinTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
     const size = target.width * 1.15;
-    drawGlow(ctx, 0, 0, size * 0.75, 0.2 / 0.75, [[0, "rgba(0, 229, 255, 0.45)"], [1, "rgba(0, 0, 0, 0)"]]);
+    const glow = ctx.createRadialGradient(0, 0, size * 0.2, 0, 0, size * 0.75);
+    glow.addColorStop(0, "rgba(0, 229, 255, 0.45)");
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 0.75, 0, Math.PI * 2);
+    ctx.fill();
 
     if (this.spriteDuendeHielo && this.spriteDuendeHielo.complete && this.spriteDuendeHielo.naturalWidth > 0) {
       ctx.drawImage(this.spriteDuendeHielo, -size / 2, -size / 2, size, size);
@@ -1904,7 +1913,13 @@ export class SnowballTargetGame extends BaseGame {
 
   private drawIceSpikeTarget(ctx: CanvasRenderingContext2D, target: GalleryTarget): void {
     const size = target.width;
-    drawGlow(ctx, 0, 0, size * 0.8, 0.2 / 0.8, [[0, "rgba(0, 229, 255, 0.6)"], [1, "rgba(0, 0, 0, 0)"]]);
+    const halo = ctx.createRadialGradient(0, 0, size * 0.2, 0, 0, size * 0.8);
+    halo.addColorStop(0, "rgba(0, 229, 255, 0.6)");
+    halo.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 0.8, 0, Math.PI * 2);
+    ctx.fill();
 
     if (this.spriteIceSpike && this.spriteIceSpike.complete && this.spriteIceSpike.naturalWidth > 0) {
       ctx.drawImage(this.spriteIceSpike, -size / 2, -size / 2, size, size);
@@ -1927,7 +1942,13 @@ export class SnowballTargetGame extends BaseGame {
 
       // Aura especial o ráfaga Gatling
       if (ball.isSpecial || ball.isFever || ball.isGatling) {
-        drawGlow(ctx, ball.currentX, ball.currentY, radius * 2.4, 0.3 / 2.4, [[0, ball.themeColor], [1, "rgba(255, 255, 255, 0)"]]);
+        const glow = ctx.createRadialGradient(ball.currentX, ball.currentY, radius * 0.3, ball.currentX, ball.currentY, radius * 2.4);
+        glow.addColorStop(0, ball.themeColor);
+        glow.addColorStop(1, "rgba(255, 255, 255, 0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(ball.currentX, ball.currentY, radius * 2.4, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       // Bola de nieve 3D o Cohete Mortero

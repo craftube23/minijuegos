@@ -66,7 +66,6 @@ import {
   sanitizeChartNotes,
   type SongDef
 } from "../data/songs";
-import { LayerCache, drawGlow } from "../core/RenderCache";
 
 export { type SongDef };
 
@@ -260,7 +259,6 @@ export class BellSymphonyGame extends BaseGame {
   private laneWidth: number = 0;
   private laneTintGrads: CanvasGradient[] = [];
   // Ventana de notas activas [noteStartIdx, noteEndIdx): solo se actualizan/dibujan las que están en pantalla
-  private readonly bgLayer = new LayerCache();
   private noteStartIdx: number = 0;
   private noteEndIdx: number = 0;
   private laneTintKeys: string[] = [];
@@ -273,6 +271,7 @@ export class BellSymphonyGame extends BaseGame {
   private cachedFeverGlow: CanvasGradient | null = null;
   private cachedStarGlow: CanvasGradient | null = null;
   private cachedStarGlowSponsorId: string = "";
+  private cachedAmbientBurst: CanvasGradient | null = null;
   private cachedAmbientBeamLeft: CanvasGradient | null = null;
   private cachedAmbientBeamRight: CanvasGradient | null = null;
   private cachedNoteAura: CanvasGradient[] = [];
@@ -431,6 +430,12 @@ export class BellSymphonyGame extends BaseGame {
     this.cachedFeverGlow = fg;
 
     // 5. Destello ambiental central y haces laterales
+    const cx = this.laneStartX + totalW / 2;
+    const burst = ctx.createRadialGradient(cx, this.height * 0.55, 20, cx, this.height * 0.55, Math.max(this.width, this.height) * 0.7);
+    burst.addColorStop(0, "rgba(255, 200, 90, 0.25)");
+    burst.addColorStop(1, "rgba(0, 0, 0, 0)");
+    this.cachedAmbientBurst = burst;
+
     const beamW = Math.min(180, this.width * 0.14);
     const bLeft = ctx.createLinearGradient(this.laneStartX, 0, this.laneStartX - beamW, 0);
     bLeft.addColorStop(0, "rgba(255, 200, 90, 0.25)");
@@ -1418,14 +1423,13 @@ export class BellSymphonyGame extends BaseGame {
     ctx.save();
 
     // Destello al compás desde el centro de la pista (Zero-alloc con caché)
-    ctx.save();
-    ctx.globalAlpha = Math.min(1.0, (flash + 0.04) * (hot ? 1.6 : 1.0));
-    const burstR = Math.max(w, h) * 0.7;
-    drawGlow(ctx, this.laneStartX + totalW / 2, h * 0.55, burstR, 20 / burstR, [
-      [0, "rgba(255, 200, 90, 0.25)"],
-      [1, "rgba(0, 0, 0, 0)"]
-    ]);
-    ctx.restore();
+    if (this.cachedAmbientBurst) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1.0, (flash + 0.04) * (hot ? 1.6 : 1.0));
+      ctx.fillStyle = this.cachedAmbientBurst;
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+    }
 
     // Haces de luz a los costados de la pista (Zero-alloc con caché)
     const beamAlpha = 0.07 + 0.10 * inv;
@@ -1704,17 +1708,14 @@ export class BellSymphonyGame extends BaseGame {
   }
 
   protected onDraw(ctx: CanvasRenderingContext2D): void {
-    // Fondo + foto + velo oscuro compuestos una sola vez (antes: 3 pasadas a pantalla completa)
-    const bgReady = !!this.bgImage && this.bgImage.complete && this.bgImage.naturalWidth > 0;
-    this.bgLayer.draw(ctx, `${this.width}|${this.height}|${bgReady}`, 0, 0, this.width, this.height, (layer) => {
-      layer.fillStyle = "#060F1E";
-      layer.fillRect(0, 0, this.width, this.height);
-      if (bgReady) {
-        layer.drawImage(this.bgImage!, 0, 0, this.width, this.height);
-        layer.fillStyle = "rgba(4, 12, 24, 0.85)";
-        layer.fillRect(0, 0, this.width, this.height);
-      }
-    });
+    ctx.fillStyle = "#060F1E";
+    ctx.fillRect(0, 0, this.width, this.height);
+
+    if (this.bgImage && this.bgImage.complete && this.bgImage.naturalWidth > 0) {
+      ctx.drawImage(this.bgImage, 0, 0, this.width, this.height);
+      ctx.fillStyle = "rgba(4, 12, 24, 0.85)";
+      ctx.fillRect(0, 0, this.width, this.height);
+    }
 
     if (this.gameState === "song-select") {
       this.drawSongSelector(ctx);

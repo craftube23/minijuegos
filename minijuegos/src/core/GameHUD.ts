@@ -13,7 +13,6 @@
  */
 
 import type { LogoConfig } from "../config/branding";
-import { LayerCache } from "./RenderCache";
 
 export interface HUDState {
   gameId: string;
@@ -76,21 +75,9 @@ export class GameHUD {
     ctx.restore();
   }
 
-  private static layer = new LayerCache();
-
-  /** La barra solo se repinta cuando cambia algún dato visible (≈1 vez por segundo). */
+  /** Renderizado directo de alto rendimiento para GPU Mali-G52 (Cero offscreen FBO) */
   public static draw(ctx: CanvasRenderingContext2D, state: HUDState): void {
-    const t = state.timeRemaining;
-    const power = state.isLogoPowerUpActive && state.activeLogo
-      ? `${state.activeLogo.id}:${Math.ceil(state.logoPowerUpTimer)}`
-      : "";
-    const key = [
-      state.gameId, state.width, state.height, state.score, state.highScore,
-      t >= 60 ? Math.floor(t) : Math.ceil(t), t < 10, t <= 3600,
-      state.lives, state.maxLives, state.showLives, state.showTimer, power
-    ].join("|");
-    // 100px cubre la barra (máx. 62) más el aviso de bonus (máx. 32)
-    this.layer.draw(ctx, key, 0, 0, state.width, Math.min(100, state.height), (layer) => this.paint(layer, state));
+    this.paint(ctx, state);
   }
 
   private static paint(ctx: CanvasRenderingContext2D, state: HUDState): void {

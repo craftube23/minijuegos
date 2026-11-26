@@ -16,8 +16,6 @@
  *   espacio para que nunca se encimen.
  */
 
-import { AssetCache } from "../core/AssetCache";
-import { getRenderScale } from "../core/Viewport";
 import { BaseGame } from "../core/BaseGame";
 import { InputManager } from "../core/InputManager";
 import { AudioManager } from "../core/AudioManager";
@@ -1120,17 +1118,15 @@ export class SantaHillsGame extends BaseGame {
       const period = w * 2;
       let x = -((this.worldDistance * this.S * 0.06) % period);
       let flip = false;
-      const rs = getRenderScale(this.width, this.height);
-      const tile = AssetCache.getInstance().getScaled(img, (w + 1) * rs, h * rs);
       while (x < this.width) {
         if (flip) {
           ctx.save();
           ctx.translate(x + w, 0);
           ctx.scale(-1, 1);
-          ctx.drawImage(tile, 0, 0, w + 1, h);
+          ctx.drawImage(img, 0, 0, w + 1, h);
           ctx.restore();
         } else {
-          ctx.drawImage(tile, x, 0, w + 1, h);
+          ctx.drawImage(img, x, 0, w + 1, h);
         }
         x += w;
         flip = !flip;

@@ -16,7 +16,6 @@ import { InputManager } from "../core/InputManager";
 import { AudioManager } from "../core/AudioManager";
 import { ParticleSystem } from "../core/ParticleSystem";
 import { BRANDING } from "../config/branding";
-import { AssetCache } from "../core/AssetCache";
 
 interface MemoryCard {
   id: number;
@@ -486,7 +485,7 @@ export class MagicPairsGame extends BaseGame {
   private renderBackground(ctx: CanvasRenderingContext2D): void {
     if (this.bgImage && this.bgImage.complete && this.bgImage.naturalWidth > 0) {
       // Dibujar fondo de habitación navideña acogedora
-      ctx.drawImage(AssetCache.getInstance().getScaled(this.bgImage, this.canvas.width, this.canvas.height), 0, 0, this.width, this.height);
+      ctx.drawImage(this.bgImage, 0, 0, this.width, this.height);
       // Viñeta festiva para enfocar la atención en el tablero de cartas
       const vignette = ctx.createRadialGradient(
         this.width / 2, this.height * 0.5, 50,

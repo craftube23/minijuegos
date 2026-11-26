@@ -2858,6 +2858,21 @@ html, body {
   object-fit: cover !important;
   object-position: center !important;
   pointer-events: none;
+  background: #000000 !important;
+}
+
+/* Ocultar cualquier botón nativo de play, overlay o control de Chromium / WebView */
+.attract-video-layer video::-webkit-media-controls,
+.attract-video-layer video::-webkit-media-controls-enclosure,
+.attract-video-layer video::-webkit-media-controls-panel,
+.attract-video-layer video::-webkit-media-controls-play-button,
+.attract-video-layer video::-webkit-media-controls-start-playback-button,
+.attract-video-layer video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 .attract-video-hint {

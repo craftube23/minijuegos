@@ -34,7 +34,6 @@ import {
   drawPill,
   drawSponsorMedallion
 } from "./shared/gameDraw";
-import { AssetCache } from "../core/AssetCache";
 
 type BrickKind = "ice" | "crystal" | "gift-red" | "gift-green" | "gift-blue" | "gold" | "sponsor";
 type DropPowerKind = "multiball" | "wide" | "fireball" | "cannon" | "shield";
@@ -1218,7 +1217,7 @@ export class IceBreakerGame extends BaseGame {
     if (imgReady(this.bgImg)) {
       ctx.save();
       ctx.globalAlpha = 0.44;
-      ctx.drawImage(AssetCache.getInstance().getScaled(this.bgImg, this.canvas.width, this.canvas.height), 0, 0, w, h);
+      ctx.drawImage(this.bgImg, 0, 0, w, h);
       ctx.restore();
     }
 
