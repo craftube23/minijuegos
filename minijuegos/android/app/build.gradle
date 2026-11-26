@@ -79,12 +79,12 @@ try {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
 
-// Copia automática del APK a Descargas / D:\Download tras cada compilación assembleDebug
+// Copia automática y segura del APK a Descargas / D:\Download tras cada compilación assembleDebug
 tasks.register('copyApkToDownload') {
     doLast {
         def srcApk = file("${layout.buildDirectory.get().asFile}/outputs/apk/debug/app-debug.apk")
         if (srcApk.exists()) {
-            // 1. Intento en D:\Download si la unidad D: está disponible
+            // 1. Intento seguro en D:\Download si la unidad D: está disponible
             try {
                 def dDrive = file("D:/")
                 if (dDrive.exists()) {
@@ -92,12 +92,17 @@ tasks.register('copyApkToDownload') {
                     if (!destDirD.exists()) {
                         destDirD.mkdirs()
                     }
-                    copy {
-                        from srcApk
-                        into destDirD
+                    def targetD = file("D:/Download/app-debug.apk")
+                    if (targetD.exists()) {
+                        targetD.delete()
                     }
+                    java.nio.file.Files.copy(
+                        srcApk.toPath(),
+                        targetD.toPath(),
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                    )
                     println "\n======================================================="
-                    println ">>> APK COPIADO EXITOSAMENTE A: D:\\Download\\app-debug.apk <<<"
+                    println ">>> APK COPIADO ATÓMICAMENTE A: D:\\Download\\app-debug.apk <<<"
                     println "=======================================================\n"
                 }
             } catch (Exception e) {
@@ -109,12 +114,17 @@ tasks.register('copyApkToDownload') {
                 def userHome = System.getProperty("user.home")
                 def userDownloads = file("${userHome}/Downloads")
                 if (userDownloads.exists()) {
-                    copy {
-                        from srcApk
-                        into userDownloads
+                    def targetC = file("${userHome}/Downloads/app-debug.apk")
+                    if (targetC.exists()) {
+                        targetC.delete()
                     }
+                    java.nio.file.Files.copy(
+                        srcApk.toPath(),
+                        targetC.toPath(),
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                    )
                     println "\n======================================================="
-                    println ">>> APK COPIADO EXITOSAMENTE A: ${userDownloads.absolutePath}\\app-debug.apk <<<"
+                    println ">>> APK COPIADO ATÓMICAMENTE A: ${targetC.absolutePath} <<<"
                     println "=======================================================\n"
                 }
             } catch (Exception e) {
